@@ -21,12 +21,15 @@ def test_database_connection() -> bool:
         return False
 
 def import_models():
+    from mecsa_erp.area_operaciones.core.models import (
+        Proveedor,
+        OrdenCompra,
+        Producto,
+        OrdenCompraDetalle,
+    )
+    
     from mecsa_erp.area_operaciones.modulo0.models import (
-        Proveedor, 
-        OrdenCompra, 
-        Producto, 
-        Hilado, 
-        OrdenCompraDetalle
+        Hilado,
     )
     
     models = [Proveedor, OrdenCompra, Producto, Hilado, OrdenCompraDetalle]
