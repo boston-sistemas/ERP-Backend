@@ -2,6 +2,7 @@ import sys
 
 from sqlmodel import Session
 from database import engine
+import argparse
 
 def test_database_connection() -> bool:
     from sqlalchemy.exc import SQLAlchemyError
@@ -27,6 +28,9 @@ def import_models():
         Hilado, 
         OrdenCompraDetalle
     )
+    
+    models = [Proveedor, OrdenCompra, Producto, Hilado, OrdenCompraDetalle]
+    return models
 
 def create_tables():
     from sqlmodel import SQLModel
@@ -36,18 +40,50 @@ def create_tables():
 def delete_tables():
     from sqlmodel import SQLModel
     import_models()
-    SQLModel.metadata.drop_all(engine) 
+    SQLModel.metadata.drop_all(engine)
+    
+def generate_sql_create_tables():
+    from sqlalchemy.schema import CreateTable
+    from sqlalchemy.dialects import postgresql, oracle 
+    
+    output_file, dialect = args.output, args.dialect
+    dialect_available = {'oracle': oracle, 'postgresql': postgresql}
+    engine_dialect = dialect_available[dialect]
+    
+    model_classes = import_models()
+    create_tables_statement = ""
+    for model_class in model_classes:
+        create_table_statement = CreateTable(model_class.__table__).compile(dialect=engine_dialect.dialect())
+        create_tables_statement += str(create_table_statement) 
+    
+    if output_file:
+        with open(output_file, "w") as file:
+            file.write(create_tables_statement)
+    else:
+        print(create_tables_statement)
+
+def initialize_args():
+    parser = argparse.ArgumentParser(description="Execute utility functions")
+    subparsers = parser.add_subparsers(title='commands', required=True, dest='option')
+    subparsers.add_parser('test', help='Test database connection')
+    subparsers.add_parser('create', help='Create all tables')
+    subparsers.add_parser('delete', help='Delete all tables')
+    
+    parser_generate_sql = subparsers.add_parser('generate_sql', help='Generate SQL create tables')
+    parser_generate_sql.add_argument("-o", "--output", help="Output file name", default='', required=False)
+    parser_generate_sql.add_argument("--dialect", choices=["postgresql", "oracle"], help="SQL dialect", default='postgresql', required=False)
+    
+    global args
+    args = parser.parse_args()
 
 if __name__ == "__main__":
     utils = {
         "test" : test_database_connection,
         "create": create_tables,
         "delete": delete_tables,
+        "generate_sql": generate_sql_create_tables,
         }
     
-    option = sys.argv[1] if len(sys.argv) > 1 else None  
+    initialize_args()
     
-    if (not option) or (option not in utils):
-        sys.exit("specifies a function to execute: " + " | ".join(utils.keys()))
-     
-    utils[option]()
+    utils[args.option]()
