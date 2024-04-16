@@ -1,0 +1,31 @@
+version: '1'
+
+services:
+  mecsa-erp:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/local/Dockerfile
+    image: mecsa-erp-local
+    command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+    volumes:
+      - ./:/usr/src/app
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    depends_on:
+      - mecsa-db
+      
+  mecsa-db:
+    image: postgres
+    volumes:
+      - mecsa-data:/var/lib/postgresql/data
+    environment: 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=MECSA
+    ports:
+      - 5432:5432
+
+volumes:
+  mecsa-data:
