@@ -43,8 +43,14 @@ class OrdenServicioTejeduria(SQLModel, table=True):
     
     orden_servicio_tejeduria_id: str = Field(primary_key=True)
     tejeduria_id: str = Field(sa_column_args=[ForeignKey("proveedor.proveedor_id")])
-    # estado
-    
+    estado_id: int = Field(sa_column_args=[ForeignKey("orden_servicio_tejeduria_estado.id")])
+
+class OrdenServicioTejeduriaEstado(SQLModel, table=True):
+    __tablename__ = "orden_servicio_tejeduria_estado"
+
+    id: int = Field(primary_key=True)
+    estado: str
+
 class MovimientoSalidaHilado(SQLModel, table=True):
     __tablename__ = "movimiento_salida_hilado"
     
@@ -68,3 +74,12 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
     crudo_id: str = Field(primary_key=True, sa_column_args=[ForeignKey("crudo.crudo_id")])
     cantidad_kg: float = Field(sa_type=Numeric)
     es_complemento: bool = Field(sa_type=Boolean)
+    estado_id: int = Field(sa_column_args=[ForeignKey("orden_servicio_tejeduria_detalle_estado.id")])
+    reporte_tejeduria_nro_rollos: int
+    reporte_tejeduria_cantidad_kg: float = Field(sa_type=Numeric)
+
+class OrdenServicioTejeduriaDetalleEstado(SQLModel, table=True):
+    __tablename__ = "orden_servicio_tejeduria_detalle_estado"
+
+    id: int = Field(primary_key=True)
+    estado: str
