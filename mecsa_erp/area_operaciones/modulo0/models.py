@@ -9,6 +9,7 @@ class Hilado(SQLModel, table=True):
     fibra: str
     procedencia: str
     acabado: str
+    proveedor: str = Field(sa_column_args=[ForeignKey("proveedor.proveedor_id")])
     
 class Tejido(SQLModel, table=True):
     __tablename__ = "tejido"
