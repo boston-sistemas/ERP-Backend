@@ -1,5 +1,3 @@
-import sys
-
 from sqlmodel import Session
 from database import engine
 import argparse
@@ -21,19 +19,8 @@ def test_database_connection() -> bool:
         return False
 
 def import_models():
-    from mecsa_erp.area_operaciones.core.models import (
-        Proveedor,
-        OrdenCompra,
-        Producto,
-        OrdenCompraDetalle,
-    )
-    
-    from mecsa_erp.area_operaciones.modulo0.models import (
-        Hilado,
-    )
-    
-    models = [Proveedor, OrdenCompra, Producto, Hilado, OrdenCompraDetalle]
-    return models
+    from mecsa_erp.area_operaciones.core.models import Proveedor
+    from mecsa_erp.area_operaciones.modulo0.models import Hilado
 
 def create_tables():
     from sqlmodel import SQLModel
@@ -48,15 +35,17 @@ def delete_tables():
 def generate_sql_create_tables():
     from sqlalchemy.schema import CreateTable
     from sqlalchemy.dialects import postgresql, oracle 
+    from sqlmodel import SQLModel
     
     output_file, dialect = args.output, args.dialect
     dialect_available = {'oracle': oracle, 'postgresql': postgresql}
-    engine_dialect = dialect_available[dialect]
+    engine_dialect = dialect_available[dialect].dialect()
     
-    model_classes = import_models()
+    import_models()
+
     create_tables_statement = ""
-    for model_class in model_classes:
-        create_table_statement = CreateTable(model_class.__table__).compile(dialect=engine_dialect.dialect())
+    for model_table in SQLModel.metadata.sorted_tables:
+        create_table_statement = CreateTable(model_table).compile(dialect=engine_dialect)
         create_tables_statement += str(create_table_statement) 
     
     if output_file:
