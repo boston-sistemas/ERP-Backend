@@ -11,6 +11,7 @@ class OrdenServicioTejeduriaDetalleReporteLog(SQLModel, table=True):
     proveedor_id: str
     orden_servicio_tejeduria_id: str
     crudo_id: str
+    estado: str
     reporte_tejeduria_nro_rollos: int
     reporte_tejeduria_cantidad_kg: float = Field(sa_type=Numeric)
     timestamp: Optional[datetime] = Field(sa_column=Column(TIMESTAMP, server_default=func.now(), nullable=False))
