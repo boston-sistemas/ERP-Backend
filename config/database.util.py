@@ -34,7 +34,7 @@ def delete_tables():
     SQLModel.metadata.drop_all(engine)
     
 def generate_sql_create_tables():
-    from sqlalchemy.schema import CreateTable
+    from sqlalchemy.schema import CreateTable, CreateIndex
     from sqlalchemy.dialects import postgresql, oracle 
     from sqlmodel import SQLModel
     
@@ -48,6 +48,9 @@ def generate_sql_create_tables():
     for model_table in SQLModel.metadata.sorted_tables:
         create_table_statement = CreateTable(model_table).compile(dialect=engine_dialect)
         create_tables_statement += str(create_table_statement) 
+        for index in model_table.indexes:
+            create_index_statement = CreateIndex(index).compile(dialect=engine_dialect)
+            create_tables_statement += str(create_index_statement) + '\n'
     
     if output_file:
         with open(output_file, "w") as file:
