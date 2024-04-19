@@ -2,6 +2,7 @@ import functions
 import argparse
 from sqlmodel import Session
 from config.database import engine
+from dummy_data import generate_dummy_data
 
 def test_database_connection() -> bool:
     from sqlalchemy.exc import SQLAlchemyError
@@ -65,6 +66,7 @@ def initialize_args():
     subparsers.add_parser('test', help='Test database connection')
     subparsers.add_parser('create', help='Create all tables')
     subparsers.add_parser('delete', help='Delete all tables')
+    subparsers.add_parser('insert_data', help='Insert dummy data')
     
     parser_generate_sql = subparsers.add_parser('generate_sql', help='Generate SQL create tables')
     parser_generate_sql.add_argument("-o", "--output", help="Output file name", default='', required=False)
@@ -80,6 +82,7 @@ if __name__ == "__main__":
         "create": create_tables,
         "delete": delete_tables,
         "generate_sql": generate_sql_create_tables,
+        "insert_data": generate_dummy_data,
         }
     
     initialize_args()
