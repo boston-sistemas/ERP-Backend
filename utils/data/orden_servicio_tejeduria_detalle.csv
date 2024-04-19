@@ -1,0 +1,8 @@
+orden_servicio_tejeduria_id,crudo_id,cantidad_kg,es_complemento,estado,reporte_tejeduria_nro_rollos,reporte_tejeduria_cantidad_kg
+RSA0085,RBV16536,1000,False,EN CURSO,0,0
+RSA0085,JLL14054,1000,False,EN CURSO,0,0
+RSA0085,JLL13590,1009.43,False,EN CURSO,0,0
+TRI1739,RLK24080,1500,False,NO INICIADO,0,0
+TRI1739,JLL13590,465.6,True,NO INICIADO,0,0
+TSI0159,JLK19090,400,False,NO INICIADO,0,0
+TSI0159,JLL13590,982.91,False,NO INICIADO,0,0
