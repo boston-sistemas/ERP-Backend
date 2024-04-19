@@ -1,6 +1,7 @@
-from sqlmodel import Session
-from database import engine
+import functions
 import argparse
+from sqlmodel import Session
+from config.database import engine
 
 def test_database_connection() -> bool:
     from sqlalchemy.exc import SQLAlchemyError
@@ -73,6 +74,7 @@ def initialize_args():
     args = parser.parse_args()
 
 if __name__ == "__main__":
+    
     utils = {
         "test" : test_database_connection,
         "create": create_tables,

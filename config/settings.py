@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class Settings(BaseSettings):
+class ProjectSettings(BaseSettings):
     BASE_DIR : str = str(Path(__file__).resolve().parent.parent) + '/'
     PROJECT_DIR: str = BASE_DIR + 'mecsa_erp/'
     ENV_FILE : str = BASE_DIR + '.env'   
@@ -13,9 +13,11 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "MECSA ERP - API"
     DATABASE_URL : str
     
-    sys.path.append(BASE_DIR)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        sys.path.append(self.BASE_DIR)
 
-settings = Settings()
+settings = ProjectSettings()
 
 if __name__ == "__main__":
     print(settings.model_dump())
