@@ -24,6 +24,7 @@ def import_models():
     from mecsa_erp.area_operaciones.core.models import Proveedor
     from mecsa_erp.area_operaciones.modulo0.models import Hilado
     from mecsa_erp.area_operaciones.modulo1.models import OrdenServicioTejeduriaDetalleReporteLog
+    from mecsa_erp.usuarios.models import Usuario
 
 def create_tables():
     from sqlmodel import SQLModel
