@@ -23,8 +23,8 @@ class UsuarioRol(SQLModel, table=True):
     rol_id: int = Field(primary_key=True)
  
     __table_args__ = (
-        ForeignKeyConstraint(['usuario_id'], ['usuario.username']),
-        ForeignKeyConstraint(['rol_id'], ['rol.rol_id'])
+        ForeignKeyConstraint(['usuario_id'], ['usuario.username'], ondelete='CASCADE'),
+        ForeignKeyConstraint(['rol_id'], ['rol.rol_id'], ondelete='CASCADE'),
     )
 
 class UsuarioAcceso(SQLModel, table=True):
@@ -34,8 +34,8 @@ class UsuarioAcceso(SQLModel, table=True):
     acceso_id: int = Field(primary_key=True)
 
     __table_args__ = (
-        ForeignKeyConstraint(['usuario_id'], ['usuario.username']),
-        ForeignKeyConstraint(['acceso_id'], ['acceso.acceso_id'])
+        ForeignKeyConstraint(['usuario_id'], ['usuario.username'], ondelete='CASCADE'),
+        ForeignKeyConstraint(['acceso_id'], ['acceso.acceso_id'], ondelete='CASCADE'),
     )
 
 class Acceso(SQLModel, table=True):
@@ -51,6 +51,6 @@ class Rol_acceso(SQLModel, table=True):
     acceso_id: int = Field(primary_key=True)
 
     __table_args__ = (
-        ForeignKeyConstraint(['rol_id'], ['rol.rol_id']),
-        ForeignKeyConstraint(['acceso_id'], ['acceso.acceso_id'])
+        ForeignKeyConstraint(['rol_id'], ['rol.rol_id'], ondelete='CASCADE'),
+        ForeignKeyConstraint(['acceso_id'], ['acceso.acceso_id'], ondelete='CASCADE'),
     )
