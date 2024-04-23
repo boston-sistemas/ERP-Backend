@@ -1,14 +1,47 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlmodel import SQLModel, Session, select, insert
+from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import IntegrityError
-
 from config.database import get_session
 from mecsa_erp.usuarios.models import *
+from passlib.context import CryptContext 
+from dotenv import load_dotenv
+import os
+import jwt as pyjwt
+from datetime import datetime, timedelta, timezone
+
+
+
+###################################
+########### FUNCTIONS #############
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    codificar = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(hours=10) 
+    codificar.update({"exp": expire})
+    encoded_jwt = pyjwt.encode(codificar, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+###################################
+
 
 
 router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
 
+
+##################################
+########### HASHING ##############
+##################################
+
+load_dotenv()  
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ###################################
 ############# CLASES ##############
@@ -29,15 +62,19 @@ class UsuarioRegistrar(BaseModel):
     rol_ids: list[int]
     acceso_ids: list[int]
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 ####################################
 ######## REGISTRAR USUARIO #########
 ####################################
 @router.post("/register")
 def register_usuario(user_request: UsuarioRegistrar, session: Session = Depends(get_session)):
+    password_hash = pwd_context.hash(user_request.password)
     nuevo_usuario = Usuario(
         username=user_request.username,
-        password=user_request.password,  # HASHEAR
+        password=password_hash,  
         email=user_request.email,
         display_name=user_request.display_name
     )
@@ -65,8 +102,34 @@ def register_usuario(user_request: UsuarioRegistrar, session: Session = Depends(
 
 
 ####################################
+############## Login ###############
+####################################
+
+
+@router.post("/login")
+def login(login_request: LoginRequest, session: Session = Depends(get_session)):
+    usuario = session.exec(select(Usuario).where(Usuario.username == login_request.username)).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    if not pwd_context.verify(login_request.password, usuario.password):
+        raise HTTPException(status_code=401, detail="Contraseña incorrecta")
+
+    expiracion_token = timedelta(hours=10)
+    access_token = create_access_token(
+        data={"sub": usuario.username},
+        expires_delta=expiracion_token
+    )
+
+    return {"message": "Login Exitoso", "access_token": access_token, "token_type": "bearer"}
+
+
+
+####################################
 ######### LISTAR USUARIOS ##########
 ####################################
+
+
 @router.get("/usuarios", response_model=UsuarioList)
 def get_usuarios(session: Session = Depends(get_session)):
     tabla = select(Usuario)
@@ -77,20 +140,19 @@ def get_usuarios(session: Session = Depends(get_session)):
 ####################################
 #### ROLES Y ACCESOS DE USUARIO ####
 ####################################
+
+
 @router.get("/{username}/roles-accesos", response_model=UsuarioRolesAccesos)
 def get_usuario_roles_accesos(username: str, session: Session = Depends(get_session)):
-    ##### USUARIO POR USERNAME #####
     usuario = session.exec(select(Usuario).where(Usuario.username == username)).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    ##### ROLES DE USUARIO #####
     usuario_roles = session.exec(
         select(Rol).join(UsuarioRol, UsuarioRol.rol_id == Rol.rol_id)
         .where(UsuarioRol.usuario_id == username)
     ).all()
 
-    ##### ACCESOS DEL USUARIO #####
     usuario_accesos = session.exec(
         select(Acceso).join(UsuarioAcceso, UsuarioAcceso.acceso_id == Acceso.acceso_id)
         .where(UsuarioAcceso.usuario_id == username)
