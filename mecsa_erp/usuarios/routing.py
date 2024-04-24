@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import IntegrityError
-from config.database import get_session
+from config.database import SessionDependency, get_session
 from mecsa_erp.usuarios.models import *
 from passlib.context import CryptContext 
 from dotenv import load_dotenv
@@ -37,9 +37,10 @@ router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
 ##################################
 
 load_dotenv()  
-
+# from config.settings import settings
+# settings.SECRET_KEY
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+HASH_ALGORITHM = os.getenv("HASH_ALGORITHM")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -144,7 +145,7 @@ def get_usuarios(session: Session = Depends(get_session)):
 
 @router.get("/{username}/roles-accesos", response_model=UsuarioRolesAccesos)
 def get_usuario_roles_accesos(username: str, session: Session = Depends(get_session)):
-    usuario = session.exec(select(Usuario).where(Usuario.username == username)).first()
+    usuario = session.get(Usuario, username)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
@@ -159,3 +160,28 @@ def get_usuario_roles_accesos(username: str, session: Session = Depends(get_sess
     ).all()
 
     return UsuarioRolesAccesos(usuario=usuario, roles=usuario_roles, accesos=usuario_accesos)
+
+class UserBase(SQLModel):
+    display_name: str
+    email: str
+
+class UsuarioUpdateSchema(UserBase):
+    display_name: str | None = None
+    email: str | None = None
+
+class UsuarioReadSchema(UserBase):
+    username: str
+
+@router.patch("/{username}", response_model=UsuarioReadSchema)
+def update_usuario(session: SessionDependency, username: str, user: UsuarioUpdateSchema):
+    usuario = session.get(Usuario, username)
+
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    update_dict = user.model_dump(exclude_unset=True)
+    usuario.sqlmodel_update(update_dict)
+    session.add(usuario)
+    session.commit()
+    session.refresh(usuario)
+    return usuario

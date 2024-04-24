@@ -11,7 +11,9 @@ class ProjectSettings(BaseSettings):
     
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "MECSA ERP - API"
-    DATABASE_URL : str
+    DATABASE_URL: str
+    SECRET_KEY: str
+    HASH_ALGORITHM: str
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
