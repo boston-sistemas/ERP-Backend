@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, ForeignKey, ForeignKeyConstraint, Numeric
+from sqlalchemy import Boolean, ForeignKeyConstraint, Numeric
 from sqlmodel import SQLModel, Field
 
 class Hilado(SQLModel, table=True):

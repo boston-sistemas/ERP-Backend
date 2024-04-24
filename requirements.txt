@@ -6,4 +6,3 @@ pydantic-settings==2.2.1
 passlib==1.7.4
 pyjwt==2.8.0
 python-dotenv==1.0.1
-datetime
