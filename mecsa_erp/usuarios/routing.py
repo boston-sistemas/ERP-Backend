@@ -22,7 +22,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.now(timezone.utc) + timedelta(hours=10) 
     codificar.update({"exp": expire})
-    encoded_jwt = pyjwt.encode(codificar, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = pyjwt.encode(codificar, SECRET_KEY, algorithm=HASH_ALGORITHM)
     return encoded_jwt
 
 ###################################
@@ -116,13 +116,28 @@ def login(login_request: LoginRequest, session: Session = Depends(get_session)):
     if not pwd_context.verify(login_request.password, usuario.password):
         raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
+    usuario_accesos = session.exec(
+        select(Acceso).join(UsuarioAcceso, UsuarioAcceso.acceso_id == Acceso.acceso_id)
+        .where(UsuarioAcceso.usuario_id == usuario.username)
+    ).all()
+
     expiracion_token = timedelta(hours=10)
     access_token = create_access_token(
         data={"sub": usuario.username},
         expires_delta=expiracion_token
     )
 
-    return {"message": "Login Exitoso", "access_token": access_token, "token_type": "bearer"}
+    return {
+        "message": "Login Exitoso",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "username": usuario.username,
+            "display_name": usuario.display_name,
+            "email": usuario.email,
+            "accesos": [acceso.nombre for acceso in usuario_accesos]
+        }
+    }
 
 
 
