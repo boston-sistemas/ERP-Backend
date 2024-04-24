@@ -1,16 +1,8 @@
-from fastapi import APIRouter, Depends
-from sqlmodel import SQLModel, Session, select
+from fastapi import APIRouter
 
-from config.database import get_session
-from mecsa_erp.area_operaciones.modulo0.models import OrdenServicioTejeduriaDetalle
+from .api import orden_servicio_tejeduria, tejido
 
-router = APIRouter(tags=["Módulo 0"], prefix="/modulo0")
+modulo0_router = APIRouter(prefix="/modulo0")
 
-class OrdenServicioTejeduriaDetalleList(SQLModel):
-    data: list[OrdenServicioTejeduriaDetalle]
-
-@router.get("/orden-servicio-tejeduria-detalle", response_model=OrdenServicioTejeduriaDetalleList)
-def get_orden_servicio_tejeduria_detalle(session: Session = Depends(get_session)):
-    statement = select(OrdenServicioTejeduriaDetalle)
-    objects = session.exec(statement).all()
-    return OrdenServicioTejeduriaDetalleList(data=objects)
+modulo0_router.include_router(orden_servicio_tejeduria.router)
+modulo0_router.include_router(tejido.router)
