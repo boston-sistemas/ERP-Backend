@@ -1,13 +1,18 @@
 from sqlalchemy import Column, CheckConstraint, CHAR, DATE, ForeignKeyConstraint, Index, func
-from sqlmodel import SQLModel, Field
-from typing import Optional
+from sqlmodel import Relationship, SQLModel, Field
+from typing import TYPE_CHECKING, Optional
 from datetime import date
+
+if TYPE_CHECKING:
+    from mecsa_erp.area_operaciones.modulo0.models import OrdenServicioTejeduria
 
 class Proveedor(SQLModel, table=True):
     __tablename__ = "proveedor"
     
     proveedor_id: str = Field(primary_key=True)
     razon_social: str = Field(unique=True)
+
+    ordenes_servicio_tejeduria: list["OrdenServicioTejeduria"] = Relationship(back_populates="proveedor")
 
 class OrdenCompra(SQLModel, table=True):
     __tablename__ = "orden_compra"

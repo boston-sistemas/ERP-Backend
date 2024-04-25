@@ -1,6 +1,10 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, ForeignKeyConstraint, Numeric
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
 from decimal import Decimal
+
+if TYPE_CHECKING:
+    from mecsa_erp.area_operaciones.core.models import Proveedor
 
 class Hilado(SQLModel, table=True):
     __tablename__ = "hilado"
@@ -60,6 +64,9 @@ class OrdenServicioTejeduria(SQLModel, table=True):
     tejeduria_id: str
     estado: str
 
+    proveedor: "Proveedor" = Relationship(back_populates="ordenes_servicio_tejeduria")
+    detalles: list["OrdenServicioTejeduriaDetalle"] = Relationship(back_populates="orden_servicio")
+
     __table_args__ = (
         ForeignKeyConstraint(['tejeduria_id'], ['proveedor.proveedor_id']),
         ForeignKeyConstraint(['estado'], ['orden_servicio_tejeduria_estado.estado']),
@@ -107,6 +114,8 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
     estado: str
     reporte_tejeduria_nro_rollos: int
     reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
+
+    orden_servicio: OrdenServicioTejeduria = Relationship(back_populates="detalles")
 
     __table_args__ = (
         ForeignKeyConstraint(['orden_servicio_tejeduria_id'], ['orden_servicio_tejeduria.orden_servicio_tejeduria_id']),
