@@ -17,7 +17,7 @@ class OrdenServicioTejeduriaSimpleSchema(OrdenServicioTejeduriaBase):
 
 class OrdenServicioTejeduriaSchema(OrdenServicioTejeduriaBase):
     proveedor: ProveedorSchema
-    detalles: list[OrdenServicioTejeduriaDetalleSchema] = []
+    detalles: list[OrdenServicioTejeduriaDetalleSchema]
 
 
 class OrdenServicioTejeduriaListSchema(SQLModel):
