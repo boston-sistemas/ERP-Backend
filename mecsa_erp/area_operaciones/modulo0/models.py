@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, ForeignKeyConstraint, Numeric
 from sqlmodel import SQLModel, Field
+from decimal import Decimal
 
 class Hilado(SQLModel, table=True):
     __tablename__ = "hilado"
@@ -31,7 +32,7 @@ class Crudo(SQLModel, table=True):
     ancho: int
     galga: int
     diametro: int
-    longitud_malla: float = Field(sa_type=Numeric)
+    longitud_malla: Decimal = Field(sa_type=Numeric)
 
     __table_args__ = (
         ForeignKeyConstraint(['tejido_id'], ['tejido.tejido_id']),
@@ -44,7 +45,7 @@ class MovimientoIngresoHiladoDetalle(SQLModel, table=True):
     hilado_id: str
     nro_bultos: int
     nro_conos: int
-    cantidad_kg: float = Field(sa_type=Numeric)
+    cantidad_kg: Decimal = Field(sa_type=Numeric)
     codigo_lote: str
 
     __table_args__ = (
@@ -88,7 +89,7 @@ class MovimientoSalidaHiladoDetalle(SQLModel, table=True):
     hilado_id: str
     nro_bultos: int
     nro_conos: int
-    cantidad_kg: float = Field(sa_type=Numeric)
+    cantidad_kg: Decimal = Field(sa_type=Numeric)
 
     __table_args__ = (
         ForeignKeyConstraint(['movimiento_salida_id'], ['movimiento.movimiento_id']),
@@ -101,11 +102,11 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
     
     orden_servicio_tejeduria_id: str = Field(primary_key=True)
     crudo_id: str = Field(primary_key=True)
-    cantidad_kg: float = Field(sa_type=Numeric)
+    cantidad_kg: Decimal = Field(sa_type=Numeric)
     es_complemento: bool = Field(sa_type=Boolean)
     estado: str
     reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: float = Field(sa_type=Numeric)
+    reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
 
     __table_args__ = (
         ForeignKeyConstraint(['orden_servicio_tejeduria_id'], ['orden_servicio_tejeduria.orden_servicio_tejeduria_id']),

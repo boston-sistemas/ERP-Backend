@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 from sqlalchemy import TIMESTAMP, Column, Numeric, func
@@ -13,5 +14,5 @@ class OrdenServicioTejeduriaDetalleReporteLog(SQLModel, table=True):
     crudo_id: str
     estado: str
     reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: float = Field(sa_type=Numeric)
+    reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
     timestamp: Optional[datetime] = Field(sa_column=Column(TIMESTAMP, server_default=func.now(), nullable=False))
