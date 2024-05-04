@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Security, status, Cookie
 from pydantic import BaseModel
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import IntegrityError
@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 import os
 import jwt as pyjwt
 from datetime import datetime, timedelta, timezone
+from fastapi.security import OAuth2PasswordBearer
+
 
 
 
@@ -25,12 +27,23 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = pyjwt.encode(codificar, SECRET_KEY, algorithm=HASH_ALGORITHM)
     return encoded_jwt
 
+def verify_access_token(token: str):
+    try:
+        decoded_token = pyjwt.decode(token, SECRET_KEY, algorithms=[HASH_ALGORITHM])
+        if decoded_token['exp'] < datetime.now(timezone.utc).timestamp():
+            return None
+        return decoded_token
+    
+    except pyjwt.PyJWTError as e:
+        print(f"Error al verificar el token: {e}")
+        return None
+
 ###################################
 
 
 
 router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 ##################################
 ########### HASHING ##############
@@ -108,7 +121,7 @@ def register_usuario(user_request: UsuarioRegistrar, session: Session = Depends(
 
 
 @router.post("/login")
-def login(login_request: LoginRequest, session: Session = Depends(get_session)):
+def login(login_request: LoginRequest, response: Response, session: Session = Depends(get_session)):
     usuario = session.exec(select(Usuario).where(Usuario.username == login_request.username)).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -127,9 +140,18 @@ def login(login_request: LoginRequest, session: Session = Depends(get_session)):
         expires_delta=expiracion_token
     )
 
-    return {
+    response.set_cookie(
+        key="access_token", 
+        value=f"Bearer {access_token}",
+        httponly=True,
+        max_age=int(expiracion_token.total_seconds()),
+        expires=int(expiracion_token.total_seconds()),
+        secure=False,  # Cambiar a True en producción
+        samesite='Lax'
+    )
+    response.status_code = 200
+    response.content = {
         "message": "Login Exitoso",
-        "access_token": access_token,
         "token_type": "bearer",
         "user": {
             "username": usuario.username,
@@ -139,7 +161,35 @@ def login(login_request: LoginRequest, session: Session = Depends(get_session)):
         }
     }
 
+    return response
 
+
+
+@router.get("/validate_session")
+def validate_session(response: Response, access_token: str = Cookie(None), session: Session = Depends(get_session)):
+    if access_token is None:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    
+
+    user_info = verify_access_token(access_token)
+    if not user_info:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
+
+    usuario = session.exec(select(Usuario).where(Usuario.username == user_info['sub'])).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    usuario_accesos = session.exec(
+        select(Acceso).join(UsuarioAcceso, UsuarioAcceso.acceso_id == Acceso.acceso_id)
+        .where(UsuarioAcceso.usuario_id == usuario.id)
+    ).all()
+
+    return {
+        "username": usuario.username,
+        "display_name": usuario.display_name,
+        "email": usuario.email,
+        "accesos": [acceso.nombre for acceso in usuario_accesos]
+    }
 
 ####################################
 ######### LISTAR USUARIOS ##########
