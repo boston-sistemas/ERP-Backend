@@ -44,7 +44,7 @@ class Acceso(SQLModel, table=True):
     acceso_id: int = Field(primary_key=True)
     nombre: str
     
-class Rol_acceso(SQLModel, table=True):
+class RolAcceso(SQLModel, table=True):
     __tablename__ = "rol_acceso"
 
     rol_id: int = Field(primary_key=True)

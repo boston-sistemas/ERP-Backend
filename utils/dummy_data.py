@@ -9,6 +9,7 @@ from mecsa_erp.area_operaciones.modulo0.models import (
     OrdenServicioTejeduriaEstado,
     Tejido,
 )
+from mecsa_erp.usuarios.models import Acceso, Rol, RolAcceso
 
 
 def insert_data(generate_data):
@@ -35,10 +36,10 @@ def get_objects_from_csv(filename, converters=None):
     with open(path, "r", newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for object in reader:
-            if(converters):
+            if converters:
                 for key in converters:
                     object[key] = converters[key](object[key])
-            
+
             objects.append(object)
 
     return objects
@@ -68,28 +69,62 @@ def generate_tejido():
     objects = get_objects_from_csv("tejido.csv")
     return Tejido, objects
 
+
 @insert_data
 def generate_proveedor():
     objects = get_objects_from_csv("proveedor.csv")
     return Proveedor, objects
+
 
 @insert_data
 def generate_crudo():
     objects = get_objects_from_csv("crudo.csv")
     return Crudo, objects
 
+
 @insert_data
 def generate_orden_servicio_tejeduria():
     objects = get_objects_from_csv("orden_servicio_tejeduria.csv")
     return OrdenServicioTejeduria, objects
 
+
 @insert_data
 def generate_orden_servicio_tejeduria_detalle():
-    converters = {
-        "es_complemento": lambda value: value == "True"
-    }
+    converters = {"es_complemento": lambda value: value == "True"}
     objects = get_objects_from_csv("orden_servicio_tejeduria_detalle.csv", converters)
     return OrdenServicioTejeduriaDetalle, objects
+
+
+@insert_data
+def generate_rol():
+    objects = [
+        {"rol_id": 1, "nombre": "MECSA_OPERACIONES"},
+        {"rol_id": 2, "nombre": "PROVEEDOR"},
+    ]
+    return Rol, objects
+
+
+@insert_data
+def generate_acceso():
+    objects = [
+        {"acceso_id": 1, "nombre": "REPORTE_STOCK"},
+        {"acceso_id": 2, "nombre": "REVISION_STOCK"},
+        {"acceso_id": 3, "nombre": "PROGRAMACION_TINTORERIA"},
+    ]
+
+    return Acceso, objects
+
+
+@insert_data
+def generate_rol_acceso():
+    objects = [
+        {"rol_id": 1, "acceso_id": 2},
+        {"rol_id": 1, "acceso_id": 3},
+        {"rol_id": 2, "acceso_id": 1},
+    ]
+
+    return RolAcceso, objects
+
 
 def generate_dummy_data():
     generate_proveedor()
@@ -99,6 +134,11 @@ def generate_dummy_data():
     generate_orden_servicio_tejeduria_detalle_estado()
     generate_orden_servicio_tejeduria()
     generate_orden_servicio_tejeduria_detalle()
+
+    generate_rol()
+    generate_acceso()
+    generate_rol_acceso()
+
 
 if __name__ == "__main__":
     generate_dummy_data()
