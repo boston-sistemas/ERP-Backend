@@ -64,7 +64,7 @@ class AccesoSimpleSchema(AccesoBase):
 
 
 class AccesoSchema(AccesoBase):
-    rol: RolSimpleSchema
+    roles: list[RolSimpleSchema]
 
 
 class AccesoListSchema(SQLModel):

@@ -61,7 +61,7 @@ class Rol(SQLModel, table=True):
     usuarios: list[Usuario] = Relationship(
         back_populates="roles", link_model=UsuarioRol
     )
-    accesos: list["Acceso"] = Relationship(back_populates="rol", link_model=RolAcceso)
+    accesos: list["Acceso"] = Relationship(back_populates="roles", link_model=RolAcceso)
 
 
 class Acceso(SQLModel, table=True):
@@ -73,4 +73,4 @@ class Acceso(SQLModel, table=True):
     usuarios: list[Usuario] = Relationship(
         back_populates="accesos", link_model=UsuarioAcceso
     )
-    rol: Rol = Relationship(back_populates="accesos", link_model=RolAcceso)
+    roles: list[Rol] = Relationship(back_populates="accesos", link_model=RolAcceso)
