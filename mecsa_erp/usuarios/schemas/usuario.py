@@ -7,12 +7,24 @@ class UsuarioBase(SQLModel):
     display_name: str
 
 
-class UsuarioSchema(UsuarioBase):
+class UsuarioSimpleSchema(UsuarioBase):
     pass
+
+
+class UsuarioSchema(UsuarioBase):
+    roles: list["RolSimpleSchema"]
+    accesos: list["AccesoSimpleSchema"]
 
 
 class UsuarioCreateSchema(UsuarioBase):
     password: str
+    rol_ids: list[int] | None = None
+    acceso_ids: list[int] | None = None
+
+
+class UsuarioUpdateSchema(SQLModel):
+    display_name: str | None = None
+    email: str | None = None
 
 
 class UsuarioListSchema(SQLModel):
