@@ -13,13 +13,11 @@ class UsuarioSimpleSchema(UsuarioBase):
 
 class UsuarioSchema(UsuarioBase):
     roles: list["RolSimpleSchema"]
-    accesos: list["AccesoSimpleSchema"]
 
 
 class UsuarioCreateSchema(UsuarioBase):
     password: str
     rol_ids: list[int] | None = None
-    acceso_ids: list[int] | None = None
 
 
 class UsuarioUpdateSchema(SQLModel):

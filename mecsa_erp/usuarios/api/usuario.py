@@ -7,7 +7,7 @@ from helpers.crud import CRUD
 from mecsa_erp.usuarios.api.acceso import crud_acceso
 from mecsa_erp.usuarios.api.rol import crud_rol
 
-from mecsa_erp.usuarios.models import Usuario, UsuarioAcceso, UsuarioRol
+from mecsa_erp.usuarios.models import Usuario, UsuarioRol
 
 from mecsa_erp.usuarios.schemas.usuario import (
     UsuarioCreateSchema,
@@ -19,7 +19,6 @@ from mecsa_erp.usuarios.schemas.usuario import (
 from mecsa_erp.usuarios.security import get_password_hash
 
 crud_usuario = CRUD[Usuario, UsuarioCreateSchema](Usuario)
-crud_usuario_acceso = CRUD[UsuarioAcceso, UsuarioAcceso](UsuarioAcceso)
 crud_usuario_rol = CRUD[UsuarioRol, UsuarioRol](UsuarioRol)
 
 router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
@@ -27,8 +26,8 @@ router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
 
 @router.get("/{username}", response_model=UsuarioSchema)
 def get_usuario(session: SessionDependency, username: str):
-    usuario = crud_usuario.get_by_pk_or_404(
-        session, username, (joinedload(Usuario.accesos), joinedload(Usuario.roles))
+    usuario = crud_usuario.get_or_404(
+        session, Usuario.username == username, [joinedload(Usuario.roles)]
     )
     return usuario
 
@@ -37,7 +36,7 @@ def get_usuario(session: SessionDependency, username: str):
 def list_usuarios(session: SessionDependency):
     usuarios = crud_usuario.get_multi(
         session,
-        options=(joinedload(Usuario.accesos), joinedload(Usuario.roles)),
+        options=[joinedload(Usuario.roles)],
         apply_unique=True,
     )
     return UsuarioListSchema(data=usuarios)
@@ -46,7 +45,7 @@ def list_usuarios(session: SessionDependency):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_usuario(session: SessionDependency, usuario: UsuarioCreateSchema):
     usuario.password = get_password_hash(usuario.password)
-    exists = crud_usuario.get_by_pk(session, usuario.username)
+    exists = crud_usuario.get(session, Usuario.username == usuario.username)
     if exists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -58,14 +57,8 @@ def create_usuario(session: SessionDependency, usuario: UsuarioCreateSchema):
     if usuario.rol_ids:
         for rol_id in set(usuario.rol_ids):
             rol = crud_rol.get_by_pk_or_404(session, rol_id)
-            db_usuario.roles.append(rol)
+            crud_usuario_rol.create(session, UsuarioRol(usuario_id=db_usuario.usuario_id, rol_id=rol.rol_id), commit=False)
 
-    if usuario.acceso_ids:
-        for acceso_id in set(usuario.acceso_ids):
-            acceso = crud_acceso.get_by_pk_or_404(session, acceso_id)
-            db_usuario.accesos.append(acceso)
-
-    session.add(db_usuario)
     session.commit()
     return {"message": message}
 
@@ -74,7 +67,7 @@ def create_usuario(session: SessionDependency, usuario: UsuarioCreateSchema):
 def update_usuario(
     session: SessionDependency, username: str, usuario: UsuarioUpdateSchema
 ):
-    db_usuario = crud_usuario.get_by_pk_or_404(session, username)
+    db_usuario = crud_usuario.get_or_404(session, Usuario.username == username)
     message, _ = crud_usuario.update(
         session, db_usuario, usuario.model_dump(exclude_unset=True)
     )
@@ -84,7 +77,7 @@ def update_usuario(
 
 @router.delete("/{username}")
 def delete_usuario(session: SessionDependency, username: str):
-    usuario = crud_usuario.get_by_pk_or_404(session, username)
+    usuario = crud_usuario.get_or_404(session, Usuario.username == username)
     message = crud_usuario.delete(session, usuario)
     return {"message": message}
 
@@ -96,19 +89,18 @@ def delete_usuario(session: SessionDependency, username: str):
 def add_roles_to_usuario(
     session: SessionDependency, username: str, rol_ids: list[int] = Body(embed=True)
 ):
-    usuario = crud_usuario.get_by_pk_or_404(session, username)
+    usuario = crud_usuario.get_or_404(session, Usuario.username == username)
     for rol_id in set(rol_ids):
         rol = crud_rol.get_by_pk_or_404(session, rol_id)
-        exists = crud_usuario_rol.get_by_pk(session, (username, rol_id))
+        exists = crud_usuario_rol.get_by_pk(session, (usuario.usuario_id, rol_id))
 
         if exists:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Usuario {username} ya tiene el rol: {rol.nombre}",
             )
-        usuario.roles.append(rol)
+        crud_usuario_rol.create(session, UsuarioRol(usuario_id=usuario.usuario_id, rol_id=rol.rol_id), commit=False)
 
-    session.add(usuario)
     session.commit()
     return {"message": "Roles añadidos"}
 
@@ -117,9 +109,9 @@ def add_roles_to_usuario(
 def delete_roles_from_usuario(
     session: SessionDependency, username: str, rol_ids: list[int] = Body(embed=True)
 ):
-    crud_usuario.get_by_pk_or_404(session, username)
+    usuario = crud_usuario.get_or_404(session, Usuario.username == username)
     for rol_id in set(rol_ids):
-        usuario_rol = crud_usuario_rol.get_by_pk(session, (username, rol_id))
+        usuario_rol = crud_usuario_rol.get_by_pk(session, (usuario.usuario_id, rol_id))
 
         if not usuario_rol:
             raise HTTPException(
@@ -130,46 +122,3 @@ def delete_roles_from_usuario(
 
     session.commit()
     return {"message": "Roles eliminados"}
-
-
-#######################################################
-
-
-@router.post("/{username}/accesos/")
-def add_accesos_to_usuario(
-    session: SessionDependency, username: str, acceso_ids: list[int] = Body(embed=True)
-):
-    usuario = crud_usuario.get_by_pk_or_404(session, username)
-    for acceso_id in set(acceso_ids):
-        acceso = crud_acceso.get_by_pk_or_404(session, acceso_id)
-        exists = crud_usuario_acceso.get_by_pk(session, (username, acceso_id))
-
-        if exists:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Usuario {username} ya tiene el acceso: {acceso.nombre}",
-            )
-        usuario.accesos.append(acceso)
-
-    session.add(usuario)
-    session.commit()
-    return {"message": "Accesos añadidos"}
-
-
-@router.delete("/{username}/accesos/")
-def delete_accesos_from_usuario(
-    session: SessionDependency, username: str, acceso_ids: list[int] = Body(embed=True)
-):
-    crud_usuario.get_by_pk_or_404(session, username)
-    for acceso_id in set(acceso_ids):
-        usuario_acceso = crud_usuario_acceso.get_by_pk(session, (username, acceso_id))
-
-        if not usuario_acceso:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Usuario {username} no tiene el acceso con ID: {acceso_id}",
-            )
-        session.delete(usuario_acceso)
-
-    session.commit()
-    return {"message": "Accesos eliminados"}
