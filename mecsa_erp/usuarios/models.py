@@ -33,6 +33,7 @@ class Usuario(SQLModel, table=True):
     password: str
     email: str = Field(unique=True)
     display_name: str
+    is_active: bool = Field(default=True)
 
     roles: list["Rol"] = Relationship(back_populates="usuarios", link_model=UsuarioRol)
 

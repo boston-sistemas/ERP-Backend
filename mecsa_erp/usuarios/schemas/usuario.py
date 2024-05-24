@@ -6,7 +6,7 @@ class UsuarioBase(SQLModel):
     username: str = Field(min_length=1)
     email: EmailStr
     display_name: str | None = None
-
+    is_active: bool = Field(default=True)
 
 class UsuarioSimpleSchema(UsuarioBase):
     pass
@@ -25,6 +25,7 @@ class UsuarioUpdateSchema(SQLModel):
     username: str = Field(default=None, min_length=1)
     display_name: str | None = None
     email: EmailStr | None = None
+    is_active: bool | None = None
 
 
 class UsuarioListSchema(SQLModel):
