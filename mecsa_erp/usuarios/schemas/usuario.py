@@ -1,10 +1,11 @@
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
+from pydantic import EmailStr
 
 
 class UsuarioBase(SQLModel):
-    username: str
-    email: str
-    display_name: str
+    username: str = Field(min_length=1)
+    email: EmailStr
+    display_name: str | None = None
 
 
 class UsuarioSimpleSchema(UsuarioBase):
@@ -21,8 +22,9 @@ class UsuarioCreateSchema(UsuarioBase):
 
 
 class UsuarioUpdateSchema(SQLModel):
+    username: str = Field(default=None, min_length=1)
     display_name: str | None = None
-    email: str | None = None
+    email: EmailStr | None = None
 
 
 class UsuarioListSchema(SQLModel):
