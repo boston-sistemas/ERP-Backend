@@ -49,6 +49,17 @@ class RolSchema(RolBase):
     accesos: list["AccesoSimpleSchema"]
 
 
+class RolCreateSchema(SQLModel):
+    nombre: str = Field(min_length=1)
+    is_active: bool = Field(default=True)
+    acceso_ids: list[int] | None = None
+
+
+class RolUpdateSchema(SQLModel):
+    nombre: str = Field(default=None, min_length=1)
+    is_active: bool | None = None
+
+
 class RolListSchema(SQLModel):
     data: list[RolSchema]
 
