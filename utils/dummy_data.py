@@ -98,8 +98,8 @@ def generate_orden_servicio_tejeduria_detalle():
 @insert_data
 def generate_rol():
     objects = [
-        {"rol_id": 1, "nombre": "MECSA_OPERACIONES"},
-        {"rol_id": 2, "nombre": "PROVEEDOR"},
+        {"nombre": "MECSA_OPERACIONES"},
+        {"nombre": "PROVEEDOR"},
     ]
     return Rol, objects
 
@@ -107,9 +107,9 @@ def generate_rol():
 @insert_data
 def generate_acceso():
     objects = [
-        {"acceso_id": 1, "nombre": "REPORTE_STOCK"},
-        {"acceso_id": 2, "nombre": "REVISION_STOCK"},
-        {"acceso_id": 3, "nombre": "PROGRAMACION_TINTORERIA"},
+        {"nombre": "REPORTE_STOCK"},
+        {"nombre": "REVISION_STOCK"},
+        {"nombre": "PROGRAMACION_TINTORERIA"},
     ]
 
     return Acceso, objects
