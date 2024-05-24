@@ -35,6 +35,7 @@ class UsuarioListSchema(SQLModel):
 class RolBase(SQLModel):
     rol_id: int
     nombre: str
+    is_active: bool
 
 
 class RolSimpleSchema(RolBase):
@@ -55,6 +56,7 @@ class RolListSchema(SQLModel):
 class AccesoBase(SQLModel):
     acceso_id: int
     nombre: str
+    is_active: bool
 
 
 class AccesoSimpleSchema(AccesoBase):

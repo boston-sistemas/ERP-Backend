@@ -28,7 +28,7 @@ class RolAcceso(SQLModel, table=True):
 class Usuario(SQLModel, table=True):
     __tablename__ = "usuario"
 
-    usuario_id: int | None = Field(default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True))
+    usuario_id: int = Field(default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True))
     username: str = Field(unique=True)
     password: str
     email: str = Field(unique=True)
@@ -40,8 +40,9 @@ class Usuario(SQLModel, table=True):
 class Rol(SQLModel, table=True):
     __tablename__ = "rol"
 
-    rol_id: int = Field(primary_key=True)
-    nombre: str
+    rol_id: int = Field(default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True))
+    nombre: str = Field(unique=True)
+    is_active: bool = Field(default=True)
 
     usuarios: list[Usuario] = Relationship(
         back_populates="roles", link_model=UsuarioRol
@@ -52,7 +53,8 @@ class Rol(SQLModel, table=True):
 class Acceso(SQLModel, table=True):
     __tablename__ = "acceso"
 
-    acceso_id: int = Field(primary_key=True)
-    nombre: str
+    acceso_id: int = Field(default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True))
+    nombre: str = Field(unique=True)
+    is_active: bool = Field(default=True)
 
     roles: list[Rol] = Relationship(back_populates="accesos", link_model=RolAcceso)
