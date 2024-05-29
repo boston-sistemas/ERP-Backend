@@ -1,3 +1,5 @@
+from datetime import datetime
+from uuid import UUID, uuid4
 from sqlalchemy import Column, ForeignKeyConstraint, Identity, Integer
 from sqlmodel import Relationship, SQLModel, Field
 
@@ -59,3 +61,19 @@ class Acceso(SQLModel, table=True):
     is_active: bool = Field(default=True)
 
     roles: list[Rol] = Relationship(back_populates="accesos", link_model=RolAcceso)
+
+class Sesion(SQLModel, table=True):
+    __tablename__ = "sesion"
+    
+    sesion_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    usuario_id: int
+    created_at: datetime = Field(default_factory=datetime.now)
+    # updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
+    not_after: datetime
+    # refreshed_at: datetime | None = None
+    # user_agent: str
+    ip: str
+    
+    __table_args__ = (
+        ForeignKeyConstraint(["usuario_id"], ["usuario.usuario_id"]),
+    )
