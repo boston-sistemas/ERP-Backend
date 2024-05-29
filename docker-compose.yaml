@@ -11,6 +11,8 @@ services:
       - ./:/usr/src/app
     env_file:
       - .env
+    environment:
+      - TZ=America/Lima
     ports:
       - 8080:8080
     depends_on:

@@ -1,13 +1,16 @@
 from authlib.jose import jwt
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from passlib.context import CryptContext
 
 from config.settings import settings
+from mecsa_erp.usuarios.models import Usuario
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 SECRET_KEY = settings.SECRET_KEY
 SIGNING_ALGORITHM = settings.SIGNING_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_HOURS = 12
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -20,23 +23,28 @@ def get_password_hash(password: str) -> str:
     return hashed_password
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
+def authenticate_user(db_usuario: Usuario, password: str) -> bool:
+    if not db_usuario:
+        return False
+
+    if not verify_password(password, db_usuario.password):
+        return False
+
+    return True
+
+
+def get_valid_acceses(usuario: Usuario):
+    return ["REVISION_STOCK", "PROGRAMACION_TINTORERIA"]
+
+
+def create_token(payload: dict) -> str:
     header = {"alg": SIGNING_ALGORITHM}
-    payload = data.copy()
-
-    if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
-    else:
-        expire = datetime.now(UTC) + timedelta(hours=10)
-
-    payload.update({"exp": expire})
-
     encoded_jwt = jwt.encode(header, payload, SECRET_KEY).decode("utf-8")
 
     return encoded_jwt
 
 
-def verify_access_token(token: str):
+def verify_token(token: str):
     try:
         decoded_token = jwt.decode(token, SECRET_KEY)
         if decoded_token["exp"] < datetime.now(UTC).timestamp():
