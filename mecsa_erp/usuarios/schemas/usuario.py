@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlmodel import Field, SQLModel
 from pydantic import EmailStr
 
@@ -7,6 +8,8 @@ class UsuarioBase(SQLModel):
     email: EmailStr
     display_name: str | None = None
     is_active: bool = Field(default=True)
+    blocked_until: datetime | None = None
+
 
 class UsuarioSimpleSchema(UsuarioBase):
     pass
@@ -23,9 +26,10 @@ class UsuarioCreateSchema(UsuarioBase):
 
 class UsuarioUpdateSchema(SQLModel):
     username: str = Field(default=None, min_length=1)
-    display_name: str | None = None
     email: EmailStr | None = None
+    display_name: str | None = None
     is_active: bool | None = None
+    blocked_until: datetime | None = None
 
 
 class UsuarioListSchema(SQLModel):

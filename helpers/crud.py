@@ -90,7 +90,8 @@ class CRUD(Generic[ModelType, CreateSchemaType]):
         commit: bool = True,
         refresh: bool = False,
     ) -> Tuple[str, ModelType]:
-        db_object: ModelType = self.model.model_validate(object)
+        object_dict = object.model_dump()
+        db_object: ModelType = self.model(**object_dict)
 
         session.add(db_object)
 

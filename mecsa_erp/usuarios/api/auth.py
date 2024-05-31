@@ -1,34 +1,33 @@
-from datetime import datetime, timedelta
+from datetime import datetime, UTC
 from fastapi import APIRouter, HTTPException, Request, Response, status
-from fastapi.responses import JSONResponse
-from config.database import SessionDependency
+import pytz
 
+from config.database import SessionDependency
 from helpers.crud import CRUD
+
 from mecsa_erp.usuarios.models import Sesion, Usuario
 from mecsa_erp.usuarios.schemas.auth import LoginForm
 from mecsa_erp.usuarios.schemas.usuario import UsuarioSimpleSchema
 from mecsa_erp.usuarios.security import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    REFRESH_TOKEN_EXPIRE_HOURS,
     authenticate_user,
-    create_token,
+    calculate_session_expiration,
+    create_access_token,
+    create_refresh_token,
     get_valid_acceses,
     verify_token,
 )
-
 from mecsa_erp.usuarios.crud.usuario import crud_usuario
 
 crud_sesion = CRUD[Sesion, Sesion](Sesion)
 
 router = APIRouter(tags=["Auth"], prefix="/auth")
 
-router.app
-
 
 @router.post("/login")
-def login(request: Request, form: LoginForm, session: SessionDependency):
+def login(
+    request: Request, response: Response, form: LoginForm, session: SessionDependency
+):
     usuario = crud_usuario.get(session, Usuario.username == form.username)
-
     authenticated = authenticate_user(usuario, form.password)
 
     if not authenticated:
@@ -36,57 +35,47 @@ def login(request: Request, form: LoginForm, session: SessionDependency):
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales no válidas"
         )
 
-    iat = datetime.now()
-    access_token_expiration = iat + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    sesion_expiration = refresh_token_expiration = iat + timedelta(
-        hours=REFRESH_TOKEN_EXPIRE_HOURS
-    )
+    iat = datetime.now(UTC)
 
+    session_expiration = calculate_session_expiration(iat)
     current_sesion = Sesion(
         usuario_id=usuario.usuario_id,
-        not_after=sesion_expiration,
+        not_after=session_expiration,
         ip=request.client.host,
     )
     crud_sesion.create(session, current_sesion)
 
-    access_token = create_token(
+    access_token = create_access_token(
         payload={
-            "aud": "authenticated",
-            "iat": iat,
-            "exp": access_token_expiration,
-            "sub": usuario.username,
+            "sub": usuario.usuario_id,
+            "username": usuario.username,
             "accesos": get_valid_acceses(usuario),
-        }
-    )
-
-    refresh_token = create_token(
-        payload={
-            "iat": iat,
-            "sid": str(current_sesion.sesion_id),
-            "exp": refresh_token_expiration,
-            "sub": usuario.username,
-        }
-    )
-
-    response = JSONResponse(
-        status_code=200,
-        content={
-            "message": "Inicio de sesión exitoso",
-            "usuario": UsuarioSimpleSchema.model_validate(usuario).model_dump(),
-            "access_token": access_token,
         },
+        iat=iat,
+    )
+
+    refresh_token = create_refresh_token(
+        payload={
+            "sid": str(current_sesion.sesion_id),
+            "username": usuario.username,
+        },
+        iat=iat,
     )
 
     response.set_cookie(
         key="refresh_token",
-        value=f"{refresh_token}",
+        value=refresh_token,
         httponly=True,
-        expires=int(timedelta(hours=REFRESH_TOKEN_EXPIRE_HOURS).total_seconds()),
+        expires=session_expiration.astimezone(UTC),
         secure=False,  # Cambiar a True en producción
         samesite="Lax",
     )
 
-    return response
+    return {
+        "message": "Inicio de sesión exitoso",
+        "usuario": UsuarioSimpleSchema.model_validate(usuario),
+        "access_token": access_token,
+    }
 
 
 @router.post("/refresh")
@@ -105,7 +94,7 @@ def logout(request: Request, response: Response, session: SessionDependency):
     claims = verify_token(refresh_token)
 
     current_sesion = crud_sesion.get_by_pk_or_404(session, claims["sid"])
-    current_sesion.not_after = datetime.now()
+    current_sesion.not_after = datetime.now(pytz.timezone("America/Lima"))
     session.add(current_sesion)
     session.commit()
 
