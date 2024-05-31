@@ -36,7 +36,8 @@ class Usuario(SQLModel, table=True):
     email: str = Field(unique=True)
     display_name: str
     is_active: bool = Field(default=True)
-
+    blocked_until: datetime | None = Field(default=None)
+    
     roles: list["Rol"] = Relationship(back_populates="usuarios", link_model=UsuarioRol)
 
 
@@ -75,5 +76,5 @@ class Sesion(SQLModel, table=True):
     ip: str
     
     __table_args__ = (
-        ForeignKeyConstraint(["usuario_id"], ["usuario.usuario_id"]),
+        ForeignKeyConstraint(["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"),
     )
