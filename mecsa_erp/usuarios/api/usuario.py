@@ -25,7 +25,7 @@ router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
 @router.get("/{usuario_id}", response_model=UsuarioSchema)
 def get_usuario(session: SessionDependency, usuario_id: int):
     usuario = crud_usuario.get_by_pk_or_404(
-        session, usuario_id, [joinedload(Usuario.roles).joinedload(Rol.accesos)]
+        session, usuario_id, [joinedload(Usuario.roles)]
     )
     return usuario
 
@@ -34,10 +34,10 @@ def get_usuario(session: SessionDependency, usuario_id: int):
 def list_usuarios(session: SessionDependency):
     usuarios = crud_usuario.get_multi(
         session,
-        options=[joinedload(Usuario.roles).joinedload(Rol.accesos)],
+        options=[joinedload(Usuario.roles)],
         apply_unique=True,
     )
-    return UsuarioListSchema(data=usuarios)
+    return UsuarioListSchema(usuarios=usuarios)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -102,7 +102,9 @@ def add_roles_to_usuario(
     usuario = crud_usuario.get_by_pk_or_404(session, usuario_id)
     for rol_id in set(rol_ids):
         rol = crud_rol.get_by_pk_or_404(session, rol_id)
-        exists = crud_usuario_rol.get_by_pk(session, {"usuario_id": usuario_id, "rol_id": rol_id})
+        exists = crud_usuario_rol.get_by_pk(
+            session, {"usuario_id": usuario_id, "rol_id": rol_id}
+        )
 
         if exists:
             raise HTTPException(
@@ -125,7 +127,9 @@ def delete_roles_from_usuario(
 ):
     usuario = crud_usuario.get_by_pk_or_404(session, usuario_id)
     for rol_id in set(rol_ids):
-        usuario_rol = crud_usuario_rol.get_by_pk(session, {"usuario_id": usuario_id, "rol_id": rol_id})
+        usuario_rol = crud_usuario_rol.get_by_pk(
+            session, {"usuario_id": usuario_id, "rol_id": rol_id}
+        )
 
         if not usuario_rol:
             raise HTTPException(

@@ -30,7 +30,7 @@ def list_roles(session: SessionDependency):
     roles = crud_rol.get_multi(
         session, options=[joinedload(Rol.accesos)], apply_unique=True
     )
-    return RolListSchema(data=roles)
+    return RolListSchema(roles=roles)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

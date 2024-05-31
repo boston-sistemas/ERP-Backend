@@ -39,7 +39,7 @@ class UsuarioUpdateSchema(SQLModel):
 
 
 class UsuarioListSchema(SQLModel):
-    data: list[UsuarioSchema]
+    usuarios: list[UsuarioSchema]
 
 
 #######################################################
@@ -71,7 +71,7 @@ class RolUpdateSchema(SQLModel):
 
 
 class RolListSchema(SQLModel):
-    data: list[RolSchema]
+    roles: list[RolSchema]
 
 
 #######################################################
@@ -92,4 +92,4 @@ class AccesoSchema(AccesoBase):
 
 
 class AccesoListSchema(SQLModel):
-    data: list[AccesoSchema]
+    accesos: list[AccesoSimpleSchema]
