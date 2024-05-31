@@ -74,7 +74,7 @@ def update_rol(session: SessionDependency, rol_id: int, rol: RolUpdateSchema):
 
 
 @router.delete("/{rol_id}")
-def delete_usuario(session: SessionDependency, rol_id: int):
+def delete_rol(session: SessionDependency, rol_id: int):
     rol = crud_rol.get_by_pk_or_404(session, rol_id)
     message = crud_rol.delete(session, rol)
     return {"message": message}

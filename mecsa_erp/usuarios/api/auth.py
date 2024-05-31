@@ -94,9 +94,11 @@ def logout(request: Request, response: Response, session: SessionDependency):
     claims = verify_token(refresh_token)
 
     current_sesion = crud_sesion.get_by_pk_or_404(session, claims["sid"])
-    current_sesion.not_after = datetime.now(pytz.timezone("America/Lima"))
-    session.add(current_sesion)
-    session.commit()
+    crud_sesion.update(
+        session,
+        current_sesion,
+        {"not_after": datetime.now(pytz.timezone("America/Lima")).replace(tzinfo=None)},
+    )
 
     response.delete_cookie(key="refresh_token")
     return {"message": "Sesión cerrada exitosamente"}

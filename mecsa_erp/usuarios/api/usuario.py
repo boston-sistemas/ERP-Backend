@@ -9,7 +9,7 @@ from mecsa_erp.usuarios.crud.usuario import (
     crud_usuario_rol,
     validate_usuario_data,
 )
-from mecsa_erp.usuarios.models import Usuario, UsuarioRol
+from mecsa_erp.usuarios.models import Rol, Usuario, UsuarioRol
 from mecsa_erp.usuarios.schemas.usuario import (
     UsuarioCreateSchema,
     UsuarioListSchema,
@@ -22,10 +22,10 @@ from mecsa_erp.usuarios.security import get_password_hash
 router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
 
 
-@router.get("/{username}", response_model=UsuarioSchema)
-def get_usuario(session: SessionDependency, username: str):
-    usuario = crud_usuario.get_or_404(
-        session, Usuario.username == username, [joinedload(Usuario.roles)]
+@router.get("/{usuario_id}", response_model=UsuarioSchema)
+def get_usuario(session: SessionDependency, usuario_id: int):
+    usuario = crud_usuario.get_by_pk_or_404(
+        session, usuario_id, [joinedload(Usuario.roles).joinedload(Rol.accesos)]
     )
     return usuario
 
@@ -34,7 +34,7 @@ def get_usuario(session: SessionDependency, username: str):
 def list_usuarios(session: SessionDependency):
     usuarios = crud_usuario.get_multi(
         session,
-        options=[joinedload(Usuario.roles)],
+        options=[joinedload(Usuario.roles).joinedload(Rol.accesos)],
         apply_unique=True,
     )
     return UsuarioListSchema(data=usuarios)
@@ -65,11 +65,11 @@ def create_usuario(session: SessionDependency, usuario: UsuarioCreateSchema):
     return {"message": message}
 
 
-@router.put("/{username}")
+@router.put("/{usuario_id}")
 def update_usuario(
-    session: SessionDependency, username: str, usuario: UsuarioUpdateSchema
+    session: SessionDependency, usuario_id: int, usuario: UsuarioUpdateSchema
 ):
-    db_usuario = crud_usuario.get_or_404(session, Usuario.username == username)
+    db_usuario = crud_usuario.get_by_pk_or_404(session, usuario_id)
 
     is_valid, detail = validate_usuario_data(session, usuario)
     if not is_valid:
@@ -85,9 +85,9 @@ def update_usuario(
     return {"message": message}
 
 
-@router.delete("/{username}")
-def delete_usuario(session: SessionDependency, username: str):
-    usuario = crud_usuario.get_or_404(session, Usuario.username == username)
+@router.delete("/{usuario_id}")
+def delete_usuario(session: SessionDependency, usuario_id: str):
+    usuario = crud_usuario.get_by_pk_or_404(session, usuario_id)
     message = crud_usuario.delete(session, usuario)
     return {"message": message}
 
@@ -95,19 +95,19 @@ def delete_usuario(session: SessionDependency, username: str):
 #######################################################
 
 
-@router.post("/{username}/roles/")
+@router.post("/{usuario_id}/roles/")
 def add_roles_to_usuario(
-    session: SessionDependency, username: str, rol_ids: list[int] = Body(embed=True)
+    session: SessionDependency, usuario_id: int, rol_ids: list[int] = Body(embed=True)
 ):
-    usuario = crud_usuario.get_or_404(session, Usuario.username == username)
+    usuario = crud_usuario.get_by_pk_or_404(session, usuario_id)
     for rol_id in set(rol_ids):
         rol = crud_rol.get_by_pk_or_404(session, rol_id)
-        exists = crud_usuario_rol.get_by_pk(session, (usuario.usuario_id, rol_id))
+        exists = crud_usuario_rol.get_by_pk(session, {"usuario_id": usuario_id, "rol_id": rol_id})
 
         if exists:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Usuario {username} ya tiene el rol: {rol.nombre}",
+                detail=f"Usuario {usuario.username} ya tiene el rol: {rol.nombre}",
             )
         crud_usuario_rol.create(
             session,
@@ -119,18 +119,18 @@ def add_roles_to_usuario(
     return {"message": "Roles añadidos"}
 
 
-@router.delete("/{username}/roles/")
+@router.delete("/{usuario_id}/roles/")
 def delete_roles_from_usuario(
-    session: SessionDependency, username: str, rol_ids: list[int] = Body(embed=True)
+    session: SessionDependency, usuario_id: int, rol_ids: list[int] = Body(embed=True)
 ):
-    usuario = crud_usuario.get_or_404(session, Usuario.username == username)
+    usuario = crud_usuario.get_by_pk_or_404(session, usuario_id)
     for rol_id in set(rol_ids):
-        usuario_rol = crud_usuario_rol.get_by_pk(session, (usuario.usuario_id, rol_id))
+        usuario_rol = crud_usuario_rol.get_by_pk(session, {"usuario_id": usuario_id, "rol_id": rol_id})
 
         if not usuario_rol:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Usuario {username} no tiene el rol con ID: {rol_id}",
+                detail=f"Usuario {usuario.username} no tiene el rol con ID: {rol_id}",
             )
         session.delete(usuario_rol)
 

@@ -4,11 +4,12 @@ from pydantic import EmailStr
 
 
 class UsuarioBase(SQLModel):
-    username: str = Field(min_length=1)
+    usuario_id: int
+    username: str
     email: EmailStr
-    display_name: str | None = None
-    is_active: bool = Field(default=True)
-    blocked_until: datetime | None = None
+    display_name: str
+    is_active: bool
+    blocked_until: datetime | None
 
 
 class UsuarioSimpleSchema(UsuarioBase):
@@ -16,11 +17,16 @@ class UsuarioSimpleSchema(UsuarioBase):
 
 
 class UsuarioSchema(UsuarioBase):
-    roles: list["RolSimpleSchema"]
+    roles: list["RolSchema"]
 
 
-class UsuarioCreateSchema(UsuarioBase):
-    password: str
+class UsuarioCreateSchema(SQLModel):
+    username: str = Field(min_length=1)
+    email: EmailStr
+    display_name: str
+    is_active: bool = Field(default=True)
+    blocked_until: datetime | None = None
+    password: str = Field(min_length=1)
     rol_ids: list[int] | None = None
 
 
