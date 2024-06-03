@@ -18,12 +18,7 @@ class RevisionStock(SQLModel):
     ordenes_cerradas: list[OrdenServicioTejeduriaSchema]
 
 
-class OrdenServicioTejeduriaEstadoEnum(str, Enum):
-    pendiente = "PENDIENTE"
-    cerrado = "CERRADO"
-    liquidado = "LIQUIDADO"
-
-
+#############################################################
 class OrdenServicioTejeduriaDetalleEstadoEnum(str, Enum):
     no_iniciado = "NO INICIADO"
     cerrado = "EN CURSO"
@@ -31,7 +26,7 @@ class OrdenServicioTejeduriaDetalleEstadoEnum(str, Enum):
     listo = "LISTO"
 
 
-class OrdenServicioTejeduriaIDSchema(SQLModel):
+class OrdenServicioTejeduriaDetalleIDSchema(SQLModel):
     orden_servicio_tejeduria_id: str
     crudo_id: str
 
@@ -42,16 +37,38 @@ class OrdenServicioTejeduriaDetalleUpdateSchema(SQLModel):
     estado: OrdenServicioTejeduriaDetalleEstadoEnum | None = None
 
 
-class OrdenServicioTejeduriaSchema(
-    OrdenServicioTejeduriaDetalleUpdateSchema, OrdenServicioTejeduriaIDSchema
+class OrdenServicioTejeduriaDetalleSchema(
+    OrdenServicioTejeduriaDetalleUpdateSchema, OrdenServicioTejeduriaDetalleIDSchema
 ):
     pass
 
 
 class OrdenServicioTejeduriaDetalleListUpdateSchema(SQLModel):
-    subordenes: list[OrdenServicioTejeduriaSchema]
+    subordenes: list[OrdenServicioTejeduriaDetalleSchema]
+
+
+#############################################################
+
+
+class OrdenServicioTejeduriaEstadoEnum(str, Enum):
+    pendiente = "PENDIENTE"
+    cerrado = "CERRADO"
+    liquidado = "LIQUIDADO"
+
+
+class OrdenServicioTejeduriaIDSchema(SQLModel):
+    orden_servicio_tejeduria_id: str
 
 
 class OrdenServicioTejeduriaUpdateSchema(SQLModel):
-    orden_servicio_tejeduria_id: str
     estado: OrdenServicioTejeduriaEstadoEnum
+
+
+class OrdenServicioTejeduriaSchema(
+    OrdenServicioTejeduriaUpdateSchema, OrdenServicioTejeduriaIDSchema
+):
+    pass
+
+
+class OrdenServicioTejeduriaListUpdateSchema(SQLModel):
+    ordenes: list[OrdenServicioTejeduriaSchema]

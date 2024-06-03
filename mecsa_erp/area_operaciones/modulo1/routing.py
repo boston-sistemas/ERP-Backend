@@ -8,7 +8,7 @@ from mecsa_erp.area_operaciones.modulo0.models import (
 )
 from mecsa_erp.area_operaciones.modulo1.schemas import (
     OrdenServicioTejeduriaDetalleListUpdateSchema,
-    OrdenServicioTejeduriaUpdateSchema,
+    OrdenServicioTejeduriaListUpdateSchema,
     RevisionStock,
     ReporteStock,
 )
@@ -16,7 +16,7 @@ from mecsa_erp.area_operaciones.modulo1.schemas import (
 crud_orden_servicio_tejeduria = CRUD[OrdenServicioTejeduria, OrdenServicioTejeduria](
     OrdenServicioTejeduria
 )
-crud_orden_servicio_detalle_tejeduria = CRUD[
+crud_orden_servicio_tejeduria_detalle = CRUD[
     OrdenServicioTejeduriaDetalle, OrdenServicioTejeduriaDetalle
 ](OrdenServicioTejeduriaDetalle)
 
@@ -45,18 +45,18 @@ def reporte_stock_update_suborders(
 ):
     subordenes = body.subordenes
     for suborden in subordenes:
-        db_suborden = crud_orden_servicio_detalle_tejeduria.get_by_pk_or_404(
+        db_suborden = crud_orden_servicio_tejeduria_detalle.get_by_pk_or_404(
             session,
             {
                 "orden_servicio_tejeduria_id": suborden.orden_servicio_tejeduria_id,
                 "crudo_id": suborden.crudo_id,
             },
         )
-        crud_orden_servicio_detalle_tejeduria.update(
+        crud_orden_servicio_tejeduria_detalle.update(
             session,
             db_suborden,
             suborden.model_dump(
-                exclude={"orden_servicio_tejeduria_id", "crudo_id"}, exclude_unset=True
+                exclude={"orden_servicio_tejeduria_id", "crudo_id"}, exclude_none=True
             ),
             commit=False,
         )
@@ -64,11 +64,23 @@ def reporte_stock_update_suborders(
     return {"message": "Subordenes actualizadas"}
 
 
-@router.put("/reporte-stock/ordenes")
-def reporte_stock_update_orders(
-    orders: list[OrdenServicioTejeduriaUpdateSchema], session: SessionDependency
+@router.put("/revision-stock/ordenes")
+def revision_stock_update_orders(
+    body: OrdenServicioTejeduriaListUpdateSchema, session: SessionDependency
 ):
-    pass
+    ordenes = body.ordenes
+    for orden in ordenes:
+        db_orden = crud_orden_servicio_tejeduria.get_by_pk_or_404(
+            session, orden.orden_servicio_tejeduria_id
+        )
+        crud_orden_servicio_tejeduria.update(
+            session,
+            db_orden,
+            orden.model_dump(exclude={"orden_servicio_tejeduria_id"}),
+            commit=False,
+        )
+    session.commit()
+    return {"message": "Ordenes actualizadas"}
 
 
 @router.get("/revision-stock")
