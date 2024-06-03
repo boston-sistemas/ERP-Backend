@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import Boolean, ForeignKeyConstraint, Numeric
 from sqlmodel import Relationship, SQLModel, Field
 from decimal import Decimal
@@ -60,6 +61,7 @@ class OrdenServicioTejeduria(SQLModel, table=True):
     
     orden_servicio_tejeduria_id: str = Field(primary_key=True)
     tejeduria_id: str
+    fecha: datetime
     estado: str
 
     proveedor: Proveedor = Relationship(back_populates="ordenes_servicio_tejeduria")
