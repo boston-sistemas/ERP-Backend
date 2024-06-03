@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from sqlmodel import Field, SQLModel
 
@@ -9,8 +10,12 @@ from mecsa_erp.area_operaciones.modulo0.schemas.orden_servicio_tejeduria_detalle
 )
 
 
+class SubordenSimpleSchema(OrdenServicioTejeduriaDetalleSchema):
+    fecha: datetime
+
+
 class ReporteStock(SQLModel):
-    subordenes: list[OrdenServicioTejeduriaDetalleSchema]
+    subordenes: list[SubordenSimpleSchema]
 
 
 class RevisionStock(SQLModel):
@@ -19,6 +24,8 @@ class RevisionStock(SQLModel):
 
 
 #############################################################
+
+
 class OrdenServicioTejeduriaDetalleEstadoEnum(str, Enum):
     no_iniciado = "NO INICIADO"
     cerrado = "EN CURSO"
