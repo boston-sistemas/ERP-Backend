@@ -3,10 +3,13 @@ from sqlmodel import SQLModel
 from mecsa_erp.area_operaciones.modulo0.schemas.orden_servicio_tejeduria import (
     OrdenServicioTejeduriaSchema,
 )
+from mecsa_erp.area_operaciones.modulo0.schemas.orden_servicio_tejeduria_detalle import (
+    OrdenServicioTejeduriaDetalleSchema,
+)
 
 
 class ReporteStock(SQLModel):
-    ordenes: list[OrdenServicioTejeduriaSchema]
+    subordenes: list[OrdenServicioTejeduriaDetalleSchema]
 
 
 class RevisionStock(SQLModel):

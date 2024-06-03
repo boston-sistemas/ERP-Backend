@@ -12,20 +12,23 @@ crud_orden_servicio_tejeduria = CRUD[OrdenServicioTejeduria, OrdenServicioTejedu
 router = APIRouter(prefix="/operations/v1", tags=["Area Operaciones"])
 
 
-@router.get("/reporte-stock/{proveedor_id}")
-def reporte_stock(proveedor_id: str, session: SessionDependency):
+@router.get("/reporte-stock")
+def reporte_stock(session: SessionDependency):
     # TODO: Encontrar el codigo del proveedor asociado al usuario
-    items = crud_orden_servicio_tejeduria.get_multi(
+    proveedor_id = "RSA"
+    ordenes = crud_orden_servicio_tejeduria.get_multi(
         session,
         (
             (OrdenServicioTejeduria.tejeduria_id == proveedor_id)
             & (OrdenServicioTejeduria.estado == "PENDIENTE")
         ),
     )
-    return ReporteStock(ordenes=items)
+
+    items = [detalle for orden in ordenes for detalle in orden.detalles]
+    return ReporteStock(subordenes=items)
 
 
-@router.get("/revision-stock/")
+@router.get("/revision-stock")
 def revision_stock(session: SessionDependency):
     pendientes = crud_orden_servicio_tejeduria.get_multi(
         session,
