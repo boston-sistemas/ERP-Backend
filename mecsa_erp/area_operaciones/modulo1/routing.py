@@ -64,6 +64,21 @@ def reporte_stock_update_suborders(
     return {"message": "Subordenes actualizadas"}
 
 
+@router.get("/revision-stock", response_model=RevisionStock)
+def revision_stock(session: SessionDependency):
+    pendientes = crud_orden_servicio_tejeduria.get_multi(
+        session,
+        (OrdenServicioTejeduria.estado == "PENDIENTE"),
+    )
+
+    cerrados = crud_orden_servicio_tejeduria.get_multi(
+        session,
+        (OrdenServicioTejeduria.estado == "CERRADO"),
+    )
+
+    return RevisionStock(ordenes_pendientes=pendientes, ordenes_cerradas=cerrados)
+
+
 @router.put("/revision-stock/ordenes")
 def revision_stock_update_orders(
     body: OrdenServicioTejeduriaListUpdateSchema, session: SessionDependency
@@ -81,18 +96,3 @@ def revision_stock_update_orders(
         )
     session.commit()
     return {"message": "Ordenes actualizadas"}
-
-
-@router.get("/revision-stock")
-def revision_stock(session: SessionDependency):
-    pendientes = crud_orden_servicio_tejeduria.get_multi(
-        session,
-        (OrdenServicioTejeduria.estado == "PENDIENTE"),
-    )
-
-    cerrados = crud_orden_servicio_tejeduria.get_multi(
-        session,
-        (OrdenServicioTejeduria.estado == "CERRADO"),
-    )
-
-    return RevisionStock(ordenes_pendientes=pendientes, ordenes_cerradas=cerrados)

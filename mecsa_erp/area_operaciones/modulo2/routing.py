@@ -9,7 +9,7 @@ from mecsa_erp.area_operaciones.modulo1.routing import crud_orden_servicio_tejed
 router = APIRouter(prefix="/operations/v1", tags=["Area Operaciones"])
 
 
-@router.get("/programacion-tintoreria")
+@router.get("/programacion-tintoreria", response_model=ProgramacionTintoreria)
 def programacion_tintoreria(session: SessionDependency):
     pendientes = crud_orden_servicio_tejeduria.get_multi(
         session,
