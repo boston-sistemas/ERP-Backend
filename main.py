@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from config.routing import api_router
@@ -11,10 +11,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  
-    allow_headers=["*"],  
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -22,4 +22,5 @@ app.add_middleware(
 async def home():
     return {"message": "MECSA - Sistema ERP"}
 
-app.include_router(api_router, prefix=settings.API_V1_STR)
+
+app.include_router(api_router)

@@ -6,7 +6,7 @@ from mecsa_erp.area_operaciones.modulo0.models import OrdenServicioTejeduria
 from mecsa_erp.area_operaciones.modulo2.schemas import ProgramacionTintoreria
 from mecsa_erp.area_operaciones.modulo1.routing import crud_orden_servicio_tejeduria
 
-router = APIRouter(tags=["Módulo 2"], prefix="/modulo2")
+router = APIRouter(prefix="/operations/v1", tags=["Area Operaciones"])
 
 
 @router.get("/programacion-tintoreria")

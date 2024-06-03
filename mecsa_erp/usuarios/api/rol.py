@@ -16,7 +16,7 @@ crud_acceso = CRUD[Acceso, Acceso](Acceso)
 crud_rol = CRUD[Rol, RolCreateSchema](Rol)
 crud_rol_acceso = CRUD[RolAcceso, RolAcceso](RolAcceso)
 
-router = APIRouter(tags=["Roles"], prefix="/roles")
+router = APIRouter(tags=["Seguridad - Roles"], prefix="/roles")
 
 
 @router.get("/{rol_id}", response_model=RolSchema)

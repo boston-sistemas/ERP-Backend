@@ -19,7 +19,7 @@ from mecsa_erp.usuarios.schemas.usuario import (
 from mecsa_erp.usuarios.security import get_password_hash
 
 
-router = APIRouter(tags=["Usuarios"], prefix="/usuarios")
+router = APIRouter(tags=["Seguridad - Usuarios"], prefix="/usuarios")
 
 
 @router.get("/{usuario_id}", response_model=UsuarioSchema)

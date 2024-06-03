@@ -9,7 +9,7 @@ from mecsa_erp.usuarios.schemas.usuario import AccesoListSchema
 
 crud_acceso = CRUD[Acceso, Acceso](Acceso)
 
-router = APIRouter(tags=["Accesos"], prefix="/accesos")
+router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
 
 
 @router.get("/", response_model=AccesoListSchema)

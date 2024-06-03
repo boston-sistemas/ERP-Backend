@@ -20,7 +20,7 @@ from mecsa_erp.usuarios.crud.usuario import crud_usuario
 
 crud_sesion = CRUD[Sesion, Sesion](Sesion)
 
-router = APIRouter(tags=["Auth"], prefix="/auth")
+router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
 
 
 @router.post("/login")

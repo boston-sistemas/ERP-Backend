@@ -9,7 +9,7 @@ crud_orden_servicio_tejeduria = CRUD[OrdenServicioTejeduria, OrdenServicioTejedu
     OrdenServicioTejeduria
 )
 
-router = APIRouter(tags=["Módulo 1"], prefix="/modulo1")
+router = APIRouter(prefix="/operations/v1", tags=["Area Operaciones"])
 
 
 @router.get("/reporte-stock/{proveedor_id}")
