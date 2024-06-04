@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, ForeignKeyConstraint, Numeric
+from sqlalchemy import ForeignKeyConstraint, Numeric
 from sqlmodel import Relationship, SQLModel, Field
 from decimal import Decimal
 
@@ -109,8 +109,9 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
     
     orden_servicio_tejeduria_id: str = Field(primary_key=True)
     crudo_id: str = Field(primary_key=True)
-    cantidad_kg: Decimal = Field(sa_type=Numeric)
-    es_complemento: bool = Field(sa_type=Boolean)
+    programado_kg: Decimal = Field(sa_type=Numeric)
+    consumido_kg: Decimal = Field(sa_type=Numeric)
+    es_complemento: bool
     estado: str
     reporte_tejeduria_nro_rollos: int
     reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
