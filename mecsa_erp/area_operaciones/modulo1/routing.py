@@ -9,7 +9,6 @@ from mecsa_erp.area_operaciones.modulo0.models import (
 from mecsa_erp.area_operaciones.modulo1.schemas import (
     OrdenServicioTejeduriaDetalleListUpdateSchema,
     OrdenServicioTejeduriaListUpdateSchema,
-    SubordenSimpleSchema,
     RevisionStock,
     ReporteStock,
 )
@@ -36,12 +35,7 @@ def reporte_stock(session: SessionDependency):
         ),
     )
 
-    items = [
-        SubordenSimpleSchema(**detalle.model_dump(), fecha=orden.fecha)
-        for orden in ordenes
-        for detalle in orden.detalles
-    ]
-    return ReporteStock(subordenes=items)
+    return ReporteStock(ordenes=ordenes)
 
 
 @router.put("/reporte-stock/subordenes")

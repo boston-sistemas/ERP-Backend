@@ -15,7 +15,7 @@ class SubordenSimpleSchema(OrdenServicioTejeduriaDetalleSchema):
 
 
 class ReporteStock(SQLModel):
-    subordenes: list[SubordenSimpleSchema]
+    ordenes: list[OrdenServicioTejeduriaSchema]
 
 
 class RevisionStock(SQLModel):
