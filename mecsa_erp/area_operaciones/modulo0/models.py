@@ -12,7 +12,8 @@ from mecsa_erp.area_operaciones.constants import (
     MAX_LENGTH_HILADO_PROCEDENCIA,
     MAX_LENGTH_HILADO_TITULO,
     MAX_LENGTH_MOVIMIENTO_ID,
-    MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO_DETALLE,
+    MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO,
+    MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO,
     MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID,
     MAX_LENGTH_PROVEEDOR_ID,
     MAX_LENGTH_TEJIDO_ID,
@@ -90,7 +91,7 @@ class OrdenServicioTejeduria(SQLModel, table=True):
     tejeduria_id: str = Field(sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID))
     fecha: datetime
     estado: str = Field(
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO_DETALLE)
+        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
     )
 
     proveedor: Proveedor = Relationship(back_populates="ordenes_servicio_tejeduria")
@@ -109,15 +110,19 @@ class OrdenServicioTejeduriaEstado(SQLModel, table=True):
 
     estado: str = Field(
         primary_key=True,
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO_DETALLE),
+        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO),
     )
 
 
 class MovimientoSalidaHilado(SQLModel, table=True):
     __tablename__ = "movimiento_salida_hilado"
 
-    movimiento_salida_id: str = Field(primary_key=True)
-    orden_servicio_tejeduria_id: str
+    movimiento_salida_id: str = Field(
+        primary_key=True, sa_type=String(length=MAX_LENGTH_MOVIMIENTO_ID)
+    )
+    orden_servicio_tejeduria_id: str = Field(
+        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    )
 
     __table_args__ = (
         ForeignKeyConstraint(["movimiento_salida_id"], ["movimiento.movimiento_id"]),
@@ -131,9 +136,13 @@ class MovimientoSalidaHilado(SQLModel, table=True):
 class MovimientoSalidaHiladoDetalle(SQLModel, table=True):
     __tablename__ = "movimiento_salida_hilado_detalle"
 
-    movimiento_salida_id: str = Field(primary_key=True)
-    movimiento_ingreso_id: str = Field(primary_key=True)
-    hilado_id: str
+    movimiento_salida_id: str = Field(
+        primary_key=True, sa_type=String(length=MAX_LENGTH_MOVIMIENTO_ID)
+    )
+    movimiento_ingreso_id: str = Field(
+        primary_key=True, sa_type=String(length=MAX_LENGTH_MOVIMIENTO_ID)
+    )
+    hilado_id: str = Field(sa_type=String(length=MAX_LENGTH_HILADO_ID))
     nro_bultos: int
     nro_conos: int
     cantidad_kg: Decimal = Field(sa_type=Numeric)
@@ -148,12 +157,16 @@ class MovimientoSalidaHiladoDetalle(SQLModel, table=True):
 class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
     __tablename__ = "orden_servicio_tejeduria_detalle"
 
-    orden_servicio_tejeduria_id: str = Field(primary_key=True)
-    crudo_id: str = Field(primary_key=True)
+    orden_servicio_tejeduria_id: str = Field(
+        primary_key=True, sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    )
+    crudo_id: str = Field(primary_key=True, sa_type=String(length=MAX_LENGTH_CRUDO_ID))
     programado_kg: Decimal = Field(sa_type=Numeric)
     consumido_kg: Decimal = Field(sa_type=Numeric)
     es_complemento: bool
-    estado: str
+    estado: str = Field(
+        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
+    )
     reporte_tejeduria_nro_rollos: int
     reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
 
@@ -174,4 +187,7 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
 class OrdenServicioTejeduriaDetalleEstado(SQLModel, table=True):
     __tablename__ = "orden_servicio_tejeduria_detalle_estado"
 
-    estado: str = Field(primary_key=True)
+    estado: str = Field(
+        primary_key=True,
+        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO),
+    )
