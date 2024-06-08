@@ -112,7 +112,7 @@ class MovimientoDescripcion(SQLModel, table=True):
     movimiento_descripcion_id: str = Field(
         primary_key=True, sa_type=String(length=MAX_LENGTH_MOVIMIENTO_DESCRIPCION_ID)
     )
-    movimiento_tipo: str = Field(sa_type=CHAR)
+    movimiento_tipo: str = Field(sa_type=CHAR(length=1))
     almacen_id: str = Field(sa_type=String(length=MAX_LENGTH_ALMACEN_ID))
     descripcion: str = Field(sa_type=String(length=MAX_LENGTH_MOVIMIENTO_DESCRIPCION))
 

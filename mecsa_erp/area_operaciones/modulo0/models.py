@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import ForeignKeyConstraint, Numeric, String
+from sqlalchemy import ForeignKeyConstraint, String
 from sqlmodel import Relationship, SQLModel, Field
 from decimal import Decimal
 
@@ -59,7 +59,7 @@ class Crudo(SQLModel, table=True):
     ancho: int
     galga: int
     diametro: int
-    longitud_malla: Decimal = Field(sa_type=Numeric)
+    longitud_malla: Decimal
 
     __table_args__ = (ForeignKeyConstraint(["tejido_id"], ["tejido.tejido_id"]),)
 
@@ -73,7 +73,7 @@ class MovimientoIngresoHiladoDetalle(SQLModel, table=True):
     hilado_id: str = Field(sa_type=String(length=MAX_LENGTH_HILADO_ID))
     nro_bultos: int
     nro_conos: int
-    cantidad_kg: Decimal = Field(sa_type=Numeric)
+    cantidad_kg: Decimal
     codigo_lote: str = Field(sa_type=String(length=MAX_LENGTH_CODIGO_LOTE))
 
     __table_args__ = (
@@ -145,7 +145,7 @@ class MovimientoSalidaHiladoDetalle(SQLModel, table=True):
     hilado_id: str = Field(sa_type=String(length=MAX_LENGTH_HILADO_ID))
     nro_bultos: int
     nro_conos: int
-    cantidad_kg: Decimal = Field(sa_type=Numeric)
+    cantidad_kg: Decimal
 
     __table_args__ = (
         ForeignKeyConstraint(["movimiento_salida_id"], ["movimiento.movimiento_id"]),
@@ -161,14 +161,14 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
         primary_key=True, sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
     )
     crudo_id: str = Field(primary_key=True, sa_type=String(length=MAX_LENGTH_CRUDO_ID))
-    programado_kg: Decimal = Field(sa_type=Numeric)
-    consumido_kg: Decimal = Field(sa_type=Numeric)
+    programado_kg: Decimal
+    consumido_kg: Decimal
     es_complemento: bool
     estado: str = Field(
         sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
     )
     reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
+    reporte_tejeduria_cantidad_kg: Decimal
 
     orden_servicio: OrdenServicioTejeduria = Relationship(back_populates="detalles")
 

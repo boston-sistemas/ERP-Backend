@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, Numeric, String, func
+from sqlalchemy import TIMESTAMP, Column, String, func
 from sqlmodel import SQLModel, Field
 
 from datetime import datetime
@@ -26,5 +26,5 @@ class OrdenServicioTejeduriaDetalleReporteLog(SQLModel, table=True):
         sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
     )
     reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: Decimal = Field(sa_type=Numeric)
+    reporte_tejeduria_cantidad_kg: Decimal
     timestamp: datetime = Field(sa_column=Column(TIMESTAMP, server_default=func.now()))
