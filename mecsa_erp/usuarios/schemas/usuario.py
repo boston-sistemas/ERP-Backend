@@ -17,7 +17,7 @@ class UsuarioSimpleSchema(UsuarioBase):
 
 
 class UsuarioSchema(UsuarioBase):
-    roles: list["RolSchema"]
+    roles: list["RolSimpleSchema"]
 
 
 class UsuarioCreateSchema(SQLModel):

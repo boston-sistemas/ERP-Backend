@@ -15,4 +15,3 @@ def get_session() -> Generator[Session, None, None]:
 
 
 SessionDependency = Annotated[Session, Depends(get_session)]
-from sqlalchemy.orm import sessionmaker

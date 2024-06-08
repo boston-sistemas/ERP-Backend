@@ -50,8 +50,8 @@ class Usuario(SQLModel, table=True):
         unique=True, sa_type=String(length=MAX_LENGTH_USUARIO_USERNAME)
     )
     password: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_PASSWORD))
-    email: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_USUARIO_EMAIL))
-    display_name: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME))
+    email: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_EMAIL))
+    display_name: str | None = Field(sa_type=String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME))
     is_active: bool = Field(default=True)
     blocked_until: datetime | None = Field(default=None)
 
