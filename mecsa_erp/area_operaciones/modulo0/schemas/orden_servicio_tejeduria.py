@@ -7,14 +7,15 @@ from .orden_servicio_tejeduria_detalle import OrdenServicioTejeduriaDetalleSchem
 
 
 class OrdenServicioTejeduriaBase(SQLModel):
-    tejeduria_id: str
     orden_servicio_tejeduria_id: str
+    tejeduria_id: str
     fecha: datetime
     estado: str
 
 
 class OrdenServicioTejeduriaSimpleSchema(OrdenServicioTejeduriaBase):
     pass
+
 
 class OrdenServicioTejeduriaSchema(OrdenServicioTejeduriaBase):
     proveedor: ProveedorSchema
@@ -29,6 +30,14 @@ class OrdenServicioTejeduriaSimpleListSchema(SQLModel):
 class OrdenServicioTejeduriaListSchema(SQLModel):
     data: list[OrdenServicioTejeduriaSchema]
     count: int = None
+
+
+class OrdenServicioTejeduriaWithDetallesSchema(OrdenServicioTejeduriaBase):
+    detalles: list[OrdenServicioTejeduriaDetalleSchema]
+
+
+class OrdenServicioTejeduriaWithDetallesListSchema(SQLModel):
+    ordenes: list[OrdenServicioTejeduriaWithDetallesSchema]
 
 
 class OrdenServicioTejeduriaUpdateSchema(SQLModel):

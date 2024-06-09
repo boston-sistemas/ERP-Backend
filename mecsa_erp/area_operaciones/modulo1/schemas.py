@@ -71,11 +71,11 @@ class OrdenServicioTejeduriaUpdateSchema(SQLModel):
     estado: OrdenServicioTejeduriaEstadoEnum
 
 
-class OrdenServicioTejeduriaSchema(
+class OrdenServicioTejeduriaUpdateSchemaByID(
     OrdenServicioTejeduriaUpdateSchema, OrdenServicioTejeduriaIDSchema
 ):
     pass
 
 
 class OrdenServicioTejeduriaListUpdateSchema(SQLModel):
-    ordenes: list[OrdenServicioTejeduriaSchema]
+    ordenes: list[OrdenServicioTejeduriaUpdateSchemaByID]

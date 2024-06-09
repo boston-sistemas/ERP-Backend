@@ -1,3 +1,4 @@
+from pydantic import computed_field
 from sqlmodel import SQLModel
 from decimal import Decimal
 
@@ -14,4 +15,11 @@ class OrdenServicioTejeduriaDetalleBase(SQLModel):
 
 
 class OrdenServicioTejeduriaDetalleSchema(OrdenServicioTejeduriaDetalleBase):
-    pass
+
+    @computed_field
+    def kg_por_rollo(self) -> float:
+        if self.reporte_tejeduria_nro_rollos == 0:
+            return 0.0
+        return round(
+            self.reporte_tejeduria_cantidad_kg / self.reporte_tejeduria_nro_rollos, 3
+        )
