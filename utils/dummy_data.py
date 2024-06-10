@@ -1,6 +1,10 @@
 import functions
 from config.database import get_session
-from mecsa_erp.area_operaciones.core.models import Proveedor
+from mecsa_erp.area_operaciones.core.models import (
+    Proveedor,
+    ProveedorServicio,
+    Servicio,
+)
 from mecsa_erp.area_operaciones.modulo0.models import (
     Crudo,
     OrdenServicioTejeduria,
@@ -9,6 +13,7 @@ from mecsa_erp.area_operaciones.modulo0.models import (
     OrdenServicioTejeduriaEstado,
     Tejido,
 )
+from mecsa_erp.area_operaciones.modulo2.models import Color
 from mecsa_erp.usuarios.models import Acceso, Rol, RolAcceso
 
 
@@ -77,6 +82,21 @@ def generate_proveedor():
 
 
 @insert_data
+def generate_servicio():
+    objects = [
+        {"nombre": "TEJEDURIA"},
+        {"nombre": "TINTORERIA"},
+    ]
+    return Servicio, objects
+
+
+@insert_data
+def generate_proveedor_servicio():
+    objects = get_objects_from_csv("proveedor_servicio.csv")
+    return ProveedorServicio, objects
+
+
+@insert_data
 def generate_crudo():
     objects = get_objects_from_csv("crudo.csv")
     return Crudo, objects
@@ -93,6 +113,12 @@ def generate_orden_servicio_tejeduria_detalle():
     converters = {"es_complemento": lambda value: value == "True"}
     objects = get_objects_from_csv("orden_servicio_tejeduria_detalle.csv", converters)
     return OrdenServicioTejeduriaDetalle, objects
+
+
+@insert_data
+def generate_color():
+    objects = get_objects_from_csv("color.csv")
+    return Color, objects
 
 
 @insert_data
@@ -128,12 +154,15 @@ def generate_rol_acceso():
 
 def generate_dummy_data():
     generate_proveedor()
+    generate_servicio()
+    generate_proveedor_servicio()
     generate_tejido()
     generate_crudo()
     generate_orden_servicio_tejeduria_estado()
     generate_orden_servicio_tejeduria_detalle_estado()
     generate_orden_servicio_tejeduria()
     generate_orden_servicio_tejeduria_detalle()
+    generate_color()
 
     generate_rol()
     generate_acceso()
