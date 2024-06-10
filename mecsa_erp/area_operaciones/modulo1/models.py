@@ -2,7 +2,6 @@ from sqlalchemy import TIMESTAMP, Column, String, func
 from sqlmodel import SQLModel, Field
 
 from datetime import datetime
-from decimal import Decimal
 from uuid import UUID
 
 from mecsa_erp.area_operaciones.constants import (
@@ -26,5 +25,5 @@ class OrdenServicioTejeduriaDetalleReporteLog(SQLModel, table=True):
         sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
     )
     reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: Decimal
+    reporte_tejeduria_cantidad_kg: float
     timestamp: datetime = Field(sa_column=Column(TIMESTAMP, server_default=func.now()))

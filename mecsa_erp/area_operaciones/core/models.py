@@ -38,7 +38,9 @@ if TYPE_CHECKING:
 class ProveedorServicio(SQLModel, table=True):
     __tablename__ = "proveedor_servicio"
 
-    proveedor_id: str = Field(primary_key=True)
+    proveedor_id: str = Field(
+        primary_key=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID)
+    )
     servicio_id: int = Field(primary_key=True)
 
     __table_args__ = (

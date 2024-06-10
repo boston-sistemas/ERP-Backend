@@ -1,7 +1,6 @@
 from datetime import datetime
 from sqlalchemy import ForeignKeyConstraint, String
 from sqlmodel import Relationship, SQLModel, Field
-from decimal import Decimal
 
 from mecsa_erp.area_operaciones.constants import (
     MAX_LENGTH_CODIGO_LOTE,
@@ -59,7 +58,7 @@ class Crudo(SQLModel, table=True):
     ancho: int
     galga: int
     diametro: int
-    longitud_malla: Decimal
+    longitud_malla: float
 
     __table_args__ = (ForeignKeyConstraint(["tejido_id"], ["tejido.tejido_id"]),)
 
@@ -73,7 +72,7 @@ class MovimientoIngresoHiladoDetalle(SQLModel, table=True):
     hilado_id: str = Field(sa_type=String(length=MAX_LENGTH_HILADO_ID))
     nro_bultos: int
     nro_conos: int
-    cantidad_kg: Decimal
+    cantidad_kg: float
     codigo_lote: str = Field(sa_type=String(length=MAX_LENGTH_CODIGO_LOTE))
 
     __table_args__ = (
@@ -145,7 +144,7 @@ class MovimientoSalidaHiladoDetalle(SQLModel, table=True):
     hilado_id: str = Field(sa_type=String(length=MAX_LENGTH_HILADO_ID))
     nro_bultos: int
     nro_conos: int
-    cantidad_kg: Decimal
+    cantidad_kg: float
 
     __table_args__ = (
         ForeignKeyConstraint(["movimiento_salida_id"], ["movimiento.movimiento_id"]),
@@ -161,14 +160,14 @@ class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
         primary_key=True, sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
     )
     crudo_id: str = Field(primary_key=True, sa_type=String(length=MAX_LENGTH_CRUDO_ID))
-    programado_kg: Decimal
-    consumido_kg: Decimal
+    programado_kg: float
+    consumido_kg: float
     es_complemento: bool
     estado: str = Field(
         sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
     )
     reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: Decimal
+    reporte_tejeduria_cantidad_kg: float
 
     orden_servicio: OrdenServicioTejeduria = Relationship(back_populates="detalles")
 
