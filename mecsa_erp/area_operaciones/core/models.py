@@ -4,7 +4,9 @@ from sqlalchemy import (
     CHAR,
     DATE,
     ForeignKeyConstraint,
+    Identity,
     Index,
+    Integer,
     func,
     String,
 )
@@ -23,8 +25,10 @@ from mecsa_erp.area_operaciones.constants import (
     MAX_LENGTH_ORDEN_COMPRA_ID,
     MAX_LENGTH_PRODUCTO_DESCRIPCION,
     MAX_LENGTH_PRODUCTO_ID,
+    MAX_LENGTH_PROVEEDOR_ALIAS,
     MAX_LENGTH_PROVEEDOR_ID,
-    MAX_LENGTH_RAZON_SOCIAL,
+    MAX_LENGTH_PROVEEDOR_RAZON_SOCIAL,
+    MAX_LENGTH_SERVICIO_NOMBRE,
 )
 
 if TYPE_CHECKING:
@@ -38,11 +42,32 @@ class Proveedor(SQLModel, table=True):
         primary_key=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID)
     )
     razon_social: str = Field(
-        unique=True, sa_type=String(length=MAX_LENGTH_RAZON_SOCIAL)
+        unique=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_RAZON_SOCIAL)
     )
+    alias: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_ALIAS))
 
     ordenes_servicio_tejeduria: list["OrdenServicioTejeduria"] = Relationship(
         back_populates="proveedor"
+    )
+
+
+class Servicio(SQLModel, table=True):
+    __tablename__ = "servicio"
+    servicio_id: int = Field(
+        sa_column=Column(Integer, Identity(start=1), primary_key=True)
+    )
+    nombre: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_SERVICIO_NOMBRE))
+
+
+class ProveedorServicio(SQLModel, table=True):
+    __tablename__ = "proveedor_servicio"
+
+    proveedor_id: str = Field(primary_key=True)
+    servicio_id: int = Field(primary_key=True)
+
+    __table_args__ = (
+        ForeignKeyConstraint(["proveedor_id"], ["proveedor.proveedor_id"]),
+        ForeignKeyConstraint(["servicio_id"], ["servicio.servicio_id"]),
     )
 
 
