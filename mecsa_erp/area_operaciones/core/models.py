@@ -35,6 +35,18 @@ if TYPE_CHECKING:
     from mecsa_erp.area_operaciones.modulo0.models import OrdenServicioTejeduria
 
 
+class ProveedorServicio(SQLModel, table=True):
+    __tablename__ = "proveedor_servicio"
+
+    proveedor_id: str = Field(primary_key=True)
+    servicio_id: int = Field(primary_key=True)
+
+    __table_args__ = (
+        ForeignKeyConstraint(["proveedor_id"], ["proveedor.proveedor_id"]),
+        ForeignKeyConstraint(["servicio_id"], ["servicio.servicio_id"]),
+    )
+
+
 class Proveedor(SQLModel, table=True):
     __tablename__ = "proveedor"
 
@@ -57,18 +69,7 @@ class Servicio(SQLModel, table=True):
         sa_column=Column(Integer, Identity(start=1), primary_key=True)
     )
     nombre: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_SERVICIO_NOMBRE))
-
-
-class ProveedorServicio(SQLModel, table=True):
-    __tablename__ = "proveedor_servicio"
-
-    proveedor_id: str = Field(primary_key=True)
-    servicio_id: int = Field(primary_key=True)
-
-    __table_args__ = (
-        ForeignKeyConstraint(["proveedor_id"], ["proveedor.proveedor_id"]),
-        ForeignKeyConstraint(["servicio_id"], ["servicio.servicio_id"]),
-    )
+    proveedores: list[Proveedor] = Relationship(link_model=ProveedorServicio)
 
 
 class OrdenCompra(SQLModel, table=True):
