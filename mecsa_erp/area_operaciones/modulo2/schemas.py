@@ -1,9 +1,10 @@
 from sqlmodel import SQLModel
 
-from mecsa_erp.area_operaciones.modulo0.schemas.orden_servicio_tejeduria_detalle import (
-    OrdenServicioTejeduriaDetalleSchema,
-)
+from mecsa_erp.area_operaciones.core.schemas.proveedor import ProveedorSchema
+from mecsa_erp.area_operaciones.modulo2.models import Color
 
 
 class ProgramacionTintoreria(SQLModel):
-    subordenes: list[OrdenServicioTejeduriaDetalleSchema]
+    tejedurias: list[ProveedorSchema]
+    tintorerias: list[ProveedorSchema]
+    colores: list[Color]

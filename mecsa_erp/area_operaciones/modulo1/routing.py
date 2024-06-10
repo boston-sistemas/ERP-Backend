@@ -26,7 +26,7 @@ router = APIRouter(prefix="/operations/v1", tags=["Area Operaciones"])
 @router.get("/reporte-stock", response_model=ReporteStock)
 def reporte_stock(session: SessionDependency):
     # TODO: Encontrar el codigo del proveedor asociado al usuario
-    proveedor_id = "RSA"
+    proveedor_id = "P006"
     ordenes = crud_orden_servicio_tejeduria.get_multi(
         session,
         (
