@@ -5,7 +5,7 @@ import pytz
 from typing import Any
 
 from config.settings import settings
-from mecsa_erp.usuarios.models import Usuario
+from mecsa_erp.usuarios.models import Sesion, Usuario
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -25,19 +25,30 @@ def get_password_hash(password: str) -> str:
     return hashed_password
 
 
-def authenticate_user(db_usuario: Usuario, password: str) -> bool:
-    if not db_usuario:
+def validate_user_status(usuario: Usuario | None) -> bool:
+    if not usuario:
         return False
 
-    if not db_usuario.is_active:
+    if not usuario.is_active:
         return False
 
-    if db_usuario.blocked_until and db_usuario.blocked_until.astimezone(
+    if usuario.blocked_until and usuario.blocked_until.astimezone(UTC) > datetime.now(
         UTC
-    ) > datetime.now(UTC):
+    ):
         return False
 
-    if not verify_password(password, db_usuario.password):
+    return True
+
+
+def validate_sesion(sesion: Sesion):
+    if sesion.not_after.astimezone(UTC) < datetime.now(UTC):
+        return False
+
+    return validate_user_status(sesion.usuario)
+
+
+def authenticate_user(usuario: Usuario, password: str) -> bool:
+    if not verify_password(password, usuario.password):
         return False
 
     return True
@@ -54,7 +65,7 @@ def create_token(payload: dict) -> str:
     return encoded_jwt
 
 
-def create_access_token(payload: dict[str, Any], iat: datetime | None) -> str:
+def create_access_token(payload: dict[str, Any], iat: datetime | None = None) -> str:
     if not iat:
         iat = datetime.now(UTC)
 
@@ -65,7 +76,7 @@ def create_access_token(payload: dict[str, Any], iat: datetime | None) -> str:
     return encoded_jwt
 
 
-def create_refresh_token(payload: dict[str, Any], iat: datetime | None) -> str:
+def create_refresh_token(payload: dict[str, Any], iat: datetime | None = None) -> str:
     if not iat:
         iat = datetime.now(UTC)
 

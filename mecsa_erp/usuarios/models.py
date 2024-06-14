@@ -51,7 +51,9 @@ class Usuario(SQLModel, table=True):
     )
     password: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_PASSWORD))
     email: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_EMAIL))
-    display_name: str | None = Field(sa_type=String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME))
+    display_name: str | None = Field(
+        sa_type=String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME)
+    )
     is_active: bool = Field(default=True)
     blocked_until: datetime | None = Field(default=None)
 
@@ -96,6 +98,8 @@ class Sesion(SQLModel, table=True):
     # refreshed_at: datetime | None = None
     # user_agent: str
     ip: str = Field(sa_type=String(length=MAX_LENGTH_SESION_IP))
+
+    usuario: Usuario = Relationship()
 
     __table_args__ = (
         ForeignKeyConstraint(
