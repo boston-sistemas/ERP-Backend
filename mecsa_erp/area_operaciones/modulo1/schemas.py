@@ -5,13 +5,6 @@ from sqlmodel import Field, SQLModel
 from mecsa_erp.area_operaciones.modulo0.schemas.orden_servicio_tejeduria import (
     OrdenServicioTejeduriaSchema,
 )
-from mecsa_erp.area_operaciones.modulo0.schemas.orden_servicio_tejeduria_detalle import (
-    OrdenServicioTejeduriaDetalleSchema,
-)
-
-
-class SubordenSimpleSchema(OrdenServicioTejeduriaDetalleSchema):
-    fecha: datetime
 
 
 class ReporteStock(SQLModel):
@@ -44,14 +37,14 @@ class OrdenServicioTejeduriaDetalleUpdateSchema(SQLModel):
     estado: OrdenServicioTejeduriaDetalleEstadoEnum | None = None
 
 
-class OrdenServicioTejeduriaDetalleSchema(
+class OrdenServicioTejeduriaDetalleUpdateSchemaByID(
     OrdenServicioTejeduriaDetalleUpdateSchema, OrdenServicioTejeduriaDetalleIDSchema
 ):
     pass
 
 
 class OrdenServicioTejeduriaDetalleListUpdateSchema(SQLModel):
-    subordenes: list[OrdenServicioTejeduriaDetalleSchema]
+    subordenes: list[OrdenServicioTejeduriaDetalleUpdateSchemaByID]
 
 
 #############################################################
