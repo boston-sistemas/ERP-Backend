@@ -1,12 +1,12 @@
 import click
 
-from scripts.db import (
+from db import (
     create_tables,
     delete_tables,
     generate_sql_create_tables,
     test_database_connection,
 )
-from scripts.dummy_data import generate_dummy_data
+from dummy_data import generate_dummy_data
 
 
 @click.group()

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./dockerfiles/local/Dockerfile
     image: mecsa-erp-local
-    command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+    command: uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8080 --reload
     volumes:
       - ./:/usr/src/app
     env_file:
