@@ -1,33 +1,35 @@
-import functions
-from config.database import get_session
-from mecsa_erp.area_operaciones.core.models import (
-    Proveedor,
-    ProveedorServicio,
-    Servicio,
-)
-from mecsa_erp.area_operaciones.modulo0.models import (
+from sqlmodel import Session, create_engine
+
+from scripts.config import settings
+
+engine = create_engine(settings.DATABASE_URL)
+
+from src.operations.models import (  # noqa: E402
+    Color,
     Crudo,
     OrdenServicioTejeduria,
     OrdenServicioTejeduriaDetalle,
     OrdenServicioTejeduriaDetalleEstado,
     OrdenServicioTejeduriaEstado,
+    Proveedor,
+    ProveedorServicio,
+    Servicio,
     Tejido,
 )
-from mecsa_erp.area_operaciones.modulo2.models import Color
-from mecsa_erp.usuarios.models import Acceso, Rol, RolAcceso
+from src.security.models import Acceso, Rol, RolAcceso  # noqa: E402
 
 
 def insert_data(generate_data):
     def wrapper(*args, **kwargs):
         model, objects = generate_data(*args, **kwargs)
 
-        session = next(get_session())
-        data = []
-        for object in objects:
-            data.append(model(**object))
+        with Session(engine) as session:
+            data = []
+            for object in objects:
+                data.append(model(**object))
 
-        session.add_all(data)
-        session.commit()
+            session.add_all(data)
+            session.commit()
 
     return wrapper
 
@@ -35,7 +37,7 @@ def insert_data(generate_data):
 def get_objects_from_csv(filename, converters=None):
     import csv
 
-    path = functions.settings.BASE_DIR + "utils/data/" + filename
+    path = settings.BASE_DIR + "scripts/data/" + filename
 
     objects = []
     with open(path, "r", newline="") as csvfile:
