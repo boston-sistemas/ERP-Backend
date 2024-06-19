@@ -1,11 +1,12 @@
 from collections.abc import Generator
 from typing import Annotated
 
-from core.config import settings
 from fastapi import Depends
 from sqlmodel import Session, create_engine
 from sqlalchemy.orm import DeclarativeBase
 
+
+from src.core.config import settings
 
 engine = create_engine(settings.DATABASE_URL)
 

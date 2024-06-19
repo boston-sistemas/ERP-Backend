@@ -1,10 +1,15 @@
-from core.database import SessionDependency
 from fastapi import APIRouter, Body, HTTPException, status
 from sqlalchemy.orm import joinedload
 
-from security.cruds import crud_acceso, crud_rol, crud_rol_acceso
-from security.models import Rol, RolAcceso
-from security.schemas import RolCreateSchema, RolListSchema, RolSchema, RolUpdateSchema
+from src.core.database import SessionDependency
+from src.security.cruds import crud_acceso, crud_rol, crud_rol_acceso
+from src.security.models import Rol, RolAcceso
+from src.security.schemas import (
+    RolCreateSchema,
+    RolListSchema,
+    RolSchema,
+    RolUpdateSchema,
+)
 
 router = APIRouter(tags=["Seguridad - Roles"], prefix="/roles")
 

@@ -1,8 +1,8 @@
+from config import settings
 from sqlmodel import Session, create_engine
 
-from config import settings
-
 engine = create_engine(settings.DATABASE_URL)
+
 
 def test_database_connection() -> bool:
     from sqlalchemy import text

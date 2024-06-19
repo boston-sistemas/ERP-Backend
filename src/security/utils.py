@@ -3,10 +3,10 @@ from typing import Any
 
 import pytz
 from authlib.jose import jwt
-from core.config import settings
 from passlib.context import CryptContext
 
-from security.models import Sesion, Usuario
+from src.core.config import settings
+from src.security.models import Sesion, Usuario
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

@@ -1,12 +1,12 @@
-from core.database import SessionDependency
 from fastapi import APIRouter
 
-from operations.cruds import (
+from src.core.database import SessionDependency
+from src.operations.cruds import (
     crud_orden_servicio_tejeduria,
     crud_orden_servicio_tejeduria_detalle,
 )
-from operations.models import OrdenServicioTejeduria
-from operations.schemas import (
+from src.operations.models import OrdenServicioTejeduria
+from src.operations.schemas import (
     OrdenServicioTejeduriaDetalleListUpdateSchema,
     OrdenServicioTejeduriaListUpdateSchema,
     ReporteStock,

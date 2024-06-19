@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import Column, ForeignKeyConstraint, Identity, Integer, String
 from sqlmodel import Field, Relationship, SQLModel
 
-from .constants import (
+from src.security.constants import (
     MAX_LENGTH_ACCESO_NOMBRE,
     MAX_LENGTH_ROL_NOMBRE,
     MAX_LENGTH_SESION_IP,
@@ -59,6 +59,21 @@ class Usuario(SQLModel, table=True):
     blocked_until: datetime | None = Field(default=None)
 
     roles: list["Rol"] = Relationship(back_populates="usuarios", link_model=UsuarioRol)
+
+
+class UsuarioPassword(SQLModel, table=True):
+    __tablename__ = "usuario_password"
+
+    id: int = Field(sa_column=Column(Integer, Identity(start=1), primary_key=True))
+    usuario_id: int
+    password: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_PASSWORD))
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
+    )
 
 
 class Rol(SQLModel, table=True):
