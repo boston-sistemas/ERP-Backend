@@ -3,15 +3,15 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import Session, create_engine
-from sqlalchemy.orm import DeclarativeBase
+# from sqlalchemy.orm import DeclarativeBase
 
 
 from src.core.config import settings
 
 engine = create_engine(settings.DATABASE_URL)
 
-class Base(DeclarativeBase):
-    pass
+# class Base(DeclarativeBase):
+#     pass
 
 
 def get_session() -> Generator[Session, None, None]:
