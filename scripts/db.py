@@ -1,8 +1,8 @@
+from config import settings
 from sqlmodel import Session, create_engine
 
-from config import settings
-
 engine = create_engine(settings.DATABASE_URL)
+
 
 def test_database_connection() -> bool:
     from sqlalchemy import text
@@ -65,7 +65,7 @@ def generate_sql_create_tables(output_file: str, dialect: str):
             file.write(create_tables_statement)
     else:
         print(create_tables_statement)
-        
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_database_connection()
