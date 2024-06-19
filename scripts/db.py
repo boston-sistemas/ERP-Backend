@@ -65,7 +65,8 @@ def generate_sql_create_tables(output_file: str, dialect: str):
             file.write(create_tables_statement)
     else:
         print(create_tables_statement)
-        
+
 
 if __name__ == '__main__':
     test_database_connection()
+

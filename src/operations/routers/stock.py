@@ -24,7 +24,8 @@ def reporte_stock(session: SessionDependency):
         session,
         (
             (OrdenServicioTejeduria.tejeduria_id == proveedor_id)
-            & (OrdenServicioTejeduria.estado == "PENDIENTE")
+            &
+            (OrdenServicioTejeduria.estado == "PENDIENTE")
         ),
     )
 
