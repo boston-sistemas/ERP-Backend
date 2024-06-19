@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import Column, ForeignKeyConstraint, Identity, Integer, String
 from sqlmodel import Field, Relationship, SQLModel
 
-from .constants import (
+from src.security.constants import (
     MAX_LENGTH_ACCESO_NOMBRE,
     MAX_LENGTH_ROL_NOMBRE,
     MAX_LENGTH_SESION_IP,

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from security.routers import accesos, auth, roles, usuarios
+from src.security.routers import accesos, auth, roles, usuarios
 
 router = APIRouter(prefix="/security/v1")  # tags=["Area Seguridad"]
 router.include_router(auth.router)

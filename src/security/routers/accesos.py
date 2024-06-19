@@ -1,8 +1,8 @@
-from core.database import SessionDependency
 from fastapi import APIRouter
 
-from security.cruds import crud_acceso
-from security.schemas import AccesoListSchema
+from src.core.database import SessionDependency
+from src.security.cruds import crud_acceso
+from src.security.schemas import AccesoListSchema
 
 router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
 

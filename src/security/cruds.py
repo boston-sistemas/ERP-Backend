@@ -1,9 +1,9 @@
-from core.crud import CRUD
-from core.database import SessionDependency
 from sqlmodel import SQLModel
 
-from security.models import Acceso, Rol, RolAcceso, Sesion, Usuario, UsuarioRol
-from security.schemas import RolCreateSchema, UsuarioCreateSchema
+from src.core.crud import CRUD
+from src.core.database import SessionDependency
+from src.security.models import Acceso, Rol, RolAcceso, Sesion, Usuario, UsuarioRol
+from src.security.schemas import RolCreateSchema, UsuarioCreateSchema
 
 crud_sesion = CRUD[Sesion, Sesion](Sesion)
 
