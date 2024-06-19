@@ -61,6 +61,21 @@ class Usuario(SQLModel, table=True):
     roles: list["Rol"] = Relationship(back_populates="usuarios", link_model=UsuarioRol)
 
 
+class UsuarioPassword(SQLModel, table=True):
+    __tablename__ = "usuario_password"
+
+    id: int = Field(sa_column=Column(Integer, Identity(start=1), primary_key=True))
+    usuario_id: int
+    password: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_PASSWORD))
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
+    )
+
+
 class Rol(SQLModel, table=True):
     __tablename__ = "rol"
 
