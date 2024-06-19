@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./dockerfiles/local/Dockerfile
     image: mecsa-erp-local
-    command: uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8080 --reload
+    command: uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./src/:/usr/src/app/src
       - ./scripts/:/usr/src/app/scripts
@@ -14,7 +14,7 @@ services:
       - SECRET_KEY=SECRET_LOCAL
       - SIGNING_ALGORITHM=HS256
     ports:
-      - 8080:8080
+      - 8000:8000
     depends_on:
       - mecsa-db
       
