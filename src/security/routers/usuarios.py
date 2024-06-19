@@ -1,21 +1,21 @@
-from core.database import SessionDependency
 from fastapi import APIRouter, Body, HTTPException, status
 from sqlalchemy.orm import joinedload
 
-from security.cruds import (
+from src.core.database import SessionDependency
+from src.security.cruds import (
     crud_rol,
     crud_usuario,
     crud_usuario_rol,
     validate_usuario_data,
 )
-from security.models import Usuario, UsuarioRol
-from security.schemas import (
+from src.security.models import Usuario, UsuarioRol
+from src.security.schemas import (
     UsuarioCreateSchema,
     UsuarioListSchema,
     UsuarioSchema,
     UsuarioUpdateSchema,
 )
-from security.utils import get_password_hash
+from src.security.utils import get_password_hash
 
 router = APIRouter(tags=["Seguridad - Usuarios"], prefix="/usuarios")
 

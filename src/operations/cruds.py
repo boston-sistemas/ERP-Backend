@@ -1,6 +1,5 @@
-from core.crud import CRUD
-
-from operations.models import (
+from src.core.crud import CRUD
+from src.operations.models import (
     Color,
     OrdenServicioTejeduria,
     OrdenServicioTejeduriaDetalle,

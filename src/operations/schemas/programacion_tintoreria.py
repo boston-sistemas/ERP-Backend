@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 
-from operations.models import Color
+from src.operations.models import Color
 
 from .partida import PartidaCreateSchema
 from .proveedor import ProveedorSchema

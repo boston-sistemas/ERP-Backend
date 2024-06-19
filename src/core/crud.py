@@ -1,10 +1,11 @@
 from typing import Any, Generic, Sequence, Tuple, TypeVar
 
-from core.database import SessionDependency
 from fastapi import HTTPException, status
 from sqlalchemy.orm.strategy_options import Load
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlmodel import SQLModel, select
+
+from src.core.database import SessionDependency
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)

@@ -1,23 +1,23 @@
-from core.database import SessionDependency
 from fastapi import APIRouter
 from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
-from operations.cruds import (
+from src.core.database import SessionDependency
+from src.operations.cruds import (
     crud_color,
     crud_orden_servicio_tejeduria,
     crud_orden_servicio_tejeduria_detalle,
     crud_proveedor,
     crud_servicio,
 )
-from operations.models import (
+from src.operations.models import (
     OrdenServicioTejeduria,
     Partida,
     PartidaDetalle,
     ProgramacionTintoreria,
     Servicio,
 )
-from operations.schemas import (
+from src.operations.schemas import (
     OrdenServicioTejeduriaWithDetallesListSchema,
     ProgramacionTintoreriaCreateSchema,
     ProgramacionTintoreriaResponse,

@@ -12,6 +12,8 @@ from sqlalchemy import (
 )
 from sqlmodel import Field, Relationship, SQLModel
 
+# from src.core.database import Base
+
 from src.operations.constants import (
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,

@@ -1,14 +1,13 @@
 from datetime import UTC, datetime
 
-import pytz
-from core.database import SessionDependency
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from sqlalchemy.orm import joinedload
 
-from security.cruds import crud_sesion, crud_usuario
-from security.models import Sesion, Usuario
-from security.schemas import LoginForm, UsuarioSimpleSchema
-from security.utils import (
+from src.core.database import SessionDependency
+from src.security.cruds import crud_sesion, crud_usuario
+from src.security.models import Sesion, Usuario
+from src.security.schemas import LoginForm, UsuarioSimpleSchema
+from src.security.utils import (
     authenticate_user,
     calculate_session_expiration,
     create_access_token,
@@ -123,7 +122,7 @@ def logout(request: Request, response: Response, session: SessionDependency):
     crud_sesion.update(
         session,
         current_sesion,
-        {"not_after": datetime.now(pytz.timezone("America/Lima")).replace(tzinfo=None)},
+        {"not_after": datetime.now()},
     )
 
     response.delete_cookie(key="refresh_token")

@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 
-from operations.schemas.orden_servicio_tejeduria import (
+from .orden_servicio_tejeduria import (
     OrdenServicioTejeduriaSchema,
     OrdenServicioTejeduriaWithDetallesSchema,
 )
