@@ -1,10 +1,15 @@
 from sqlmodel import SQLModel
 
-from src.operations.models import Color
-
 from .partida import PartidaCreateSchema
 from .proveedor import ProveedorSchema
 
+# from pydantic import BaseModel
+from typing import Optional
+
+class Color(SQLModel):
+    color_id: int
+    nombre: str
+    descripcion: Optional[str] = None
 
 class ProgramacionTintoreriaResponse(SQLModel):
     tejedurias: list[ProveedorSchema]

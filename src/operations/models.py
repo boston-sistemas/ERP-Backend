@@ -4,15 +4,24 @@ from uuid import UUID
 from sqlalchemy import (
     TIMESTAMP,
     Column,
+    PrimaryKeyConstraint,
     ForeignKeyConstraint,
     Identity,
     Integer,
     String,
     func,
 )
+
+from typing import Optional
+
 from sqlmodel import Field, Relationship, SQLModel
 
-# from src.core.database import Base
+from src.core.database import Base
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship
+)
 
 from src.operations.constants import (
     MAX_LENGTH_COLOR_DESCRIPCION,
@@ -29,211 +38,297 @@ from src.operations.constants import (
     MAX_LENGTH_TEJIDO_NOMBRE,
 )
 
+class Proveedor(Base):
+    __tablename__ = "proveedor"
 
-class ProveedorServicio(SQLModel, table=True):
-    __tablename__ = "proveedor_servicio"
-
-    proveedor_id: str = Field(
-        primary_key=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID)
+    proveedor_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ID)
     )
-    servicio_id: int = Field(primary_key=True)
+
+    razon_social: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_RAZON_SOCIAL),
+        unique=True,
+    )
+
+    alias: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ALIAS),
+        unique=True,
+    )
 
     __table_args__ = (
+        PrimaryKeyConstraint("proveedor_id"),
+    )
+
+    ordenes_servicio_tejeduria: Mapped[list["OrdenServicioTejeduria"]] = relationship(
+        "OrdenServicioTejeduria",
+        back_populates="proveedor"
+    )
+
+class Servicio(Base):
+    __tablename__ = "servicio"
+
+    servicio_id: Mapped[int] = mapped_column(
+        Identity(start=1),
+    )
+
+    nombre: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_SERVICIO_NOMBRE),
+        unique=True,
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("servicio_id"),
+    )
+
+    proveedores: Mapped[list[Proveedor]] = relationship(
+        "ProveedorServicio",
+        back_populates="servicio"
+    )
+
+class ProveedorServicio(Base):
+    __tablename__ = "proveedor_servicio"
+
+    proveedor_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ID)
+    )
+
+    servicio_id: Mapped[int] = mapped_column()
+
+    servicio: Mapped[Servicio] = relationship(
+        "Servicio",
+        back_populates="proveedores"
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("proveedor_id", "servicio_id"),
         ForeignKeyConstraint(["proveedor_id"], ["proveedor.proveedor_id"]),
         ForeignKeyConstraint(["servicio_id"], ["servicio.servicio_id"]),
     )
 
-
-class Proveedor(SQLModel, table=True):
-    __tablename__ = "proveedor"
-
-    proveedor_id: str = Field(
-        primary_key=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID)
-    )
-    razon_social: str = Field(
-        unique=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_RAZON_SOCIAL)
-    )
-    alias: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_PROVEEDOR_ALIAS))
-
-    ordenes_servicio_tejeduria: list["OrdenServicioTejeduria"] = Relationship(
-        back_populates="proveedor"
-    )
-
-
-class Servicio(SQLModel, table=True):
-    __tablename__ = "servicio"
-    servicio_id: int = Field(
-        sa_column=Column(Integer, Identity(start=1), primary_key=True)
-    )
-    nombre: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_SERVICIO_NOMBRE))
-    proveedores: list[Proveedor] = Relationship(link_model=ProveedorServicio)
-
-
-class Tejido(SQLModel, table=True):
+class Tejido(Base):
     __tablename__ = "tejido"
 
-    # TODO: Agregar el campo ID: primary key
-    tejido_id: str = Field(
-        primary_key=True, sa_type=String(length=MAX_LENGTH_TEJIDO_ID)
-    )
-    nombre: str = Field(sa_type=String(length=MAX_LENGTH_TEJIDO_NOMBRE))
-
-
-class Crudo(SQLModel, table=True):
-    __tablename__ = "crudo"
-
-    crudo_id: str = Field(primary_key=True, sa_type=String(length=MAX_LENGTH_CRUDO_ID))
-    tejido_id: str = Field(sa_type=String(length=MAX_LENGTH_TEJIDO_ID))
-    densidad: int
-    ancho: int
-    galga: int
-    diametro: int
-    longitud_malla: float
-
-    __table_args__ = (ForeignKeyConstraint(["tejido_id"], ["tejido.tejido_id"]),)
-
-
-class OrdenServicioTejeduria(SQLModel, table=True):
-    __tablename__ = "orden_servicio_tejeduria"
-
-    orden_servicio_tejeduria_id: str = Field(
-        primary_key=True, sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
-    )
-    tejeduria_id: str = Field(sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID))
-    fecha: datetime
-    estado: str = Field(
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
+    tejido_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_TEJIDO_ID)
     )
 
-    proveedor: Proveedor = Relationship(back_populates="ordenes_servicio_tejeduria")
-    detalles: list["OrdenServicioTejeduriaDetalle"] = Relationship(
-        back_populates="orden_servicio"
+    nombre: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_TEJIDO_NOMBRE),
     )
 
     __table_args__ = (
+        PrimaryKeyConstraint("tejido_id"),
+    )
+
+class Crudo(Base):
+    __tablename__ = "crudo"
+
+    crudo_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_CRUDO_ID)
+    )
+
+    tejido_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_TEJIDO_ID),
+    )
+
+    densidad: Mapped[int] = mapped_column()
+    ancho: Mapped[int] = mapped_column()
+    galga: Mapped[int] = mapped_column()
+    diametro: Mapped[int] = mapped_column()
+    longitud_malla: Mapped[float] = mapped_column()
+
+    __table_args__ = (
+        PrimaryKeyConstraint("crudo_id"),
+        ForeignKeyConstraint(["tejido_id"], ["tejido.tejido_id"]),
+    )
+
+class OrdenServicioTejeduria(Base):
+    __tablename__ = "orden_servicio_tejeduria"
+
+    orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    )
+
+    tejeduria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ID)
+    )
+
+    fecha: Mapped[datetime] = mapped_column()
+    estado: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("orden_servicio_tejeduria_id"),
         ForeignKeyConstraint(["tejeduria_id"], ["proveedor.proveedor_id"]),
         ForeignKeyConstraint(["estado"], ["orden_servicio_tejeduria_estado.estado"]),
     )
 
+    proveedor: Mapped[Proveedor] = relationship(
+        "Proveedor",
+        back_populates="ordenes_servicio_tejeduria"
+    )
 
-class OrdenServicioTejeduriaEstado(SQLModel, table=True):
+    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship(
+        "OrdenServicioTejeduriaDetalle",
+        back_populates="orden_servicio"
+    )
+
+class OrdenServicioTejeduriaEstado(Base):
     __tablename__ = "orden_servicio_tejeduria_estado"
 
-    estado: str = Field(
-        primary_key=True,
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO),
+    estado: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
     )
 
+    __table_args__ = (
+        PrimaryKeyConstraint("estado"),
+    )
 
-class OrdenServicioTejeduriaDetalle(SQLModel, table=True):
+class OrdenServicioTejeduriaDetalle(Base):
     __tablename__ = "orden_servicio_tejeduria_detalle"
 
-    orden_servicio_tejeduria_id: str = Field(
-        primary_key=True, sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
     )
-    crudo_id: str = Field(primary_key=True, sa_type=String(length=MAX_LENGTH_CRUDO_ID))
-    programado_kg: float
-    consumido_kg: float
-    es_complemento: bool
-    estado: str = Field(
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
-    )
-    reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: float
 
-    orden_servicio: OrdenServicioTejeduria = Relationship(back_populates="detalles")
+    crudo_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_CRUDO_ID)
+    )
+
+    programado_kg: Mapped[float] = mapped_column()
+    consumido_kg: Mapped[float] = mapped_column()
+    es_complemento: Mapped[bool] = mapped_column()
+    estado: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
+    )
+    reporte_tejeduria_nro_rollos: Mapped[int] = mapped_column()
+    reporte_tejeduria_cantidad_kg: Mapped[float] = mapped_column()
+
+    orden_servicio: Mapped[OrdenServicioTejeduria] = relationship(
+        "OrdenServicioTejeduria",
+        back_populates="detalles"
+    )
 
     __table_args__ = (
+        PrimaryKeyConstraint("orden_servicio_tejeduria_id", "crudo_id"),
         ForeignKeyConstraint(
             ["orden_servicio_tejeduria_id"],
-            ["orden_servicio_tejeduria.orden_servicio_tejeduria_id"],
+            ["orden_servicio_tejeduria.orden_servicio_tejeduria_id"]
         ),
         ForeignKeyConstraint(["crudo_id"], ["crudo.crudo_id"]),
-        ForeignKeyConstraint(
-            ["estado"], ["orden_servicio_tejeduria_detalle_estado.estado"]
-        ),
+        ForeignKeyConstraint(["estado"], ["orden_servicio_tejeduria_detalle_estado.estado"]),
     )
 
-
-class OrdenServicioTejeduriaDetalleEstado(SQLModel, table=True):
+class OrdenServicioTejeduriaDetalleEstado(Base):
     __tablename__ = "orden_servicio_tejeduria_detalle_estado"
 
-    estado: str = Field(
-        primary_key=True,
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO),
+    estado: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
     )
-
-
-class OrdenServicioTejeduriaDetalleReporteLog(SQLModel, table=True):
-    __tablename__ = "orden_servicio_tejeduria_detalle_reporte_log"
-
-    log_id: UUID = Field(primary_key=True)
-    proveedor_id: str = Field(sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID))
-    orden_servicio_tejeduria_id: str = Field(
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
-    )
-    crudo_id: str = Field(sa_type=String(length=MAX_LENGTH_CRUDO_ID))
-    estado: str = Field(
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
-    )
-    reporte_tejeduria_nro_rollos: int
-    reporte_tejeduria_cantidad_kg: float
-    created_at: datetime = Field(sa_column=Column(TIMESTAMP, server_default=func.now()))
-
-
-class Color(SQLModel, table=True):
-    __tablename__ = "color"
-
-    color_id: int = Field(
-        sa_column=Column(Integer, Identity(start=1), primary_key=True)
-    )
-    nombre: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_COLOR_NOMBRE))
-    descripcion: str | None = Field(sa_type=String(length=MAX_LENGTH_COLOR_DESCRIPCION))
-
-
-class ProgramacionTintoreria(SQLModel, table=True):
-    __tablename__ = "programacion_tintoreria"
-
-    programacion_tintoreria_id: int = Field(
-        sa_column=Column(Integer, Identity(start=1), primary_key=True)
-    )
-    from_tejeduria_id: str = Field(sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID))
-    to_tintoreria_id: str = Field(sa_type=String(length=MAX_LENGTH_PROVEEDOR_ID))
 
     __table_args__ = (
+        PrimaryKeyConstraint("estado"),
+    )
+
+class OrdenServicioTejeduriaDetalleReporteLog(Base):
+    __tablename__ = "orden_servicio_tejeduria_detalle_reporte_log"
+
+    log_id: Mapped[UUID] = mapped_column()
+    proveedor_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ID)
+    )
+    orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    )
+    crudo_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_CRUDO_ID)
+    )
+    estado: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
+    )
+    reporte_tejeduria_nro_rollos: Mapped[int] = mapped_column()
+    reporte_tejeduria_cantidad_kg: Mapped[float] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        server_default=func.now()
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("log_id"),
+    )
+
+class Color(Base):
+    __tablename__ = "color"
+
+    color_id: Mapped[int] = mapped_column(
+        Integer, Identity(start=1), primary_key=True
+    )
+
+    nombre: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_COLOR_NOMBRE), unique=True, nullable=False
+    )
+
+    descripcion: Mapped[Optional[str]] = mapped_column(
+        String(length=MAX_LENGTH_COLOR_DESCRIPCION), nullable=True
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("color_id"),
+    )
+
+class ProgramacionTintoreria(Base):
+    __tablename__ = "programacion_tintoreria"
+
+    programacion_tintoreria_id: Mapped[int] = mapped_column(
+        Identity(start=1),
+    )
+
+    from_tejeduria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ID)
+    )
+
+    to_tintoreria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_PROVEEDOR_ID)
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("programacion_tintoreria_id"),
         ForeignKeyConstraint(["from_tejeduria_id"], ["proveedor.proveedor_id"]),
         ForeignKeyConstraint(["to_tintoreria_id"], ["proveedor.proveedor_id"]),
     )
 
-
-class Partida(SQLModel, table=True):
+class Partida(Base):
     __tablename__ = "partida"
 
-    programacion_tintoreria_id: int = Field(primary_key=True)
-    nro_partida: int = Field(primary_key=True)
-    color_id: int
+    programacion_tintoreria_id: Mapped[int] = mapped_column()
+    nro_partida: Mapped[int] = mapped_column()
+    color_id: Mapped[int] = mapped_column()
 
     __table_args__ = (
+        PrimaryKeyConstraint("programacion_tintoreria_id", "nro_partida"),
         ForeignKeyConstraint(
             ["programacion_tintoreria_id"],
             ["programacion_tintoreria.programacion_tintoreria_id"],
         ),
     )
 
-
-class PartidaDetalle(SQLModel, table=True):
+class PartidaDetalle(Base):
     __tablename__ = "partida_detalle"
 
-    programacion_tintoreria_id: int = Field(primary_key=True)
-    nro_partida: int = Field(primary_key=True)
-    orden_servicio_tejeduria_id: str = Field(
-        sa_type=String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    programacion_tintoreria_id: Mapped[int] = mapped_column()
+    nro_partida: Mapped[int] = mapped_column()
+    orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
     )
-    crudo_id: str = Field(sa_type=String(length=MAX_LENGTH_CRUDO_ID))
-    nro_rollos: int
-    cantidad_kg: float
+    crudo_id: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_CRUDO_ID)
+    )
+    nro_rollos: Mapped[int] = mapped_column()
+    cantidad_kg: Mapped[float] = mapped_column()
 
     __table_args__ = (
+        PrimaryKeyConstraint("programacion_tintoreria_id", "nro_partida"),
         ForeignKeyConstraint(
             ["programacion_tintoreria_id", "nro_partida"],
             ["partida.programacion_tintoreria_id", "partida.nro_partida"],
@@ -246,3 +341,4 @@ class PartidaDetalle(SQLModel, table=True):
             ],
         ),
     )
+
