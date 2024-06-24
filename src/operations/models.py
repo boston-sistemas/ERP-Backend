@@ -164,7 +164,7 @@ class OrdenServicioTejeduria(Base):
         ForeignKeyConstraint(["estado"], ["orden_servicio_tejeduria_estado.estado"]),
     )
 
-    proveedor: Mapped[Proveedor] = relationship(
+    proveedor: Mapped["Proveedor"] = relationship(
         "Proveedor",
         back_populates="ordenes_servicio_tejeduria"
     )
@@ -204,11 +204,6 @@ class OrdenServicioTejeduriaDetalle(Base):
     )
     reporte_tejeduria_nro_rollos: Mapped[int] = mapped_column()
     reporte_tejeduria_cantidad_kg: Mapped[float] = mapped_column()
-
-    orden_servicio: Mapped[OrdenServicioTejeduria] = relationship(
-        "OrdenServicioTejeduria",
-        back_populates="detalles"
-    )
 
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id", "crudo_id"),
@@ -266,7 +261,7 @@ class Color(Base):
     )
 
     nombre: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_COLOR_NOMBRE), unique=True, nullable=False
+        String(length=MAX_LENGTH_COLOR_NOMBRE), unique=True
     )
 
     descripcion: Mapped[Optional[str]] = mapped_column(
