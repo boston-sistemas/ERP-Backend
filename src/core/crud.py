@@ -47,9 +47,9 @@ class CRUD(Generic[ModelType, CreateSchemaType]):
         statement = select(self.model).where(filter)
 
         if options is not None:
-            statement.options(*options)
+            statement = statement.options(*options)
 
-        return session.exec(statement).one_or_none()
+        return session.exec(statement).first()
 
     def get_or_404(
         self,
