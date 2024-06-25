@@ -134,10 +134,6 @@ class OrdenServicioTejeduria(Base):
         ForeignKeyConstraint(["estado"], ["orden_servicio_tejeduria_estado.estado"]),
     )
 
-<<<<<<< HEAD
-=======
-
->>>>>>> e285d0370da119e713b3c57d518d3c41bc0c79c4
 class OrdenServicioTejeduriaEstado(Base):
     __tablename__ = "orden_servicio_tejeduria_estado"
 
