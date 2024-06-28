@@ -5,13 +5,10 @@ from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, SQLModel
 
 
-class UsuarioBase(SQLModel):
-    usuario_id: int
-    username: str
+class UsuarioBase(BaseModel):
+    username: str = Field(min_length=1)
     email: EmailStr
     display_name: str
-    is_active: bool
-    blocked_until: datetime | None
 
 
 class UsuarioSimpleSchema(UsuarioBase):
@@ -19,25 +16,22 @@ class UsuarioSimpleSchema(UsuarioBase):
 
 
 class UsuarioSchema(UsuarioBase):
+    usuario_id: int
+    is_active: bool
+    blocked_until: datetime | None
     roles: list["RolSimpleSchema"]
 
+    class Config:
+        from_attributes = True
 
-class UsuarioCreateSchema(SQLModel):
-    username: str = Field(min_length=1)
-    email: EmailStr
-    display_name: str
-    is_active: bool = Field(default=True)
-    blocked_until: datetime | None = None
+
+class UsuarioCreateSchema(UsuarioBase):
     password: str = Field(min_length=1)
     rol_ids: list[int] | None = None
 
 
-class UsuarioUpdateSchema(SQLModel):
-    username: str = Field(default=None, min_length=1)
-    email: EmailStr | None = None
-    display_name: str | None = None
-    is_active: bool | None = None
-    blocked_until: datetime | None = None
+class UsuarioUpdateSchema(UsuarioBase):
+    pass
 
 
 class UsuarioListSchema(SQLModel):
@@ -62,7 +56,8 @@ class RolUpdateSchema(BaseModel):
 
 
 class RolSimpleSchema(RolBase):
-    pass
+    class Config:
+        from_attributes = True
 
 
 class RolSchema(RolBase):
