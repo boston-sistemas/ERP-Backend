@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import List, Optional
 
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, SQLModel
 
 
@@ -46,10 +47,18 @@ class UsuarioListSchema(SQLModel):
 #######################################################
 
 
-class RolBase(SQLModel):
-    rol_id: int
-    nombre: str
-    is_active: bool
+class RolBase(BaseModel):
+    nombre: str = Field(min_length=1)
+    is_active: bool = Field(default=True)
+
+
+class RolCreateSchema(RolBase):
+    acceso_ids: Optional[List[int]] = None
+
+
+class RolUpdateSchema(BaseModel):
+    nombre: str = Field(default=None, min_length=1)
+    is_active: bool | None = None
 
 
 class RolSimpleSchema(RolBase):
@@ -57,40 +66,34 @@ class RolSimpleSchema(RolBase):
 
 
 class RolSchema(RolBase):
+    rol_id: int
     accesos: list["AccesoSimpleSchema"]
 
-
-class RolCreateSchema(SQLModel):
-    nombre: str = Field(min_length=1)
-    is_active: bool = Field(default=True)
-    acceso_ids: list[int] | None = None
+    class Config:
+        from_attributes = True
 
 
-class RolUpdateSchema(SQLModel):
-    nombre: str = Field(default=None, min_length=1)
-    is_active: bool | None = None
-
-
-class RolListSchema(SQLModel):
+class RolListSchema(BaseModel):
     roles: list[RolSchema]
 
 
 #######################################################
 
 
-class AccesoBase(SQLModel):
+class AccesoBase(BaseModel):
     acceso_id: int
     nombre: str
     is_active: bool
 
 
 class AccesoSimpleSchema(AccesoBase):
-    pass
+    class Config:
+        from_attributes = True
 
 
 class AccesoSchema(AccesoBase):
-    roles: list[RolSimpleSchema]
+    roles: List[RolSimpleSchema]
 
 
-class AccesoListSchema(SQLModel):
-    accesos: list[AccesoSimpleSchema]
+class AccesoListSchema(BaseModel):
+    accesos: List[AccesoSimpleSchema]

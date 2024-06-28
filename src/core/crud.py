@@ -1,14 +1,15 @@
 from typing import Any, Generic, Sequence, Tuple, TypeVar
 
 from fastapi import HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm.strategy_options import Load
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlmodel import SQLModel, select
 
-from src.core.database import SessionDependency
+from src.core.database import Base, SessionDependency
 
-ModelType = TypeVar("ModelType", bound=SQLModel)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
+ModelType = TypeVar("ModelType", bound=Base)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 
 """
 TODO: Extraer solo las columnas dadas por el esquema en la sentencia SQL
@@ -92,7 +93,7 @@ class CRUD(Generic[ModelType, CreateSchemaType]):
         commit: bool = True,
         refresh: bool = False,
     ) -> Tuple[str, ModelType]:
-        object_dict = object.model_dump()
+        object_dict = object.dict()
         db_object: ModelType = self.model(**object_dict)
 
         session.add(db_object)

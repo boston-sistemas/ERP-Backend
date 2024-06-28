@@ -1,26 +1,18 @@
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
     TIMESTAMP,
-    Column,
-    PrimaryKeyConstraint,
     ForeignKeyConstraint,
     Identity,
-    Integer,
+    PrimaryKeyConstraint,
     String,
-    func
+    func,
 )
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from typing import Optional
 from src.core.database import Base
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship
-)
-
 from src.security.constants import (
     MAX_LENGTH_ACCESO_NOMBRE,
     MAX_LENGTH_ROL_NOMBRE,
@@ -31,6 +23,7 @@ from src.security.constants import (
     MAX_LENGTH_USUARIO_USERNAME,
 )
 
+
 class Usuario(Base):
     __tablename__ = "usuario"
 
@@ -38,34 +31,22 @@ class Usuario(Base):
         Identity(start=1),
     )
     username: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_USUARIO_USERNAME),
-        unique=True
+        String(length=MAX_LENGTH_USUARIO_USERNAME), unique=True
     )
-    password: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_USUARIO_PASSWORD)
-    )
-    email: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_USUARIO_EMAIL)
-    )
+    password: Mapped[str] = mapped_column(String(length=MAX_LENGTH_USUARIO_PASSWORD))
+    email: Mapped[str] = mapped_column(String(length=MAX_LENGTH_USUARIO_EMAIL))
     display_name: Mapped[Optional[str]] = mapped_column(
-        String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME),
-        nullable=True
+        String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME), nullable=True
     )
-    is_active: Mapped[bool] = mapped_column(
-        default=True
-    )
-    blocked_until: Mapped[Optional[datetime]] = mapped_column(
-        nullable=True
-    )
+    is_active: Mapped[bool] = mapped_column(default=True)
+    blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
     roles: Mapped[list["Rol"]] = relationship(
-        secondary="usuario_rol",
-        back_populates="usuarios"
+        secondary="usuario_rol", back_populates="usuarios"
     )
 
-    __table_args__ = (
-        PrimaryKeyConstraint("usuario_id"),
-    )
+    __table_args__ = (PrimaryKeyConstraint("usuario_id"),)
+
 
 class Rol(Base):
     __tablename__ = "rol"
@@ -74,12 +55,9 @@ class Rol(Base):
         Identity(start=1),
     )
     nombre: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_ROL_NOMBRE),
-        unique=True
+        String(length=MAX_LENGTH_ROL_NOMBRE), unique=True
     )
-    is_active: Mapped[bool] = mapped_column(
-        default=True
-    )
+    is_active: Mapped[bool] = mapped_column(default=True)
 
     usuarios: Mapped[list[Usuario]] = relationship(
         secondary="usuario_rol",
@@ -90,9 +68,8 @@ class Rol(Base):
         back_populates="roles",
     )
 
-    __table_args__ = (
-        PrimaryKeyConstraint("rol_id"),
-    )
+    __table_args__ = (PrimaryKeyConstraint("rol_id"),)
+
 
 class UsuarioRol(Base):
     __tablename__ = "usuario_rol"
@@ -102,9 +79,12 @@ class UsuarioRol(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint("usuario_id", "rol_id"),
-        ForeignKeyConstraint(["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
         ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
     )
+
 
 class RolAcceso(Base):
     __tablename__ = "rol_acceso"
@@ -122,21 +102,16 @@ class RolAcceso(Base):
 class UsuarioPassword(Base):
     __tablename__ = "usuario_password"
 
-    id: Mapped[int] = mapped_column(
-        Identity(start=1)
-    )
+    id: Mapped[int] = mapped_column(Identity(start=1))
     usuario_id: Mapped[int] = mapped_column()
-    password: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_USUARIO_PASSWORD)
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
-        server_default=func.now()
-    )
+    password: Mapped[str] = mapped_column(String(length=MAX_LENGTH_USUARIO_PASSWORD))
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
 
     __table_args__ = (
         PrimaryKeyConstraint("id"),
-        ForeignKeyConstraint(["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
     )
 
 
@@ -147,42 +122,32 @@ class Acceso(Base):
         Identity(start=1),
     )
     nombre: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_ACCESO_NOMBRE),
-        unique=True
+        String(length=MAX_LENGTH_ACCESO_NOMBRE), unique=True
     )
-    is_active: Mapped[bool] = mapped_column(
-        default=True
-    )
+    is_active: Mapped[bool] = mapped_column(default=True)
 
     roles: Mapped[list["Rol"]] = relationship(
         secondary="rol_acceso",
         back_populates="accesos",
     )
 
-    __table_args__ = (
-        PrimaryKeyConstraint("acceso_id"),
-    )
+    __table_args__ = (PrimaryKeyConstraint("acceso_id"),)
+
 
 class Sesion(Base):
     __tablename__ = "sesion"
 
-    sesion_id: Mapped[UUID] = mapped_column(
-        default=uuid4
-    )
+    sesion_id: Mapped[UUID] = mapped_column(default=uuid4)
     usuario_id: Mapped[int] = mapped_column()
-    created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
-        server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
     not_after: Mapped[datetime] = mapped_column()
-    ip: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_SESION_IP)
-    )
+    ip: Mapped[str] = mapped_column(String(length=MAX_LENGTH_SESION_IP))
 
     usuario: Mapped["Usuario"] = relationship()
 
     __table_args__ = (
         PrimaryKeyConstraint("sesion_id"),
-        ForeignKeyConstraint(["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
     )
-
