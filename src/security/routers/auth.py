@@ -1,10 +1,8 @@
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, Request, Response, status
-from sqlalchemy.orm import joinedload
 
 from src.core.database import SessionDependency
-from src.security.cruds import crud_sesion, crud_usuario
 from src.security.models import Sesion, Usuario
 from src.security.schemas import LoginForm, UsuarioSimpleSchema
 from src.security.services.auth_services import AuthService
