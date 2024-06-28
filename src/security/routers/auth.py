@@ -7,6 +7,7 @@ from src.core.database import SessionDependency
 from src.security.cruds import crud_sesion, crud_usuario
 from src.security.models import Sesion, Usuario
 from src.security.schemas import LoginForm, UsuarioSimpleSchema
+from src.security.services.auth_services import AuthService
 from src.security.utils import (
     authenticate_user,
     calculate_session_expiration,
@@ -25,7 +26,10 @@ router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
 def login(
     request: Request, response: Response, form: LoginForm, session: SessionDependency
 ):
-    usuario = crud_usuario.get(session, Usuario.username == form.username)
+    session = AuthService(session)
+    usuario = session.read_model_by_parameter(
+        Usuario, Usuario.username == form.username
+    )
     is_valid_user = validate_user_status(usuario) and authenticate_user(
         usuario, form.password
     )
@@ -43,7 +47,7 @@ def login(
         not_after=session_expiration,
         ip=request.client.host,
     )
-    crud_sesion.create(session, current_sesion)
+    session.create_session(current_sesion)
 
     access_token = create_access_token(
         payload={
@@ -73,7 +77,7 @@ def login(
 
     return {
         "message": "Inicio de sesión exitoso",
-        "usuario": UsuarioSimpleSchema.model_validate(usuario),
+        "usuario": UsuarioSimpleSchema.from_orm(usuario),
         "access_token": access_token,
         "token_type": "bearer",
     }
@@ -81,6 +85,7 @@ def login(
 
 @router.post("/refresh")
 def refresh_access_token(request: Request, session: SessionDependency):
+    session = AuthService(session)
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(
@@ -88,9 +93,14 @@ def refresh_access_token(request: Request, session: SessionDependency):
         )
 
     claims = verify_token(refresh_token)
-    current_sesion = crud_sesion.get_by_pk_or_404(
-        session, claims["sid"], [joinedload(Sesion.usuario)]
+    current_sesion = session.read_model_by_parameter(
+        Sesion, Sesion.sesion_id == claims["sid"]
     )
+
+    if not current_sesion:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Sesión no encontrada"
+        )
 
     if not validate_sesion(current_sesion):
         raise HTTPException(
@@ -110,6 +120,7 @@ def refresh_access_token(request: Request, session: SessionDependency):
 
 @router.post("/logout")
 def logout(request: Request, response: Response, session: SessionDependency):
+    session = AuthService(session)
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(
@@ -118,12 +129,16 @@ def logout(request: Request, response: Response, session: SessionDependency):
 
     claims = verify_token(refresh_token)
 
-    current_sesion = crud_sesion.get_by_pk_or_404(session, claims["sid"])
-    crud_sesion.update(
-        session,
-        current_sesion,
-        {"not_after": datetime.now()},
+    current_sesion = session.read_model_by_parameter(
+        Sesion, Sesion.sesion_id == claims["sid"]
     )
+
+    if not current_sesion:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Sesión no encontrada"
+        )
+
+    session.update_session(current_sesion, {"not_after": datetime.now()})
 
     response.delete_cookie(key="refresh_token")
     return {"message": "Sesión cerrada exitosamente"}

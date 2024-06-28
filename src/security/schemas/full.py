@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field
 
 
 class UsuarioBase(BaseModel):
@@ -12,7 +12,8 @@ class UsuarioBase(BaseModel):
 
 
 class UsuarioSimpleSchema(UsuarioBase):
-    pass
+    class Config:
+        from_attributes = True
 
 
 class UsuarioSchema(UsuarioBase):
@@ -34,7 +35,7 @@ class UsuarioUpdateSchema(UsuarioBase):
     pass
 
 
-class UsuarioListSchema(SQLModel):
+class UsuarioListSchema(BaseModel):
     usuarios: list[UsuarioSchema]
 
 
