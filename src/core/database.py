@@ -8,20 +8,17 @@ from sqlmodel import Session, create_engine
 
 from src.core.config import settings
 
-# engine = create_engine(
-#     settings.DATABASE_URL,
-#     max_identifier_length=60
-# )
-#
+engine = create_engine(settings.DATABASE_URL, max_identifier_length=60)
 
 
 class Base(DeclarativeBase):
     pass
 
 
-# def get_session() -> Generator[Session, None, None]:
-#     with Session(bind=engine, expire_on_commit=False) as session:
-#         yield session
+def get_session() -> Generator[Session, None, None]:
+    with Session(bind=engine, expire_on_commit=False) as session:
+        yield session
+
 
 engine_async = create_async_engine(settings.DATABASE_URL_ASYNC)
 AsyncSessionLocal = async_sessionmaker(
@@ -34,4 +31,4 @@ async def get_db() -> Generator[AsyncSession, None, None]:
         yield session
 
 
-SessionDependency = Annotated[AsyncSession, Depends(get_db)]
+SessionDependency = Annotated[Session, Depends(get_db)]
