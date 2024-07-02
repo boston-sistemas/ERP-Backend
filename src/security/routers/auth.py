@@ -1,8 +1,10 @@
 from datetime import UTC, datetime
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import SessionDependency
+from src.core.database import get_db
 from src.security.models import Sesion, Usuario
 from src.security.schemas import LoginForm, UsuarioSimpleSchema
 from src.security.services.auth_services import AuthService
@@ -21,11 +23,14 @@ router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
 
 
 @router.post("/login")
-def login(
-    request: Request, response: Response, form: LoginForm, session: SessionDependency
+async def login(
+    request: Request,
+    response: Response,
+    form: LoginForm,
+    db: AsyncSession = Depends(get_db),
 ):
-    session = AuthService(session)
-    usuario = session.read_model_by_parameter(
+    session = AuthService(db)
+    usuario = await session.read_model_by_parameter(
         Usuario, Usuario.username == form.username
     )
     is_valid_user = validate_user_status(usuario) and authenticate_user(
@@ -45,7 +50,7 @@ def login(
         not_after=session_expiration,
         ip=request.client.host,
     )
-    session.create_session(current_sesion)
+    await session.create_session(current_sesion)
 
     access_token = create_access_token(
         payload={
@@ -82,8 +87,8 @@ def login(
 
 
 @router.post("/refresh")
-def refresh_access_token(request: Request, session: SessionDependency):
-    session = AuthService(session)
+async def refresh_access_token(request: Request, db: AsyncSession = Depends(get_db)):
+    session = AuthService(db)
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(
@@ -91,8 +96,8 @@ def refresh_access_token(request: Request, session: SessionDependency):
         )
 
     claims = verify_token(refresh_token)
-    current_sesion = session.read_model_by_parameter(
-        Sesion, Sesion.sesion_id == claims["sid"]
+    current_sesion = await session.read_model_by_parameter(
+        Sesion, Sesion.sesion_id == UUID(claims["sid"])
     )
 
     if not current_sesion:
@@ -117,8 +122,10 @@ def refresh_access_token(request: Request, session: SessionDependency):
 
 
 @router.post("/logout")
-def logout(request: Request, response: Response, session: SessionDependency):
-    session = AuthService(session)
+async def logout(
+    request: Request, response: Response, db: AsyncSession = Depends(get_db)
+):
+    session = AuthService(db)
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(
@@ -127,8 +134,8 @@ def logout(request: Request, response: Response, session: SessionDependency):
 
     claims = verify_token(refresh_token)
 
-    current_sesion = session.read_model_by_parameter(
-        Sesion, Sesion.sesion_id == claims["sid"]
+    current_sesion = await session.read_model_by_parameter(
+        Sesion, Sesion.sesion_id == UUID(claims["sid"])
     )
 
     if not current_sesion:
@@ -136,7 +143,7 @@ def logout(request: Request, response: Response, session: SessionDependency):
             status_code=status.HTTP_404_NOT_FOUND, detail="Sesión no encontrada"
         )
 
-    session.update_session(current_sesion, {"not_after": datetime.now()})
+    await session.update_session(current_sesion, {"not_after": datetime.now()})
 
     response.delete_cookie(key="refresh_token")
     return {"message": "Sesión cerrada exitosamente"}

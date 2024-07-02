@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import SessionDependency
+from src.core.database import get_db
 from src.security.models import Usuario
 from src.security.schemas import (
     UsuarioCreateSchema,
@@ -15,9 +16,11 @@ router = APIRouter(tags=["Seguridad - Usuarios"], prefix="/usuarios")
 
 
 @router.get("/{usuario_id}", response_model=UsuarioSchema)
-def get_usuario(session: SessionDependency, usuario_id: int):
-    session = UserService(session)
-    user = session.read_model_by_parameter(Usuario, Usuario.usuario_id == usuario_id)
+async def get_usuario(usuario_id: int, db: AsyncSession = Depends(get_db)):
+    session = UserService(db)
+    user = await session.read_model_by_parameter(
+        Usuario, Usuario.usuario_id == usuario_id
+    )
 
     if not user:
         raise HTTPException(
@@ -29,19 +32,21 @@ def get_usuario(session: SessionDependency, usuario_id: int):
 
 
 @router.get("/", response_model=UsuarioListSchema)
-def list_usuarios(session: SessionDependency):
-    session = UserService(session)
+async def list_usuarios(db: AsyncSession = Depends(get_db)):
+    session = UserService(db)
 
-    usuarios = session.read_users()
+    usuarios = await session.read_users()
 
     return UsuarioListSchema(usuarios=usuarios)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=UsuarioSchema)
-def create_usuario(session: SessionDependency, usuario: UsuarioCreateSchema):
-    session = UserService(session)
+async def create_usuario(
+    usuario: UsuarioCreateSchema, db: AsyncSession = Depends(get_db)
+):
+    session = UserService(db)
 
-    exists = session.read_model_by_parameter(
+    exists = await session.read_model_by_parameter(
         Usuario, Usuario.username == usuario.username
     )
     if exists:
@@ -52,17 +57,17 @@ def create_usuario(session: SessionDependency, usuario: UsuarioCreateSchema):
 
     usuario.password = get_password_hash(usuario.password)
 
-    usuario = session.create_user(usuario)
+    user = await session.create_user(usuario)
 
-    return usuario
+    return user
 
 
 @router.patch("/{usuario_id}", response_model=UsuarioSchema)
-def update_usuario(
-    session: SessionDependency, usuario_id: int, usuario: UsuarioUpdateSchema
+async def update_usuario(
+    usuario_id: int, usuario: UsuarioUpdateSchema, db: AsyncSession = Depends(get_db)
 ):
-    session = UserService(session)
-    exists = session.read_model_by_parameter(
+    session = UserService(db)
+    exists = await session.read_model_by_parameter(
         Usuario, Usuario.username == usuario.username
     )
     if exists:
@@ -71,7 +76,7 @@ def update_usuario(
             detail=f"Usuario {usuario.username} ya existe",
         )
 
-    user_update = session.read_model_by_parameter(
+    user_update = await session.read_model_by_parameter(
         Usuario, Usuario.usuario_id == usuario_id
     )
 
@@ -81,22 +86,24 @@ def update_usuario(
             detail=f"Usuario {usuario_id} no encontrado",
         )
 
-    user_update = session.update_user(user_update, usuario)
+    user_update = await session.update_user(user_update, usuario)
 
     return user_update
 
 
 @router.delete("/{usuario_id}")
-def delete_usuario(session: SessionDependency, usuario_id: str):
-    session = UserService(session)
-    usuario = session.read_model_by_parameter(Usuario, Usuario.usuario_id == usuario_id)
+async def delete_usuario(usuario_id: str = None, db: AsyncSession = Depends(get_db)):
+    session = UserService(db)
+    usuario = await session.read_model_by_parameter(
+        Usuario, Usuario.usuario_id == usuario_id
+    )
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Usuario {usuario_id} no encontrado",
         )
 
-    message = session.delete_user(usuario)
+    message = await session.delete_user(usuario)
 
     return {"message": message}
 
@@ -105,11 +112,15 @@ def delete_usuario(session: SessionDependency, usuario_id: str):
 
 
 @router.post("/{usuario_id}/roles/", response_model=UsuarioSchema)
-def add_roles_to_usuario(
-    session: SessionDependency, usuario_id: int, rol_ids: list[int] = Body(embed=True)
+async def add_roles_to_usuario(
+    usuario_id: int,
+    rol_ids: list[int] = Body(embed=True),
+    db: AsyncSession = Depends(get_db),
 ):
-    session = UserService(session)
-    usuario = session.read_model_by_parameter(Usuario, Usuario.usuario_id == usuario_id)
+    session = UserService(db)
+    usuario = await session.read_model_by_parameter(
+        Usuario, Usuario.usuario_id == usuario_id
+    )
 
     if not usuario:
         raise HTTPException(
@@ -117,19 +128,24 @@ def add_roles_to_usuario(
             detail=f"Usuario {usuario_id} no encontrado",
         )
 
-    session.create_rol_to_user(usuario_id, rol_ids)
+    await session.create_rol_to_user(usuario_id, rol_ids)
 
-    print(usuario)
+    usuario = await session.refresh_user(usuario)
+    # print(usuario)
 
     return usuario
 
 
 @router.delete("/{usuario_id}/roles/", response_model=UsuarioSchema)
-def delete_roles_from_usuario(
-    session: SessionDependency, usuario_id: int, rol_ids: list[int] = Body(embed=True)
+async def delete_roles_from_usuario(
+    usuario_id: int,
+    rol_ids: list[int] = Body(embed=True),
+    db: AsyncSession = Depends(get_db),
 ):
-    session = UserService(session)
-    usuario = session.read_model_by_parameter(Usuario, Usuario.usuario_id == usuario_id)
+    session = UserService(db)
+    usuario = await session.read_model_by_parameter(
+        Usuario, Usuario.usuario_id == usuario_id
+    )
 
     if not usuario:
         raise HTTPException(
@@ -137,12 +153,14 @@ def delete_roles_from_usuario(
             detail=f"Usuario {usuario_id} no encontrado",
         )
 
-    result = session.delete_rol_to_user(usuario_id, rol_ids)
+    result = await session.delete_rol_to_user(usuario_id, rol_ids)
 
     if result:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Usuario {usuario.username} no tiene el rol con ID: {result}",
         )
+
+    usuario = await session.refresh_user(usuario)
 
     return usuario

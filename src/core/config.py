@@ -15,6 +15,7 @@ class ProjectSettings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "MECSA - API"
     DATABASE_URL: str
+    DATABASE_URL_ASYNC: str
     SECRET_KEY: str
     SIGNING_ALGORITHM: str
 

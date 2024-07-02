@@ -1,6 +1,6 @@
-from sqlmodel import SQLModel
+from pydantic import BaseModel
 
 
-class LoginForm(SQLModel):
+class LoginForm(BaseModel):
     username: str
     password: str
