@@ -110,7 +110,7 @@ class Crudo(Base):
 
 
 class OrdenServicioTejeduria(Base):
-    __tablename__ = "orden_servicio_tejeduria"
+    __tablename__ = "os_tejeduria"
 
     orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
@@ -135,7 +135,7 @@ class OrdenServicioTejeduria(Base):
 
 
 class OrdenServicioTejeduriaDetalle(Base):
-    __tablename__ = "orden_servicio_tejeduria_detalle"
+    __tablename__ = "os_tejeduria_detalle"
 
     orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
@@ -158,7 +158,7 @@ class OrdenServicioTejeduriaDetalle(Base):
         PrimaryKeyConstraint("orden_servicio_tejeduria_id", "crudo_id"),
         ForeignKeyConstraint(
             ["orden_servicio_tejeduria_id"],
-            ["orden_servicio_tejeduria.orden_servicio_tejeduria_id"],
+            ["os_tejeduria.orden_servicio_tejeduria_id"],
         ),
         ForeignKeyConstraint(["crudo_id"], ["crudo.crudo_id"]),
     )
@@ -254,8 +254,8 @@ class PartidaDetalle(Base):
         ForeignKeyConstraint(
             ["orden_servicio_tejeduria_id", "crudo_id"],
             [
-                "orden_servicio_tejeduria_detalle.orden_servicio_tejeduria_id",
-                "orden_servicio_tejeduria_detalle.crudo_id",
+                "os_tejeduria_detalle.orden_servicio_tejeduria_id",
+                "os_tejeduria_detalle.crudo_id",
             ],
         ),
     )
