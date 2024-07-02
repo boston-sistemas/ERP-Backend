@@ -131,18 +131,7 @@ class OrdenServicioTejeduria(Base):
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id"),
         ForeignKeyConstraint(["tejeduria_id"], ["proveedor.proveedor_id"]),
-        ForeignKeyConstraint(["estado"], ["orden_servicio_tejeduria_estado.estado"]),
     )
-
-
-class OrdenServicioTejeduriaEstado(Base):
-    __tablename__ = "orden_servicio_tejeduria_estado"
-
-    estado: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
-    )
-
-    __table_args__ = (PrimaryKeyConstraint("estado"),)
 
 
 class OrdenServicioTejeduriaDetalle(Base):
@@ -172,20 +161,7 @@ class OrdenServicioTejeduriaDetalle(Base):
             ["orden_servicio_tejeduria.orden_servicio_tejeduria_id"],
         ),
         ForeignKeyConstraint(["crudo_id"], ["crudo.crudo_id"]),
-        ForeignKeyConstraint(
-            ["estado"], ["orden_servicio_tejeduria_detalle_estado.estado"]
-        ),
     )
-
-
-class OrdenServicioTejeduriaDetalleEstado(Base):
-    __tablename__ = "orden_servicio_tejeduria_detalle_estado"
-
-    estado: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO)
-    )
-
-    __table_args__ = (PrimaryKeyConstraint("estado"),)
 
 
 class OrdenServicioTejeduriaDetalleReporteLog(Base):
