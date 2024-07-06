@@ -11,18 +11,19 @@ services:
     environment:
       - TZ=America/Lima
       - DATABASE_URL=postgresql://postgres:postgres@mecsa-db/MECSA
+      - DATABASE_URL_ASYNC=postgresql+asyncpg://postgres:postgres@mecsa-db/MECSA
       - SECRET_KEY=SECRET_LOCAL
       - SIGNING_ALGORITHM=HS256
     ports:
       - 8000:8000
     depends_on:
       - mecsa-db
-      
+
   mecsa-db:
     image: postgres
     volumes:
       - mecsa-data:/var/lib/postgresql/data
-    environment: 
+    environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=MECSA
