@@ -31,8 +31,12 @@ class UsuarioCreateSchema(UsuarioBase):
     rol_ids: list[int] | None = None
 
 
-class UsuarioUpdateSchema(UsuarioBase):
-    pass
+class UsuarioUpdateSchema(BaseModel):
+    username: str = Field(default=None, min_length=1)
+    email: EmailStr | None = None
+    display_name: str | None = None
+    is_active: bool | None = None
+    blocked_until: datetime | None = None
 
 
 class UsuarioListSchema(BaseModel):
