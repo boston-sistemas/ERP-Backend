@@ -17,7 +17,7 @@ router = APIRouter(tags=["Seguridad - Roles"], prefix="/roles")
 async def read_rol(rol_id: int, db: AsyncSession = Depends(get_db)):
     rol_service = RolService(db)
 
-    result = await rol_service.read_rol(rol_id)
+    result = await rol_service.read_rol(rol_id, include_accesos=True)
     if result.is_success:
         return result.value
 
