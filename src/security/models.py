@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy import (
     TIMESTAMP,
@@ -41,9 +41,7 @@ class Usuario(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
-    roles: Mapped[list["Rol"]] = relationship(
-        secondary="usuario_rol", back_populates="usuarios", lazy="selectin"
-    )
+    roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
 
     __table_args__ = (PrimaryKeyConstraint("usuario_id"),)
 
@@ -59,12 +57,7 @@ class Rol(Base):
     )
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    usuarios: Mapped[list[Usuario]] = relationship(
-        secondary="usuario_rol", back_populates="roles", lazy="selectin"
-    )
-    accesos: Mapped[list["Acceso"]] = relationship(
-        secondary="rol_acceso", back_populates="roles", lazy="selectin"
-    )
+    accesos: Mapped[list["Acceso"]] = relationship(secondary="rol_acceso")
 
     __table_args__ = (PrimaryKeyConstraint("rol_id"),)
 
@@ -124,23 +117,19 @@ class Acceso(Base):
     )
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    roles: Mapped[list["Rol"]] = relationship(
-        secondary="rol_acceso", back_populates="accesos", lazy="selectin"
-    )
-
     __table_args__ = (PrimaryKeyConstraint("acceso_id"),)
 
 
-class Sesion(Base):
-    __tablename__ = "sesion"
+class UsuarioSesion(Base):
+    __tablename__ = "usuario_sesion"
 
-    sesion_id: Mapped[UUID] = mapped_column(default=uuid4)
+    sesion_id: Mapped[UUID] = mapped_column()
     usuario_id: Mapped[int] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
     not_after: Mapped[datetime] = mapped_column()
     ip: Mapped[str] = mapped_column(String(length=MAX_LENGTH_SESION_IP))
 
-    usuario: Mapped["Usuario"] = relationship(lazy="selectin")
+    usuario: Mapped["Usuario"] = relationship()
 
     __table_args__ = (
         PrimaryKeyConstraint("sesion_id"),
