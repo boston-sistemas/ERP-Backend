@@ -40,8 +40,9 @@ class BaseRepository(Generic[ModelType]):
     ) -> ModelType:
         stmt = select(self.model).where(filter)
 
-        if options is not None:
+        if options:
             stmt = stmt.options(*options)
+            return (await self.db.execute(stmt)).scalars().unique().one_or_none()
 
         return (await self.db.execute(stmt)).scalar_one_or_none()
 
@@ -61,7 +62,7 @@ class BaseRepository(Generic[ModelType]):
         if filter is not None:
             stmt = stmt.where(filter)
 
-        if options is not None:
+        if options:
             stmt = stmt.options(*options)
 
         if apply_unique:
