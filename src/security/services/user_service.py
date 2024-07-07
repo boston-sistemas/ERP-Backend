@@ -1,12 +1,9 @@
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.exceptions import (
-    CustomException,
-    DuplicateValueException,
-    NotFoundException,
-)
-from src.core.result import Failure, Result, Success
+from src.core.exceptions import CustomException
+from src.core.result import Result, Success
+from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import RolRepository, UserRepository, UserRolRepository
 from src.security.schemas import (
@@ -40,7 +37,7 @@ class UserService:
         if user is not None:
             return Success(user)
 
-        return Failure(NotFoundException("Usuario no encontrado"))
+        return UserFailures.USER_NOT_FOUND_FAILURE
 
     async def read_user_by_username(
         self, username: str, include_roles: bool = False
@@ -52,7 +49,7 @@ class UserService:
         if user is not None:
             return Success(user)
 
-        return Failure(NotFoundException("Usuario no encontrado"))
+        return UserFailures.USER_NOT_FOUND_FAILURE
 
     async def read_users(self) -> list[Usuario]:
         return await self.repository.find_all(
@@ -67,7 +64,7 @@ class UserService:
         )
 
         if username_exists:
-            return Failure(DuplicateValueException(f"El username {username} ya existe"))
+            return UserFailures.USERNAME_ALREADY_EXISTS_FAILURE(username)
 
         return Success(None)
 
@@ -85,9 +82,8 @@ class UserService:
             for rol_id in set(user_data.rol_ids):
                 rol = await self.rol_repository.find_by_id(rol_id)  # TODO: RolService?
                 if rol is None:
-                    return Failure(
-                        NotFoundException("Rol no encontrado. Usuario no creado")
-                    )
+                    return UserFailures.ROLE_NOT_FOUND_WHEN_CREATING_FAILURE
+
                 user.roles.append(rol)
 
         await self.repository.save(user)
@@ -138,7 +134,7 @@ class UserService:
         if has_rol:
             return Success(user_rol)
 
-        return Failure(NotFoundException("El usuario no cuenta con el rol"))
+        return UserFailures.USER_ROLE_NOT_FOUND_FAILURE
 
     async def add_roles_to_user(
         self, id: int, rol_ids: list[int]
@@ -149,21 +145,13 @@ class UserService:
 
         roles_to_add = []
         for rol_id in set(rol_ids):
-            rol = await self.rol_repository.find_by_id(rol_id)
+            rol = await self.rol_repository.find_by_id(rol_id)  # TODO: RolService?
             if rol is None:
-                return Failure(
-                    NotFoundException(
-                        "Rol no encontrado. No se añadieron los roles especificados"
-                    )
-                )
+                return UserFailures.ROLE_NOT_FOUND_WHEN_ADDING_FAILURE
 
             has_rol_validation = await self.has_rol(id, rol_id)
             if has_rol_validation.is_success:
-                return Failure(
-                    DuplicateValueException(
-                        "El usuario ya cuenta con el rol. No se añadieron los roles especificados"
-                    )
-                )
+                return UserFailures.USER_HAS_ROLE_WHEN_ADDING_FAILURE
 
             roles_to_add.append(UsuarioRol(usuario_id=id, rol_id=rol.rol_id))
 
@@ -180,21 +168,13 @@ class UserService:
 
         roles_to_delete = []
         for rol_id in set(rol_ids):
-            rol = await self.rol_repository.find_by_id(rol_id)
+            rol = await self.rol_repository.find_by_id(rol_id)  # TODO: RolService?
             if rol is None:
-                return Failure(
-                    NotFoundException(
-                        "Rol no encontrado. No se eliminaron los roles especificados"
-                    )
-                )
+                return UserFailures.ROLE_NOT_FOUND_WHEN_DELETING_FAILURE
 
             has_rol_validation = await self.has_rol(id, rol_id)
             if has_rol_validation.is_failure:
-                return Failure(
-                    NotFoundException(
-                        "El usuario no cuenta con el rol. No se eliminaron los roles especificados"
-                    )
-                )
+                return UserFailures.USER_MISSING_ROLE_WHEN_DELETING_FAILURE
 
             roles_to_delete.append(has_rol_validation.value)
 
