@@ -44,7 +44,7 @@ async def create_rol(rol_data: RolCreateSchema, db: AsyncSession = Depends(get_d
     raise creation_result.error
 
 
-@router.put("/{rol_id}")
+@router.patch("/{rol_id}")
 async def update_rol(
     rol_id: int, update_data: RolUpdateSchema, db: AsyncSession = Depends(get_db)
 ):
