@@ -24,6 +24,7 @@ services:
     volumes:
       - mecsa-data:/var/lib/postgresql/data
     environment:
+      - TZ=America/Lima
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=MECSA
