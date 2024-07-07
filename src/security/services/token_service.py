@@ -2,8 +2,9 @@ from datetime import UTC, datetime, timedelta
 
 from authlib.jose import jwt
 
-from src.core.exceptions import CustomException, UnauthorizedException
-from src.core.result import Failure, Result, Success
+from src.core.exceptions import CustomException
+from src.core.result import Result, Success
+from src.security.failures import TokenFailures
 from src.security.models import Usuario
 from src.security.schemas import AccessTokenData, RefreshTokenData
 
@@ -59,23 +60,23 @@ class TokenService:
 
     @staticmethod
     def verify_token(token: str) -> Result[dict, CustomException]:
-        error = UnauthorizedException("Token inválido.")
+        failure = TokenFailures.INVALID_TOKEN_FAILURE
         try:
             decoded_token = jwt.decode(token, SECRET_KEY)
             if decoded_token["exp"] < datetime.now(UTC).timestamp():
-                return Failure(error)
+                return failure
             return Success(decoded_token)
 
         except Exception as e:
             print(f"Error al verificar el token: {e}")
-            return Failure(error)
+            return failure
 
     @staticmethod
     def verify_refresh_token(
         token: str | None,
     ) -> Result[RefreshTokenData, CustomException]:
         if token is None:
-            return Failure(UnauthorizedException("Refresh token missing."))
+            return TokenFailures.MISSING_REFRESH_TOKEN_FAILURE
 
         verification_result = TokenService.verify_token(token)
         if verification_result.is_failure:
@@ -83,7 +84,7 @@ class TokenService:
 
         claims: dict = verification_result.value
         if claims.get("type", "") != "refresh":
-            return Failure(UnauthorizedException("Token invalido"))
+            return TokenFailures.INVALID_TOKEN_TYPE_FAILURE
 
         return Success(RefreshTokenData(user_id=claims["sub"], sesion_id=claims["sid"]))
 
@@ -92,7 +93,7 @@ class TokenService:
         token: str | None,
     ) -> Result[AccessTokenData, CustomException]:
         if token is None:
-            return Failure(UnauthorizedException("Access token missing."))
+            return TokenFailures.MISSING_ACCESS_TOKEN_FAILURE
 
         verification_result = TokenService.verify_token(token)
         if verification_result.is_failure:
@@ -100,18 +101,8 @@ class TokenService:
 
         claims: dict = verification_result.value
         if claims.get("type", "") != "access":
-            return Failure(UnauthorizedException("Token inválido."))
+            return TokenFailures.INVALID_TOKEN_TYPE_FAILURE
 
         return Success(
             AccessTokenData(user_id=claims["sub"], accesos=claims["accesos"])
         )
-
-    @staticmethod
-    def is_access_token(token: str) -> bool:
-        payload = TokenService.decode_token(token)
-        return payload.get("type", "") == "access"
-
-    @staticmethod
-    def is_refresh_token(token: str) -> bool:
-        payload = TokenService.decode_token(token)
-        return payload.get("type", "") == "refresh"
