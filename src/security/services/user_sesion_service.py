@@ -3,12 +3,9 @@ from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.exceptions import (
-    CustomException,
-    NotFoundException,
-    UnauthorizedException,
-)
-from src.core.result import Failure, Result, Success
+from src.core.exceptions import CustomException
+from src.core.result import Result, Success
+from src.security.failures import UserSesionFailures
 from src.security.models import Usuario, UsuarioSesion
 from src.security.repositories import UserRepository, UserSesionRepository
 
@@ -22,7 +19,8 @@ class UserSesionService:
 
     @staticmethod
     def calculate_expiration() -> datetime:
-        # TODO: Analizar si tener en cuenta el local_timezone = pytz.timezone("America/Lima")
+        # TODO: Analizar si tener en cuenta la zona horaria local
+        # local_timezone = pytz.timezone("America/Lima")
         # return expiration.astimezone(local_timezone).replace(tzinfo=None)
         expiration = datetime.now() + timedelta(hours=SESSION_EXPIRATION_HOURS)
         return expiration
@@ -36,7 +34,7 @@ class UserSesionService:
         if current_sesion is not None:
             return Success(current_sesion)
 
-        return Failure(NotFoundException("Sesión no encontrada."))
+        return UserSesionFailures.SESION_NOT_FOUND_FAILURE
 
     async def read_sesiones(self) -> list[UsuarioSesion]:
         return await self.repository.find_all(
@@ -61,7 +59,7 @@ class UserSesionService:
         current_sesion: UsuarioSesion,
     ) -> Result[UsuarioSesion, CustomException]:
         if current_sesion.not_after.astimezone(UTC) < datetime.now(UTC):
-            return Failure(UnauthorizedException("La sesión ha expirado."))
+            return UserSesionFailures.SESION_EXPIRED_FAILURE
 
         return Success(UsuarioSesion)
 
