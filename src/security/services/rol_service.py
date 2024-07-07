@@ -2,10 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions.http_exceptions import (
     CustomException,
-    DuplicateValueException,
-    NotFoundException,
 )
-from src.core.result import Failure, Result, Success
+from src.core.result import Result, Success
+from src.security.failures import RolFailures
 from src.security.models import Rol, RolAcceso
 from src.security.repositories import (
     AccesoRepository,
@@ -31,7 +30,7 @@ class RolService:
         if rol is not None:
             return Success(rol)
 
-        return Failure(NotFoundException("Rol no encontrado"))
+        return RolFailures.ROL_NOT_FOUND_FAILURE
 
     async def read_roles(self) -> list[Rol]:
         return await self.repository.find_all(
@@ -44,7 +43,7 @@ class RolService:
         nombre_exists = nombre and (await self.repository.find(Rol.nombre == nombre))
 
         if nombre_exists:
-            return Failure(DuplicateValueException(f"Rol {nombre} ya existe"))
+            return RolFailures.ROL_NAME_ALREADY_EXISTS_FAILURE(nombre)
 
         return Success(None)
 
@@ -59,11 +58,11 @@ class RolService:
 
         if rol_data.acceso_ids:
             for acceso_id in set(rol_data.acceso_ids):
-                acceso = await self.acceso_repository.find_by_id(acceso_id)
+                acceso = await self.acceso_repository.find_by_id(
+                    acceso_id
+                )  # TODO: AccesoService?
                 if acceso is None:
-                    return Failure(
-                        NotFoundException("Acceso no encontrado. Rol no creado")
-                    )
+                    return RolFailures.ACCESO_NOT_FOUND_WHEN_CREATING_FAILURE
 
                 rol.accesos.append(acceso)
 
@@ -115,7 +114,7 @@ class RolService:
         if has_acceso:
             return Success(rol_acceso)
 
-        return Failure(NotFoundException("El rol no cuenta con el acceso"))
+        return RolFailures.ROL_ACCESO_NOT_FOUND_FAILURE
 
     async def add_accesos_to_rol(
         self, id: int, acceso_ids: list[int]
@@ -126,21 +125,15 @@ class RolService:
 
         accesos_to_add = []
         for acceso_id in set(acceso_ids):
-            acceso = await self.acceso_repository.find_by_id(acceso_id)
+            acceso = await self.acceso_repository.find_by_id(
+                acceso_id
+            )  # TODO: AccesoService?
             if acceso is None:
-                return Failure(
-                    NotFoundException(
-                        "Acceso no encontrado. No se añadieron los accesos especificados"
-                    )
-                )
+                return RolFailures.ACCESO_NOT_FOUND_WHEN_ADDING_FAILURE
 
             has_acceso_validation = await self.has_acceso(id, acceso_id)
             if has_acceso_validation.is_success:
-                return Failure(
-                    DuplicateValueException(
-                        "El rol ya cuenta con el acceso. No se añadieron los accesos especificados"
-                    )
-                )
+                return RolFailures.ROL_HAS_ACCESO_WHEN_ADDING_FAILURE
 
             accesos_to_add.append(RolAcceso(rol_id=id, acceso_id=acceso.acceso_id))
 
@@ -157,21 +150,15 @@ class RolService:
 
         accesos_to_delete = []
         for acceso_id in set(acceso_ids):
-            acceso = await self.acceso_repository.find_by_id(acceso_id)
+            acceso = await self.acceso_repository.find_by_id(
+                acceso_id
+            )  # TODO: AccesoService?
             if acceso is None:
-                return Failure(
-                    NotFoundException(
-                        "Acceso no encontrado. No se añadieron los accesos especificados"
-                    )
-                )
+                return RolFailures.ACCESO_NOT_FOUND_WHEN_DELETING_FAILURE
 
             has_acceso_validation = await self.has_acceso(id, acceso_id)
             if has_acceso_validation.is_failure:
-                return Failure(
-                    DuplicateValueException(
-                        "El rol no cuenta con el acceso. No se eliminaron los accesos especificados"
-                    )
-                )
+                return RolFailures.ROL_MISSING_ACCESO_WHEN_DELETING_FAILURE
 
             accesos_to_delete.append(has_acceso_validation.value)
 
