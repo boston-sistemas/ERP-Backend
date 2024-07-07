@@ -3,8 +3,9 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.exceptions import CustomException, UnauthorizedException
-from src.core.result import Failure, Result, Success
+from src.core.exceptions import CustomException
+from src.core.result import Result, Success
+from src.security.failures import AuthFailures
 from src.security.models import Usuario
 from src.security.schemas import (
     LoginForm,
@@ -45,20 +46,20 @@ class AuthService:
     async def login(
         self, form: LoginForm, ip: str
     ) -> Result[LoginResponse, CustomException]:
-        error = UnauthorizedException("Credenciales no válidas.")
+        failure = AuthFailures.INVALID_CREDENTIALS_FAILURE
 
         user_result = await self.user_service.read_user_by_username(
             form.username, include_roles=True
         )
         if user_result.is_failure:
-            return Failure(error)
+            return failure
 
         user: Usuario = user_result.value
         if not self.validate_user_status(user):
-            return Failure(error)
+            return failure
 
         if not self.user_service.verify_password(form.password, user.password):
-            return Failure(error)
+            return failure
 
         id: UUID = await self.user_sesion_service.create_sesion(user, ip)
         message = "Inicio de sesión exitoso."
