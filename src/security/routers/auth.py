@@ -1,149 +1,69 @@
-from datetime import UTC, datetime
-from uuid import UUID
+from datetime import UTC
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.security.models import Sesion, Usuario
-from src.security.schemas import LoginForm, UsuarioSimpleSchema
-from src.security.services.auth_services import AuthService
-from src.security.utils import (
-    authenticate_user,
-    calculate_session_expiration,
-    create_access_token,
-    create_refresh_token,
-    get_valid_acceses,
-    validate_sesion,
-    validate_user_status,
-    verify_token,
+from src.security.schemas import (
+    LoginForm,
+    LoginResponse,
+    LogoutResponse,
+    RefreshResponse,
 )
+from src.security.services import AuthService
 
 router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
 
 
-@router.post("/login")
+@router.post("/login", response_model=LoginResponse)
 async def login(
     request: Request,
     response: Response,
     form: LoginForm,
     db: AsyncSession = Depends(get_db),
 ):
-    session = AuthService(db)
-    usuario = await session.read_model_by_parameter(
-        Usuario, Usuario.username == form.username
-    )
-    is_valid_user = validate_user_status(usuario) and authenticate_user(
-        usuario, form.password
-    )
+    auth_service = AuthService(db)
 
-    if not is_valid_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales no válidas"
+    login_result = await auth_service.login(form, ip=request.client.host)
+    if login_result.is_failure:
+        raise login_result.error
+
+    result = login_result.value
+    if result.refresh_token is not None:
+        response.set_cookie(
+            key="refresh_token",
+            value=result.refresh_token,
+            httponly=True,
+            expires=result.refresh_token_expiration.astimezone(UTC),
+            secure=False,  # TODO: Cambiar a True en producción
+            samesite="Lax",
         )
 
-    iat = datetime.now(UTC)
-
-    session_expiration = calculate_session_expiration(iat)
-    current_sesion = Sesion(
-        usuario_id=usuario.usuario_id,
-        not_after=session_expiration,
-        ip=request.client.host,
-    )
-    await session.create_session(current_sesion)
-
-    access_token = create_access_token(
-        payload={
-            "sub": usuario.usuario_id,
-            "username": usuario.username,
-            "accesos": get_valid_acceses(usuario),
-        },
-        iat=iat,
-    )
-
-    refresh_token = create_refresh_token(
-        payload={
-            "sid": str(current_sesion.sesion_id),
-            "username": usuario.username,
-        },
-        iat=iat,
-    )
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        expires=session_expiration.astimezone(UTC),
-        secure=False,  # Cambiar a True en producción
-        samesite="Lax",
-    )
-
-    return {
-        "message": "Inicio de sesión exitoso",
-        "usuario": UsuarioSimpleSchema.from_orm(usuario),
-        "access_token": access_token,
-        "token_type": "bearer",
-    }
+    return result
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=RefreshResponse)
 async def refresh_access_token(request: Request, db: AsyncSession = Depends(get_db)):
-    session = AuthService(db)
+    auth_service = AuthService(db)
+
     refresh_token = request.cookies.get("refresh_token")
-    if not refresh_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing."
-        )
+    refresh_result = await auth_service.refresh_access_token(refresh_token)
+    if refresh_result.is_failure:
+        raise refresh_result.error
 
-    claims = verify_token(refresh_token)
-    current_sesion = await session.read_model_by_parameter(
-        Sesion, Sesion.sesion_id == UUID(claims["sid"])
-    )
-
-    if not current_sesion:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Sesión no encontrada"
-        )
-
-    if not validate_sesion(current_sesion):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied"
-        )
-
-    access_token = create_access_token(
-        payload={
-            "sub": current_sesion.usuario.usuario_id,
-            "username": current_sesion.usuario.username,
-            "accesos": get_valid_acceses(current_sesion.usuario),
-        }
-    )
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    return refresh_result.value
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=LogoutResponse)
 async def logout(
     request: Request, response: Response, db: AsyncSession = Depends(get_db)
 ):
-    session = AuthService(db)
+    auth_service = AuthService(db)
+
     refresh_token = request.cookies.get("refresh_token")
-    if not refresh_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing."
-        )
-
-    claims = verify_token(refresh_token)
-
-    current_sesion = await session.read_model_by_parameter(
-        Sesion, Sesion.sesion_id == UUID(claims["sid"])
-    )
-
-    if not current_sesion:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Sesión no encontrada"
-        )
-
-    await session.update_session(current_sesion, {"not_after": datetime.now()})
+    logout_result = await auth_service.logout(refresh_token)
+    if logout_result.is_failure:
+        raise logout_result.error
 
     response.delete_cookie(key="refresh_token")
-    return {"message": "Sesión cerrada exitosamente"}
+    return logout_result.value
