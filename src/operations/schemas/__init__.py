@@ -28,6 +28,7 @@ from .programacion_tintoreria import (
 from .proveedor import ProveedorSchema
 from .reporte_stock import ReporteStock, RevisionStock
 from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
+from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
 __all__ = [
     "ProveedorSchema",
@@ -55,4 +56,5 @@ __all__ = [
     "PartidaCreateSchema",
     "PartidaDetalleCreateSchema",
     "ReporteStockTejeduriaResponse",
+    "RevisionStockTejeduriaResponse",
 ]
