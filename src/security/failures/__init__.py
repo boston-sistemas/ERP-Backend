@@ -1,3 +1,4 @@
+from .acceso_failures import AccesoFailures
 from .auth_failures import AuthFailures
 from .rol_failures import RolFailures
 from .token_failures import TokenFailures
@@ -10,4 +11,5 @@ __all__ = [
     "RolFailures",
     "UserSesionFailures",
     "AuthFailures",
+    "AccesoFailures",
 ]
