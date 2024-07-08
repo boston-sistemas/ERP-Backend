@@ -10,13 +10,23 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 
 class BaseRepository(Generic[ModelType]):
-    def __init__(self, model: ModelType, db: AsyncSession, commit: bool = True) -> None:
+    def __init__(
+        self,
+        model: ModelType,
+        db: AsyncSession,
+        commit: bool = True,
+        flush: bool = False,
+    ) -> None:
         self.model = model
         self.db = db
         self.commit = commit
+        self.flush = flush
 
     async def save(self, object: ModelType, refresh: bool = False) -> ModelType:
         self.db.add(object)
+
+        if self.flush:
+            await self.db.flush()
 
         if self.commit:
             await self.db.commit()
@@ -29,6 +39,9 @@ class BaseRepository(Generic[ModelType]):
 
     async def save_all(self, objects: Sequence[ModelType]) -> None:
         self.db.add_all(objects)
+
+        if self.flush:
+            await self.db.flush()
 
         if self.commit:
             await self.db.commit()
@@ -86,6 +99,9 @@ class BaseRepository(Generic[ModelType]):
 
     async def delete(self, object: ModelType) -> None:
         await self.db.delete(object)
+
+        if self.flush:
+            await self.db.flush()
 
         if self.commit:
             await self.db.commit()
