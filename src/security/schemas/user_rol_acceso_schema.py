@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Field
@@ -55,7 +54,11 @@ class RolBase(BaseModel):
 
 
 class RolCreateSchema(RolBase):
-    acceso_ids: Optional[List[int]] = None
+    pass
+
+
+class RolCreateWithAccesosSchema(RolCreateSchema):
+    acceso_ids: list[int] | None = None
 
 
 class RolUpdateSchema(BaseModel):
@@ -95,8 +98,8 @@ class AccesoSimpleSchema(AccesoBase):
 
 
 class AccesoSchema(AccesoBase):
-    roles: List[RolSimpleSchema]
+    roles: list[RolSimpleSchema]
 
 
 class AccesoListSchema(BaseModel):
-    accesos: List[AccesoSimpleSchema]
+    accesos: list[AccesoSimpleSchema]

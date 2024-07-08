@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.security.schemas import (
-    RolCreateSchema,
+    RolCreateWithAccesosSchema,
     RolListSchema,
     RolSchema,
     RolUpdateSchema,
@@ -34,11 +34,16 @@ async def read_roles(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_rol(rol_data: RolCreateSchema, db: AsyncSession = Depends(get_db)):
+async def create_rol_with_accesos(
+    rol_data: RolCreateWithAccesosSchema, db: AsyncSession = Depends(get_db)
+):
     rol_service = RolService(db)
 
-    creation_result = await rol_service.create_rol(rol_data)
+    creation_result = await rol_service.create_rol_with_accesos(rol_data)
     if creation_result.is_success:
+        if rol_data.acceso_ids:
+            return {"message": "Rol creado y accesos añadidos."}
+
         return {"message": "Rol creado"}
 
     raise creation_result.error
