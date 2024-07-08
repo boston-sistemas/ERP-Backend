@@ -3,9 +3,11 @@ from .orden_servicio_tejeduria_detalle_service import (
 )
 from .orden_servicio_tejeduria_service import OrdenServicioTejeduriaService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
+from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 
 __all__ = [
     "OrdenServicioTejeduriaService",
     "OrdenServicioTejeduriaDetalleService",
     "ReporteStockTejeduriaService",
+    "RevisionStockTejeduriaService",
 ]
