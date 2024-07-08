@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from .usuario_rol_acceso_schema import UsuarioSchema
+from .user_rol_acceso_schema import UsuarioSchema
 
 
 class LoginForm(BaseModel):

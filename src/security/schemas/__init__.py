@@ -1,6 +1,6 @@
 from .auth_schema import LoginForm, LoginResponse, LogoutResponse, RefreshResponse
 from .token_schema import AccessTokenData, RefreshTokenData
-from .usuario_rol_acceso_schema import (
+from .user_rol_acceso_schema import (
     AccesoListSchema,
     AccesoSchema,
     AccesoSimpleSchema,
