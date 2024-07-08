@@ -38,13 +38,16 @@ async def read_users(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(
+async def create_user_with_roles(
     user_data: UsuarioCreateSchema, db: AsyncSession = Depends(get_db)
 ):
     user_service = UserService(db)
 
-    creation_result = await user_service.create_user(user_data)
+    creation_result = await user_service.create_user_with_roles(user_data)
     if creation_result.is_success:
+        if user_data.rol_ids:
+            return {"message": "Usuario creado y roles añadidos."}
+
         return {"message": "Usuario creado"}
 
     raise creation_result.error

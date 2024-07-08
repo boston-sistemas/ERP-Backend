@@ -5,11 +5,13 @@ from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
-from src.security.repositories import RolRepository, UserRepository, UserRolRepository
+from src.security.repositories import UserRepository, UserRolRepository
 from src.security.schemas import (
     UsuarioCreateSchema,
     UsuarioUpdateSchema,
 )
+
+from .rol_service import RolService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -17,7 +19,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class UserService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = UserRepository(db)
-        self.rol_repository = RolRepository(db)
+        self.rol_service = RolService(db)
         self.user_rol_repository = UserRolRepository(db)
 
     @staticmethod
@@ -29,10 +31,10 @@ class UserService:
         return pwd_context.hash(password, rounds=12)
 
     async def read_user(
-        self, id: int, include_roles: bool = False
+        self, user_id: int, include_roles: bool = False
     ) -> Result[Usuario, CustomException]:
         user = await self.repository.find_user(
-            Usuario.usuario_id == id, include_roles=include_roles
+            Usuario.usuario_id == user_id, include_roles=include_roles
         )
         if user is not None:
             return Success(user)
@@ -70,7 +72,7 @@ class UserService:
 
     async def create_user(
         self, user_data: UsuarioCreateSchema
-    ) -> Result[None, CustomException]:
+    ) -> Result[Usuario, CustomException]:
         validation_result = await self.validate_user_data(user_data.username)
         if validation_result.is_failure:
             return validation_result
@@ -78,22 +80,40 @@ class UserService:
         user = Usuario(**user_data.model_dump(exclude={"rol_ids"}))
         user.password = self.get_password_hash(user.password)
 
-        if user_data.rol_ids:
-            for rol_id in set(user_data.rol_ids):
-                rol = await self.rol_repository.find_by_id(rol_id)  # TODO: RolService?
-                if rol is None:
-                    return UserFailures.ROLE_NOT_FOUND_WHEN_CREATING_FAILURE
-
-                user.roles.append(rol)
-
         await self.repository.save(user)
+
+        return Success(user)
+
+    def _create_user_with_roles_in_single_commit(func):
+        async def wrapper(self, *args, **kwargs):
+            self.repository.commit = False
+            self.repository.flush = True
+            # TODO: reiniciar los valores?
+            return await func(self, *args, **kwargs)
+
+        return wrapper
+
+    @_create_user_with_roles_in_single_commit
+    async def create_user_with_roles(
+        self, user_data: UsuarioCreateSchema
+    ) -> Result[None, CustomException]:
+        creation_result = await self.create_user(user_data)
+        if creation_result.is_failure:
+            return creation_result
+
+        user: Usuario = creation_result.value
+        add_roles_result = await self._add_roles_to_user_instance(
+            user=user, rol_ids=user_data.rol_ids
+        )
+        if add_roles_result.is_failure:
+            return UserFailures.ROLE_NOT_FOUND_WHEN_CREATING_FAILURE
 
         return Success(None)
 
     async def update_user(
-        self, id: int, update_data: UsuarioUpdateSchema
+        self, user_id: int, update_data: UsuarioUpdateSchema
     ) -> Result[None, CustomException]:
-        user_result = await self.read_user(id, include_roles=False)
+        user_result = await self.read_user(user_id, include_roles=False)
         if user_result.is_failure:
             return user_result
 
@@ -110,8 +130,8 @@ class UserService:
 
         return Success(None)
 
-    async def delete_user(self, id: int) -> Result[None, CustomException]:
-        user_result = await self.read_user(id)
+    async def delete_user(self, user_id: int) -> Result[None, CustomException]:
+        user_result = await self.read_user(user_id)
         if user_result.is_failure:
             return user_result
 
@@ -119,10 +139,6 @@ class UserService:
         await self.repository.delete(user)
 
         return Success(None)
-
-    @staticmethod
-    def has_rol_instance(user: Usuario, rol_id: int) -> bool:
-        return any(rol.rol_id == rol_id for rol in user.roles)
 
     async def has_rol(
         self, user_id: int, rol_id: int
@@ -136,43 +152,53 @@ class UserService:
 
         return UserFailures.USER_ROLE_NOT_FOUND_FAILURE
 
-    async def add_roles_to_user(
-        self, id: int, rol_ids: list[int]
+    async def _add_roles_to_user_instance(
+        self, user: Usuario, rol_ids: list[int]
     ) -> Result[None, CustomException]:
-        user_result = await self.read_user(id)
-        if user_result.is_failure:
-            return user_result
+        user_id: str = user.usuario_id
 
         roles_to_add = []
         for rol_id in set(rol_ids):
-            rol = await self.rol_repository.find_by_id(rol_id)  # TODO: RolService?
-            if rol is None:
+            rol_result = await self.rol_service.read_rol(rol_id)
+            if rol_result.is_failure:
                 return UserFailures.ROLE_NOT_FOUND_WHEN_ADDING_FAILURE
 
-            has_rol_validation = await self.has_rol(id, rol_id)
+            has_rol_validation = await self.has_rol(user_id, rol_id)
             if has_rol_validation.is_success:
                 return UserFailures.USER_HAS_ROLE_WHEN_ADDING_FAILURE
 
-            roles_to_add.append(UsuarioRol(usuario_id=id, rol_id=rol.rol_id))
+            rol = rol_result.value
+            roles_to_add.append(UsuarioRol(usuario_id=user_id, rol_id=rol.rol_id))
 
         await self.user_rol_repository.save_all(roles_to_add)
 
         return Success(None)
 
-    async def delete_roles_from_user(
-        self, id: int, rol_ids: list[int]
+    async def add_roles_to_user(
+        self, user_id: int, rol_ids: list[int]
     ) -> Result[None, CustomException]:
-        user_result = await self.read_user(id)
+        user_result = await self.read_user(user_id=user_id)
+        if user_result.is_failure:
+            return user_result
+
+        return await self._add_roles_to_user_instance(
+            user=user_result.value, rol_ids=rol_ids
+        )
+
+    async def delete_roles_from_user(
+        self, user_id: int, rol_ids: list[int]
+    ) -> Result[None, CustomException]:
+        user_result = await self.read_user(user_id)
         if user_result.is_failure:
             return user_result
 
         roles_to_delete = []
         for rol_id in set(rol_ids):
-            rol = await self.rol_repository.find_by_id(rol_id)  # TODO: RolService?
-            if rol is None:
-                return UserFailures.ROLE_NOT_FOUND_WHEN_DELETING_FAILURE
+            rol_result = await self.rol_service.read_rol(rol_id)
+            if rol_result.is_failure:
+                return UserFailures.ROLE_NOT_FOUND_WHEN_ADDING_FAILURE
 
-            has_rol_validation = await self.has_rol(id, rol_id)
+            has_rol_validation = await self.has_rol(user_id, rol_id)
             if has_rol_validation.is_failure:
                 return UserFailures.USER_MISSING_ROLE_WHEN_DELETING_FAILURE
 
