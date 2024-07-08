@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel
+from pydantic import BaseModel
 
 from .orden_servicio_tejeduria import (
     OrdenServicioTejeduriaSchema,
@@ -6,10 +6,10 @@ from .orden_servicio_tejeduria import (
 )
 
 
-class ReporteStock(SQLModel):
+class ReporteStock(BaseModel):
     ordenes: list[OrdenServicioTejeduriaWithDetallesSchema]
 
 
-class RevisionStock(SQLModel):
+class RevisionStock(BaseModel):
     ordenes_pendientes: list[OrdenServicioTejeduriaSchema]
     ordenes_cerradas: list[OrdenServicioTejeduriaSchema]

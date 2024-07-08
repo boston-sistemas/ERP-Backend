@@ -1,16 +1,15 @@
 from decimal import Decimal
 from enum import Enum
 
-from pydantic import computed_field
-from sqlmodel import Field, SQLModel
+from pydantic import BaseModel, Field, computed_field
 
 
-class OrdenServicioTejeduriaDetalleIDSchema(SQLModel):
+class OrdenServicioTejeduriaDetalleIDSchema(BaseModel):
     orden_servicio_tejeduria_id: str
     crudo_id: str
 
 
-class OrdenServicioTejeduriaDetalleBase(SQLModel):
+class OrdenServicioTejeduriaDetalleBase(BaseModel):
     orden_servicio_tejeduria_id: str
     crudo_id: str
     programado_kg: Decimal
@@ -19,6 +18,9 @@ class OrdenServicioTejeduriaDetalleBase(SQLModel):
     estado: str
     reporte_tejeduria_nro_rollos: int
     reporte_tejeduria_cantidad_kg: Decimal
+
+    class Config:
+        from_attributes = True
 
 
 class OrdenServicioTejeduriaDetalleSchema(OrdenServicioTejeduriaDetalleBase):
@@ -38,7 +40,7 @@ class OrdenServicioTejeduriaDetalleEstadoEnum(str, Enum):
     listo = "LISTO"
 
 
-class OrdenServicioTejeduriaDetalleUpdateSchema(SQLModel):
+class OrdenServicioTejeduriaDetalleUpdateSchema(BaseModel):
     reporte_tejeduria_nro_rollos: int | None = Field(default=None, ge=0)
     reporte_tejeduria_cantidad_kg: float | None = Field(default=None, ge=0)
     estado: OrdenServicioTejeduriaDetalleEstadoEnum | None = None
@@ -50,5 +52,5 @@ class OrdenServicioTejeduriaDetalleUpdateSchemaByID(
     pass
 
 
-class OrdenServicioTejeduriaDetalleListUpdateSchema(SQLModel):
+class OrdenServicioTejeduriaDetalleListUpdateSchema(BaseModel):
     subordenes: list[OrdenServicioTejeduriaDetalleUpdateSchemaByID]

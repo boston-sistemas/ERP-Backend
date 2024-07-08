@@ -1,7 +1,7 @@
-from sqlmodel import Field, SQLModel
+from pydantic import BaseModel, Field
 
 
-class PartidaDetalleCreateSchema(SQLModel):
+class PartidaDetalleCreateSchema(BaseModel):
     orden_servicio_tejeduria_id: str
     crudo_id: str
     nro_rollos: int = Field(ge=0)
