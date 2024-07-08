@@ -28,6 +28,9 @@ class UsuarioSchema(UsuarioBase):
 
 class UsuarioCreateSchema(UsuarioBase):
     password: str = Field(min_length=1)
+
+
+class UsuarioCreateWithRolesSchema(UsuarioCreateSchema):
     rol_ids: list[int] | None = None
 
 

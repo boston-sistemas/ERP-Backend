@@ -8,6 +8,7 @@ from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
 from src.security.schemas import (
     UsuarioCreateSchema,
+    UsuarioCreateWithRolesSchema,
     UsuarioUpdateSchema,
 )
 
@@ -71,13 +72,15 @@ class UserService:
         return Success(None)
 
     async def create_user(
-        self, user_data: UsuarioCreateSchema
+        self, user_data: UsuarioCreateSchema | dict
     ) -> Result[Usuario, CustomException]:
-        validation_result = await self.validate_user_data(user_data.username)
+        user_dict = user_data if isinstance(user_data, dict) else user_data.model_dump()
+
+        validation_result = await self.validate_user_data(user_dict["username"])
         if validation_result.is_failure:
             return validation_result
 
-        user = Usuario(**user_data.model_dump(exclude={"rol_ids"}))
+        user = Usuario(**user_dict)
         user.password = self.get_password_hash(user.password)
 
         await self.repository.save(user)
@@ -95,9 +98,11 @@ class UserService:
 
     @_create_user_with_roles_in_single_commit
     async def create_user_with_roles(
-        self, user_data: UsuarioCreateSchema
+        self, user_data: UsuarioCreateWithRolesSchema
     ) -> Result[None, CustomException]:
-        creation_result = await self.create_user(user_data)
+        creation_result = await self.create_user(
+            user_data.model_dump(exclude={"rol_ids"})
+        )
         if creation_result.is_failure:
             return creation_result
 

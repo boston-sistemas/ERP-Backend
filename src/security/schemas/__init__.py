@@ -10,6 +10,7 @@ from .user_rol_acceso_schema import (
     RolSimpleSchema,
     RolUpdateSchema,
     UsuarioCreateSchema,
+    UsuarioCreateWithRolesSchema,
     UsuarioListSchema,
     UsuarioSchema,
     UsuarioSimpleSchema,
@@ -36,4 +37,5 @@ __all__ = [
     "AccesoSimpleSchema",
     "AccesoSchema",
     "AccesoListSchema",
+    "UsuarioCreateWithRolesSchema",
 ]

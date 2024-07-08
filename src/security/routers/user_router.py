@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.security.schemas import (
-    UsuarioCreateSchema,
+    UsuarioCreateWithRolesSchema,
     UsuarioListSchema,
     UsuarioSchema,
     UsuarioUpdateSchema,
@@ -39,7 +39,7 @@ async def read_users(db: AsyncSession = Depends(get_db)):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user_with_roles(
-    user_data: UsuarioCreateSchema, db: AsyncSession = Depends(get_db)
+    user_data: UsuarioCreateWithRolesSchema, db: AsyncSession = Depends(get_db)
 ):
     user_service = UserService(db)
 
