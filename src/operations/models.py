@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import (
@@ -21,6 +20,8 @@ from src.operations.constants import (
     MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_DETALLE_ESTADO,
     MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO,
     MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID,
+    MAX_LENGTH_ORDEN_SERVICIO_TINTORERIA_CODIGO_MECSA,
+    MAX_LENGTH_ORDEN_SERVICIO_TINTORERIA_ESTADO,
     MAX_LENGTH_PROVEEDOR_ALIAS,
     MAX_LENGTH_PROVEEDOR_ID,
     MAX_LENGTH_PROVEEDOR_RAZON_SOCIAL,
@@ -178,11 +179,11 @@ class OrdenServicioTejeduriaDetalleReporteLog(Base):
 class Color(Base):
     __tablename__ = "color"
 
-    color_id: Mapped[int] = mapped_column(Integer, Identity(start=1), primary_key=True)
+    color_id: Mapped[int] = mapped_column(Integer, Identity(start=1))
     nombre: Mapped[str] = mapped_column(
         String(length=MAX_LENGTH_COLOR_NOMBRE), unique=True
     )
-    descripcion: Mapped[Optional[str]] = mapped_column(
+    descripcion: Mapped[str | None] = mapped_column(
         String(length=MAX_LENGTH_COLOR_DESCRIPCION), nullable=True
     )
 
@@ -209,39 +210,48 @@ class ProgramacionTintoreria(Base):
     )
 
 
-class Partida(Base):
-    __tablename__ = "partida"
+class OrdenServicioTintoreria(Base):
+    __tablename__ = "os_tintoreria"
 
-    programacion_tintoreria_id: Mapped[int] = mapped_column()
-    nro_partida: Mapped[int] = mapped_column()
+    orden_servicio_tintoreria_id: Mapped[int] = mapped_column(
+        Identity(start=1),
+    )
+    programacion_tintoreria_id: Mapped[int | None] = mapped_column()
     color_id: Mapped[int] = mapped_column()
+    estado: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TINTORERIA_ESTADO)
+    )
+    codigo_mecsa: Mapped[str | None] = mapped_column(
+        String(length=MAX_LENGTH_ORDEN_SERVICIO_TINTORERIA_CODIGO_MECSA), unique=True
+    )
 
     __table_args__ = (
-        PrimaryKeyConstraint("programacion_tintoreria_id", "nro_partida"),
+        PrimaryKeyConstraint("orden_servicio_tintoreria_id"),
         ForeignKeyConstraint(
             ["programacion_tintoreria_id"],
             ["programacion_tintoreria.programacion_tintoreria_id"],
         ),
+        ForeignKeyConstraint(["color_id"], ["color.color_id"]),
     )
 
 
-class PartidaDetalle(Base):
-    __tablename__ = "partida_detalle"
+class OrdenServicioTintoreriaDetalle(Base):
+    __tablename__ = "os_tintoreria_detalle"
 
-    programacion_tintoreria_id: Mapped[int] = mapped_column()
-    nro_partida: Mapped[int] = mapped_column()
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    orden_servicio_tintoreria_id: Mapped[int] = mapped_column()
     orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
-        String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+        String(MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
     )
-    crudo_id: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CRUDO_ID))
+    crudo_id: Mapped[str] = mapped_column(String(MAX_LENGTH_CRUDO_ID))
     nro_rollos: Mapped[int] = mapped_column()
     cantidad_kg: Mapped[float] = mapped_column()
 
     __table_args__ = (
-        PrimaryKeyConstraint("programacion_tintoreria_id", "nro_partida"),
+        PrimaryKeyConstraint("id"),
         ForeignKeyConstraint(
-            ["programacion_tintoreria_id", "nro_partida"],
-            ["partida.programacion_tintoreria_id", "partida.nro_partida"],
+            ["orden_servicio_tintoreria_id"],
+            ["os_tintoreria.orden_servicio_tintoreria_id"],
         ),
         ForeignKeyConstraint(
             ["orden_servicio_tejeduria_id", "crudo_id"],
