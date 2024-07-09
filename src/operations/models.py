@@ -43,10 +43,6 @@ class Proveedor(Base):
         unique=True,
     )
 
-    ordenes_servicio_tejeduria: Mapped[list["OrdenServicioTejeduria"]] = relationship(
-        back_populates="proveedor"
-    )
-
     __table_args__ = (PrimaryKeyConstraint("proveedor_id"),)
 
 
@@ -125,12 +121,8 @@ class OrdenServicioTejeduria(Base):
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
     )
 
-    proveedor: Mapped[Proveedor] = relationship(
-        back_populates="ordenes_servicio_tejeduria"
-    )
-    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship(
-        back_populates="orden_servicio"
-    )
+    proveedor: Mapped[Proveedor] = relationship()
+    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship()
 
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id"),
@@ -153,10 +145,6 @@ class OrdenServicioTejeduriaDetalle(Base):
     )
     reporte_tejeduria_nro_rollos: Mapped[int] = mapped_column()
     reporte_tejeduria_cantidad_kg: Mapped[float] = mapped_column()
-
-    orden_servicio: Mapped[OrdenServicioTejeduria] = relationship(
-        back_populates="detalles"
-    )
 
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id", "crudo_id"),
