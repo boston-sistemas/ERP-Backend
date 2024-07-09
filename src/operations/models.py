@@ -50,10 +50,10 @@ class Proveedor(Base):
     __table_args__ = (PrimaryKeyConstraint("proveedor_id"),)
 
 
-class Servicio(Base):
-    __tablename__ = "servicio"
+class EspecialidadEmpresa(Base):
+    __tablename__ = "especialidad_empresa"
 
-    servicio_id: Mapped[int] = mapped_column(
+    especialidad_id: Mapped[int] = mapped_column(
         Identity(start=1),
     )
     nombre: Mapped[str] = mapped_column(
@@ -61,21 +61,25 @@ class Servicio(Base):
         unique=True,
     )
 
-    proveedores: Mapped[list[Proveedor]] = relationship(secondary="proveedor_servicio")
+    proveedores: Mapped[list[Proveedor]] = relationship(
+        secondary="proveedor_especialidad"
+    )
 
-    __table_args__ = (PrimaryKeyConstraint("servicio_id"),)
+    __table_args__ = (PrimaryKeyConstraint("especialidad_id"),)
 
 
-class ProveedorServicio(Base):
-    __tablename__ = "proveedor_servicio"
+class ProveedorEspecialidad(Base):
+    __tablename__ = "proveedor_especialidad"
 
     proveedor_id: Mapped[str] = mapped_column(String(length=MAX_LENGTH_PROVEEDOR_ID))
-    servicio_id: Mapped[int] = mapped_column()
+    especialidad_id: Mapped[int] = mapped_column()
 
     __table_args__ = (
-        PrimaryKeyConstraint("proveedor_id", "servicio_id"),
+        PrimaryKeyConstraint("proveedor_id", "especialidad_id"),
         ForeignKeyConstraint(["proveedor_id"], ["proveedor.proveedor_id"]),
-        ForeignKeyConstraint(["servicio_id"], ["servicio.servicio_id"]),
+        ForeignKeyConstraint(
+            ["especialidad_id"], ["especialidad_empresa.especialidad_id"]
+        ),
     )
 
 
