@@ -139,11 +139,14 @@ class UsuarioSesion(Base):
         ),
     )
 
+
 class AuthToken(Base):
     __tablename__ = "token_autenticacion"
 
     id: Mapped[int] = mapped_column(Identity(start=1))
-    codigo: Mapped[str] = mapped_column(String(length=MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO))
+    codigo: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO)
+    )
     usuario_id: Mapped[int] = mapped_column()
     expiration_at: Mapped[datetime] = mapped_column()
 
@@ -153,5 +156,3 @@ class AuthToken(Base):
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
     )
-
-

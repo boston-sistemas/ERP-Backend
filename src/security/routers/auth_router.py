@@ -9,17 +9,32 @@ from src.security.schemas import (
     LoginResponse,
     LogoutResponse,
     RefreshResponse,
+    LoginWithTokenForm,
+    SendTokenResponse,
 )
 from src.security.services import AuthService
 
 router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
 
 
+@router.post("/send-token", response_model=SendTokenResponse)
+async def send_token(
+    form: LoginForm,
+    db: AsyncSession = Depends(get_db),
+):
+    auth_service = AuthService(db)
+    send_token_result = await auth_service.send_auth_token(form)
+    
+    if send_token_result.is_success:
+        return send_token_result.value
+    raise send_token_result.error
+
+
 @router.post("/login", response_model=LoginResponse)
 async def login(
     request: Request,
     response: Response,
-    form: LoginForm,
+    form: LoginWithTokenForm,
     db: AsyncSession = Depends(get_db),
 ):
     auth_service = AuthService(db)

@@ -10,6 +10,10 @@ class LoginForm(BaseModel):
     password: str
 
 
+class LoginWithTokenForm(LoginForm):
+    token: str
+
+
 class LoginResponse(BaseModel):
     message: str
     access_token: str
@@ -28,3 +32,8 @@ class RefreshResponse(BaseModel):
     access_token: str
     access_token_expiration: datetime
     token_type: str = "bearer"
+
+
+class SendTokenResponse(BaseModel):
+    token_expiration_minutes: int
+    token_expiration_at: datetime
