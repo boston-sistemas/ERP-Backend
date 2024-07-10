@@ -2,16 +2,17 @@ from datetime import UTC, datetime, timedelta
 
 from authlib.jose import jwt
 
+from src.core.config import settings
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import TokenFailures
 from src.security.models import Usuario
 from src.security.schemas import AccessTokenData, RefreshTokenData
 
-SECRET_KEY = "your_secret_key"
-SIGNING_ALGORITHM = "HS256"
+SECRET_KEY = settings.SECRET_KEY
+SIGNING_ALGORITHM = settings.SIGNING_ALGORITHM
 ACCESS_TOKEN_EXPIRATION_MINUTES = 15
-REFRESH_TOKEN_EXPIRATION_DAYS = 8
+REFRESH_TOKEN_EXPIRATION_HOURS = 8
 
 
 class TokenService:
@@ -41,7 +42,7 @@ class TokenService:
 
     @staticmethod
     def create_refresh_token(user: Usuario, sid: str) -> tuple[str, datetime]:
-        expiration = datetime.now(UTC) + timedelta(hours=REFRESH_TOKEN_EXPIRATION_DAYS)
+        expiration = datetime.now(UTC) + timedelta(hours=REFRESH_TOKEN_EXPIRATION_HOURS)
         payload = {
             "sub": user.usuario_id,
             "username": user.username,
