@@ -138,7 +138,7 @@ class TokenService:
     ) -> Result[AuthToken, CustomException]:
         filter_expression = AuthToken.codigo == codigo
         auth_token = await self.repository.find(filter=filter_expression)
-
+        #TODO: REALIZAR PRUEBAS CUANDO HAY VARIOS TOKENS CON EL MISMO CODIGO
         if auth_token is None or auth_token.expiration_at < datetime.now():
             return TokenFailures.INVALID_TOKEN_FAILURE
         return Success(auth_token)
