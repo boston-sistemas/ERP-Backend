@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from .orden_servicio_tejeduria import OrdenServicioTejeduriaWithDetallesSchema
+from .orden_servicio_tejeduria_schema import OrdenServicioTejeduriaWithDetallesSchema
 
 
 class ReporteStockTejeduriaResponse(BaseModel):

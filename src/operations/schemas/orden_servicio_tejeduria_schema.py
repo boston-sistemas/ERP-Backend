@@ -3,8 +3,8 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from .orden_servicio_tejeduria_detalle import OrdenServicioTejeduriaDetalleSchema
-from .proveedor import ProveedorSchema
+from .orden_servicio_tejeduria_detalle_schema import OrdenServicioTejeduriaDetalleSchema
+from .proveedor_schema import ProveedorSchema
 
 
 class OrdenServicioTejeduriaIDSchema(BaseModel):
