@@ -19,6 +19,10 @@ from .orden_servicio_tejeduria_schema import (
     OrdenServicioTejeduriaWithDetallesListSchema,
     OrdenServicioTejeduriaWithDetallesSchema,
 )
+from .orden_servicio_tintoreria_detalle_schema import (
+    OrdenServicioTintoreriaDetalleCreateSchema,
+    OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion,
+)
 from .partida import PartidaCreateSchema
 from .partida_detalle import PartidaDetalleCreateSchema
 from .programacion_tintoreria_schema import (
@@ -29,6 +33,8 @@ from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
 __all__ = [
+    "OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion",
+    "OrdenServicioTintoreriaDetalleCreateSchema",
     "ProveedorSchema",
     "OrdenServicioTejeduriaIDSchema",
     "OrdenServicioTejeduriaBase",
