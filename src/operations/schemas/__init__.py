@@ -21,9 +21,8 @@ from .orden_servicio_tejeduria_detalle import (
 )
 from .partida import PartidaCreateSchema
 from .partida_detalle import PartidaDetalleCreateSchema
-from .programacion_tintoreria import (
-    ProgramacionTintoreriaCreateSchema,
-    ProgramacionTintoreriaResponse,
+from .programacion_tintoreria_schema import (
+    ProgramacionTintoreriaParametersResponse,
 )
 from .proveedor import ProveedorSchema
 from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
@@ -54,4 +53,5 @@ __all__ = [
     "PartidaDetalleCreateSchema",
     "ReporteStockTejeduriaResponse",
     "RevisionStockTejeduriaResponse",
+    "ProgramacionTintoreriaParametersResponse",
 ]
