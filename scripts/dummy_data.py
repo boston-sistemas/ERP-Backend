@@ -7,11 +7,11 @@ engine = create_engine(settings.DATABASE_URL, echo=True)
 from src.operations.models import (  # noqa: E402
     Color,
     Crudo,
+    EspecialidadEmpresa,
     OrdenServicioTejeduria,
     OrdenServicioTejeduriaDetalle,
     Proveedor,
-    ProveedorServicio,
-    Servicio,
+    ProveedorEspecialidad,
     Tejido,
 )
 from src.security.models import Acceso, Rol, RolAcceso  # noqa: E402
@@ -63,18 +63,18 @@ def generate_proveedor():
 
 
 @insert_data
-def generate_servicio():
+def generate_especialidad():
     objects = [
         {"nombre": "TEJEDURIA"},
         {"nombre": "TINTORERIA"},
     ]
-    return Servicio, objects
+    return EspecialidadEmpresa, objects
 
 
 @insert_data
-def generate_proveedor_servicio():
-    objects = get_objects_from_csv("proveedor_servicio.csv")
-    return ProveedorServicio, objects
+def generate_proveedor_especialidad():
+    objects = get_objects_from_csv("proveedor_especialidad.csv")
+    return ProveedorEspecialidad, objects
 
 
 @insert_data
@@ -135,8 +135,8 @@ def generate_rol_acceso():
 
 def generate_dummy_data():
     generate_proveedor()
-    generate_servicio()
-    generate_proveedor_servicio()
+    generate_especialidad()
+    generate_proveedor_especialidad()
     generate_tejido()
     generate_crudo()
     generate_orden_servicio_tejeduria()
