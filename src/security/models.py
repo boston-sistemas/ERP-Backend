@@ -21,6 +21,7 @@ from src.security.constants import (
     MAX_LENGTH_USUARIO_EMAIL,
     MAX_LENGTH_USUARIO_PASSWORD,
     MAX_LENGTH_USUARIO_USERNAME,
+    MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO,
 )
 
 
@@ -137,3 +138,20 @@ class UsuarioSesion(Base):
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
     )
+
+class AuthToken(Base):
+    __tablename__ = "token_autenticacion"
+
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    codigo: Mapped[str] = mapped_column(String(length=MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO))
+    usuario_id: Mapped[int] = mapped_column()
+    expiration_at: Mapped[datetime] = mapped_column()
+
+    __table_args__ = (
+        PrimaryKeyConstraint("id"),
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
+    )
+
+
