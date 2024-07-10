@@ -18,6 +18,7 @@ class ProjectSettings(BaseSettings):
     DATABASE_URL_ASYNC: str
     SECRET_KEY: str
     SIGNING_ALGORITHM: str
+    DEBUG: bool = True
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

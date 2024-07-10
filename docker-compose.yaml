@@ -10,6 +10,7 @@ services:
       - ./scripts/:/usr/src/app/scripts
     environment:
       - TZ=America/Lima
+      - DEBUG=True
       - DATABASE_URL=postgresql://postgres:postgres@mecsa-db/MECSA
       - DATABASE_URL_ASYNC=postgresql+asyncpg://postgres:postgres@mecsa-db/MECSA
       - SECRET_KEY=SECRET_LOCAL
