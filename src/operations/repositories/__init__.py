@@ -4,6 +4,9 @@ from .orden_servicio_tejeduria_detalle_repository import (
     OrdenServicioTejeduriaDetalleRepository,
 )
 from .orden_servicio_tejeduria_repository import OrdenServicioTejeduriaRepository
+from .orden_servicio_tintoreria_detalle_repository import (
+    OrdenServicioTintoreriaDetalleRepository,
+)
 from .orden_servicio_tintoreria_repository import OrdenServicioTintoreriaRepository
 from .proveedor_repository import ProveedorRepository
 
@@ -14,4 +17,5 @@ __all__ = [
     "EspecialidadEmpresaRepository",
     "ProveedorRepository",
     "OrdenServicioTintoreriaRepository",
+    "OrdenServicioTintoreriaDetalleRepository",
 ]
