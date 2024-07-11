@@ -13,6 +13,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@mecsa-db/MECSA
       - SECRET_KEY=SECRET_LOCAL
       - SIGNING_ALGORITHM=HS256
+      - RESEND_API_KEY=
     ports:
       - 8000:8000
     depends_on:
