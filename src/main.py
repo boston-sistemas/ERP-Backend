@@ -2,14 +2,11 @@ from core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routing import api_router
-<<<<<<< Updated upstream
-=======
 from fastapi.staticfiles import StaticFiles
 # from src.core.database import Base, engine
 #
 # def create_tables():
 #     Base.metadata.create_all(bind=engine)
->>>>>>> Stashed changes
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -28,14 +25,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-<<<<<<< Updated upstream
-=======
 # @app.on_event("startup")
 # async def startup_event():
 #     create_tables()
 
 app.mount("/public", StaticFiles(directory="public"), name="public")
->>>>>>> Stashed changes
 
 @app.get("/")
 async def home():

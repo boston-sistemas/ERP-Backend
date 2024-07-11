@@ -17,11 +17,8 @@ class ProjectSettings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     SIGNING_ALGORITHM: str
-<<<<<<< Updated upstream
-=======
     DEBUG: bool = True
     RESEND_KEY: str
->>>>>>> Stashed changes
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
