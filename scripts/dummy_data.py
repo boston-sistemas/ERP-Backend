@@ -1,18 +1,17 @@
 from config import settings
-from sqlmodel import Session, create_engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL, echo=True)
 
 from src.operations.models import (  # noqa: E402
     Color,
     Crudo,
+    EspecialidadEmpresa,
     OrdenServicioTejeduria,
     OrdenServicioTejeduriaDetalle,
-    OrdenServicioTejeduriaDetalleEstado,
-    OrdenServicioTejeduriaEstado,
     Proveedor,
-    ProveedorServicio,
-    Servicio,
+    ProveedorEspecialidad,
     Tejido,
 )
 from src.security.models import Acceso, Rol, RolAcceso  # noqa: E402
@@ -22,13 +21,13 @@ def insert_data(generate_data):
     def wrapper(*args, **kwargs):
         model, objects = generate_data(*args, **kwargs)
 
-        with Session(engine) as session:
+        with Session(engine) as db:
             data = []
             for object in objects:
                 data.append(model(**object))
 
-            session.add_all(data)
-            session.commit()
+            db.add_all(data)
+            db.commit()
 
     return wrapper
 
@@ -52,25 +51,6 @@ def get_objects_from_csv(filename, converters=None):
 
 
 @insert_data
-def generate_orden_servicio_tejeduria_estado():
-    objects = [{"estado": "PENDIENTE"}, {"estado": "CERRADO"}, {"estado": "LIQUIDADO"}]
-
-    return OrdenServicioTejeduriaEstado, objects
-
-
-@insert_data
-def generate_orden_servicio_tejeduria_detalle_estado():
-    objects = [
-        {"estado": "NO INICIADO"},
-        {"estado": "EN CURSO"},
-        {"estado": "DETENIDO"},
-        {"estado": "LISTO"},
-    ]
-
-    return OrdenServicioTejeduriaDetalleEstado, objects
-
-
-@insert_data
 def generate_tejido():
     objects = get_objects_from_csv("tejido.csv")
     return Tejido, objects
@@ -83,18 +63,18 @@ def generate_proveedor():
 
 
 @insert_data
-def generate_servicio():
+def generate_especialidad():
     objects = [
         {"nombre": "TEJEDURIA"},
         {"nombre": "TINTORERIA"},
     ]
-    return Servicio, objects
+    return EspecialidadEmpresa, objects
 
 
 @insert_data
-def generate_proveedor_servicio():
-    objects = get_objects_from_csv("proveedor_servicio.csv")
-    return ProveedorServicio, objects
+def generate_proveedor_especialidad():
+    objects = get_objects_from_csv("proveedor_especialidad.csv")
+    return ProveedorEspecialidad, objects
 
 
 @insert_data
@@ -155,12 +135,10 @@ def generate_rol_acceso():
 
 def generate_dummy_data():
     generate_proveedor()
-    generate_servicio()
-    generate_proveedor_servicio()
+    generate_especialidad()
+    generate_proveedor_especialidad()
     generate_tejido()
     generate_crudo()
-    generate_orden_servicio_tejeduria_estado()
-    generate_orden_servicio_tejeduria_detalle_estado()
     generate_orden_servicio_tejeduria()
     generate_orden_servicio_tejeduria_detalle()
     generate_color()

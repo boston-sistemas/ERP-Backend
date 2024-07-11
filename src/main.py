@@ -8,6 +8,11 @@ from fastapi.staticfiles import StaticFiles
 # def create_tables():
 #     Base.metadata.create_all(bind=engine)
 
+# from src.core.database import Base, engine
+#
+# def create_tables():
+#     Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",

@@ -1,9 +1,9 @@
-from sqlmodel import SQLModel
+from pydantic import BaseModel
 
 from .partida_detalle import PartidaDetalleCreateSchema
 
 
-class PartidaCreateSchema(SQLModel):
+class PartidaCreateSchema(BaseModel):
     nro_partida: int
     color_id: int
 

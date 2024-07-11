@@ -1,19 +1,21 @@
 from config import settings
-from sqlmodel import Session, create_engine
+from sqlalchemy import create_engine
 
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL, echo=True)
 
 
 def test_database_connection() -> bool:
     from sqlalchemy import text
     from sqlalchemy.exc import SQLAlchemyError
 
+    dialect = engine.dialect.name
+    stmt = "SELECT 1 FROM DUAL" if dialect == "oracle" else "SELECT 1"
+
     try:
-        with Session(engine) as session:
-            statement = text("select 1")
-            session.exec(statement)
-            session.commit()
-            print("\t***** Database connection successful *****")
+        with engine.connect() as db:
+            db.execute(text(stmt))
+
+        print("\t***** Database connection successful *****")
         return True
     except SQLAlchemyError as e:
         print("SQLAlchemy Error:", str(e))
@@ -21,37 +23,38 @@ def test_database_connection() -> bool:
         return False
 
 
-def import_models():
+def import_models() -> None:
     from src.operations.models import Proveedor  # noqa: F401
     from src.security.models import Usuario  # noqa: F401
 
 
-def create_tables():
-    from sqlmodel import SQLModel
+def create_tables() -> None:
+    from src.core.database import Base  # noqa: F401
 
     import_models()
-    SQLModel.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
 
 
-def delete_tables():
-    from sqlmodel import SQLModel
+def delete_tables() -> None:
+    from src.core.database import Base  # noqa: F401
 
     import_models()
-    SQLModel.metadata.drop_all(engine)
+    Base.metadata.drop_all(engine)
 
 
-def generate_sql_create_tables(output_file: str, dialect: str):
+def generate_sql_create_tables(output_file: str, dialect: str) -> None:
     from sqlalchemy.dialects import oracle, postgresql
     from sqlalchemy.schema import CreateIndex, CreateTable
-    from sqlmodel import SQLModel
+
+    from src.core.database import Base
 
     dialect_available = {"oracle": oracle, "postgresql": postgresql}
-    engine_dialect = dialect_available[dialect].dialect()
+    engine_dialect = dialect_available.get(dialect, postgresql).dialect()
 
     import_models()
 
     create_tables_statement = ""
-    for model_table in SQLModel.metadata.sorted_tables:
+    for model_table in Base.metadata.sorted_tables:
         create_table_statement = CreateTable(model_table).compile(
             dialect=engine_dialect
         )
@@ -67,6 +70,8 @@ def generate_sql_create_tables(output_file: str, dialect: str):
         print(create_tables_statement)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_database_connection()
-
+    create_tables()
+    delete_tables()
+    generate_sql_create_tables()

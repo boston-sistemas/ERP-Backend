@@ -1,9 +1,18 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from typing import Optional
+from uuid import UUID
 
-from sqlalchemy import Column, ForeignKeyConstraint, Identity, Integer, String
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import (
+    TIMESTAMP,
+    ForeignKeyConstraint,
+    Identity,
+    PrimaryKeyConstraint,
+    String,
+    func,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.core.database import Base
 from src.security.constants import (
     MAX_LENGTH_ACCESO_NOMBRE,
     MAX_LENGTH_ROL_NOMBRE,
@@ -12,16 +21,56 @@ from src.security.constants import (
     MAX_LENGTH_USUARIO_EMAIL,
     MAX_LENGTH_USUARIO_PASSWORD,
     MAX_LENGTH_USUARIO_USERNAME,
+    MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO,
 )
 
 
-class UsuarioRol(SQLModel, table=True):
+class Usuario(Base):
+    __tablename__ = "usuario"
+
+    usuario_id: Mapped[int] = mapped_column(
+        Identity(start=1),
+    )
+    username: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_USUARIO_USERNAME), unique=True
+    )
+    password: Mapped[str] = mapped_column(String(length=MAX_LENGTH_USUARIO_PASSWORD))
+    email: Mapped[str] = mapped_column(String(length=MAX_LENGTH_USUARIO_EMAIL))
+    display_name: Mapped[Optional[str]] = mapped_column(
+        String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME), nullable=True
+    )
+    is_active: Mapped[bool] = mapped_column(default=True)
+    blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+
+    roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
+
+    __table_args__ = (PrimaryKeyConstraint("usuario_id"),)
+
+
+class Rol(Base):
+    __tablename__ = "rol"
+
+    rol_id: Mapped[int] = mapped_column(
+        Identity(start=1),
+    )
+    nombre: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ROL_NOMBRE), unique=True
+    )
+    is_active: Mapped[bool] = mapped_column(default=True)
+
+    accesos: Mapped[list["Acceso"]] = relationship(secondary="rol_acceso")
+
+    __table_args__ = (PrimaryKeyConstraint("rol_id"),)
+
+
+class UsuarioRol(Base):
     __tablename__ = "usuario_rol"
 
-    usuario_id: int = Field(primary_key=True)
-    rol_id: int = Field(primary_key=True)
+    usuario_id: Mapped[int] = mapped_column()
+    rol_id: Mapped[int] = mapped_column()
 
     __table_args__ = (
+        PrimaryKeyConstraint("usuario_id", "rol_id"),
         ForeignKeyConstraint(
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
@@ -29,95 +78,80 @@ class UsuarioRol(SQLModel, table=True):
     )
 
 
-class RolAcceso(SQLModel, table=True):
+class RolAcceso(Base):
     __tablename__ = "rol_acceso"
 
-    rol_id: int = Field(primary_key=True)
-    acceso_id: int = Field(primary_key=True)
+    rol_id: Mapped[int] = mapped_column()
+    acceso_id: Mapped[int] = mapped_column()
 
     __table_args__ = (
+        PrimaryKeyConstraint("rol_id", "acceso_id"),
         ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
         ForeignKeyConstraint(["acceso_id"], ["acceso.acceso_id"], ondelete="CASCADE"),
     )
 
 
-class Usuario(SQLModel, table=True):
-    __tablename__ = "usuario"
-
-    usuario_id: int = Field(
-        default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True)
-    )
-    username: str = Field(
-        unique=True, sa_type=String(length=MAX_LENGTH_USUARIO_USERNAME)
-    )
-    password: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_PASSWORD))
-    email: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_EMAIL))
-    display_name: str | None = Field(
-        sa_type=String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME)
-    )
-    is_active: bool = Field(default=True)
-    blocked_until: datetime | None = Field(default=None)
-
-    roles: list["Rol"] = Relationship(back_populates="usuarios", link_model=UsuarioRol)
-
-
-class UsuarioPassword(SQLModel, table=True):
+class UsuarioPassword(Base):
     __tablename__ = "usuario_password"
 
-    id: int = Field(sa_column=Column(Integer, Identity(start=1), primary_key=True))
-    usuario_id: int
-    password: str = Field(sa_type=String(length=MAX_LENGTH_USUARIO_PASSWORD))
-    created_at: datetime = Field(default_factory=datetime.now)
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    usuario_id: Mapped[int] = mapped_column()
+    password: Mapped[str] = mapped_column(String(length=MAX_LENGTH_USUARIO_PASSWORD))
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
 
     __table_args__ = (
+        PrimaryKeyConstraint("id"),
         ForeignKeyConstraint(
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
     )
 
 
-class Rol(SQLModel, table=True):
-    __tablename__ = "rol"
-
-    rol_id: int = Field(
-        default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True)
-    )
-    nombre: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_ROL_NOMBRE))
-    is_active: bool = Field(default=True)
-
-    usuarios: list[Usuario] = Relationship(
-        back_populates="roles", link_model=UsuarioRol
-    )
-    accesos: list["Acceso"] = Relationship(back_populates="roles", link_model=RolAcceso)
-
-
-class Acceso(SQLModel, table=True):
+class Acceso(Base):
     __tablename__ = "acceso"
 
-    acceso_id: int = Field(
-        default=None, sa_column=Column(Integer, Identity(start=1), primary_key=True)
+    acceso_id: Mapped[int] = mapped_column(
+        Identity(start=1),
     )
-    nombre: str = Field(unique=True, sa_type=String(length=MAX_LENGTH_ACCESO_NOMBRE))
-    is_active: bool = Field(default=True)
+    nombre: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ACCESO_NOMBRE), unique=True
+    )
+    is_active: Mapped[bool] = mapped_column(default=True)
 
-    roles: list[Rol] = Relationship(back_populates="accesos", link_model=RolAcceso)
+    __table_args__ = (PrimaryKeyConstraint("acceso_id"),)
 
 
-class Sesion(SQLModel, table=True):
-    __tablename__ = "sesion"
+class UsuarioSesion(Base):
+    __tablename__ = "usuario_sesion"
 
-    sesion_id: UUID = Field(default_factory=uuid4, primary_key=True)
-    usuario_id: int
-    created_at: datetime = Field(default_factory=datetime.now)
-    # updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
-    not_after: datetime
-    # refreshed_at: datetime | None = None
-    # user_agent: str
-    ip: str = Field(sa_type=String(length=MAX_LENGTH_SESION_IP))
+    sesion_id: Mapped[UUID] = mapped_column()
+    usuario_id: Mapped[int] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
+    not_after: Mapped[datetime] = mapped_column()
+    ip: Mapped[str] = mapped_column(String(length=MAX_LENGTH_SESION_IP))
 
-    usuario: Usuario = Relationship()
+    usuario: Mapped["Usuario"] = relationship()
 
     __table_args__ = (
+        PrimaryKeyConstraint("sesion_id"),
+        ForeignKeyConstraint(
+            ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
+        ),
+    )
+
+
+class AuthToken(Base):
+    __tablename__ = "token_autenticacion"
+
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    codigo: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO)
+    )
+    usuario_id: Mapped[int] = mapped_column()
+    expiration_at: Mapped[datetime] = mapped_column()
+
+    __table_args__ = (
+        PrimaryKeyConstraint("id"),
         ForeignKeyConstraint(
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
