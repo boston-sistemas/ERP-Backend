@@ -125,6 +125,7 @@ class TokenService:
         return token
 
     async def create_auth_token(self, user_id: int) -> AuthToken:
+        await self.delete_auth_tokens(user_id)
         expiration_time = datetime.now() + timedelta(minutes=self.AUTH_TOKEN_EXPIRATION_MINUTES)
         codigo = self._generate_auth_token(length=6)
         auth_token = AuthToken(
@@ -133,12 +134,15 @@ class TokenService:
         await self.repository.save(auth_token)
         return auth_token
 
-    async def verify_auth_token(
-        self, codigo: str
-    ) -> Result[AuthToken, CustomException]:
-        filter_expression = AuthToken.codigo == codigo
+    async def verify_auth_token(self, user_id: int, codigo: str) -> Result[AuthToken, CustomException]:
+        filter_expression = (AuthToken.codigo == codigo) & (AuthToken.usuario_id == user_id)
         auth_token = await self.repository.find(filter=filter_expression)
-        #TODO: REALIZAR PRUEBAS CUANDO HAY VARIOS TOKENS CON EL MISMO CODIGO
         if auth_token is None or auth_token.expiration_at < datetime.now():
             return TokenFailures.INVALID_TOKEN_FAILURE
+        await self.repository.delete(auth_token)
         return Success(auth_token)
+
+    async def delete_auth_tokens(self, user_id: int):
+        filter_expression = AuthToken.usuario_id == user_id
+        auth_tokens = await self.repository.find_all(filter=filter_expression)
+        await self.repository.delete_all(auth_tokens)

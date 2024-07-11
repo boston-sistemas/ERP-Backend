@@ -63,9 +63,7 @@ class AuthService:
 
         return Success(user)
 
-    async def login(
-        self, form: LoginWithTokenForm, ip: str
-    ) -> Result[LoginResponse, CustomException]:
+    async def login(self, form: LoginWithTokenForm, ip: str) -> Result[LoginResponse, CustomException]:
         validation_result = await self._validate_user_credentials(
             form.username, form.password
         )
@@ -73,7 +71,7 @@ class AuthService:
             return validation_result
 
         user: Usuario = validation_result.value
-        token_verification_result = await self.verify_auth_token(form.token)
+        token_verification_result = await self.token_service.verify_auth_token(user.usuario_id, form.token)
 
         if token_verification_result.is_failure:
             return token_verification_result
