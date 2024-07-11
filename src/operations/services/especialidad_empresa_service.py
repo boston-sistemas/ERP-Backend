@@ -14,7 +14,7 @@ class EspecialidadEmpresaService:
     async def read_especialidad_by_nombre(
         self, nombre: str, include_proveedores: bool = False
     ) -> Result[EspecialidadEmpresa, CustomException]:
-        especialidad = self.repository.find_especialidad(
+        especialidad = await self.repository.find_especialidad(
             EspecialidadEmpresa.nombre == nombre,
             include_proveedores=include_proveedores,
         )
