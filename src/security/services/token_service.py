@@ -18,7 +18,7 @@ SECRET_KEY = settings.SECRET_KEY
 SIGNING_ALGORITHM = settings.SIGNING_ALGORITHM
 ACCESS_TOKEN_EXPIRATION_MINUTES = 15
 REFRESH_TOKEN_EXPIRATION_HOURS = 8
-
+AUTH_TOKEN_LENGTH = 6
 
 class TokenService:
     AUTH_TOKEN_EXPIRATION_MINUTES = 5
@@ -125,9 +125,8 @@ class TokenService:
         return token
 
     async def create_auth_token(self, user_id: int) -> AuthToken:
-        await self.delete_auth_tokens(user_id)
         expiration_time = datetime.now() + timedelta(minutes=self.AUTH_TOKEN_EXPIRATION_MINUTES)
-        codigo = self._generate_auth_token(length=6)
+        codigo = self._generate_auth_token(length=AUTH_TOKEN_LENGTH)
         auth_token = AuthToken(
             codigo=codigo, usuario_id=user_id, expiration_at=expiration_time
         )
