@@ -1,8 +1,12 @@
-<div style="text-align: center;">
-    <img src="{{ LOGO_MECSA_PNG }}" alt="MECSA Logo" style="width: 100px; height: auto;"/>
-</div>
 <p>Hola {{ username }},</p>
-<p>Estas son tus credenciales para que puedas ingresar al portal:</p>
-<p>Tu código de autenticación es: <strong>{{ token }}</strong></p>
+<p>Este es tu código de acceso para poder ingresar al portal de MECSA:</p>
+<p style="font-size: 24px; font-weight: bold; text-align: center;">{{ token }}</p>
+<p>Recuerda que este código expira en <strong>{{ expiration_at }}</strong> minutos.</p>
 <p>Saludos,</p>
-<p>El equipo de MECSA</p>
+<p style="color: steelblue; font-weight: bold">Area de Sistemas | Anexo 21</p>
+<p style="color: steelblue">Av. Guzmán Blanco 422</p>
+<div style="text-align: left;">
+    <img src="{{ LOGO_MECSA }}" alt="MECSA Logo" style="width: 200px; height: auto;"/>
+</div>
+<br/>
+<p style="color: gray; opacity: 0.7;">Si no ha solicitado este código, puede que su cuenta haya sido vulnerada. Por favor comuníquese lo más pronto posible a +51 972 725 878.</p>

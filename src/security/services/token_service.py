@@ -120,7 +120,7 @@ class TokenService:
 
     @staticmethod
     def _generate_auth_token(length=6):
-        alphabet = string.ascii_letters + string.digits
+        alphabet = string.digits + string.ascii_letters 
         token = "".join(secrets.choice(alphabet) for _ in range(length))
         return token
 
