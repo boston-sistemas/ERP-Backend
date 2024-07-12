@@ -31,4 +31,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db
 
 
+def transactional(func):
+    async def wrapper(self, *args, **kwargs):
+        self.repository.commit = False
+        self.repository.flush = True
+        # TODO: reiniciar los valores?
+        return await func(self, *args, **kwargs)
+
+    return wrapper
+
+
 SessionDependency = Annotated[Session, Depends(get_db)]
