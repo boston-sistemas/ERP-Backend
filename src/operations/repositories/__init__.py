@@ -8,6 +8,7 @@ from .orden_servicio_tintoreria_detalle_repository import (
     OrdenServicioTintoreriaDetalleRepository,
 )
 from .orden_servicio_tintoreria_repository import OrdenServicioTintoreriaRepository
+from .programacion_tintoreria_repository import ProgramacionTintoreriaRepository
 from .proveedor_repository import ProveedorRepository
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "ProveedorRepository",
     "OrdenServicioTintoreriaRepository",
     "OrdenServicioTintoreriaDetalleRepository",
+    "ProgramacionTintoreriaRepository",
 ]
