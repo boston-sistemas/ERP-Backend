@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routing import api_router
 from fastapi.staticfiles import StaticFiles
+import os
 # from src.core.database import Base, engine
 #
 # def create_tables():
@@ -34,7 +35,8 @@ app.add_middleware(
 # async def startup_event():
 #     create_tables()
 
-app.mount("/public", StaticFiles(directory="public"), name="public")
+public_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "public"))
+app.mount("/public", StaticFiles(directory=public_directory), name="public")
 
 @app.get("/")
 async def home():

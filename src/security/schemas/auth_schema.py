@@ -37,3 +37,4 @@ class RefreshResponse(BaseModel):
 class SendTokenResponse(BaseModel):
     token_expiration_minutes: int
     token_expiration_at: datetime
+    email_send_to: str

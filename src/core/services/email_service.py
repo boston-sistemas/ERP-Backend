@@ -6,9 +6,10 @@ from jinja2 import Environment, FileSystemLoader
 URL_ERP_MECSA = "http://localhost:3000"
 EMAIL_FROM = "practicante.sistemas@boston.com.pe"
 LOGO_MECSA_PNG = "http://localhost:8000/public/logo-mecsa-negro.png"
-
-template_loader = FileSystemLoader(searchpath="./resend_html")
+searchpath=os.path.join(os.path.dirname(__file__), "resend_html")
+template_loader = FileSystemLoader(searchpath=os.path.join(os.path.dirname(__file__), "resend_html"))
 template_env = Environment(loader=template_loader)
+
 
 class EmailService:
     def __init__(self):
@@ -38,7 +39,7 @@ class EmailService:
         await self.send_email(EMAIL_FROM, [email_to], subject, html_content)
 
     async def send_auth_token_email(self, email_to: str, username: str, token: str):
-        subject = "Tu Token de Autenticación"
+        subject = "Prueba - Codigo de Autenticacion"
         template = template_env.get_template("send_auth_token_email.html")
         html_content = template.render(
             LOGO_MECSA_PNG=LOGO_MECSA_PNG,

@@ -7,6 +7,7 @@ from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import AuthFailures
 from src.security.models import Usuario
+from src.core.services.email_service import EmailService
 from src.security.schemas import (
     LoginForm,
     LoginWithTokenForm,
@@ -29,6 +30,7 @@ class AuthService:
         self.user_sesion_service = UserSesionService(db)
         self.token_service = TokenService(db)
         self.rol_service = RolService(db)
+        self.email_service = EmailService()
 
     @staticmethod
     def validate_user_status(user: Usuario) -> bool:
@@ -162,12 +164,13 @@ class AuthService:
         user: Usuario = validation_result.value
         await self.token_service.delete_auth_tokens(user.usuario_id)
         token = await self.token_service.create_auth_token(user.usuario_id)
-
-        # TODO: ENVIAR CORREO)
-        # self.resend_service.send_auth_token_email(user.email, user.display_name, token.codigo)
+        await self.email_service.send_auth_token_email(user.email, user.username, token.codigo)
         return Success(
             SendTokenResponse(
                 token_expiration_at=token.expiration_at,
                 token_expiration_minutes=self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES,
+                email_send_to=user.email  
             )
         )
+    
+    
