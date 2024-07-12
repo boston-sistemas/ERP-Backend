@@ -16,8 +16,8 @@ class ProveedorService:
 
     async def read_proveedor(
         self, proveedor_id: str
-    ) -> Result[ProveedorRepository, CustomException]:
-        proveedor = self.repository.find(Proveedor.proveedor_id == proveedor_id)
+    ) -> Result[Proveedor, CustomException]:
+        proveedor = await self.repository.find(Proveedor.proveedor_id == proveedor_id)
         if proveedor is not None:
             return Success(proveedor)
 
