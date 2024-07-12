@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 
 from .orden_servicio_tintoreria_detalle_schema import (
-    OrdenServicioTintoreriaDetalleCreateSchema,
-    OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion,
+    OrdenServicioTintoreriaDetalleCreateSchemaByOrder,
 )
 
 
@@ -25,9 +24,9 @@ class OrdenServicioTintoreriaSchema(
 
 
 class OrdenServicioTintoreriaCreateSchemaWithDetalle(OrdenServicioTintoreriaBase):
-    detalle: list[OrdenServicioTintoreriaDetalleCreateSchema]
+    detalle: list[OrdenServicioTintoreriaDetalleCreateSchemaByOrder]
 
 
 class OrdenServicioTintoreriaCreateSchemaWithDetalleByProgramacion(BaseModel):
     color_id: int
-    detalle: list[OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion]
+    detalle: list[OrdenServicioTintoreriaDetalleCreateSchemaByOrder]

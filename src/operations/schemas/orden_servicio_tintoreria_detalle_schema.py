@@ -24,7 +24,7 @@ class OrdenServicioTintoreriaDetalleCreateSchema(BaseModel):
     cantidad_kg: Decimal = Field(ge=0)
 
 
-class OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion(BaseModel):
+class OrdenServicioTintoreriaDetalleCreateSchemaByOrder(BaseModel):
     orden_servicio_tejeduria_id: str
     crudo_id: str
     nro_rollos: int = Field(ge=0)
