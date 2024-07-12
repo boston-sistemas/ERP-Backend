@@ -21,7 +21,7 @@ from .orden_servicio_tejeduria_schema import (
 )
 from .orden_servicio_tintoreria_detalle_schema import (
     OrdenServicioTintoreriaDetalleCreateSchema,
-    OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion,
+    OrdenServicioTintoreriaDetalleCreateSchemaByOrder,
 )
 from .orden_servicio_tintoreria_schema import (
     OrdenServicioTintoreriaCreateSchemaWithDetalle,
@@ -36,7 +36,7 @@ from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
 __all__ = [
-    "OrdenServicioTintoreriaDetalleCreateSchemaByProgramacion",
+    "OrdenServicioTintoreriaDetalleCreateSchemaByOrder",
     "OrdenServicioTintoreriaDetalleCreateSchema",
     "OrdenServicioTintoreriaCreateSchemaWithDetalle",
     "OrdenServicioTintoreriaCreateSchemaWithDetalleByProgramacion",
