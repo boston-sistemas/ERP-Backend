@@ -193,7 +193,7 @@ class Color(Base):
 class ProgramacionTintoreria(Base):
     __tablename__ = "programacion_tintoreria"
 
-    programacion_tintoreria_id: Mapped[int] = mapped_column(
+    id: Mapped[int] = mapped_column(
         Identity(start=1),
     )
     from_tejeduria_id: Mapped[str] = mapped_column(
@@ -204,7 +204,7 @@ class ProgramacionTintoreria(Base):
     )
 
     __table_args__ = (
-        PrimaryKeyConstraint("programacion_tintoreria_id"),
+        PrimaryKeyConstraint("id"),
         ForeignKeyConstraint(["from_tejeduria_id"], ["proveedor.proveedor_id"]),
         ForeignKeyConstraint(["to_tintoreria_id"], ["proveedor.proveedor_id"]),
     )
@@ -229,7 +229,7 @@ class OrdenServicioTintoreria(Base):
         PrimaryKeyConstraint("orden_servicio_tintoreria_id"),
         ForeignKeyConstraint(
             ["programacion_tintoreria_id"],
-            ["programacion_tintoreria.programacion_tintoreria_id"],
+            ["programacion_tintoreria.id"],
         ),
         ForeignKeyConstraint(["color_id"], ["color.color_id"]),
     )
