@@ -3,7 +3,6 @@ from jinja2 import Environment, FileSystemLoader
 
 from src.core.config import settings
 
-EMAIL_FROM = "practicante.sistemas@boston.com.pe <noreply@boston.com.pe>"
 LOGO_MECSA = "https://lh3.googleusercontent.com/pw/AP1GczOxb5h_TPjSWvXctIscyr_Yedt7H2ck4BJMH_8iuedQOxo0g-kRtWkDlJiQuIU6-6zDRaw00vFLTcuMlyi5_uiG17-yiD4WdtOhRs1Q2lunl_sr11qSdsK5fozwLoxaANW2ycTRPjVZPW8e3KsV27s=w1920-h610-s-no-gm"
 
 
@@ -38,7 +37,7 @@ class EmailService:
             password=password,
             FRONTEND_URL=settings.FRONTEND_URL,
         )
-        await self.send_email(EMAIL_FROM, [email_to], subject, html_content)
+        await self.send_email(settings.EMAIL_FROM, [email_to], subject, html_content)
 
     async def send_auth_token_email(
         self, email_to: str, username: str, token: str, expiration_at: str
@@ -52,4 +51,4 @@ class EmailService:
             expiration_at=expiration_at,
         )
 
-        await self.send_email(EMAIL_FROM, [email_to], subject, html_content)
+        await self.send_email(settings.EMAIL_FROM, [email_to], subject, html_content)
