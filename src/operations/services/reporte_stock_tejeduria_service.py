@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.operations.schemas import (
+    OrdenServicioTejeduriaDetalleStockUpdateSchemaByID,
     OrdenServicioTejeduriaDetalleUpdateSchemaByID,
     ReporteStockTejeduriaResponse,
 )
@@ -39,6 +40,10 @@ class ReporteStockTejeduriaService:
         return Success(ReporteStockTejeduriaResponse(ordenes=ordenes))
 
     async def update_subordenes_stock(
-        self, subordenes: list[OrdenServicioTejeduriaDetalleUpdateSchemaByID]
+        self, subordenes: list[OrdenServicioTejeduriaDetalleStockUpdateSchemaByID]
     ) -> Result[None, CustomException]:
-        return await self.suborden_tejeduria_service.update_subordenes(subordenes)
+        _subordenes = [
+            OrdenServicioTejeduriaDetalleUpdateSchemaByID(**suborden.model_dump())
+            for suborden in subordenes
+        ]
+        return await self.suborden_tejeduria_service.update_subordenes(_subordenes)
