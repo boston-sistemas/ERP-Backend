@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import AuthFailures
-from src.security.models import Usuario
+from src.security.models import Acceso, Usuario
+from src.security.repositories import ModuloSistemaRepository
 from src.security.schemas import (
     LoginForm,
     LoginResponse,
@@ -27,6 +28,7 @@ class AuthService:
         self.user_sesion_service = UserSesionService(db)
         self.token_service = TokenService
         self.rol_service = RolService(db)
+        self.modulo_repository = ModuloSistemaRepository(db)
 
     @staticmethod
     def validate_user_status(user: Usuario) -> bool:
@@ -40,8 +42,14 @@ class AuthService:
 
         return True
 
-    async def get_valid_user_access(self, user: Usuario) -> list[str]:
-        return ["REVISION_STOCK", "PROGRAMACION_TINTORERIA"]
+    async def get_valid_user_access(self, user: Usuario) -> list[Acceso]:
+        rol_ids = [rol.rol_id for rol in user.roles if rol.is_active]
+        accesos: list[Acceso] = []
+        for rol_id in rol_ids:
+            rol_result = await self.rol_service.read_rol(rol_id, include_accesos=True)
+            rol = rol_result.value
+            accesos.extend([acceso for acceso in rol.accesos if acceso.is_active])
+        return accesos
 
     async def login(
         self, form: LoginForm, ip: str
@@ -67,6 +75,7 @@ class AuthService:
         access_token, access_token_expiration = self.token_service.create_access_token(
             user=user,
             accesos=(await self.get_valid_user_access(user)),
+            modules=(await self.modulo_repository.find_all()),
         )
         # refresh_token None if user.reset_password else self.token_service.create_refresh_token()
         # message = "Es necesario cambiar contraseña"
@@ -113,6 +122,7 @@ class AuthService:
         access_token, access_token_expiration = self.token_service.create_access_token(
             user=user,
             accesos=(await self.get_valid_user_access(user)),
+            modules=(await self.modulo_repository.find_all()),
         )
 
         return Success(
