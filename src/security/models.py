@@ -14,7 +14,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
 from src.security.constants import (
+    MAX_LENGTH_ACCESO_DESCRIPTION,
+    MAX_LENGTH_ACCESO_IMAGE_PATH,
     MAX_LENGTH_ACCESO_NOMBRE,
+    MAX_LENGTH_ACCESO_SCOPE,
+    MAX_LENGTH_ACCESO_VIEW_PATH,
+    MAX_LENGTH_MODULO_IMAGE_PATH,
+    MAX_LENGTH_MODULO_NOMBRE,
     MAX_LENGTH_ROL_NOMBRE,
     MAX_LENGTH_SESION_IP,
     MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO,
@@ -107,18 +113,40 @@ class UsuarioPassword(Base):
     )
 
 
+class ModuloSistema(Base):
+    __tablename__ = "modulo_sistema"
+
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    name: Mapped[str] = mapped_column(String(length=MAX_LENGTH_MODULO_NOMBRE))
+    image_path: Mapped[str | None] = mapped_column(
+        String(length=MAX_LENGTH_MODULO_IMAGE_PATH)
+    )
+
+    __table_args__ = (PrimaryKeyConstraint("id"),)
+
+
 class Acceso(Base):
     __tablename__ = "acceso"
 
-    acceso_id: Mapped[int] = mapped_column(
-        Identity(start=1),
-    )
+    acceso_id: Mapped[int] = mapped_column(Identity(start=1))
     nombre: Mapped[str] = mapped_column(
         String(length=MAX_LENGTH_ACCESO_NOMBRE), unique=True
     )
+    scope: Mapped[str] = mapped_column(String(length=MAX_LENGTH_ACCESO_SCOPE))
+    modulo_id: Mapped[int] = mapped_column()
+    view_path: Mapped[str] = mapped_column(String(length=MAX_LENGTH_ACCESO_VIEW_PATH))
+    image_path: Mapped[str | None] = mapped_column(
+        String(length=MAX_LENGTH_ACCESO_IMAGE_PATH)
+    )
+    description: Mapped[str | None] = mapped_column(
+        String(length=MAX_LENGTH_ACCESO_DESCRIPTION)
+    )
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    __table_args__ = (PrimaryKeyConstraint("acceso_id"),)
+    __table_args__ = (
+        PrimaryKeyConstraint("acceso_id"),
+        ForeignKeyConstraint(["modulo_id"], ["modulo_sistema.id"]),
+    )
 
 
 class UsuarioSesion(Base):

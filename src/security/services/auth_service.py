@@ -5,9 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.core.services.email_service import EmailService
+from src.core.services import EmailService
 from src.security.failures import AuthFailures
-from src.security.models import Usuario
+from src.security.models import Acceso, Usuario
+from src.security.repositories import ModuloSistemaRepository
 from src.security.schemas import (
     LoginForm,
     LoginResponse,
@@ -30,6 +31,7 @@ class AuthService:
         self.user_sesion_service = UserSesionService(db)
         self.token_service = TokenService(db)
         self.rol_service = RolService(db)
+        self.modulo_repository = ModuloSistemaRepository(db)
         self.email_service = EmailService()
 
     @staticmethod
@@ -44,8 +46,14 @@ class AuthService:
 
         return True
 
-    async def get_valid_user_access(self, user: Usuario) -> list[str]:
-        return ["REVISION_STOCK", "PROGRAMACION_TINTORERIA"]
+    async def get_valid_user_access(self, user: Usuario) -> list[Acceso]:
+        rol_ids = [rol.rol_id for rol in user.roles if rol.is_active]
+        accesos: list[Acceso] = []
+        for rol_id in rol_ids:
+            rol_result = await self.rol_service.read_rol(rol_id, include_accesos=True)
+            rol = rol_result.value
+            accesos.extend([acceso for acceso in rol.accesos if acceso.is_active])
+        return accesos
 
     async def _validate_user_credentials(
         self, username: str, password: str
@@ -88,6 +96,7 @@ class AuthService:
         access_token, access_token_expiration = self.token_service.create_access_token(
             user=user,
             accesos=(await self.get_valid_user_access(user)),
+            modules=(await self.modulo_repository.find_all()),
         )
         refresh_token, refresh_token_expiration = (
             self.token_service.create_refresh_token(user=user, sid=str(id))
@@ -132,6 +141,7 @@ class AuthService:
         access_token, access_token_expiration = self.token_service.create_access_token(
             user=user,
             accesos=(await self.get_valid_user_access(user)),
+            modules=(await self.modulo_repository.find_all()),
         )
 
         return Success(

@@ -14,7 +14,7 @@ from src.operations.models import (  # noqa: E402
     ProveedorEspecialidad,
     Tejido,
 )
-from src.security.models import Acceso, Rol, RolAcceso  # noqa: E402
+from src.security.models import Acceso, ModuloSistema, Rol, RolAcceso  # noqa: E402
 
 
 def insert_data(generate_data):
@@ -105,32 +105,100 @@ def generate_color():
 @insert_data
 def generate_rol():
     objects = [
-        {"nombre": "MECSA_OPERACIONES"},
-        {"nombre": "PROVEEDOR"},
+        {"nombre": "MASTER"},
+        {"nombre": "Operaciones 1"},
+        {"nombre": "Operaciones 2"},
+        {"nombre": "Tejedor"},
     ]
     return Rol, objects
 
 
 @insert_data
-def generate_acceso():
-    objects = [
-        {"nombre": "REPORTE_STOCK"},
-        {"nombre": "REVISION_STOCK"},
-        {"nombre": "PROGRAMACION_TINTORERIA"},
-    ]
-
-    return Acceso, objects
-
-
-@insert_data
 def generate_rol_acceso():
     objects = [
+        {"rol_id": 1, "acceso_id": 1},
         {"rol_id": 1, "acceso_id": 2},
         {"rol_id": 1, "acceso_id": 3},
+        {"rol_id": 1, "acceso_id": 4},
+        {"rol_id": 1, "acceso_id": 5},
+        {"rol_id": 1, "acceso_id": 6},
+        {"rol_id": 1, "acceso_id": 7},
+        {"rol_id": 1, "acceso_id": 8},
         {"rol_id": 2, "acceso_id": 1},
+        {"rol_id": 2, "acceso_id": 2},
+        {"rol_id": 3, "acceso_id": 4},
+        {"rol_id": 3, "acceso_id": 5},
+        {"rol_id": 4, "acceso_id": 6},
     ]
 
     return RolAcceso, objects
+
+
+@insert_data
+def generate_modulos():
+    objects = [
+        {"name": "Operaciones"},
+        {"name": "Tejeduria"},
+        {"name": "Seguridad"},
+    ]
+    return ModuloSistema, objects
+
+
+@insert_data
+def generate_accesos():
+    modulos = {"Operaciones": 1, "Tejeduria": 2, "Seguridad": 3}
+
+    objects = [
+        {
+            "nombre": "EPT",
+            "scope": "operaciones",
+            "modulo_id": modulos["Operaciones"],
+            "view_path": "/operaciones/programacion-tintoreria",
+        },
+        {
+            "nombre": "Revision de Stock",
+            "scope": "operaciones",
+            "modulo_id": modulos["Operaciones"],
+            "view_path": "/operaciones/revision-stock",
+        },
+        {
+            "nombre": "Panel",
+            "scope": "operaciones",
+            "modulo_id": modulos["Operaciones"],
+            "view_path": "/operaciones/panel",
+        },
+        {
+            "nombre": "O.S. Tejeduria",
+            "scope": "operaciones",
+            "modulo_id": modulos["Operaciones"],
+            "view_path": "/operaciones/ordenes-servicio",
+        },
+        {
+            "nombre": "Mov. Ingreso Crudo",
+            "scope": "operaciones",
+            "modulo_id": modulos["Operaciones"],
+            "view_path": "/operaciones/movimientos-ingreso-crudo",
+        },
+        {
+            "nombre": "Reporte de Stock",
+            "scope": "tejeduria",
+            "modulo_id": modulos["Tejeduria"],
+            "view_path": "/tejeduria/reporte-stock",
+        },
+        {
+            "nombre": "Roles",
+            "scope": "seguridad",
+            "modulo_id": modulos["Seguridad"],
+            "view_path": "/seguridad/roles",
+        },
+        {
+            "nombre": "Usuarios",
+            "scope": "seguridad",
+            "modulo_id": modulos["Seguridad"],
+            "view_path": "/seguridad/usuarios",
+        },
+    ]
+    return Acceso, objects
 
 
 def generate_dummy_data():
@@ -142,9 +210,9 @@ def generate_dummy_data():
     generate_orden_servicio_tejeduria()
     generate_orden_servicio_tejeduria_detalle()
     generate_color()
-
+    generate_modulos()
     generate_rol()
-    generate_acceso()
+    generate_accesos()
     generate_rol_acceso()
 
 

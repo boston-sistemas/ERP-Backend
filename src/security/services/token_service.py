@@ -9,7 +9,7 @@ from src.core.config import settings
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import TokenFailures
-from src.security.models import AuthToken, Usuario
+from src.security.models import Acceso, AuthToken, ModuloSistema, Usuario
 from src.security.repositories import AuthTokenRepository
 from src.security.schemas import AccessTokenData, RefreshTokenData
 
@@ -34,14 +34,26 @@ class TokenService:
         return encoded_jwt
 
     @staticmethod
-    def create_access_token(user: Usuario, accesos: list[str]) -> tuple[str, datetime]:
+    def create_access_token(
+        user: Usuario, accesos: list[Acceso], modules: list[ModuloSistema]
+    ) -> tuple[str, datetime]:
+        system_modules = {}
+        for module in modules:
+            access_names = [
+                {"nombre": acceso.nombre, "path": acceso.view_path}
+                for acceso in accesos
+                if acceso.modulo_id == module.id
+            ]
+            if access_names:
+                system_modules[module.name] = access_names
+
         expiration = datetime.now(UTC) + timedelta(
             minutes=ACCESS_TOKEN_EXPIRATION_MINUTES
         )
         payload = {
             "sub": user.usuario_id,
             "username": user.username,
-            "accesos": accesos,
+            "system_modules": system_modules,
             "aud": "authenticated",
             "type": "access",
             "exp": expiration,
