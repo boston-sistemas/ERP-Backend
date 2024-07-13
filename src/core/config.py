@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class ProjectSettings(BaseSettings):
     BASE_DIR: str = str(Path(__file__).resolve().parent.parent.parent) + "/"
     PROJECT_DIR: str = BASE_DIR + "src/"
+    ASSETS_DIR: str = PROJECT_DIR + "core/assets/"
     ENV_FILE: str = BASE_DIR + ".env"
     model_config = SettingsConfigDict(
         env_file=ENV_FILE, env_ignore_empty=True, extra="ignore"
@@ -19,6 +20,10 @@ class ProjectSettings(BaseSettings):
     SECRET_KEY: str
     SIGNING_ALGORITHM: str
     DEBUG: bool = True
+    RESEND_API_KEY: str
+    FRONTEND_URL: str
+    EMAIL_FROM: str
+    ALLOWED_ORIGINS: list[str]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

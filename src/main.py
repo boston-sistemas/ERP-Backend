@@ -8,15 +8,19 @@ from routing import api_router
 # def create_tables():
 #     Base.metadata.create_all(bind=engine)
 
+# from src.core.database import Base, engine
+#
+# def create_tables():
+#     Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"] if settings.DEBUG else settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

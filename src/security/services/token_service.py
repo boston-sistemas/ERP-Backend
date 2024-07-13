@@ -1,21 +1,31 @@
+import secrets
+import string
 from datetime import UTC, datetime, timedelta
 
 from authlib.jose import jwt
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import settings
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import TokenFailures
-from src.security.models import Usuario
+from src.security.models import AuthToken, Usuario
+from src.security.repositories import AuthTokenRepository
 from src.security.schemas import AccessTokenData, RefreshTokenData
 
 SECRET_KEY = settings.SECRET_KEY
 SIGNING_ALGORITHM = settings.SIGNING_ALGORITHM
 ACCESS_TOKEN_EXPIRATION_MINUTES = 15
 REFRESH_TOKEN_EXPIRATION_HOURS = 8
+AUTH_TOKEN_LENGTH = 6
 
 
 class TokenService:
+    AUTH_TOKEN_EXPIRATION_MINUTES = 5
+
+    def __init__(self, db: AsyncSession):
+        self.repository = AuthTokenRepository(db)
+
     @staticmethod
     def create_token(payload: dict) -> str:
         header = {"alg": SIGNING_ALGORITHM}
@@ -107,3 +117,37 @@ class TokenService:
         return Success(
             AccessTokenData(user_id=claims["sub"], accesos=claims["accesos"])
         )
+
+    @staticmethod
+    def _generate_auth_token(length=6):
+        alphabet = string.digits + string.ascii_letters
+        token = "".join(secrets.choice(alphabet) for _ in range(length))
+        return token
+
+    async def create_auth_token(self, user_id: int) -> AuthToken:
+        expiration_time = datetime.now() + timedelta(
+            minutes=self.AUTH_TOKEN_EXPIRATION_MINUTES
+        )
+        codigo = self._generate_auth_token(length=AUTH_TOKEN_LENGTH)
+        auth_token = AuthToken(
+            codigo=codigo, usuario_id=user_id, expiration_at=expiration_time
+        )
+        await self.repository.save(auth_token)
+        return auth_token
+
+    async def verify_auth_token(
+        self, user_id: int, codigo: str
+    ) -> Result[AuthToken, CustomException]:
+        filter_expression = (AuthToken.codigo == codigo) & (
+            AuthToken.usuario_id == user_id
+        )
+        auth_token = await self.repository.find(filter=filter_expression)
+        if auth_token is None or auth_token.expiration_at < datetime.now():
+            return TokenFailures.INVALID_TOKEN_FAILURE
+        await self.repository.delete(auth_token)
+        return Success(auth_token)
+
+    async def delete_auth_tokens(self, user_id: int):
+        filter_expression = AuthToken.usuario_id == user_id
+        auth_tokens = await self.repository.find_all(filter=filter_expression)
+        await self.repository.delete_all(auth_tokens)

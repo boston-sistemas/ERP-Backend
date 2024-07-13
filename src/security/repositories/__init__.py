@@ -1,4 +1,5 @@
 from .acceso_repository import AccesoRepository
+from .auth_token_repository import AuthTokenRepository
 from .rol_acceso_repository import RolAccesoRepository
 from .rol_repository import RolRepository
 from .user_repository import UserRepository
@@ -12,4 +13,5 @@ __all__ = [
     "UserRolRepository",
     "RolAccesoRepository",
     "UserSesionRepository",
+    "AuthTokenRepository",
 ]
