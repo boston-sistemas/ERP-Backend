@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.operations.schemas import (
-    OrdenServicioTejeduriaDetalleListUpdateSchema,
+    OrdenServicioTejeduriaDetalleStockUpdateSchemaList,
     ReporteStockTejeduriaResponse,
 )
 from src.operations.services import ReporteStockTejeduriaService
@@ -27,7 +27,7 @@ async def reporte_stock_tejeduria(db: AsyncSession = Depends(get_db)):
 
 @router.put("/subordenes")
 async def update_subordenes_stock(
-    body: OrdenServicioTejeduriaDetalleListUpdateSchema,
+    body: OrdenServicioTejeduriaDetalleStockUpdateSchemaList,
     db: AsyncSession = Depends(get_db),
 ):
     reporte_service = ReporteStockTejeduriaService(db)

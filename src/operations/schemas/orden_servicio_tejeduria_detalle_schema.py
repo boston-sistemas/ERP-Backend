@@ -41,8 +41,8 @@ class OrdenServicioTejeduriaDetalleEstadoEnum(str, Enum):
 
 
 class OrdenServicioTejeduriaDetalleUpdateSchema(BaseModel):
-    reporte_tejeduria_nro_rollos: int | None = Field(default=None, ge=0)
-    reporte_tejeduria_cantidad_kg: float | None = Field(default=None, ge=0)
+    reporte_tejeduria_nro_rollos: int | None = Field(default=None)
+    reporte_tejeduria_cantidad_kg: float | None = Field(default=None)
     estado: OrdenServicioTejeduriaDetalleEstadoEnum | None = None
 
 
@@ -50,6 +50,18 @@ class OrdenServicioTejeduriaDetalleUpdateSchemaByID(
     OrdenServicioTejeduriaDetalleUpdateSchema, OrdenServicioTejeduriaDetalleIDSchema
 ):
     pass
+
+
+class OrdenServicioTejeduriaDetalleStockUpdateSchemaByID(
+    OrdenServicioTejeduriaDetalleIDSchema
+):
+    reporte_tejeduria_nro_rollos: int | None = Field(default=None, ge=0)
+    reporte_tejeduria_cantidad_kg: float | None = Field(default=None, ge=0)
+    estado: OrdenServicioTejeduriaDetalleEstadoEnum | None = None
+
+
+class OrdenServicioTejeduriaDetalleStockUpdateSchemaList(BaseModel):
+    subordenes: list[OrdenServicioTejeduriaDetalleStockUpdateSchemaByID]
 
 
 class OrdenServicioTejeduriaDetalleListUpdateSchema(BaseModel):
