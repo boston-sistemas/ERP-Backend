@@ -21,6 +21,7 @@ class ProjectSettings(BaseSettings):
     SIGNING_ALGORITHM: str
     DEBUG: bool = True
     RESEND_API_KEY: str
+    FRONTEND_URL: str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

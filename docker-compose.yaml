@@ -8,14 +8,15 @@ services:
     volumes:
       - ./src/:/usr/src/app/src
       - ./scripts/:/usr/src/app/scripts
+    env_file:
+      - path: .env.local
+        required: true
+      - path: .env
+        required: false
     environment:
       - TZ=America/Lima
-      - DEBUG=True
       - DATABASE_URL=postgresql://postgres:postgres@mecsa-db/MECSA
       - DATABASE_URL_ASYNC=postgresql+asyncpg://postgres:postgres@mecsa-db/MECSA
-      - SECRET_KEY=SECRET_LOCAL
-      - SIGNING_ALGORITHM=HS256
-      - RESEND_API_KEY=API_KEY
     ports:
       - 8000:8000
     depends_on:
