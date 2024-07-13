@@ -23,6 +23,7 @@ class ProjectSettings(BaseSettings):
     RESEND_API_KEY: str
     FRONTEND_URL: str
     EMAIL_FROM: str
+    ALLOWED_ORIGINS: list[str]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
