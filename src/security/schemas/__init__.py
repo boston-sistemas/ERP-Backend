@@ -1,10 +1,10 @@
 from .auth_schema import (
     LoginForm,
     LoginResponse,
+    LoginWithTokenForm,
     LogoutResponse,
     RefreshResponse,
     SendTokenResponse,
-    LoginWithTokenForm
 )
 from .token_schema import AccessTokenData, RefreshTokenData
 from .user_rol_acceso_schema import (
@@ -48,5 +48,5 @@ __all__ = [
     "UsuarioCreateWithRolesSchema",
     "RolCreateWithAccesosSchema",
     "SendTokenResponse",
-    "LoginWithTokenForm"
+    "LoginWithTokenForm",
 ]

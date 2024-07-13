@@ -5,13 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
+from src.core.services.email_service import EmailService
 from src.security.failures import AuthFailures
 from src.security.models import Usuario
-from src.core.services.email_service import EmailService
 from src.security.schemas import (
     LoginForm,
-    LoginWithTokenForm,
     LoginResponse,
+    LoginWithTokenForm,
     LogoutResponse,
     RefreshResponse,
     RefreshTokenData,
@@ -65,7 +65,9 @@ class AuthService:
 
         return Success(user)
 
-    async def login(self, form: LoginWithTokenForm, ip: str) -> Result[LoginResponse, CustomException]:
+    async def login(
+        self, form: LoginWithTokenForm, ip: str
+    ) -> Result[LoginResponse, CustomException]:
         validation_result = await self._validate_user_credentials(
             form.username, form.password
         )
@@ -73,7 +75,9 @@ class AuthService:
             return validation_result
 
         user: Usuario = validation_result.value
-        token_verification_result = await self.token_service.verify_auth_token(user.usuario_id, form.token)
+        token_verification_result = await self.token_service.verify_auth_token(
+            user.usuario_id, form.token
+        )
 
         if token_verification_result.is_failure:
             return token_verification_result
@@ -164,13 +168,16 @@ class AuthService:
         user: Usuario = validation_result.value
         await self.token_service.delete_auth_tokens(user.usuario_id)
         token = await self.token_service.create_auth_token(user.usuario_id)
-        await self.email_service.send_auth_token_email(user.email, user.display_name, token.codigo, self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES)
+        await self.email_service.send_auth_token_email(
+            user.email,
+            user.display_name,
+            token.codigo,
+            self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES,
+        )
         return Success(
             SendTokenResponse(
                 token_expiration_at=token.expiration_at,
                 token_expiration_minutes=self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES,
-                email_send_to=user.email  
+                email_send_to=user.email,
             )
         )
-    
-    

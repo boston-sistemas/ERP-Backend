@@ -7,9 +7,9 @@ from src.core.database import get_db
 from src.security.schemas import (
     LoginForm,
     LoginResponse,
+    LoginWithTokenForm,
     LogoutResponse,
     RefreshResponse,
-    LoginWithTokenForm,
     SendTokenResponse,
 )
 from src.security.services import AuthService
@@ -24,7 +24,7 @@ async def send_token(
 ):
     auth_service = AuthService(db)
     send_token_result = await auth_service.send_auth_token(form)
-    
+
     if send_token_result.is_success:
         return send_token_result.value
     raise send_token_result.error
