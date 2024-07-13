@@ -1,5 +1,3 @@
 from .email_service import EmailService
 
-__all__ = [
-   "EmailService"
-]
+__all__ = ["EmailService"]
