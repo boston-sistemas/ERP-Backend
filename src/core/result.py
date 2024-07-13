@@ -9,6 +9,9 @@ class Result(Generic[T, E]):
         self._value = value
         self._error = error
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(value={self._value}, error={self._error})"
+
     @property
     def is_success(self) -> bool:
         return self._error is None

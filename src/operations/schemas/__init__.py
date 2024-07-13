@@ -4,6 +4,8 @@ from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleIDSchema,
     OrdenServicioTejeduriaDetalleListUpdateSchema,
     OrdenServicioTejeduriaDetalleSchema,
+    OrdenServicioTejeduriaDetalleStockUpdateSchemaByID,
+    OrdenServicioTejeduriaDetalleStockUpdateSchemaList,
     OrdenServicioTejeduriaDetalleUpdateSchema,
     OrdenServicioTejeduriaDetalleUpdateSchemaByID,
 )
@@ -36,6 +38,8 @@ from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
 __all__ = [
+    "OrdenServicioTejeduriaDetalleStockUpdateSchemaByID",
+    "OrdenServicioTejeduriaDetalleStockUpdateSchemaList",
     "OrdenServicioTintoreriaDetalleCreateSchemaByOrder",
     "OrdenServicioTintoreriaDetalleCreateSchema",
     "OrdenServicioTintoreriaCreateSchemaWithDetalle",
