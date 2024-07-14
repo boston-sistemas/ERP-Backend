@@ -1,8 +1,9 @@
-from datetime import UTC
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.config import settings
 from src.core.database import get_db
 from src.security.schemas import (
     LoginForm,
@@ -15,6 +16,35 @@ from src.security.schemas import (
 from src.security.services import AuthService
 
 router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
+
+
+def set_tokens_in_cookies(
+    response: Response,
+    access_token: str,
+    access_token_expiration: datetime,
+    refresh_token: str | None = None,
+    refresh_token_expiration: datetime | None = None,
+) -> None:
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        expires=access_token_expiration.astimezone(UTC),
+        secure=False if settings.DEBUG else True,
+        samesite="Lax",
+    )
+
+    if refresh_token is None:
+        return
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        expires=refresh_token_expiration.astimezone(UTC),
+        secure=False if settings.DEBUG else True,
+        samesite="Lax",
+    )
 
 
 @router.post("/send-token", response_model=SendTokenResponse)
@@ -44,21 +74,22 @@ async def login(
         raise login_result.error
 
     result = login_result.value
-    if result.refresh_token is not None:
-        response.set_cookie(
-            key="refresh_token",
-            value=result.refresh_token,
-            httponly=True,
-            expires=result.refresh_token_expiration.astimezone(UTC),
-            secure=False,  # TODO: Cambiar a True en producción
-            samesite="Lax",
-        )
+
+    set_tokens_in_cookies(
+        response,
+        result.access_token,
+        result.access_token_expiration,
+        result.refresh_token,
+        result.refresh_token_expiration,
+    )
 
     return result
 
 
 @router.post("/refresh", response_model=RefreshResponse)
-async def refresh_access_token(request: Request, db: AsyncSession = Depends(get_db)):
+async def refresh_access_token(
+    request: Request, response: Response, db: AsyncSession = Depends(get_db)
+):
     auth_service = AuthService(db)
 
     refresh_token = request.cookies.get("refresh_token")
@@ -66,7 +97,10 @@ async def refresh_access_token(request: Request, db: AsyncSession = Depends(get_
     if refresh_result.is_failure:
         raise refresh_result.error
 
-    return refresh_result.value
+    result = refresh_result.value
+    set_tokens_in_cookies(response, result.access_token, result.access_token_expiration)
+
+    return result
 
 
 @router.post("/logout", response_model=LogoutResponse)
