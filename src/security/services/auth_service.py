@@ -168,6 +168,9 @@ class AuthService:
 
         return Success(LogoutResponse())
 
+    async def send_email_pdf_table(self, data: dict):
+        return await self.email_service.send_email_pdf_table(data)
+
     async def send_auth_token(self, form: LoginForm) -> Result[SendTokenResponse, None]:
         validation_result = await self._validate_user_credentials(
             form.username, form.password
