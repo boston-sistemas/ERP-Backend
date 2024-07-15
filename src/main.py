@@ -7,11 +7,11 @@ from routing import api_router
 #
 # def create_tables():
 #     Base.metadata.create_all(bind=engine)
-from src.core.database import Base, engine
-
-
-def create_tables():
-    Base.metadata.create_all(bind=engine)
+# from src.core.database import Base, engine
+#
+#
+# def create_tables():
+#     Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
@@ -28,9 +28,9 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def startup_event():
-    create_tables()
+# @app.on_event("startup")
+# async def startup_event():
+#     create_tables()
 
 
 @app.get("/")

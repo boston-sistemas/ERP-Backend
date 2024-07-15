@@ -32,7 +32,7 @@ from src.security.constants import (
 )
 
 
-class Usuario(AuditMixin, Base):
+class Usuario(Base):
     __tablename__ = "usuario"
 
     usuario_id: Mapped[int] = mapped_column(
