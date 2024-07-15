@@ -1,3 +1,4 @@
+from datetime import datetime
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -80,7 +81,7 @@ class UserService:
         if validation_result.is_failure:
             return validation_result
 
-        user = Usuario(**user_dict)
+        user = Usuario(**user_dict, reset_password_at=datetime.now())
         user.password = self.get_password_hash(user.password)
 
         await self.repository.save(user)

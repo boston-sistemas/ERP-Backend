@@ -47,7 +47,7 @@ class Usuario(Base):
     )
     is_active: Mapped[bool] = mapped_column(default=True)
     blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-
+    reset_password_at: Mapped[datetime] = mapped_column()
     roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
 
     __table_args__ = (PrimaryKeyConstraint("usuario_id"),)
