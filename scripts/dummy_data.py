@@ -106,9 +106,9 @@ def generate_color():
 def generate_rol():
     objects = [
         {"nombre": "MASTER"},
-        {"nombre": "Operaciones 1", "rol_color": "bg-green-600"},
-        {"nombre": "Operaciones 2", "rol_color": "bg-cyan-600"},
-        {"nombre": "Tejedor", "rol_color": "bg-red-600"},
+        {"nombre": "Operaciones 1", "rol_color": "rgb(213,0,0)"},
+        {"nombre": "Operaciones 2", "rol_color": "rgb(246,191,38)"},
+        {"nombre": "Tejedor", "rol_color": "rgb(11,128,67)"},
     ]
     return Rol, objects
 
