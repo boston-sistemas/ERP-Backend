@@ -105,10 +105,10 @@ def generate_color():
 @insert_data
 def generate_rol():
     objects = [
-        {"nombre": "MASTER"},
-        {"nombre": "Operaciones 1"},
-        {"nombre": "Operaciones 2"},
-        {"nombre": "Tejedor"},
+        {"nombre": "MASTER", "rol_color": "bg-zinc-400"},
+        {"nombre": "Operaciones 1", "rol_color": "bg-zinc-400"},
+        {"nombre": "Operaciones 2", "rol_color": "bg-zinc-400"},
+        {"nombre": "Tejedor", "rol_color": "bg-zinc-400"},
     ]
     return Rol, objects
 
@@ -202,18 +202,18 @@ def generate_accesos():
 
 
 def generate_dummy_data():
-    generate_proveedor()
-    generate_especialidad()
-    generate_proveedor_especialidad()
-    generate_tejido()
-    generate_crudo()
+    # generate_proveedor()
+    # generate_especialidad()
+    # generate_proveedor_especialidad()
+    # generate_tejido()
+    # generate_crudo()
     generate_orden_servicio_tejeduria()
     generate_orden_servicio_tejeduria_detalle()
-    generate_color()
-    generate_modulos()
-    generate_rol()
-    generate_accesos()
-    generate_rol_acceso()
+    # generate_color()
+    # generate_modulos()
+    # generate_rol()
+    # generate_accesos()
+    # generate_rol_acceso()
 
 
 if __name__ == "__main__":

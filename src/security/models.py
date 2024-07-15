@@ -64,6 +64,10 @@ class Rol(Base):
     )
     is_active: Mapped[bool] = mapped_column(default=True)
 
+    rol_color: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ROL_NOMBRE), default="bg-zinc-400"
+    )
+
     accesos: Mapped[list["Acceso"]] = relationship(secondary="rol_acceso")
 
     __table_args__ = (PrimaryKeyConstraint("rol_id"),)
