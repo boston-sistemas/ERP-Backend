@@ -1,10 +1,11 @@
 from collections.abc import Generator
+from datetime import datetime
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Session
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 from src.core.config import settings
 
@@ -19,6 +20,20 @@ AsyncSessionLocal = async_sessionmaker(
 
 class Base(DeclarativeBase):
     pass
+
+
+class AuditMixin:
+    is_deleted: Mapped[bool] = mapped_column(server_default=text("0"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.sysdate(), nullable=False
+    )
+    created_by: Mapped[int] = mapped_column(nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.sysdate(), onupdate=func.sysdate(), nullable=True
+    )
+    updated_by: Mapped[int] = mapped_column(nullable=True)
+    deleted_at: Mapped[datetime] = mapped_column(nullable=True)
+    deleted_by: Mapped[int] = mapped_column(nullable=True)
 
 
 def get_session() -> Generator[Session, None, None]:

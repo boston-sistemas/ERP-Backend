@@ -9,10 +9,11 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     String,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.database import Base
+from src.core.database import AuditMixin, Base
 from src.security.constants import (
     MAX_LENGTH_ACCESO_DESCRIPTION,
     MAX_LENGTH_ACCESO_IMAGE_PATH,
@@ -31,7 +32,7 @@ from src.security.constants import (
 )
 
 
-class Usuario(Base):
+class Usuario(AuditMixin, Base):
     __tablename__ = "usuario"
 
     usuario_id: Mapped[int] = mapped_column(
@@ -45,7 +46,7 @@ class Usuario(Base):
     display_name: Mapped[Optional[str]] = mapped_column(
         String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME), nullable=True
     )
-    is_active: Mapped[bool] = mapped_column(default=True)
+    is_active: Mapped[bool] = mapped_column(server_default=text("1"))
     blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
     roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
