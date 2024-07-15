@@ -23,17 +23,15 @@ class Base(DeclarativeBase):
 
 
 class AuditMixin:
-    is_deleted: Mapped[bool] = mapped_column(server_default=text("0"), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.sysdate(), nullable=False
+    is_deleted: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_by: Mapped[int] = mapped_column()
+    updated_at: Mapped[datetime | None] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
     )
-    created_by: Mapped[int] = mapped_column(nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.sysdate(), onupdate=func.sysdate(), nullable=True
-    )
-    updated_by: Mapped[int] = mapped_column(nullable=True)
-    deleted_at: Mapped[datetime] = mapped_column(nullable=True)
-    deleted_by: Mapped[int] = mapped_column(nullable=True)
+    updated_by: Mapped[int | None] = mapped_column()
+    deleted_at: Mapped[datetime | None] = mapped_column()
+    deleted_by: Mapped[int | None] = mapped_column()
 
 
 def get_session() -> Generator[Session, None, None]:

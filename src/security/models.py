@@ -46,7 +46,7 @@ class Usuario(AuditMixin, Base):
     display_name: Mapped[Optional[str]] = mapped_column(
         String(length=MAX_LENGTH_USUARIO_DISPLAY_NAME), nullable=True
     )
-    is_active: Mapped[bool] = mapped_column(server_default=text("1"))
+    is_active: Mapped[bool] = mapped_column(default=True)
     blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
     roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
