@@ -50,6 +50,7 @@ class UsuarioListSchema(BaseModel):
 class RolBase(BaseModel):
     nombre: str = Field(min_length=1)
     is_active: bool = Field(default=True)
+    rol_color: str
 
 
 class RolCreateSchema(RolBase):
@@ -63,6 +64,7 @@ class RolCreateWithAccesosSchema(RolCreateSchema):
 class RolUpdateSchema(BaseModel):
     nombre: str = Field(default=None, min_length=1)
     is_active: bool | None = None
+    rol_color: str | None = None
 
 
 class RolSimpleSchema(RolBase):
