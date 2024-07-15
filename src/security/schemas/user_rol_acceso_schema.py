@@ -17,6 +17,7 @@ class UsuarioSimpleSchema(UsuarioBase):
 class UsuarioSchema(UsuarioBase):
     usuario_id: int
     is_active: bool
+    reset_password_at: datetime
     blocked_until: datetime | None
     roles: list["RolSimpleSchema"]
 
