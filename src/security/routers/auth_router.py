@@ -47,6 +47,138 @@ def set_tokens_in_cookies(
     )
 
 
+@router.post("/pruebas")
+async def pruebas(
+    db: AsyncSession = Depends(get_db),
+):
+    data = {
+        "semana": 21,
+        "from": "TEXTILES ROCA 29 S.A.C.",
+        "email_to": ["practicante.sistemas@boston.com.pe"],
+        "to": "Tricot Fine",
+        "ignore_columns_pdf": ["Tejeduría", "Tintorería"],
+        "title": [
+            "Partida",
+            "Tejeduría",
+            "Hilanderia",
+            "OS",
+            "Tejido",
+            "Ancho",
+            "Rollos",
+            "Peso",
+            "Tintorería",
+            "Color",
+        ],
+        # 'title': ['Partida', 'Hilanderia', 'OS', 'Tejido', 'Ancho', 'Rollos', 'Peso', 'Color'],
+        "values": [
+            [
+                "1",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+            [
+                "1",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+            [
+                "2",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+            [
+                "1",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+            [
+                "1",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+            [
+                "2",
+                "textiles roca 29 s.a.c.",
+                "san ignacio",
+                "tri1749",
+                "jersey llano 30/1 melange 80/20",
+                "90",
+                "3",
+                "60",
+                "color y textura",
+                "lavado",
+            ],
+            [
+                "3",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+            [
+                "4",
+                "TEXTILES ROCA 29 S.A.C.",
+                "SAN IGNACIO",
+                "TRI1749",
+                "Jersey Llano 30/1 Melange 80/20",
+                "90",
+                "3",
+                "60",
+                "Color y Textura",
+                "Lavado",
+            ],
+        ],
+        "comments": "Comentarios de la programación de la semana 21 de 2021, se ha realizado la programación de los tejidos de la empresa Tricot Fine S.A. para ser enviados a la empresa Tricot Fine para el proceso de tintorería. Se ha programado un total de 4 partidas, 2 de ancho 90 y 2 de ancho 80, con un total de 52 rollos y 1040 kilogramos de peso .",
+    }
+
+    auth_service = AuthService(db)
+    send = await auth_service.send_email_pdf_table(data)
+
+    print(send)
+
+    return {"message": "Pruebas de autenticación"}
+
+
 @router.post("/send-token", response_model=SendTokenResponse)
 async def send_token(
     form: LoginForm,
