@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
-from sqlalchemy import create_engine, func, text
+from sqlalchemy import create_engine, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 

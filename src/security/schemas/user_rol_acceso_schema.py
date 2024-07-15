@@ -49,13 +49,28 @@ class UsuarioListSchema(BaseModel):
 
 
 class RolBase(BaseModel):
+    rol_id: int
     nombre: str = Field(min_length=1)
     is_active: bool = Field(default=True)
     rol_color: str
 
+    class Config:
+        from_attributes = True
 
-class RolCreateSchema(RolBase):
+
+class RolSimpleSchema(RolBase):
     pass
+
+
+class RolSchema(RolBase):
+    rol_id: int
+    accesos: list["AccesoSimpleSchema"]
+
+
+class RolCreateSchema(BaseModel):
+    nombre: str = Field(min_length=1)
+    is_active: bool = Field(default=True)
+    rol_color: str
 
 
 class RolCreateWithAccesosSchema(RolCreateSchema):
@@ -66,19 +81,6 @@ class RolUpdateSchema(BaseModel):
     nombre: str = Field(default=None, min_length=1)
     is_active: bool | None = None
     rol_color: str | None = None
-
-
-class RolSimpleSchema(RolBase):
-    class Config:
-        from_attributes = True
-
-
-class RolSchema(RolBase):
-    rol_id: int
-    accesos: list["AccesoSimpleSchema"]
-
-    class Config:
-        from_attributes = True
 
 
 class RolListSchema(BaseModel):

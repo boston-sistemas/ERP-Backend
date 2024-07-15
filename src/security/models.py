@@ -9,11 +9,10 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     String,
     func,
-    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.database import AuditMixin, Base
+from src.core.database import Base
 from src.security.constants import (
     MAX_LENGTH_ACCESO_DESCRIPTION,
     MAX_LENGTH_ACCESO_IMAGE_PATH,
