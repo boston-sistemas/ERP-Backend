@@ -253,7 +253,6 @@ class UserService:
             return UserFailures.USER_UPDATE_PASSWORD_FAILURE
 
         user.password = self.get_password_hash(new_password)
-        user.reset_password_at = datetime.now()
 
         await self.repository.save(user)
 
