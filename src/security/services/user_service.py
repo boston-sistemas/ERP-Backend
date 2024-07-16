@@ -1,12 +1,11 @@
 from datetime import datetime
-from re import search as re_search
+from re import findall as re_search
 
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.security.constants import MIN_PASSWORD_LENGTH
 from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
@@ -19,6 +18,12 @@ from src.security.schemas import (
 from .rol_service import RolService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+MIN_LENGTH_PASSWORD = 12
+MIN_UPPER_PASSWORD = 2
+MIN_LOWER_PASSWORD = 1
+MIN_DIGIT_PASSWORD = 1
+MIN_SYMBOL_PASSWORD = 1
 
 
 class UserService:
@@ -37,21 +42,20 @@ class UserService:
 
     @staticmethod
     def is_password_secure(password: str) -> bool:
-        if len(password) < MIN_PASSWORD_LENGTH:
+        if len(password) < MIN_LENGTH_PASSWORD:
             return False
 
-        if not re_search(r"[a-z]", password):
+        if len(re_search(r"[a-z]", password)) < MIN_LOWER_PASSWORD:
             return False
 
-        if not re_search(r"[A-Z]", password):
+        if len(re_search(r"[A-Z]", password)) < MIN_UPPER_PASSWORD:
             return False
 
-        if not re_search(r"[0-9]", password):
+        if len(re_search(r"[0-9]", password)) < MIN_DIGIT_PASSWORD:
             return False
 
-        if not re_search(r"[\W_]", password):
+        if len(re_search(r"[\W_]", password)) < MIN_SYMBOL_PASSWORD:
             return False
-
         return True
 
     async def read_user(
@@ -249,6 +253,7 @@ class UserService:
             return UserFailures.USER_UPDATE_PASSWORD_FAILURE
 
         user.password = self.get_password_hash(new_password)
+        user.reset_password_at = datetime.now()
 
         await self.repository.save(user)
 
