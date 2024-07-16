@@ -1,9 +1,12 @@
 from datetime import datetime
+from re import search as re_search
+
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
+from src.security.constants import MIN_PASSWORD_LENGTH
 from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
@@ -31,6 +34,25 @@ class UserService:
     @staticmethod
     def get_password_hash(password: str) -> str:
         return pwd_context.hash(password, rounds=12)
+
+    @staticmethod
+    def is_password_secure(password: str) -> bool:
+        if len(password) < MIN_PASSWORD_LENGTH:
+            return False
+
+        if not re_search(r"[a-z]", password):
+            return False
+
+        if not re_search(r"[A-Z]", password):
+            return False
+
+        if not re_search(r"[0-9]", password):
+            return False
+
+        if not re_search(r"[\W_]", password):
+            return False
+
+        return True
 
     async def read_user(
         self, user_id: int, include_roles: bool = False
@@ -211,5 +233,23 @@ class UserService:
             roles_to_delete.append(has_rol_validation.value)
 
         await self.user_rol_repository.delete_all(roles_to_delete)
+
+        return Success(None)
+
+    async def update_password(
+        self, user_id: int, new_password: str
+    ) -> Result[None, CustomException]:
+        user_result = await self.read_user(user_id)
+        if user_result.is_failure:
+            return user_result
+
+        user: Usuario = user_result.value
+
+        if not self.is_password_secure(new_password):
+            return UserFailures.USER_UPDATE_PASSWORD_FAILURE
+
+        user.password = self.get_password_hash(new_password)
+
+        await self.repository.save(user)
 
         return Success(None)

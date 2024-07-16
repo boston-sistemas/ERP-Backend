@@ -126,9 +126,7 @@ class TokenService:
         if claims.get("type", "") != "access":
             return TokenFailures.INVALID_TOKEN_TYPE_FAILURE
 
-        return Success(
-            AccessTokenData(user_id=claims["sub"], accesos=claims["accesos"])
-        )
+        return Success(AccessTokenData(user_id=claims["sub"]))
 
     @staticmethod
     def _generate_auth_token(length=6):

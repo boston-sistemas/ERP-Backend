@@ -1,4 +1,5 @@
 from src.core.exceptions import (
+    BadRequestException,
     DuplicateValueException,
     NotFoundException,
 )
@@ -26,6 +27,10 @@ class UserFailures:
         detail="Rol no encontrado. No se eliminaron los roles especificados"
     )
 
+    _USER_UPDATE_PASSWORD_ERROR = BadRequestException(
+        detail="La contraseña no es segura. No se actualizó la contraseña"
+    )
+
     USER_NOT_FOUND_FAILURE = Failure(_USER_NOT_FOUND_ERROR)
     USER_ROLE_NOT_FOUND_FAILURE = Failure(_USER_ROLE_NOT_FOUND_ERROR)
     USER_HAS_ROLE_WHEN_ADDING_FAILURE = Failure(_USER_HAS_ROLE_WHEN_ADDING_ERROR)
@@ -35,6 +40,8 @@ class UserFailures:
     ROLE_NOT_FOUND_WHEN_CREATING_FAILURE = Failure(_ROLE_NOT_FOUND_WHEN_CREATING_ERROR)
     ROLE_NOT_FOUND_WHEN_ADDING_FAILURE = Failure(_ROLE_NOT_FOUND_WHEN_ADDING_ERROR)
     ROLE_NOT_FOUND_WHEN_DELETING_FAILURE = Failure(_ROLE_NOT_FOUND_WHEN_DELETING_ERROR)
+
+    USER_UPDATE_PASSWORD_FAILURE = Failure(_USER_UPDATE_PASSWORD_ERROR)
 
     @staticmethod
     def USERNAME_ALREADY_EXISTS_FAILURE(username: str):

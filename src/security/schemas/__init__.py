@@ -22,6 +22,7 @@ from .user_rol_acceso_schema import (
     UsuarioListSchema,
     UsuarioSchema,
     UsuarioSimpleSchema,
+    UsuarioUpdatePasswordSchema,
     UsuarioUpdateSchema,
 )
 
@@ -49,4 +50,5 @@ __all__ = [
     "RolCreateWithAccesosSchema",
     "SendTokenResponse",
     "LoginWithTokenForm",
+    "UsuarioUpdatePasswordSchema",
 ]

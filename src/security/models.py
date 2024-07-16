@@ -9,7 +9,6 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     String,
     func,
-    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -52,6 +51,9 @@ class Usuario(Base):
     roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
 
     __table_args__ = (PrimaryKeyConstraint("usuario_id"),)
+
+    def __repr__(self):
+        return f"<Usuario(id='{self.usuario_id}',username='{self.username}', email='{self.email}')>"
 
 
 class Rol(Base):

@@ -45,6 +45,10 @@ class UsuarioListSchema(BaseModel):
     usuarios: list[UsuarioSchema]
 
 
+class UsuarioUpdatePasswordSchema(BaseModel):
+    new_password: str
+
+
 #######################################################
 
 

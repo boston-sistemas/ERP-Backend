@@ -2,10 +2,12 @@ from fastapi import APIRouter, Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
+from src.core.dependencies import get_current_user_id
 from src.security.schemas import (
     UsuarioCreateWithRolesSchema,
     UsuarioListSchema,
     UsuarioSchema,
+    UsuarioUpdatePasswordSchema,
     UsuarioUpdateSchema,
 )
 from src.security.services import UserService
@@ -108,5 +110,23 @@ async def delete_roles_from_user(
     result = await user_service.delete_roles_from_user(usuario_id, rol_ids)
     if result.is_success:
         return {"message": "Roles eliminados correctamente"}
+
+    raise result.error
+
+
+@router.patch("/password/me")
+async def update_password(
+    update_password: UsuarioUpdatePasswordSchema,
+    current_user_id: int = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    user_service = UserService(db)
+
+    result = await user_service.update_password(
+        current_user_id, update_password.new_password
+    )
+
+    if result.is_success:
+        return {"message": "Contraseña actualizada correctamente"}
 
     raise result.error
