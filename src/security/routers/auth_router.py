@@ -21,17 +21,17 @@ router = APIRouter(tags=["Seguridad - Auth"], prefix="/auth")
 def set_tokens_in_cookies(
     response: Response,
     access_token: str,
-    access_token_expiration: datetime,
+    access_token_expiration_at: datetime,
     refresh_token: str | None = None,
-    refresh_token_expiration: datetime | None = None,
+    refresh_token_expiration_at: datetime | None = None,
 ) -> None:
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        expires=access_token_expiration.astimezone(UTC),
+        expires=access_token_expiration_at.astimezone(UTC),
         secure=False if settings.DEBUG else True,
-        samesite="Lax",
+        samesite="lax",
     )
 
     if refresh_token is None:
@@ -41,9 +41,9 @@ def set_tokens_in_cookies(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        expires=refresh_token_expiration.astimezone(UTC),
+        expires=refresh_token_expiration_at.astimezone(UTC),
         secure=False if settings.DEBUG else True,
-        samesite="Lax",
+        samesite="lax",
     )
 
 
@@ -210,9 +210,9 @@ async def login(
     set_tokens_in_cookies(
         response,
         result.access_token,
-        result.access_token_expiration,
-        result.refresh_token,
-        result.refresh_token_expiration,
+        result.access_token_expiration_at,
+        result.refresh_token_at,
+        result.refresh_token_expiration_at,
     )
 
     return result
@@ -230,7 +230,9 @@ async def refresh_access_token(
         raise refresh_result.error
 
     result = refresh_result.value
-    set_tokens_in_cookies(response, result.access_token, result.access_token_expiration)
+    set_tokens_in_cookies(
+        response, result.access_token, result.access_token_expiration_at
+    )
 
     return result
 

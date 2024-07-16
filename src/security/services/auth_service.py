@@ -93,12 +93,14 @@ class AuthService:
         id: UUID = await self.user_sesion_service.create_sesion(user, ip)
         message = "Inicio de sesión exitoso."
 
-        access_token, access_token_expiration = self.token_service.create_access_token(
-            user=user,
-            accesos=(await self.get_valid_user_access(user)),
-            modules=(await self.modulo_repository.find_all()),
+        access_token, access_token_expiration_at = (
+            self.token_service.create_access_token(
+                user=user,
+                accesos=(await self.get_valid_user_access(user)),
+                modules=(await self.modulo_repository.find_all()),
+            )
         )
-        refresh_token, refresh_token_expiration = (
+        refresh_token, refresh_token_expiration_at = (
             self.token_service.create_refresh_token(user=user, sid=str(id))
         )
 
@@ -106,9 +108,9 @@ class AuthService:
             LoginResponse(
                 message=message,
                 access_token=access_token,
-                access_token_expiration=access_token_expiration,
+                access_token_expiration_at=access_token_expiration_at,
                 refresh_token=refresh_token,
-                refresh_token_expiration=refresh_token_expiration,
+                refresh_token_expiration_at=refresh_token_expiration_at,
                 usuario=user,
             )
         )
@@ -138,16 +140,18 @@ class AuthService:
             return user_result
 
         user: Usuario = user_result.value
-        access_token, access_token_expiration = self.token_service.create_access_token(
-            user=user,
-            accesos=(await self.get_valid_user_access(user)),
-            modules=(await self.modulo_repository.find_all()),
+        access_token, access_token_expiration_at = (
+            self.token_service.create_access_token(
+                user=user,
+                accesos=(await self.get_valid_user_access(user)),
+                modules=(await self.modulo_repository.find_all()),
+            )
         )
 
         return Success(
             RefreshResponse(
                 access_token=access_token,
-                access_token_expiration=access_token_expiration,
+                access_token_expiration_at=access_token_expiration_at,
             )
         )
 

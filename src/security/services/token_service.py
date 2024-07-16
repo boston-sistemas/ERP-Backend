@@ -47,7 +47,7 @@ class TokenService:
             if access_names:
                 system_modules[module.name] = access_names
 
-        expiration = datetime.now(UTC) + timedelta(
+        expiration_at = datetime.now(UTC) + timedelta(
             minutes=ACCESS_TOKEN_EXPIRATION_MINUTES
         )
         payload = {
@@ -56,26 +56,28 @@ class TokenService:
             "system_modules": system_modules,
             "aud": "authenticated",
             "type": "access",
-            "exp": expiration,
+            "exp": expiration_at,
         }
 
         encoded_jwt = TokenService.create_token(payload)
-        return encoded_jwt, expiration
+        return encoded_jwt, expiration_at
 
     @staticmethod
     def create_refresh_token(user: Usuario, sid: str) -> tuple[str, datetime]:
-        expiration = datetime.now(UTC) + timedelta(hours=REFRESH_TOKEN_EXPIRATION_HOURS)
+        expiration_at = datetime.now(UTC) + timedelta(
+            hours=REFRESH_TOKEN_EXPIRATION_HOURS
+        )
         payload = {
             "sub": user.usuario_id,
             "username": user.username,
             "sid": sid,
             "aud": "authenticated",
             "type": "refresh",
-            "exp": expiration,
+            "exp": expiration_at,
         }
 
         encoded_jwt = TokenService.create_token(payload)
-        return encoded_jwt, expiration
+        return encoded_jwt, expiration_at
 
     @staticmethod
     def decode_token(token: str) -> dict:

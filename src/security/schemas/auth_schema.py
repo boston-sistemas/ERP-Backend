@@ -17,9 +17,9 @@ class LoginWithTokenForm(LoginForm):
 class LoginResponse(BaseModel):
     message: str
     access_token: str
-    access_token_expiration: datetime
+    access_token_expiration_at: datetime
     refresh_token: str | None = None
-    refresh_token_expiration: datetime | None = None
+    refresh_token_expiration_at: datetime | None = None
     token_type: str = "bearer"
     usuario: UsuarioSchema
 
@@ -30,7 +30,7 @@ class LogoutResponse(BaseModel):
 
 class RefreshResponse(BaseModel):
     access_token: str
-    access_token_expiration: datetime
+    access_token_expiration_at: datetime
     token_type: str = "bearer"
 
 
