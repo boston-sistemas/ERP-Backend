@@ -22,10 +22,7 @@ def insert_data(generate_data):
         model, objects = generate_data(*args, **kwargs)
 
         with Session(engine) as db:
-            data = []
-            for object in objects:
-                data.append(model(**object))
-
+            data = [model(**_object) for _object in objects]
             db.add_all(data)
             db.commit()
 
@@ -85,7 +82,10 @@ def generate_crudo():
 
 @insert_data
 def generate_orden_servicio_tejeduria():
-    objects = get_objects_from_csv("orden_servicio_tejeduria.csv")
+    from datetime import datetime
+
+    converters = {"fecha": lambda value: datetime.strptime(value, "%d/%m/%Y")}
+    objects = get_objects_from_csv("orden_servicio_tejeduria.csv", converters)
     return OrdenServicioTejeduria, objects
 
 
@@ -207,8 +207,8 @@ def generate_dummy_data():
     generate_proveedor_especialidad()
     generate_tejido()
     generate_crudo()
-    # generate_orden_servicio_tejeduria()
-    # generate_orden_servicio_tejeduria_detalle()
+    generate_orden_servicio_tejeduria()
+    generate_orden_servicio_tejeduria_detalle()
     generate_color()
     generate_modulos()
     generate_rol()
