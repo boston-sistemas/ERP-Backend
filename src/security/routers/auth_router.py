@@ -28,7 +28,7 @@ def set_tokens_in_cookies(
     response.set_cookie(
         key="access_token",
         value=access_token,
-        httponly=True,
+        httponly=False,
         expires=access_token_expiration_at.astimezone(UTC),
         secure=False if settings.DEBUG else True,
         samesite="lax",
