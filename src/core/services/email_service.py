@@ -1,4 +1,5 @@
 import base64
+import os
 import uuid
 from datetime import datetime
 
@@ -73,7 +74,7 @@ PROGRAMACION_TINTORERIA_HTML = """
         <tbody>
             {3}
             <tr style="background-color: #111;">
-                <td colspan="6" style="text-align: center; font-weight: bold; color: white;">Totales</td>
+                <td colspan="4" style="text-align: center; font-weight: bold; color: white;">Totales</td>
                 <td style="text-align: center; font-weight: bold; color: white;">{4}</td>
                 <td style="text-align: center; font-weight: bold; color: white;">{5}</td>
                 <td colspan="2" style="color: white;"></td>
@@ -100,7 +101,6 @@ class EmailService:
         total_weight = 0
         usable_width = lengths["usable_width"]
         cell = lengths["cell"]
-
         titles_pdf = [
             title for title in data["title"] if title not in data["ignore_columns_pdf"]
         ]
@@ -109,17 +109,17 @@ class EmailService:
             for index, title in enumerate(data["title"])
             if title in data["ignore_columns_pdf"]
         ]
+
         titles_email = "".join(
-            f'<th style="text-align: center;">{title}</th>' for title in data["title"]
+            f'<th style="text-align: center;">{title}</th>' for title in titles_pdf
         )
         titles_size = len(titles_pdf)
-        rows_email = data["values"]
         values_email = ""
-        # print(values_email)
         values_pdf = [
             [value for index, value in enumerate(row) if index not in index_ignore]
             for row in data["values"]
         ]
+        rows_email = values_pdf
 
         values_size = len(values_pdf)
 
@@ -133,12 +133,13 @@ class EmailService:
             "2": "background-color: whitesmoke;",
         }
 
+        index_rolls = titles_pdf.index("Rollos")
+        index_weight = titles_pdf.index("Peso")
+        length = usable_width / 100.0
         if values_size == 0:
             colWidths = [usable_width / titles_size for i in range(titles_size)]
         else:
-            length = usable_width / 100.0
             max_lengths = [(len(title) + cell) for title in titles_pdf]
-
             current_color = (background_colors_table["1"], background_colors_email["1"])
             current_departure = values_pdf[0][0]
             for i, (row_pdf, row_email) in enumerate(
@@ -158,7 +159,6 @@ class EmailService:
                         )
                     current_departure = departure
 
-                # print(row_pdf)
                 values_email += (
                     f'<tr style="{current_color[1]}">'
                     + "".join(
@@ -168,27 +168,18 @@ class EmailService:
                     + "</tr>"
                 )
 
-                # print(values_email)
-
-                total_rolls += int(row_pdf[5])
-                total_weight += float(row_pdf[6])
-                # print("-> rolls", row[5])
-                # print("-> width", row[6])
+                total_rolls += int(row_pdf[index_rolls])
+                total_weight += float(row_pdf[index_weight])
                 style.add("BACKGROUND", (0, i), (-1, i), current_color[0])
                 for j, value in enumerate(row_pdf):
                     max_lengths[j] = max(max_lengths[j], len(value) + cell)
 
-            colWidths = [
-                (current_length * (cell + current_length))
-                for current_length in max_lengths
-            ]
-
-            colWidths_sum = sum(colWidths)
+            colWidths = [(length * (current_length)) for current_length in max_lengths]
             max_lengths_sum = sum(max_lengths)
             colWidths_size = len(colWidths)
             if max_lengths_sum < 100:
                 colWidths = [
-                    width + (usable_width - colWidths_sum / colWidths_size)
+                    width + ((usable_width / colWidths_size) - width)
                     for width in colWidths
                 ]
             else:
@@ -204,8 +195,6 @@ class EmailService:
                 colWidths = [
                     (length * current_length) for current_length in max_lengths
                 ]
-        # print(colWidths)
-        # print(max_lengths)
         return (
             colWidths,
             titles_pdf,
@@ -268,6 +257,8 @@ class EmailService:
         }
 
         email = resend.Emails.send(params)
+
+        os.remove(name_pdf)
         return email
 
     async def send_programacion_tintoreria_email(

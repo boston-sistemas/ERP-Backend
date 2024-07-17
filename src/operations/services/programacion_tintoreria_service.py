@@ -150,7 +150,7 @@ class ProgramacionTintoreriaService:
                 "from": tejeduria.razon_social,
                 "email_to": ["practicante.sistemas@boston.com.pe"],
                 "to": tintoreria.razon_social,
-                "ignore_columns_pdf": ["Tejeduria", "Tintoreria"],
+                "ignore_columns_pdf": ["Tejeduria", "Tintoreria", "Hilanderia"],
                 "title": [
                     "Partida",
                     "Tejeduria",
