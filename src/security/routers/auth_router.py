@@ -211,7 +211,7 @@ async def login(
         response,
         result.access_token,
         result.access_token_expiration_at,
-        result.refresh_token_at,
+        result.refresh_token,
         result.refresh_token_expiration_at,
     )
 
