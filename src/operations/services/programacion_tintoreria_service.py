@@ -44,7 +44,7 @@ class ProgramacionTintoreriaService:
         if tintorerias_result.is_failure:
             return tintorerias_result
 
-        colores = await self.color_service.read_colores()
+        colores = await self.color_repository.find_all()
         return Success(
             ProgramacionTintoreriaParametersResponse(
                 tejedurias=tejedurias_result.value,
