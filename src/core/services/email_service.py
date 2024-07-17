@@ -351,13 +351,13 @@ class EmailService:
         await self.send_email_pdf(name_pdf, "reporte.pdf", fecha, data_table_email)
 
     async def send_welcome_email(
-        self, email_to: str, name: str, username: str, password: str
+        self, email_to: str, display_name: str, username: str, password: str
     ):
-        subject = "Bienvenido a MECSA"
+        subject = "Bienvenido al Portal de MECSA"
         template = self.template_env.get_template("send_welcome_email.html")
         html_content = template.render(
             LOGO_MECSA=LOGO_MECSA,
-            name=name,
+            display_name=display_name,
             username=username,
             password=password,
             FRONTEND_URL=settings.FRONTEND_URL,

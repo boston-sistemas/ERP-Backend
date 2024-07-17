@@ -26,7 +26,7 @@ class UsuarioSchema(UsuarioBase):
 
 
 class UsuarioCreateSchema(UsuarioBase):
-    password: str = Field(min_length=1)
+    pass
 
 
 class UsuarioCreateWithRolesSchema(UsuarioCreateSchema):

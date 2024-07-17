@@ -14,7 +14,6 @@ from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
 from src.security.schemas import (
-    UsuarioCreateSchema,
     UsuarioCreateWithRolesSchema,
     UsuarioUpdateSchema,
 )
@@ -128,11 +127,7 @@ class UserService:
 
         return Success(None)
 
-    async def create_user(
-        self, user_data: UsuarioCreateSchema | dict
-    ) -> Result[Usuario, CustomException]:
-        user_dict = user_data if isinstance(user_data, dict) else user_data.model_dump()
-
+    async def create_user(self, user_dict: dict) -> Result[Usuario, CustomException]:
         validation_result = await self.validate_user_data(user_dict["username"])
         if validation_result.is_failure:
             return validation_result
@@ -148,9 +143,10 @@ class UserService:
     async def create_user_with_roles(
         self, user_data: UsuarioCreateWithRolesSchema
     ) -> Result[None, CustomException]:
-        creation_result = await self.create_user(
-            user_data.model_dump(exclude={"rol_ids"})
-        )
+        secure_password = self.generate_random_password()
+        user_dict = user_data.model_dump(exclude={"rol_ids"})
+        user_dict.update({"password": secure_password})
+        creation_result = await self.create_user(user_dict)
         if creation_result.is_failure:
             return creation_result
 
@@ -160,6 +156,10 @@ class UserService:
         )
         if add_roles_result.is_failure:
             return UserFailures.ROLE_NOT_FOUND_WHEN_CREATING_FAILURE
+
+        await self.email_service.send_welcome_email(
+            user.email, user.display_name, user.username, secure_password
+        )
 
         return Success(None)
 
