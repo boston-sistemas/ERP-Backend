@@ -8,8 +8,8 @@ from src.operations.models import EspecialidadEmpresa
 
 
 class EspecialidadEmpresaRepository(BaseRepository[EspecialidadEmpresa]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(EspecialidadEmpresa, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(EspecialidadEmpresa, db, flush)
 
     @staticmethod
     def include_proveedores() -> Load:

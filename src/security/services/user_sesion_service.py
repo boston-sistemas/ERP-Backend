@@ -15,7 +15,7 @@ SESSION_EXPIRATION_HOURS = 8
 class UserSesionService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = UserSesionRepository(db)
-        self.user_repository = UserRepository(db, commit=False)
+        self.user_repository = UserRepository(db)
 
     @staticmethod
     def calculate_expiration() -> datetime:

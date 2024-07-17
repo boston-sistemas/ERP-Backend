@@ -5,5 +5,5 @@ from src.operations.models import Proveedor
 
 
 class ProveedorRepository(BaseRepository[Proveedor]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(Proveedor, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(Proveedor, db, flush)

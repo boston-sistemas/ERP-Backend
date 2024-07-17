@@ -8,8 +8,8 @@ from src.security.models import Usuario
 
 
 class UserRepository(BaseRepository[Usuario]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(Usuario, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(Usuario, db, flush)
 
     @staticmethod
     def include_roles() -> Load:

@@ -5,5 +5,5 @@ from src.security.models import ModuloSistema
 
 
 class ModuloSistemaRepository(BaseRepository[ModuloSistema]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(ModuloSistema, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(ModuloSistema, db, flush)

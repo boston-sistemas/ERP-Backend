@@ -5,5 +5,5 @@ from src.security.models import RolAcceso
 
 
 class RolAccesoRepository(BaseRepository[RolAcceso]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(RolAcceso, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(RolAcceso, db, flush)

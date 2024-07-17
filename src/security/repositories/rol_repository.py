@@ -8,8 +8,8 @@ from src.security.models import Rol
 
 
 class RolRepository(BaseRepository[Rol]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(Rol, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(Rol, db, flush)
 
     @staticmethod
     def include_accesos() -> Load:

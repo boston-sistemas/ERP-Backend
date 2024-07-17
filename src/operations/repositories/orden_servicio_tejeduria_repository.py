@@ -8,8 +8,8 @@ from src.operations.models import OrdenServicioTejeduria
 
 
 class OrdenServicioTejeduriaRepository(BaseRepository[OrdenServicioTejeduria]):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(OrdenServicioTejeduria, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(OrdenServicioTejeduria, db, flush)
 
     @staticmethod
     def include_detalle() -> Load:

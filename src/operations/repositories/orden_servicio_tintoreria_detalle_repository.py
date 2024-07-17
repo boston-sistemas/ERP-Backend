@@ -7,5 +7,5 @@ from src.operations.models import OrdenServicioTintoreriaDetalle
 class OrdenServicioTintoreriaDetalleRepository(
     BaseRepository[OrdenServicioTintoreriaDetalle]
 ):
-    def __init__(self, db: AsyncSession, commit: bool = True) -> None:
-        super().__init__(OrdenServicioTintoreriaDetalle, db, commit)
+    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(OrdenServicioTintoreriaDetalle, db, flush)
