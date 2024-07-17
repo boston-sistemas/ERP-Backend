@@ -4,6 +4,7 @@ from re import findall as re_search
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.database import transactional
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.security.failures import UserFailures
@@ -114,16 +115,7 @@ class UserService:
 
         return Success(user)
 
-    def _create_user_with_roles_in_single_commit(func):
-        async def wrapper(self, *args, **kwargs):
-            self.repository.commit = False
-            self.repository.flush = True
-            # TODO: reiniciar los valores?
-            return await func(self, *args, **kwargs)
-
-        return wrapper
-
-    @_create_user_with_roles_in_single_commit
+    @transactional
     async def create_user_with_roles(
         self, user_data: UsuarioCreateWithRolesSchema
     ) -> Result[None, CustomException]:

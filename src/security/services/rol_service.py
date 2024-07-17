@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.database import transactional
 from src.core.exceptions.http_exceptions import (
     CustomException,
 )
@@ -66,16 +67,7 @@ class RolService:
 
         return Success(rol)
 
-    def _create_rol_with_accesos_in_single_commit(func):
-        async def wrapper(self, *args, **kwargs):
-            self.repository.commit = False
-            self.repository.flush = True
-            # TODO: reiniciar los valores?
-            return await func(self, *args, **kwargs)
-
-        return wrapper
-
-    @_create_rol_with_accesos_in_single_commit
+    @transactional
     async def create_rol_with_accesos(
         self, rol_data: RolCreateWithAccesosSchema
     ) -> Result[None, CustomException]:
