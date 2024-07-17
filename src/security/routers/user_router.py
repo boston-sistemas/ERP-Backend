@@ -139,7 +139,7 @@ async def reset_password(
 ):
     user_service = UserService(db)
 
-    result = await user_service.send_reset_password(usuario_id)
+    result = await user_service.reset_password(usuario_id)
 
     if result.is_success:
         return {"message": "Contraseña reiniciada correctamente"}

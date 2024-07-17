@@ -290,7 +290,7 @@ class UserService:
 
         return Success(None)
 
-    async def send_reset_password(self, user_id: int) -> Result[str, CustomException]:
+    async def reset_password(self, user_id: int) -> Result[str, CustomException]:
         user_result = await self.read_user(user_id)
         if user_result.is_failure:
             return user_result
