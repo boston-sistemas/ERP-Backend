@@ -181,16 +181,18 @@ class AuthService:
 
         user: Usuario = validation_result.value
         await self.token_service.delete_auth_tokens(user.usuario_id)
-        token = await self.token_service.create_auth_token(user.usuario_id)
+        auth_token, expiration_at = await self.token_service.create_auth_token(
+            user.usuario_id
+        )
         await self.email_service.send_auth_token_email(
             user.email,
             user.display_name,
-            token.codigo,
+            auth_token,
             self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES,
         )
         return Success(
             SendTokenResponse(
-                token_expiration_at=token.expiration_at,
+                token_expiration_at=expiration_at,
                 token_expiration_minutes=self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES,
                 email_send_to=user.email,
             )

@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from authlib.jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from security.services.hash_service import HashService
 from src.core.config import settings
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
@@ -136,25 +137,27 @@ class TokenService:
         token = "".join(secrets.choice(alphabet) for _ in range(length))
         return token
 
-    async def create_auth_token(self, user_id: int) -> AuthToken:
+    async def create_auth_token(self, user_id: int) -> tuple[str, datetime]:
         expiration_time = datetime.now() + timedelta(
             minutes=self.AUTH_TOKEN_EXPIRATION_MINUTES
         )
-        codigo = self._generate_auth_token(length=AUTH_TOKEN_LENGTH)
-        auth_token = AuthToken(
-            codigo=codigo, usuario_id=user_id, expiration_at=expiration_time
+        auth_token = self._generate_auth_token(length=AUTH_TOKEN_LENGTH)
+        hashed_auth_token = HashService.hash_text(auth_token)
+        instance = AuthToken(
+            codigo=hashed_auth_token, usuario_id=user_id, expiration_at=expiration_time
         )
-        await self.repository.save(auth_token)
-        return auth_token
+        await self.repository.save(instance)
+        return auth_token, expiration_time
 
     async def verify_auth_token(
         self, user_id: int, codigo: str
     ) -> Result[AuthToken, CustomException]:
-        filter_expression = (AuthToken.codigo == codigo) & (
-            AuthToken.usuario_id == user_id
-        )
-        auth_token = await self.repository.find(filter=filter_expression)
-        if auth_token is None or auth_token.expiration_at < datetime.now():
+        auth_token = await self.repository.find(filter=AuthToken.usuario_id == user_id)
+        if (
+            auth_token is None
+            or (not HashService.verify_text(codigo, auth_token.codigo))
+            or auth_token.expiration_at < datetime.now()
+        ):
             return TokenFailures.INVALID_TOKEN_FAILURE
         await self.repository.delete(auth_token)
         return Success(auth_token)
