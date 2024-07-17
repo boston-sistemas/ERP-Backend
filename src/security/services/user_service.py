@@ -304,6 +304,6 @@ class UserService:
         await self.repository.save(user)
 
         await self.email_service.send_reset_password_email(
-            user.email, user.username, new_password
+            user.email, user.display_name, new_password
         )
         return Success(new_password)
