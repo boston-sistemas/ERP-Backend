@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import transactional
 from src.core.result import Result, Success
+from src.operations.failures import OrdenServicioTintoreriaFailures
 from src.operations.models import (
     OrdenServicioTintoreria,
     OrdenServicioTintoreriaDetalle,
@@ -15,11 +16,14 @@ from src.operations.schemas import (
     OrdenServicioTintoreriaDetalleCreateSchema,
 )
 
+from .color_service import ColorService
+
 
 class OrdenServicioTintoreriaService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = OrdenServicioTintoreriaRepository(db)
         self.suborden_repository = OrdenServicioTintoreriaDetalleRepository(db)
+        self.color_service = ColorService(db)
 
     @transactional
     async def create_orden_with_detalle(
@@ -42,6 +46,11 @@ class OrdenServicioTintoreriaService:
     async def create_ordenes_with_detalle(
         self, ordenes: list[OrdenServicioTintoreriaCreateSchemaWithDetalle]
     ) -> Result[None, None]:
+        for color_id in {orden.color_id for orden in ordenes}:
+            result = await self.color_service.read_color(color_id)
+            if result.is_failure:
+                return OrdenServicioTintoreriaFailures.COLOR_NOT_FOUND_WHEN_CREATING_MULTIPLE_ORDERS_FAILURE
+
         order_instances = [
             OrdenServicioTintoreria(**orden.model_dump(exclude={"detalle"}))
             for orden in ordenes
