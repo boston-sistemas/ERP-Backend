@@ -114,7 +114,7 @@ async def delete_roles_from_user(
     raise result.error
 
 
-@router.put("/password/me")
+@router.put("/me/password")
 async def update_password(
     update_password: UsuarioUpdatePasswordSchema,
     current_user_id: int = Depends(get_current_user_id),
