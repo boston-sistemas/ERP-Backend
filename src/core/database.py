@@ -41,12 +41,19 @@ def get_session() -> Generator[Session, None, None]:
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as db:
-        yield db
+        try:
+            yield db
+            if db.dirty or db.new or db.deleted:
+                await db.commit()
+            else:
+                await db.rollback()
+        except Exception:
+            await db.rollback()
+            raise
 
 
 def transactional(func):
     async def wrapper(self, *args, **kwargs):
-        self.repository.commit = False
         self.repository.flush = True
         # TODO: reiniciar los valores?
         return await func(self, *args, **kwargs)

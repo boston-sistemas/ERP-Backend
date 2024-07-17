@@ -14,26 +14,17 @@ class BaseRepository(Generic[ModelType]):
         self,
         model: ModelType,
         db: AsyncSession,
-        commit: bool = True,
         flush: bool = False,
     ) -> None:
         self.model = model
         self.db = db
-        self.commit = commit
         self.flush = flush
 
-    async def save(self, object: ModelType, refresh: bool = False) -> ModelType:
+    async def save(self, object: ModelType) -> ModelType:
         self.db.add(object)
 
         if self.flush:
             await self.db.flush()
-
-        if self.commit:
-            await self.db.commit()
-
-        if refresh:
-            # TODO: Raise when commit is False
-            await self.db.refresh(object)
 
         return object
 
@@ -42,9 +33,6 @@ class BaseRepository(Generic[ModelType]):
 
         if self.flush:
             await self.db.flush()
-
-        if self.commit:
-            await self.db.commit()
 
     async def find(
         self,
@@ -103,15 +91,6 @@ class BaseRepository(Generic[ModelType]):
         if self.flush:
             await self.db.flush()
 
-        if self.commit:
-            await self.db.commit()
-
     async def delete_all(self, objects: Sequence[ModelType]) -> None:
-        original_commit = self.commit
-        self.commit = False
         for object in objects:
-            await self.delete(object)
-        self.commit = original_commit
-
-        if self.commit:
-            await self.db.commit()
+            await self.db.delete(object)
