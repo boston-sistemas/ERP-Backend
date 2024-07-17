@@ -1,3 +1,4 @@
+from .color_failures import ColorFailures
 from .especialidad_empresa_failures import EspecialidadEmpresaFailures
 from .orden_servicio_tejeduria_detalle_failures import (
     OrdenServicioTejeduriaDetalleFailures,
@@ -12,4 +13,5 @@ __all__ = [
     "ReporteStockTejeduriaFailures",
     "EspecialidadEmpresaFailures",
     "ProveedorFailures",
+    "ColorFailures",
 ]
