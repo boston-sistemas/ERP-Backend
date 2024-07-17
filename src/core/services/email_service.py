@@ -377,3 +377,17 @@ class EmailService:
         )
 
         await self.send_email(settings.EMAIL_FROM, [email_to], subject, html_content)
+
+    async def send_reset_password_email(
+        self, email_to: str, display_name: str, password: str
+    ):
+        subject = "Nueva Contraseña - SISTEMAS MECSA"
+        template = self.template_env.get_template("send_reset_password_email.html")
+        html_content = template.render(
+            LOGO_MECSA=LOGO_MECSA,
+            display_name=display_name,
+            password=password,
+            FRONTEND_URL=settings.FRONTEND_URL,
+        )
+
+        await self.send_email(settings.EMAIL_FROM, [email_to], subject, html_content)

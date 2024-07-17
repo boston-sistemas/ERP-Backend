@@ -1,4 +1,6 @@
-from datetime import datetime
+import random
+import string
+from datetime import datetime, timedelta
 from re import findall as re_search
 
 from passlib.context import CryptContext
@@ -7,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import transactional
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
+from src.core.services import EmailService
 from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
@@ -21,10 +24,11 @@ from .rol_service import RolService
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 MIN_LENGTH_PASSWORD = 12
-MIN_UPPER_PASSWORD = 2
+MIN_UPPER_PASSWORD = 1
 MIN_LOWER_PASSWORD = 1
 MIN_DIGIT_PASSWORD = 1
 MIN_SYMBOL_PASSWORD = 1
+PASSWORD_EXPIRATION_DAYS = 30
 
 
 class UserService:
@@ -32,6 +36,7 @@ class UserService:
         self.repository = UserRepository(db)
         self.rol_service = RolService(db)
         self.user_rol_repository = UserRolRepository(db)
+        self.email_service = EmailService()
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -55,9 +60,33 @@ class UserService:
         if len(re_search(r"[0-9]", password)) < MIN_DIGIT_PASSWORD:
             return False
 
-        if len(re_search(r"[\W_]", password)) < MIN_SYMBOL_PASSWORD:
+        if len(re_search(r"[!@?/]", password)) < MIN_SYMBOL_PASSWORD:
+            return False
+
+        invalid_specials = re_search(r"[^\w!@?/]", password)
+        if invalid_specials:
             return False
         return True
+
+    @staticmethod
+    def generate_random_password() -> str:
+        character_types = [
+            (string.ascii_lowercase, MIN_LOWER_PASSWORD),
+            (string.ascii_uppercase, MIN_UPPER_PASSWORD),
+            (string.digits, MIN_DIGIT_PASSWORD),
+            ("!@?/", MIN_SYMBOL_PASSWORD),
+        ]
+        password = []
+        for character_set, min_count in character_types:
+            password.extend(random.choices(character_set, k=min_count))
+
+        available_chars = string.ascii_letters + string.digits + "!@?/"
+        remainder = MIN_LENGTH_PASSWORD - len(password)
+        password.extend(random.choices(available_chars, k=remainder))
+
+        random.shuffle(password)
+
+        return "".join(password)
 
     async def read_user(
         self, user_id: int, include_roles: bool = False
@@ -245,7 +274,28 @@ class UserService:
             return UserFailures.USER_UPDATE_PASSWORD_FAILURE
 
         user.password = self.get_password_hash(new_password)
+        user.reset_password_at = datetime.now() + timedelta(
+            days=PASSWORD_EXPIRATION_DAYS
+        )
 
         await self.repository.save(user)
 
         return Success(None)
+
+    async def reset_password(self, user_id: int) -> Result[str, CustomException]:
+        user_result = await self.read_user(user_id)
+        if user_result.is_failure:
+            return user_result
+
+        user: Usuario = user_result.value
+        new_password = self.generate_random_password()
+
+        user.password = self.get_password_hash(new_password)
+        user.reset_password_at = datetime.now()
+
+        await self.repository.save(user)
+
+        await self.email_service.send_reset_password_email(
+            user.email, user.display_name, new_password
+        )
+        return Success(new_password)

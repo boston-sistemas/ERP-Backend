@@ -130,3 +130,18 @@ async def update_password(
         return {"message": "Contraseña actualizada correctamente"}
 
     raise result.error
+
+
+@router.put("/{usuario_id}/reset-password")
+async def reset_password(
+    usuario_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    user_service = UserService(db)
+
+    result = await user_service.reset_password(usuario_id)
+
+    if result.is_success:
+        return {"message": "Contraseña reiniciada correctamente"}
+
+    raise result.error
