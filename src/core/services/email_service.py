@@ -14,7 +14,7 @@ timezone = pytz.timezone("America/Lima")
 
 LOGO_MECSA = "https://lh3.googleusercontent.com/pw/AP1GczOxb5h_TPjSWvXctIscyr_Yedt7H2ck4BJMH_8iuedQOxo0g-kRtWkDlJiQuIU6-6zDRaw00vFLTcuMlyi5_uiG17-yiD4WdtOhRs1Q2lunl_sr11qSdsK5fozwLoxaANW2ycTRPjVZPW8e3KsV27s=w1920-h610-s-no-gm"
 
-PROGRAMACION_TINTORERIA_ASUNTO = "Fwd: PROGRAMACIÓN TINTORERÍA - SEMANA {0}"
+PROGRAMACION_TINTORERIA_ASUNTO = "PROGRAMACIÓN TINTORERÍA - SEMANA {0}"
 PROGRAMACION_TINTORERIA_HTML = """
 <!DOCTYPE html>
 <html>
@@ -60,7 +60,7 @@ PROGRAMACION_TINTORERIA_HTML = """
 </head>
 <body>
     <p> Buenos días, {0} <p>
-    <p>Por favor preparar la siguiente relación de tejido para su despacho, recoge Color y Textura<p>
+    <p>Por favor preparar la siguiente relación de tejido para su despacho, recoge {6}<p>
     <p>Muchas gracias<p>
     <strong>Area de Operaciones</strong>
     <p><strong>Fecha: </strong>{1}<p>
@@ -204,6 +204,8 @@ class EmailService:
                 colWidths = [
                     (length * current_length) for current_length in max_lengths
                 ]
+        # print(colWidths)
+        # print(max_lengths)
         return (
             colWidths,
             titles_pdf,
@@ -241,6 +243,7 @@ class EmailService:
             data["values"],
             data["rolls"],
             data["weights"],
+            data["to"],
         )
 
         with open(name_pdf, "rb") as pdf_file:
@@ -267,11 +270,11 @@ class EmailService:
         email = resend.Emails.send(params)
         return email
 
-    async def send_email_pdf_table(
+    async def send_programacion_tintoreria_email(
         self,
         data: dict,
     ):
-        fecha = datetime.now(timezone).strftime("%Y-%m-%d")
+        fecha = datetime.now(timezone).strftime("%d/%m/%Y")
 
         orientation = 0
         pagesize = letter if orientation == 0 else landscape(letter)

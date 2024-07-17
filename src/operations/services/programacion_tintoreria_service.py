@@ -3,8 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import transactional
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.operations.models import ProgramacionTintoreria
-from src.operations.repositories import ProgramacionTintoreriaRepository
+from src.core.services import EmailService
+from src.operations.models import ProgramacionTintoreria, Proveedor
+from src.operations.repositories import (
+    ColorRepository,
+    ProgramacionTintoreriaRepository,
+)
 from src.operations.schemas import (
     OrdenServicioTintoreriaCreateSchemaWithDetalle,
     ProgramacionTintoreriaCreateSchema,
@@ -12,16 +16,16 @@ from src.operations.schemas import (
 )
 from src.operations.services import OrdenServicioTintoreriaService
 
-from .color_service import ColorService
 from .proveedor_service import ProveedorService
 
 
 class ProgramacionTintoreriaService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = ProgramacionTintoreriaRepository(db)
+        self.color_repository = ColorRepository(db)
         self.proveedor_service = ProveedorService(db)
-        self.color_service = ColorService(db)
         self.orden_service = OrdenServicioTintoreriaService(db)
+        self.email_service = EmailService()
 
     async def retrieve_parameters(
         self,
@@ -67,7 +71,7 @@ class ProgramacionTintoreriaService:
         if tintoreria_result.is_failure:
             return tintoreria_result
 
-        # tejeduria, tintoreria = tejeduria_result.value, tintoreria_result.value
+        tejeduria, tintoreria = tejeduria_result.value, tintoreria_result.value
 
         instance = ProgramacionTintoreria(
             from_tejeduria_id=programacion.from_tejeduria_id,
@@ -84,6 +88,66 @@ class ProgramacionTintoreriaService:
             for partida in programacion.partidas
         ]
 
-        await self.orden_service.create_ordenes_with_detalle(ordenes=ordenes)
+        creation_result = await self.orden_service.create_ordenes_with_detalle(
+            ordenes=ordenes
+        )
+        if creation_result.is_failure:
+            return creation_result
 
+        await self._send_email(tejeduria, tintoreria, programacion.partidas)
         return Success(None)
+
+    async def _retrieve_colores(self, color_ids: set):
+        mapping = dict()
+        for color_id in color_ids:
+            mapping[color_id] = await self.color_repository.find_by_id(color_id)
+
+        return mapping
+
+    async def _send_email(self, tejeduria: Proveedor, tintoreria: Proveedor, partidas):
+        colores = await self._retrieve_colores(
+            color_ids={partida.color_id for partida in partidas}
+        )
+        print(colores)
+        comments = f"Programación de {len(partidas)} {'partidas' if len(partidas) > 1 else 'partida'}."
+        values = [
+            [
+                str(index),
+                "-",
+                "-",
+                suborden.orden_servicio_tejeduria_id,
+                suborden.crudo_id[:3],
+                suborden.crudo_id[-2:],
+                str(suborden.nro_rollos),
+                str(suborden.cantidad_kg),
+                "-",
+                colores[partida.color_id].nombre,
+            ]
+            for index, partida in enumerate(partidas, start=1)
+            for suborden in partida.detalle
+        ]
+        print(values)
+
+        await self.email_service.send_programacion_tintoreria_email(
+            data={
+                "semana": 29,
+                "from": tejeduria.razon_social,
+                "email_to": ["practicante.sistemas@boston.com.pe"],
+                "to": tintoreria.razon_social,
+                "ignore_columns_pdf": ["Tejeduria", "Tintoreria"],
+                "title": [
+                    "Partida",
+                    "Tejeduria",
+                    "Hilanderia",
+                    "O.S.",
+                    "Tejido",
+                    "Ancho",
+                    "Rollos",
+                    "Peso",
+                    "Tintoreria",
+                    "Color",
+                ],
+                "values": values,
+                "comments": comments,
+            }
+        )
