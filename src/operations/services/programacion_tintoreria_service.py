@@ -4,7 +4,11 @@ from src.core.database import transactional
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.core.services import EmailService
-from src.operations.models import ProgramacionTintoreria, Proveedor
+from src.operations.models import (
+    OrdenServicioTejeduria,
+    ProgramacionTintoreria,
+    Proveedor,
+)
 from src.operations.repositories import (
     ColorRepository,
     ProgramacionTintoreriaRepository,
@@ -16,6 +20,7 @@ from src.operations.schemas import (
 )
 from src.operations.services import OrdenServicioTintoreriaService
 
+from .orden_servicio_tejeduria_service import OrdenServicioTejeduriaService
 from .proveedor_service import ProveedorService
 
 
@@ -26,6 +31,7 @@ class ProgramacionTintoreriaService:
         self.proveedor_service = ProveedorService(db)
         self.orden_service = OrdenServicioTintoreriaService(db)
         self.email_service = EmailService()
+        self.orden_tejeduria_service = OrdenServicioTejeduriaService(db)
 
     async def retrieve_parameters(
         self,
@@ -52,6 +58,16 @@ class ProgramacionTintoreriaService:
                 colores=colores,
             )
         )
+
+    async def get_current_stock_by_tejeduria(
+        self, tejeduria_id: str
+    ) -> list[OrdenServicioTejeduria]:
+        ordenes = (
+            await self.orden_tejeduria_service.read_ordenes_by_tejeduria_and_estado(
+                tejeduria_id=tejeduria_id, estado="PENDIENTE", include_detalle=True
+            )
+        )
+        return ordenes
 
     @transactional
     async def create_programacion(

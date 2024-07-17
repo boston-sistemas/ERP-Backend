@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.operations.schemas import (
+    OrdenServicioTejeduriaWithDetallesListSchema,
     ProgramacionTintoreriaCreateSchema,
     ProgramacionTintoreriaParametersResponse,
 )
@@ -34,3 +35,15 @@ async def create_programacion_tintoreria(
         return {"message": "Programacion de tintorería hecha y enviada."}
 
     raise creation_result.error
+
+
+@router.get(
+    "/{tejeduria_id}/stock", response_model=OrdenServicioTejeduriaWithDetallesListSchema
+)
+async def get_current_stock_by_tejeduria(
+    tejeduria_id: str, db: AsyncSession = Depends(get_db)
+):
+    programacion_service = ProgramacionTintoreriaService(db)
+    ordenes = await programacion_service.get_current_stock_by_tejeduria(tejeduria_id)
+
+    return OrdenServicioTejeduriaWithDetallesListSchema(ordenes=ordenes)
