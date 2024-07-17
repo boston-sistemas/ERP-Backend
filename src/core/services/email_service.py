@@ -1,4 +1,5 @@
 import base64
+import os
 import uuid
 from datetime import datetime
 
@@ -256,6 +257,8 @@ class EmailService:
         }
 
         email = resend.Emails.send(params)
+
+        os.remove(name_pdf)
         return email
 
     async def send_programacion_tintoreria_email(
