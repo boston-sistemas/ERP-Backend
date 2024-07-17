@@ -46,7 +46,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             if db.dirty or db.new or db.deleted:
                 await db.commit()
             else:
-                await db.rollback()
+                await db.commit()
         except Exception:
             await db.rollback()
             raise
