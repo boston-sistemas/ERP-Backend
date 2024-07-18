@@ -11,6 +11,7 @@ from src.operations.models import (
 )
 from src.operations.repositories import (
     ColorRepository,
+    OrdenServicioTejeduriaDetalleRepository,
     ProgramacionTintoreriaRepository,
 )
 from src.operations.schemas import (
@@ -20,6 +21,9 @@ from src.operations.schemas import (
 )
 from src.operations.services import OrdenServicioTintoreriaService
 
+from .orden_servicio_tejeduria_detalle_service import (
+    OrdenServicioTejeduriaDetalleService,
+)
 from .orden_servicio_tejeduria_service import OrdenServicioTejeduriaService
 from .proveedor_service import ProveedorService
 
@@ -32,6 +36,8 @@ class ProgramacionTintoreriaService:
         self.orden_service = OrdenServicioTintoreriaService(db)
         self.email_service = EmailService()
         self.orden_tejeduria_service = OrdenServicioTejeduriaService(db)
+        self.suborden_tejeduria_service = OrdenServicioTejeduriaDetalleService(db)
+        self.suborden_tejeduria_repository = OrdenServicioTejeduriaDetalleRepository(db)
 
     async def retrieve_parameters(
         self,
@@ -103,7 +109,7 @@ class ProgramacionTintoreriaService:
             )
             for partida in programacion.partidas
         ]
-
+        await self._update_subordenes_stock(programacion.partidas)
         creation_result = await self.orden_service.create_ordenes_with_detalle(
             ordenes=ordenes
         )
@@ -112,6 +118,35 @@ class ProgramacionTintoreriaService:
 
         await self._send_email(tejeduria, tintoreria, programacion.partidas)
         return Success(None)
+
+    async def _get_subordenes_tejeduria(self, partidas):
+        mapping = dict()
+        suborden_ids = {
+            (suborden.orden_servicio_tejeduria_id, suborden.crudo_id)
+            for partida in partidas
+            for suborden in partida.detalle
+        }
+
+        for suborden_id in suborden_ids:
+            mapping[suborden_id] = (
+                await self.suborden_tejeduria_service.read_suborden(*suborden_id)
+            ).value
+
+        return mapping
+
+    async def _update_subordenes_stock(self, partidas):
+        subordenes = await self._get_subordenes_tejeduria(partidas)
+        for partida in partidas:
+            for suborden in partida.detalle:
+                suborden_id = (suborden.orden_servicio_tejeduria_id, suborden.crudo_id)
+                subordenes[
+                    suborden_id
+                ].reporte_tejeduria_nro_rollos -= suborden.nro_rollos
+                subordenes[suborden_id].reporte_tejeduria_cantidad_kg -= float(
+                    suborden.cantidad_kg
+                )
+
+        await self.suborden_tejeduria_repository.save_all(subordenes.values())
 
     async def _retrieve_colores(self, color_ids: set):
         mapping = dict()
