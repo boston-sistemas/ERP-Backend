@@ -261,3 +261,15 @@ class OrdenServicioTintoreriaDetalle(Base):
             ],
         ),
     )
+
+
+class MovimientoIngresoCrudo(Base):
+    __tablename__ = "movimiento_ingreso_crudo"
+
+    id: Mapped[int] = mapped_column(Identity(start=1), primary_key=True)
+    orden_servicio_tejeduria_id: Mapped[str] = mapped_column(
+        String(MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
+    )
+    crudo_id: Mapped[str] = mapped_column(String(MAX_LENGTH_CRUDO_ID))
+    nro_rollos: Mapped[int] = mapped_column()
+    cantidad_kg: Mapped[float] = mapped_column()
