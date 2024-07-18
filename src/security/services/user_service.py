@@ -22,7 +22,7 @@ from .rol_service import RolService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-MIN_LENGTH_PASSWORD = 12
+MIN_LENGTH_PASSWORD = 6
 MIN_UPPER_PASSWORD = 1
 MIN_LOWER_PASSWORD = 1
 MIN_DIGIT_PASSWORD = 1
