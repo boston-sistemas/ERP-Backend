@@ -1,5 +1,6 @@
 from .color_service import ColorService
 from .especialidad_empresa_service import EspecialidadEmpresaService
+from .movimiento_ingreso_crudo_service import MovimientoIngresoCrudoService
 from .orden_servicio_tejeduria_detalle_service import (
     OrdenServicioTejeduriaDetalleService,
 )
@@ -14,6 +15,7 @@ from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 
 __all__ = [
+    "MovimientoIngresoCrudoService",
     "OrdenServicioTintoreriaDetalleService",
     "OrdenServicioTintoreriaService",
     "OrdenServicioTejeduriaService",
