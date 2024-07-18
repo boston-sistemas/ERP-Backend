@@ -1,3 +1,7 @@
+from .movimiento_ingreso_crudo_schema import (
+    MovimientoIngresoCrudoCreateSchema,
+    MovimientoIngresoCrudoListCreateSchema,
+)
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
     OrdenServicioTejeduriaDetalleEstadoEnum,
@@ -38,6 +42,8 @@ from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
 __all__ = [
+    "MovimientoIngresoCrudoCreateSchema",
+    "MovimientoIngresoCrudoListCreateSchema",
     "OrdenServicioTejeduriaDetalleStockUpdateSchemaByID",
     "OrdenServicioTejeduriaDetalleStockUpdateSchemaList",
     "OrdenServicioTintoreriaDetalleCreateSchemaByOrder",
