@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #FFCC00;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .header-row {
+            background-color: #FFCC00;
+            text-align: center;
+        }
+
+        .partida-cell {
+            font-weight: bold;
+        }
+
+        .number-cell {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <p> Buenos días, {{ from_ }} <p>
+    <p>Por favor preparar la siguiente relación de tejido para su despacho, recoge {{ to }}<p>
+    <p>Muchas gracias<p>
+    <strong>Area de Operaciones</strong>
+    <p><strong>Fecha: </strong>{{ date }}<p>
+    <table>
+        <thead>
+            <tr class="header-row">
+            {{ titles }}
+            </tr>
+        </thead>
+        <tbody>
+          {{ values }}
+            <tr style="background-color: #111;">
+                <td colspan="4" style="text-align: center; font-weight: bold; color: white;">Totales</td>
+            <td style="text-align: center; font-weight: bold; color: white;">{{ rolls }}</td>
+            <td style="text-align: center; font-weight: bold; color: white;">{{ weights }}</td>
+                <td colspan="2" style="color: white;"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
