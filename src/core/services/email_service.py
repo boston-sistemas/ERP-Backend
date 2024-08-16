@@ -154,51 +154,6 @@ class EmailService:
         email = resend.Emails.send(params)
         return email
 
-    async def send_email_with_pdf(
-        self,
-        name_pdf: str,
-        name_pdf_send: str,
-        fecha: str,
-        data: dict,
-    ):
-        template = self.template_env.get_template("send_programming_dry_cleaners.html")
-
-        html_content = template.render(
-            from_=data["from"],
-            to=data["to"],
-            date=fecha,
-            titles=data["title"],
-            values=data["values"],
-            rolls=data["rolls"],
-            weights=data["weights"],
-        )
-
-        with open(name_pdf, "rb") as pdf_file:
-            pdf_data = pdf_file.read()
-
-        encoded_pdf = base64.b64encode(pdf_data).decode("utf-8")
-
-        subject_email = PROGRAMACION_TINTORERIA_ASUNTO.format(data["semana"])
-
-        params: resend.Emails.SendParams = {
-            "from": "practicante.sistemas@boston.com.pe",
-            "to": data["email_to"],
-            "subject": subject_email,
-            "html": html_content,
-            "attachments": [
-                {
-                    "filename": name_pdf_send,
-                    "content": encoded_pdf,
-                    "content_type": "application/pdf",
-                }
-            ],
-        }
-
-        email = resend.Emails.send(params)
-
-        os.remove(name_pdf)
-        return email
-
     async def send_programacion_tintoreria_email(
         self,
         data: dict,
@@ -277,7 +232,41 @@ class EmailService:
         data_table_email["rolls"] = total_rolls
         data_table_email["weights"] = total_weight
 
-        await self.send_email_with_pdf(name_pdf, "reporte.pdf", fecha, data_table_email)
+        template = self.template_env.get_template("send_programming_dry_cleaners.html")
+        html_content = template.render(
+            from_=data["from"],
+            to=data["to"],
+            date=fecha,
+            titles=titles_email,
+            values=values_email,
+            rolls=total_rolls,
+            weights=total_weight,
+        )
+
+        with open(name_pdf, "rb") as pdf_file:
+            pdf_data = pdf_file.read()
+
+        encoded_pdf = base64.b64encode(pdf_data).decode("utf-8")
+        subject_email = PROGRAMACION_TINTORERIA_ASUNTO.format(data["semana"])
+
+        params: resend.Emails.SendParams = {
+            "from": "practicante.sistemas@boston.com.pe",
+            "to": data["email_to"],
+            "subject": subject_email,
+            "html": html_content,
+            "attachments": [
+                {
+                    "filename": "reporte.pdf",
+                    "content": encoded_pdf,
+                    "content_type": "application/pdf",
+                }
+            ],
+        }
+
+        email = resend.Emails.send(params)
+
+        os.remove(name_pdf)
+        return email
 
     async def send_welcome_email(
         self, email_to: str, display_name: str, username: str, password: str
