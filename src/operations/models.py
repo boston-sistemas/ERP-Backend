@@ -189,6 +189,9 @@ class Color(Base):
 
     __table_args__ = (PrimaryKeyConstraint("color_id"),)
 
+    def __repr__(self):
+        return f"<Color(color_id='{self.color_id}',nombre='{self.nombre}')>"
+
 
 class ProgramacionTintoreria(Base):
     __tablename__ = "programacion_tintoreria"

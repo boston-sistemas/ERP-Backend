@@ -1,19 +1,13 @@
-import base64
-import os
-import uuid
 from datetime import datetime
-
+from src.operations.models import Proveedor
 import pytz
 import resend
 from jinja2 import Environment, FileSystemLoader
-from reportlab.lib.pagesizes import landscape, letter
 
 from src.core.config import settings
-from src.core.utils.operaciones_tintoreria_pdf import (
-    TableStyle,
-    colors,
-    generate_pdf_programacion,
-    inch,
+
+from src.core.utils.programacion_tintoreria_pdf.email import (
+    generate_html
 )
 
 timezone = pytz.timezone("America/Lima")
@@ -30,118 +24,6 @@ class EmailService:
             loader=FileSystemLoader(searchpath=settings.ASSETS_DIR + "email_templates")
         )
 
-    @staticmethod
-    def data_processing(data: dict, lengths: dict, style: TableStyle):
-        colWidths = []
-        total_rolls = 0
-        total_weight = 0
-        usable_width = lengths["usable_width"]
-        cell = lengths["cell"]
-        titles_pdf = [
-            title for title in data["title"] if title not in data["ignore_columns_pdf"]
-        ]
-        index_ignore = [
-            index
-            for index, title in enumerate(data["title"])
-            if title in data["ignore_columns_pdf"]
-        ]
-
-        titles_email = "".join(
-            f'<th style="text-align: center;">{title}</th>' for title in titles_pdf
-        )
-        titles_size = len(titles_pdf)
-        values_email = ""
-        values_pdf = [
-            [value for index, value in enumerate(row) if index not in index_ignore]
-            for row in data["values"]
-        ]
-        rows_email = values_pdf
-
-        values_size = len(values_pdf)
-
-        background_colors_table = {
-            "1": colors.Color(1.0, 0.957, 0.800),
-            "2": colors.whitesmoke,
-        }
-
-        background_colors_email = {
-            "1": "background-color: rgb(255, 244, 204);",
-            "2": "background-color: whitesmoke;",
-        }
-
-        index_rolls = titles_pdf.index("Rollos")
-        index_weight = titles_pdf.index("Peso")
-        length = usable_width / 100.0
-        if values_size == 0:
-            colWidths = [usable_width / titles_size for i in range(titles_size)]
-        else:
-            max_lengths = [(len(title) + cell) for title in titles_pdf]
-            current_color = (background_colors_table["1"], background_colors_email["1"])
-            current_departure = values_pdf[0][0]
-            for i, (row_pdf, row_email) in enumerate(
-                zip(values_pdf, rows_email), start=1
-            ):
-                departure = row_pdf[0]
-                if departure != current_departure:
-                    if current_color[0] == background_colors_table["2"]:
-                        current_color = (
-                            background_colors_table["1"],
-                            background_colors_email["1"],
-                        )
-                    else:
-                        current_color = (
-                            background_colors_table["2"],
-                            background_colors_email["2"],
-                        )
-                    current_departure = departure
-
-                values_email += (
-                    f'<tr style="{current_color[1]}">'
-                    + "".join(
-                        f'<td style="text-align: center;">{value}</td>'
-                        for value in row_email
-                    )
-                    + "</tr>"
-                )
-
-                total_rolls += int(row_pdf[index_rolls])
-                total_weight += float(row_pdf[index_weight])
-                style.add("BACKGROUND", (0, i), (-1, i), current_color[0])
-                for j, value in enumerate(row_pdf):
-                    max_lengths[j] = max(max_lengths[j], len(value) + cell)
-
-            colWidths = [(length * (current_length)) for current_length in max_lengths]
-            max_lengths_sum = sum(max_lengths)
-            colWidths_size = len(colWidths)
-            if max_lengths_sum < 100:
-                colWidths = [
-                    width + ((usable_width / colWidths_size) - width)
-                    for width in colWidths
-                ]
-            else:
-                diff = max_lengths_sum - 100.0
-                while diff > 0:
-                    max_value = max(max_lengths)
-                    for i in range(len(max_lengths)):
-                        if max_lengths[i] == max_value:
-                            max_lengths[i] -= 1
-                            diff -= 1
-                            if diff == 0:
-                                break
-                colWidths = [
-                    (length * current_length) for current_length in max_lengths
-                ]
-        return (
-            colWidths,
-            titles_pdf,
-            values_pdf,
-            titles_email,
-            values_email,
-            style,
-            total_rolls,
-            total_weight,
-        )
-
     async def send_email(
         self, email_from: str, email_to: list[str], subject: str, html_content: str
     ) -> dict:
@@ -156,102 +38,23 @@ class EmailService:
 
     async def send_programacion_tintoreria_email(
         self,
-        data: dict,
+        encoded_pdf,
+        tejeduria: Proveedor,
+        tintoreria: Proveedor,
+        data: list,
+        email_from: str,
+        email_to: str,
     ):
-        fecha = datetime.now(timezone).strftime("%d/%m/%Y")
-
-        orientation = 0
-        pagesize = letter if orientation == 0 else landscape(letter)
-        first_height = 420 if orientation == 0 else 250
-        limit_first_height = 528 if orientation == 0 else 336
-        last_height = 558 if orientation == 0 else 396
-        limit_last_height = 648 if orientation == 0 else 486
-        celda = 3.5 if orientation == 0 else 1.5
-
-        page_width, page_height = pagesize
-        left_margin = 0.85 * inch
-        right_margin = 0.85 * inch
-        usable_width = page_width - left_margin - right_margin
-
-        style = TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.black),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("FONTNAME", (0, 0), (-1, 0), "Roboto-Bold"),
-                ("FONTSIZE", (0, 0), (-1, 0), 10),
-                ("FONTNAME", (0, 1), (-1, -1), "Roboto"),
-                ("FONTSIZE", (0, 1), (-1, -1), 8),
-            ]
-        )
-
-        data_length = {
-            "usable_width": usable_width,
-            "cell": celda,
-            "pagesize": pagesize,
-            "first_height": first_height,
-            "limit_first_height": limit_first_height,
-            "last_height": last_height,
-            "limit_last_height": limit_last_height,
-        }
-
-        (
-            colWidths,
-            titles_pdf,
-            values_pdf,
-            titles_email,
-            values_email,
-            style,
-            total_rolls,
-            total_weight,
-        ) = self.data_processing(data, data_length, style)
-        name_pdf = str(uuid.uuid4()) + ".pdf"
-        image_path = "src/core/assets/images/logo1.png"
-        reduction_percentaje = 87
-        orientation = False
-
-        data_table_pdf = data
-        data_table_pdf["title"] = titles_pdf
-        data_table_pdf["values"] = values_pdf
-        generate_pdf_programacion(
-            name_pdf,
-            image_path,
-            reduction_percentaje,
-            data_table_pdf,
-            data_length,
-            orientation,
-            fecha,
-            colWidths,
-            style,
-        )
-
-        data_table_email = data
-        data_table_email["title"] = titles_email
-        data_table_email["values"] = values_email
-        data_table_email["rolls"] = total_rolls
-        data_table_email["weights"] = total_weight
 
         template = self.template_env.get_template("send_programming_dry_cleaners.html")
-        html_content = template.render(
-            from_=data["from"],
-            to=data["to"],
-            date=fecha,
-            titles=titles_email,
-            values=values_email,
-            rolls=total_rolls,
-            weights=total_weight,
-        )
+        html_content = generate_html(tejeduria, tintoreria, data, template)
 
-        with open(name_pdf, "rb") as pdf_file:
-            pdf_data = pdf_file.read()
-
-        encoded_pdf = base64.b64encode(pdf_data).decode("utf-8")
-        subject_email = PROGRAMACION_TINTORERIA_ASUNTO.format(data["semana"])
+        semana = datetime.now(timezone).isocalendar()[1]
+        subject_email = PROGRAMACION_TINTORERIA_ASUNTO.format(semana)
 
         params: resend.Emails.SendParams = {
             "from": "practicante.sistemas@boston.com.pe",
-            "to": data["email_to"],
+            "to": email_to,
             "subject": subject_email,
             "html": html_content,
             "attachments": [
@@ -265,7 +68,6 @@ class EmailService:
 
         email = resend.Emails.send(params)
 
-        os.remove(name_pdf)
         return email
 
     async def send_welcome_email(

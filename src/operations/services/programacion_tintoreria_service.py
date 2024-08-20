@@ -21,6 +21,13 @@ from src.operations.schemas import (
 )
 from src.operations.services import OrdenServicioTintoreriaService
 
+from src.core.utils.programacion_tintoreria_pdf.pdf import (
+    generate_pdf
+)
+from src.core.utils.programacion_tintoreria_pdf.email import (
+    generate_html
+)
+
 from .orden_servicio_tejeduria_detalle_service import (
     OrdenServicioTejeduriaDetalleService,
 )
@@ -155,50 +162,54 @@ class ProgramacionTintoreriaService:
 
         return mapping
 
-    async def _send_email(self, tejeduria: Proveedor, tintoreria: Proveedor, partidas):
-        colores = await self._retrieve_colores(
-            color_ids={partida.color_id for partida in partidas}
-        )
-        print(colores)
-        comments = f"Programación de {len(partidas)} {'partidas' if len(partidas) > 1 else 'partida'}."
-        values = [
+    async def _generate_table(self, partidas, colores, headers):
+        table = [
             [
                 str(index),
-                "-",
-                "-",
                 suborden.orden_servicio_tejeduria_id,
                 suborden.crudo_id[:3],
                 suborden.crudo_id[-2:],
                 str(suborden.nro_rollos),
                 str(suborden.cantidad_kg),
-                "-",
                 colores[partida.color_id].nombre,
             ]
             for index, partida in enumerate(partidas, start=1)
             for suborden in partida.detalle
         ]
-        print(values)
+
+        table.insert(0, headers)
+        return table
+
+    async def _send_email(self, tejeduria: Proveedor, tintoreria: Proveedor, partidas, comment = None):
+        colores = await self._retrieve_colores(
+            color_ids={partida.color_id for partida in partidas}
+        )
+        partidas_size = len(partidas)
+        # print(colores)
+
+        values = await self._generate_table(
+            partidas,
+            colores,
+            [
+                "Partida",
+                "O.S.",
+                "Tejido",
+                "Ancho",
+                "Rollos",
+                "Peso",
+                "Color",
+            ],
+        )
+
+        pdf = generate_pdf(tejeduria, tintoreria, comment, partidas_size, values)
 
         await self.email_service.send_programacion_tintoreria_email(
-            data={
-                "semana": 29,
-                "from": tejeduria.razon_social,
-                "email_to": ["practicante.sistemas@boston.com.pe"],
-                "to": tintoreria.razon_social,
-                "ignore_columns_pdf": ["Tejeduria", "Tintoreria", "Hilanderia"],
-                "title": [
-                    "Partida",
-                    "Tejeduria",
-                    "Hilanderia",
-                    "O.S.",
-                    "Tejido",
-                    "Ancho",
-                    "Rollos",
-                    "Peso",
-                    "Tintoreria",
-                    "Color",
-                ],
-                "values": values,
-                "comments": comments,
-            }
+            pdf,
+            tejeduria,
+            tintoreria,
+            values,
+            email_from="practicante.sistemas@boston.com.pe",
+            email_to=["practicante.sistemas@boston.com.pe"]
         )
+
+
