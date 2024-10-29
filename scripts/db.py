@@ -1,6 +1,5 @@
-from sqlalchemy import create_engine
-
 from config import settings
+from sqlalchemy import create_engine
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 
@@ -46,6 +45,7 @@ def delete_tables() -> None:
 def generate_sql_create_tables(output_file: str, dialect: str) -> None:
     from sqlalchemy.dialects import oracle, postgresql
     from sqlalchemy.schema import CreateIndex, CreateTable
+
     from src.core.database import Base
 
     dialect_available = {"oracle": oracle, "postgresql": postgresql}

@@ -1,13 +1,7 @@
-from .constants import (
-    PDFTintoreriaHorizontal,
-    PDFTintoreriaVertical,
-)
-
-import uuid
-import pytz
 import base64
 import os
-from datetime import datetime
+import uuid
+
 from PIL import Image as PILImage
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
@@ -24,7 +18,13 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.models import Proveedor
+
+from .constants import (
+    PDFTintoreriaHorizontal,
+    PDFTintoreriaVertical,
+)
 
 pdfmetrics.registerFont(
     TTFont("Roboto", "src/core/assets/fonts/Roboto/Roboto-Regular.ttf")
@@ -33,7 +33,6 @@ pdfmetrics.registerFont(
     TTFont("Roboto-Bold", "src/core/assets/fonts/Roboto/Roboto-Bold.ttf")
 )
 
-timezone = pytz.timezone("America/Lima")
 
 def draw_image(canvas, doc, image_path, reduction_percentage):
     image = PILImage.open(image_path)
@@ -57,6 +56,7 @@ def draw_image(canvas, doc, image_path, reduction_percentage):
         preserveAspectRatio=True,
     )
 
+
 def draw_background(canvas, doc):
     canvas.saveState()
     width, height = doc.pagesize
@@ -64,6 +64,7 @@ def draw_background(canvas, doc):
     canvas.setFillColorRGB(1, 1, 1)
     canvas.rect(margin, margin, width - 2 * margin, height - 2 * margin, fill=1)
     canvas.restoreState()
+
 
 def draw_comments_section(canvas, doc, comments, partidas_size, comment_page) -> None:
     if doc.page != comment_page:
@@ -105,6 +106,7 @@ def draw_comments_section(canvas, doc, comments, partidas_size, comment_page) ->
 
     canvas.restoreState()
 
+
 def draw_signature(canvas, doc):
     canvas.saveState()
     width, height = doc.pagesize
@@ -114,6 +116,7 @@ def draw_signature(canvas, doc):
     canvas.setFont("Roboto-Bold", 12)
     canvas.drawString(width - margin - 1.11 * inch, margin / 2, "OPERACIONES")
     canvas.restoreState()
+
 
 def draw_table_header(values: list, pagesize: tuple):
     # print(values)
@@ -146,6 +149,7 @@ def draw_table_header(values: list, pagesize: tuple):
 
     return table
 
+
 def on_first_page_programacion(
     canvas, doc, comment, partidas_size, image_path, reduction_percentage, comment_page
 ):
@@ -160,16 +164,12 @@ def on_later_pages_programacion(canvas, doc, comment, partidas_size, comment_pag
     draw_signature(canvas, doc)
     draw_comments_section(canvas, doc, comment, partidas_size, comment_page)
 
-def add_dyeing_schedule_to_elements(
-    elements: list,
-    tejeduria: Proveedor,
-    tintoreria: Proveedor,
-    pagesize: tuple,
-    styles
-):
 
-    fecha = datetime.now(timezone).strftime("%d/%m/%Y")
-    semana = datetime.now(timezone).isocalendar()[1]
+def add_dyeing_schedule_to_elements(
+    elements: list, tejeduria: Proveedor, tintoreria: Proveedor, pagesize: tuple, styles
+):
+    fecha = calculate_time(timezone=PERU_TIMEZONE).strftime("%d/%m/%Y")
+    semana = calculate_time(timezone=PERU_TIMEZONE).isocalendar()[1]
 
     elements.append(Paragraph("Fecha:", styles["Roboto"]))
     elements.append(Paragraph(fecha, styles["Roboto"]))
@@ -194,13 +194,13 @@ def add_dyeing_schedule_to_elements(
     elements.append(table)
     elements.append(Spacer(1, 24))
 
+
 def set_table_style(
     lengths: PDFTintoreriaHorizontal | PDFTintoreriaVertical,
     titles_pdf: list,
     values_pdf: list,
-    styles_pdf: dict
+    styles_pdf: dict,
 ) -> None:
-
     titles = [Paragraph(title, styles_pdf["Roboto-Bold-Small"]) for title in titles_pdf]
 
     if len(values_pdf) == 0:
@@ -226,12 +226,12 @@ def set_table_style(
 
     return [titles] + values
 
+
 def set_max_lengths(
     lengths: PDFTintoreriaHorizontal | PDFTintoreriaVertical,
     values_pdf: list,
     titles_pdf: list,
 ):
-
     colWidths = []
     usable_width = lengths.usable_width
     cell = lengths.celda
@@ -252,8 +252,7 @@ def set_max_lengths(
     colWidths_size = len(colWidths)
     if max_lengths_sum < 100:
         colWidths = [
-            width + ((usable_width / colWidths_size) - width)
-            for width in colWidths
+            width + ((usable_width / colWidths_size) - width) for width in colWidths
         ]
     else:
         diff = max_lengths_sum - 100.0
@@ -265,19 +264,17 @@ def set_max_lengths(
                     diff -= 1
                     if diff == 0:
                         break
-        colWidths = [
-            (length * current_length) for current_length in max_lengths
-        ]
+        colWidths = [(length * current_length) for current_length in max_lengths]
 
     return colWidths
+
 
 def add_table_to_elements(
     elements: list,
     data: list,
     lengths: PDFTintoreriaHorizontal | PDFTintoreriaVertical,
-    styles_pdf
+    styles_pdf,
 ):
-
     colWidths = []
     titles_pdf = data[0][:]
     values_pdf = data[1:][:]
@@ -291,10 +288,11 @@ def add_table_to_elements(
 
     return table
 
+
 def calculate_comment_page(
     lengths: PDFTintoreriaHorizontal | PDFTintoreriaVertical,
     elements: list,
-    height: float
+    height: float,
 ):
     first_height = lengths.first_height
     limit_first_height = lengths.limit_first_height
@@ -320,12 +318,13 @@ def calculate_comment_page(
             elements.append(PageBreak())
             elements.append(Spacer(1, 2))
 
+
 def generate_pdf(
     tejeduria: Proveedor,
     tintoreria: Proveedor,
     comment: str,
     partidas_size: int,
-    table: list
+    table: list,
 ):
     attributes = PDFTintoreriaVertical()
 
@@ -377,11 +376,17 @@ def generate_pdf(
     pdf.build(
         elements,
         onFirstPage=lambda canvas, doc: on_first_page_programacion(
-            canvas, doc, comment, partidas_size, image_path, reduction_percentage, comment_page
+            canvas,
+            doc,
+            comment,
+            partidas_size,
+            image_path,
+            reduction_percentage,
+            comment_page,
         ),
         onLaterPages=lambda canvas, doc: on_later_pages_programacion(
             canvas, doc, comment, partidas_size, comment_page
-        )
+        ),
     )
 
     with open(pdf_name, "rb") as file:

@@ -1,20 +1,12 @@
-from datetime import datetime
-from src.operations.models import Proveedor
-import pytz
 import resend
 from jinja2 import Environment, FileSystemLoader
 
 from src.core.config import settings
-
-from src.core.utils.programacion_tintoreria_pdf.email import (
-    generate_html
-)
-
-timezone = pytz.timezone("America/Lima")
+from src.core.utils import PERU_TIMEZONE, calculate_time
+from src.operations.models import Proveedor
+from src.operations.utils.programacion_tintoreria import generate_html
 
 LOGO_MECSA = "https://lh3.googleusercontent.com/pw/AP1GczOxb5h_TPjSWvXctIscyr_Yedt7H2ck4BJMH_8iuedQOxo0g-kRtWkDlJiQuIU6-6zDRaw00vFLTcuMlyi5_uiG17-yiD4WdtOhRs1Q2lunl_sr11qSdsK5fozwLoxaANW2ycTRPjVZPW8e3KsV27s=w1920-h610-s-no-gm"
-
-PROGRAMACION_TINTORERIA_ASUNTO = "PROGRAMACIÓN TINTORERÍA - SEMANA {0}"
 
 
 class EmailService:
@@ -45,12 +37,11 @@ class EmailService:
         email_from: str,
         email_to: str,
     ):
-
         template = self.template_env.get_template("send_programming_dry_cleaners.html")
         html_content = generate_html(tejeduria, tintoreria, data, template)
 
-        semana = datetime.now(timezone).isocalendar()[1]
-        subject_email = PROGRAMACION_TINTORERIA_ASUNTO.format(semana)
+        current_week: int = calculate_time(timezone=PERU_TIMEZONE).isocalendar()[1]
+        subject_email = "PROGRAMACIÓN TINTORERÍA - SEMANA " + str(current_week)
 
         params: resend.Emails.SendParams = {
             "from": "practicante.sistemas@boston.com.pe",

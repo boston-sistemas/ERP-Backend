@@ -1,9 +1,9 @@
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.models import Proveedor
-from src.core.utils.programacion_tintoreria_pdf.constants import BACKGROUND_COLOR_EMAIL
-import pytz
-from datetime import datetime
 
-timezone = pytz.timezone("America/Lima")
+from .constants import BACKGROUND_COLOR_EMAIL
+
+
 def calculate_total_rolls_and_weight(
     titles_table_email: list,
     values_table_email: list,
@@ -17,6 +17,7 @@ def calculate_total_rolls_and_weight(
         total_rolls += int(row[index_rolls])
         total_weight += float(row[index_weight])
     return total_rolls, total_weight
+
 
 def set_table_style(
     titles_table_email: list,
@@ -55,6 +56,7 @@ def set_table_style(
 
     return titles_table_email, rows_table
 
+
 def generate_html(
     tejeduria: Proveedor,
     tintoreria: Proveedor,
@@ -75,7 +77,7 @@ def generate_html(
         values_email,
     )
 
-    fecha = datetime.now(timezone).strftime("%d/%m/%Y")
+    fecha = calculate_time(timezone=PERU_TIMEZONE).strftime("%d/%m/%Y")
 
     html_content = template_env.render(
         from_=tejeduria.razon_social,
@@ -88,5 +90,3 @@ def generate_html(
     )
 
     return html_content
-
-

@@ -1,15 +1,13 @@
-from reportlab.platypus import (
-    TableStyle
-)
-
-from reportlab.lib.pagesizes import letter, landscape
-from reportlab.lib.units import inch
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.lib.units import inch
+from reportlab.platypus import TableStyle
 
 BACKGROUND_COLOR_EMAIL = {
     0: "background-color: rgb(255, 244, 204);",
     1: "background-color: whitesmoke;",
 }
+
 
 class PDFTintoreria:
     def __init__(self):
@@ -32,6 +30,7 @@ class PDFTintoreria:
             1: colors.whitesmoke,
         }
 
+
 class PDFTintoreriaVertical(PDFTintoreria):
     def __init__(self):
         super().__init__()
@@ -44,6 +43,7 @@ class PDFTintoreriaVertical(PDFTintoreria):
         self.limit_last_height = 648
         self.celda = 3.5
         self.usable_width = self.page_width - self.left_margin - self.right_margin
+
 
 class PDFTintoreriaHorizontal(PDFTintoreria):
     def __init__(self):

@@ -20,13 +20,7 @@ from src.operations.schemas import (
     ProgramacionTintoreriaParametersResponse,
 )
 from src.operations.services import OrdenServicioTintoreriaService
-
-from src.core.utils.programacion_tintoreria_pdf.pdf import (
-    generate_pdf
-)
-from src.core.utils.programacion_tintoreria_pdf.email import (
-    generate_html
-)
+from src.operations.utils.programacion_tintoreria import generate_pdf
 
 from .orden_servicio_tejeduria_detalle_service import (
     OrdenServicioTejeduriaDetalleService,
@@ -180,12 +174,13 @@ class ProgramacionTintoreriaService:
         table.insert(0, headers)
         return table
 
-    async def _send_email(self, tejeduria: Proveedor, tintoreria: Proveedor, partidas, comment = None):
+    async def _send_email(
+        self, tejeduria: Proveedor, tintoreria: Proveedor, partidas, comment=None
+    ):
         colores = await self._retrieve_colores(
             color_ids={partida.color_id for partida in partidas}
         )
         partidas_size = len(partidas)
-        # print(colores)
 
         values = await self._generate_table(
             partidas,
@@ -209,7 +204,5 @@ class ProgramacionTintoreriaService:
             tintoreria,
             values,
             email_from="practicante.sistemas@boston.com.pe",
-            email_to=["practicante.sistemas@boston.com.pe"]
+            email_to=["practicante.sistemas@boston.com.pe"],
         )
-
-
