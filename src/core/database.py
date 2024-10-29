@@ -1,11 +1,9 @@
-from collections.abc import Generator
 from datetime import datetime
-from typing import Annotated, AsyncGenerator
+from typing import AsyncGenerator
 
-from fastapi import Depends
 from sqlalchemy import create_engine, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from src.core.config import settings
 
@@ -34,11 +32,6 @@ class AuditMixin:
     deleted_by: Mapped[int | None] = mapped_column()
 
 
-def get_session() -> Generator[Session, None, None]:
-    with Session(bind=engine, expire_on_commit=False) as session:
-        yield session
-
-
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as db:
         try:
@@ -50,12 +43,25 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 def transactional(func):
+    """
+    Transactional decorator that enables `flush` in the repository to ensure that pending
+    operations are sent to the database before executing the method.
+
+    Useful when automatically generated values (such as IDs) are needed for dependent
+    operations within the same transaction, without committing the transaction.
+
+    Args:
+        func (callable): Asynchronous method to which the decorator will be applied.
+
+    Returns:
+        callable: Function wrapped with transactional behavior.
+    """
+
     async def wrapper(self, *args, **kwargs):
         self.repository.flush = True
-        # TODO: reiniciar los valores?
-        return await func(self, *args, **kwargs)
+        try:
+            return await func(self, *args, **kwargs)
+        finally:
+            self.repository.flush = False
 
     return wrapper
-
-
-SessionDependency = Annotated[Session, Depends(get_db)]
