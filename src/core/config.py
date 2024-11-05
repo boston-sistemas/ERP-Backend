@@ -17,6 +17,8 @@ class ProjectSettings(BaseSettings):
     PROJECT_NAME: str = "MECSA - API"
     DATABASE_URL: str
     DATABASE_URL_ASYNC: str
+    PROMEC_DATABASE_URL: str
+    PROMEC_DATABASE_URL_ASYNC: str
     SECRET_KEY: str
     SIGNING_ALGORITHM: str
     DEBUG: bool = True

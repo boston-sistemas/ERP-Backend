@@ -11,6 +11,12 @@ engine = create_engine(
     settings.DATABASE_URL, max_identifier_length=60, echo=settings.DEBUG
 )
 engine_async = create_async_engine(settings.DATABASE_URL_ASYNC, echo=settings.DEBUG)
+
+promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=settings.DEBUG)
+async_promec_engine = create_async_engine(
+    settings.PROMEC_DATABASE_URL_ASYNC, echo=settings.DEBUG
+)
+
 AsyncSessionLocal = async_sessionmaker(
     bind=engine_async, class_=AsyncSession, expire_on_commit=False
 )
