@@ -17,15 +17,15 @@ def test():
 
 @cli.command()
 def create():
-    """Create all tables"""
-    from db import create_tables
+    """Initialize database: create tables and sequences"""
+    from db import create_all
 
-    create_tables()
+    create_all()
 
 
 @cli.command()
-def delete():
-    """Delete all tables"""
+def drop_tables():
+    """Drop all tables"""
     from db import delete_tables
 
     delete_tables()

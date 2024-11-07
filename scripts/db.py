@@ -1,11 +1,10 @@
 from config import settings
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 
 
 def test_database_connection() -> bool:
-    from sqlalchemy import text
     from sqlalchemy.exc import SQLAlchemyError
 
     dialect = engine.dialect.name
@@ -28,8 +27,9 @@ def import_models() -> None:
     from src.security.models import Usuario  # noqa: F401
 
 
-def create_tables() -> None:
+def create_all() -> None:
     from src.core.database import Base  # noqa: F401
+    from src.operations.sequences import product_id_seq  # noqa: F401
 
     import_models()
     Base.metadata.create_all(engine)
@@ -39,6 +39,13 @@ def delete_tables() -> None:
     from src.core.database import Base  # noqa: F401
 
     import_models()
+    Base.metadata.drop_all(engine)
+
+
+def delete_sequences() -> None:
+    from src.core.database import Base  # noqa: F401
+    from src.operations.sequences import product_id_seq  # noqa: F401
+
     Base.metadata.drop_all(engine)
 
 
@@ -72,6 +79,7 @@ def generate_sql_create_tables(output_file: str, dialect: str) -> None:
 
 if __name__ == "__main__":
     test_database_connection()
-    create_tables()
+    create_all()
     delete_tables()
+    delete_sequences()
     generate_sql_create_tables()
