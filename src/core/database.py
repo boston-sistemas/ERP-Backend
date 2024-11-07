@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import AsyncGenerator
 
 from sqlalchemy import create_engine, func
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from src.core.config import settings
@@ -13,16 +13,16 @@ engine = create_engine(
 engine_async = create_async_engine(settings.DATABASE_URL_ASYNC, echo=settings.DEBUG)
 
 promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=settings.DEBUG)
-async_promec_engine = create_async_engine(
+promec_async_engine = create_async_engine(
     settings.PROMEC_DATABASE_URL_ASYNC, echo=settings.DEBUG
-)
-
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine_async, class_=AsyncSession, expire_on_commit=False
 )
 
 
 class Base(DeclarativeBase):
+    pass
+
+
+class PromecBase(DeclarativeBase):
     pass
 
 
@@ -39,7 +39,17 @@ class AuditMixin:
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as db:
+    async with AsyncSession(bind=engine_async, expire_on_commit=False) as db:
+        try:
+            yield db
+            await db.commit()
+        except Exception:
+            await db.rollback()
+            raise
+
+
+async def get_promec_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSession(bind=promec_async_engine, expire_on_commit=False) as db:
         try:
             yield db
             await db.commit()
