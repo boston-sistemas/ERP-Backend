@@ -16,11 +16,11 @@ def test():
 
 
 @cli.command()
-def create():
-    """Initialize database: create tables and sequences"""
-    from db import create_all
+def init_db():
+    """Initialize main database: create tables and sequences"""
+    from db import create_tables
 
-    create_all()
+    create_tables()
 
 
 @cli.command()
@@ -29,6 +29,15 @@ def drop_tables():
     from db import delete_tables
 
     delete_tables()
+
+
+@cli.command()
+def init_promec_db():
+    """Initialize promec database: create tables and sequences"""
+    from db import create_promec_sequences, create_promec_tables
+
+    create_promec_tables()
+    create_promec_sequences()
 
 
 @cli.command()

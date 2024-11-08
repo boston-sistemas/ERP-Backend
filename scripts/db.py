@@ -2,13 +2,24 @@ from config import settings
 from sqlalchemy import create_engine, text
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
+promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=True)
 
 
 def test_database_connection() -> bool:
     from sqlalchemy.exc import SQLAlchemyError
 
     dialect = engine.dialect.name
-    stmt = "SELECT 1 FROM DUAL" if dialect == "oracle" else "SELECT 1"
+
+    dialect_available = {
+        "oracle": "SELECT 1 FROM DUAL",
+        "postgresql": "SELECT 1",
+        "openedge": "SELECT 1 FROM SYSPROGRESS.SYSTABLES",
+    }
+
+    stmt = dialect_available.get(dialect, "")
+
+    if not stmt:
+        raise ValueError("Dialect not supported")
 
     try:
         with engine.connect() as db:
@@ -27,9 +38,8 @@ def import_models() -> None:
     from src.security.models import Usuario  # noqa: F401
 
 
-def create_all() -> None:
+def create_tables() -> None:
     from src.core.database import Base  # noqa: F401
-    from src.operations.sequences import product_id_seq  # noqa: F401
 
     import_models()
     Base.metadata.create_all(engine)
@@ -42,11 +52,22 @@ def delete_tables() -> None:
     Base.metadata.drop_all(engine)
 
 
-def delete_sequences() -> None:
-    from src.core.database import Base  # noqa: F401
+def create_promec_tables() -> None:
+    pass
+
+
+def create_promec_sequences() -> None:
+    from src.core.database import PromecBase  # noqa: F401
     from src.operations.sequences import product_id_seq  # noqa: F401
 
-    Base.metadata.drop_all(engine)
+    PromecBase.metadata.create_all(promec_engine)
+
+
+def delete_promec_sequences() -> None:
+    from src.core.database import PromecBase  # noqa: F401
+    from src.operations.sequences import product_id_seq  # noqa: F401
+
+    PromecBase.metadata.drop_all(promec_engine)
 
 
 def generate_sql_create_tables(output_file: str, dialect: str) -> None:
@@ -78,8 +99,5 @@ def generate_sql_create_tables(output_file: str, dialect: str) -> None:
 
 
 if __name__ == "__main__":
-    test_database_connection()
-    create_all()
-    delete_tables()
-    delete_sequences()
-    generate_sql_create_tables()
+    # Any method called here will be executed
+    pass

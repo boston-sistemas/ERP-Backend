@@ -11,6 +11,7 @@ class Settings(BaseSettings):
         env_file=ENV_FILE, env_ignore_empty=True, extra="ignore"
     )
     DATABASE_URL: str
+    PROMEC_DATABASE_URL: str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
