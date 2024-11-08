@@ -1,8 +1,9 @@
+from typing import Any
+
 from sqlalchemy import Boolean, Connection, text
 from sqlalchemy.connectors.aioodbc import aiodbcConnector
 from sqlalchemy.connectors.pyodbc import PyODBCConnector
 from sqlalchemy.engine.default import DefaultDialect
-from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.types import Date, DateTime, Integer, String
 
 from .compiler import (
@@ -26,6 +27,7 @@ class OpenEdgeDialectBase(PyODBCConnector, DefaultDialect):
     supports_sane_rowcount = True
     supports_unicode_statements = True
     supports_statement_cache = True
+    supports_sequences = True
 
     statement_compiler = OpenEdgeCompiler
     ddl_compiler = OpenEdgeDDLCompiler
@@ -55,12 +57,31 @@ class OpenEdgeDialect(OpenEdgeDialectBase):
     supports_statement_cache = True
 
     def has_table(
-        self, connection: Connection, table_name: str, schema: str = "PUB"
+        self,
+        connection: Connection,
+        table_name: str,
+        **kw: Any,
     ) -> bool:
+        schema: str = "PUB"
         query = text(f"""
         SELECT 1
         FROM SYSPROGRESS.SYSTABLES
         WHERE OWNER = '{schema}' AND TBL = '{table_name}'
+        """)
+        result = connection.execute(query).fetchone()
+        return result is not None
+
+    def has_sequence(
+        self,
+        connection: Connection,
+        sequence_name: str,
+        **kw: Any,
+    ) -> bool:
+        schema: str = "PUB"
+        query = text(f"""
+        SELECT 1
+        FROM SYSPROGRESS.SYSSEQUENCES
+        WHERE "SEQ-OWNER" = '{schema}' AND "SEQ-NAME" = '{sequence_name}'
         """)
         result = connection.execute(query).fetchone()
         return result is not None
@@ -77,14 +98,3 @@ class OpenEdgeDialectAsync(aiodbcConnector, OpenEdgeDialect):
     def _get_server_version_info(self, connection):
         # Do not attempt to get server version info
         self.server_version_info = (0, 0, 0)
-
-    async def has_table(
-        self, connection: AsyncConnection, table_name: str, schema: str = "PUB"
-    ) -> bool:
-        query = text(f"""
-        SELECT 1
-        FROM SYSPROGRESS.SYSTABLES
-        WHERE OWNER = '{schema}' AND TBL = '{table_name}'
-        """)
-        result = (await connection.execute(query)).fetchone()
-        return result is not None

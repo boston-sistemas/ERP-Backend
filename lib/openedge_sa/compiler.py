@@ -11,6 +11,10 @@ class OpenEdgeCompiler(SQLCompiler):
         # Cambia `func.now()` a `SYSDATE` para OpenEdge
         return "SYSDATE"
 
+    def visit_sequence(self, sequence, **kw):
+        txt = f"PUB.{sequence.name}.NEXTVAL FROM SYSPROGRESS.SYSCALCTABLE"
+        return txt
+
     def limit_clause(self, select, **kw):
         text = ""
 
