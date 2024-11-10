@@ -18,6 +18,7 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from src.core.config import settings
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.models import Proveedor
 
@@ -27,10 +28,10 @@ from .constants import (
 )
 
 pdfmetrics.registerFont(
-    TTFont("Roboto", "src/core/assets/fonts/Roboto/Roboto-Regular.ttf")
+    TTFont("Roboto", settings.ASSETS_DIR + "fonts/Roboto/Roboto-Regular.ttf")
 )
 pdfmetrics.registerFont(
-    TTFont("Roboto-Bold", "src/core/assets/fonts/Roboto/Roboto-Bold.ttf")
+    TTFont("Roboto-Bold", settings.ASSETS_DIR + "fonts/Roboto/Roboto-Bold.ttf")
 )
 
 
@@ -331,7 +332,7 @@ def generate_pdf(
     pagesize = attributes.pagesize
 
     reduction_percentage = 87
-    image_path = "src/core/assets/images/logo1.png"
+    image_path = settings.ASSETS_DIR + "images/logo1.png"
 
     pdf_name = str(uuid.uuid4()) + ".pdf"
     elements = []
