@@ -5,7 +5,6 @@ from datetime import UTC, datetime, timedelta
 from authlib.jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from security.services.hash_service import HashService
 from src.core.config import settings
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
@@ -13,6 +12,8 @@ from src.security.failures import TokenFailures
 from src.security.models import Acceso, AuthToken, ModuloSistema, Usuario
 from src.security.repositories import AuthTokenRepository
 from src.security.schemas import AccessTokenData, RefreshTokenData
+
+from .hash_service import HashService
 
 SECRET_KEY = settings.SECRET_KEY
 SIGNING_ALGORITHM = settings.SIGNING_ALGORITHM
