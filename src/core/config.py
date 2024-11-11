@@ -15,17 +15,24 @@ class ProjectSettings(BaseSettings):
 
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "MECSA - API"
+    ENVIRONMENT: str
+    DEBUG: bool = True
+    ALLOWED_ORIGINS: list[str]
+
     DATABASE_URL: str
     DATABASE_URL_ASYNC: str
     PROMEC_DATABASE_URL: str
     PROMEC_DATABASE_URL_ASYNC: str
+
     SECRET_KEY: str
     SIGNING_ALGORITHM: str
-    DEBUG: bool = True
+
     RESEND_API_KEY: str
+    MAILHOG_HOSTNAME: str
+    MAILHOG_PORT: int
+    SENDER_NAME: str
+    SENDER_EMAIL: str
     FRONTEND_URL: str
-    EMAIL_FROM: str
-    ALLOWED_ORIGINS: list[str]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

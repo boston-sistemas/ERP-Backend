@@ -1,4 +1,3 @@
-import base64
 import os
 import uuid
 
@@ -326,7 +325,7 @@ def generate_pdf(
     comment: str,
     partidas_size: int,
     table: list,
-):
+) -> bytes:
     attributes = PDFTintoreriaVertical()
 
     pagesize = attributes.pagesize
@@ -393,7 +392,6 @@ def generate_pdf(
     with open(pdf_name, "rb") as file:
         pdf_file = file.read()
 
-    encoded_pdf = base64.b64encode(pdf_file).decode("utf-8")
     os.remove(pdf_name)
 
-    return encoded_pdf
+    return pdf_file
