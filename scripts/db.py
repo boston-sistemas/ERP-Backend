@@ -1,14 +1,14 @@
 from config import settings
-from sqlalchemy import create_engine, text
+from sqlalchemy import Engine, create_engine, text
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=True)
 
 
-def test_database_connection() -> bool:
+def test_database_connection(_engine: Engine) -> bool:
     from sqlalchemy.exc import SQLAlchemyError
 
-    dialect = engine.dialect.name
+    dialect = _engine.dialect.name
 
     dialect_available = {
         "oracle": "SELECT 1 FROM DUAL",
@@ -22,7 +22,7 @@ def test_database_connection() -> bool:
         raise ValueError("Dialect not supported")
 
     try:
-        with engine.connect() as db:
+        with _engine.connect() as db:
             db.execute(text(stmt))
 
         print("\t***** Database connection successful *****")
