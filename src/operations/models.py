@@ -12,7 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.database import Base
+from src.core.database import Base, PromecBase
 from src.operations.constants import (
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,
@@ -264,3 +264,16 @@ class OrdenServicioTintoreriaDetalle(Base):
             ],
         ),
     )
+
+
+class MecsaColor(PromecBase):
+    __tablename__ = "admdtabla"
+
+    table: Mapped[str] = mapped_column("tabla", default="COL", primary_key=True)
+    id: Mapped[str] = mapped_column("codigo", primary_key=True)
+    name: Mapped[str] = mapped_column("nombre")
+    sku: Mapped[str] = mapped_column("VarChar1")
+    hexadecimal: Mapped[str] = mapped_column("VarChar3")
+    is_active: Mapped[str] = mapped_column("Condicion")
+
+    __table_args__ = ({"schema": "PUB"},)
