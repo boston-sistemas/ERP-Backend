@@ -47,8 +47,10 @@ class BaseRepository(Generic[ModelType]):
 
         return (await self.db.execute(stmt)).scalar_one_or_none()
 
-    async def find_by_id(self, id: Any, options: Sequence[Load] = None) -> ModelType:
-        object = await self.db.get(self.model, id, options=options)
+    async def find_by_id(
+        self, id: Any, options: Sequence[Load] = None, **kwargs
+    ) -> ModelType:
+        object = await self.db.get(self.model, id, options=options, **kwargs)
 
         return object
 
