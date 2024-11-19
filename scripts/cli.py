@@ -8,11 +8,19 @@ def cli():
 
 
 @cli.command()
-def test():
-    """Test database connection"""
-    from db import test_database_connection
+def ping_db():
+    """Test main database connection"""
+    from db import engine, test_database_connection
 
-    test_database_connection()
+    test_database_connection(engine)
+
+
+@cli.command()
+def ping_promec_db():
+    """Test promec database connection"""
+    from db import promec_engine, test_database_connection
+
+    test_database_connection(promec_engine)
 
 
 @cli.command()
