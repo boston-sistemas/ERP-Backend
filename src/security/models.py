@@ -28,6 +28,7 @@ from src.security.constants import (
     MAX_LENGTH_USUARIO_EMAIL,
     MAX_LENGTH_USUARIO_PASSWORD,
     MAX_LENGTH_USUARIO_USERNAME,
+    PARAMETER_CATEGORY_NAME_MAX_LENGTH,
 )
 
 
@@ -191,3 +192,13 @@ class AuthToken(Base):
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
     )
+
+
+class ParameterCategory(Base):
+    __tablename__ = "parameter_categories"
+
+    id: Mapped[int] = mapped_column(Identity(start=101), primary_key=True)
+    name: Mapped[str] = mapped_column(
+        String(length=PARAMETER_CATEGORY_NAME_MAX_LENGTH), unique=True
+    )
+

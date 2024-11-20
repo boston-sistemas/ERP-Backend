@@ -6,6 +6,11 @@ from .auth_schema import (
     RefreshResponse,
     SendTokenResponse,
 )
+from .parameter_category_schema import (
+    ParameterCategoryCreateSchema,
+    ParameterCategoryListSchema,
+    ParameterCategorySchema,
+)
 from .token_schema import AccessTokenData, RefreshTokenData
 from .user_rol_acceso_schema import (
     AccesoListSchema,
@@ -27,6 +32,9 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "ParameterCategoryListSchema",
+    "ParameterCategoryCreateSchema",
+    "ParameterCategorySchema",
     "AccessTokenData",
     "RefreshTokenData",
     "LoginForm",
