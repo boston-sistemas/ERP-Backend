@@ -4,6 +4,7 @@ from src.security.routers import (
     acceso_router,
     auth_router,
     parameter_category_router,
+    parameter_public_router,
     rol_router,
     user_router,
 )
@@ -17,4 +18,9 @@ router.include_router(
     parameter_category_router.router,
     prefix="/parameter-categories",
     tags=["[SISTEMA] CATEGORÍA DE PARÁMETROS"],
+)
+router.include_router(
+    parameter_public_router.router,
+    prefix="/parameters/public",
+    tags=["[SISTEMA] PARÁMETROS PÚBLICOS"],
 )

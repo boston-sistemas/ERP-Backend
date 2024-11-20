@@ -11,6 +11,7 @@ from .parameter_category_schema import (
     ParameterCategoryListSchema,
     ParameterCategorySchema,
 )
+from .parameter_public_schema import DataType, DataTypeListSchema
 from .token_schema import AccessTokenData, RefreshTokenData
 from .user_rol_acceso_schema import (
     AccesoListSchema,
@@ -32,6 +33,8 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "DataType",
+    "DataTypeListSchema",
     "ParameterCategoryListSchema",
     "ParameterCategoryCreateSchema",
     "ParameterCategorySchema",
