@@ -274,6 +274,6 @@ class MecsaColor(PromecBase):
     name: Mapped[str] = mapped_column("nombre")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
-    is_active: Mapped[str] = mapped_column("Condicion")
+    is_active: Mapped[str] = mapped_column("Condicion", default="A")
 
     __table_args__ = ({"schema": "PUB"},)

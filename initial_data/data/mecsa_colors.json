@@ -1,0 +1,128 @@
+[
+    {
+        "id": 100101,
+        "name": "NEGRO",
+        "sku": "NEGRO",
+        "hexadecimal": "#000000"
+    },
+    {
+        "id": 100102,
+        "name": "BLANCO",
+        "sku": "BLAN",
+        "hexadecimal": "#FFFFFF"
+    },
+    {
+        "id": 100103,
+        "name": "ROJO",
+        "sku": "ROJO",
+        "hexadecimal": "#FF0000"
+    },
+    {
+        "id": 100104,
+        "name": "VERDE",
+        "sku": "VERDE",
+        "hexadecimal": "#00FF00"
+    },
+    {
+        "id": 100105,
+        "name": "AZUL",
+        "sku": "AZUL",
+        "hexadecimal": "#0000FF"
+    },
+    {
+        "id": 100106,
+        "name": "AMARILLO",
+        "sku": "AMAR",
+        "hexadecimal": "#FFFF00"
+    },
+    {
+        "id": 100107,
+        "name": "CIAN",
+        "sku": "CIAN",
+        "hexadecimal": "#00FFFF"
+    },
+    {
+        "id": 100108,
+        "name": "MAGENTA",
+        "sku": "MAG",
+        "hexadecimal": "#FF00FF"
+    },
+    {
+        "id": 100109,
+        "name": "GRIS",
+        "sku": "GRIS",
+        "hexadecimal": "#808080"
+    },
+    {
+        "id": 100110,
+        "name": "NARANJA",
+        "sku": "NARAN",
+        "hexadecimal": "#FFA500"
+    },
+    {
+        "id": 100111,
+        "name": "ROSA",
+        "sku": "ROSA",
+        "hexadecimal": "#FFC0CB"
+    },
+    {
+        "id": 100112,
+        "name": "MARRON",
+        "sku": "MARR",
+        "hexadecimal": "#A52A2A"
+    },
+    {
+        "id": 100113,
+        "name": "PURPURA",
+        "sku": "PURPU",
+        "hexadecimal": "#800080"
+    },
+    {
+        "id": 100114,
+        "name": "VIOLETA",
+        "sku": "VIOL",
+        "hexadecimal": "#EE82EE"
+    },
+    {
+        "id": 100115,
+        "name": "TURQUESA",
+        "sku": "TURQ",
+        "hexadecimal": "#40E0D0"
+    },
+    {
+        "id": 100116,
+        "name": "DORADO",
+        "sku": "DOR",
+        "hexadecimal": "#FFD700"
+    },
+    {
+        "id": 100117,
+        "name": "PLATEADO",
+        "sku": "PLATA",
+        "hexadecimal": "#C0C0C0"
+    },
+    {
+        "id": 100118,
+        "name": "BEIGE",
+        "sku": "BEIGE",
+        "hexadecimal": "#F5F5DC"
+    },
+    {
+        "id": 100119,
+        "name": "LAVANDA",
+        "sku": "LAVAN",
+        "hexadecimal": "#E6E6FA"
+    },
+    {
+        "id": 100120,
+        "name": "DURAZNO",
+        "sku": "DUR",
+        "hexadecimal": "#FFDAB9"
+    },
+    {
+        "id": 100121,
+        "name": "CHOCOLATE",
+        "sku": "CHOCO",
+        "hexadecimal": "#D2691E"
+    }
+]
