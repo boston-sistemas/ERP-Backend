@@ -67,7 +67,7 @@
         "id": 1009,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: ELASTANO",
-        "value": "ELASTANO",
+        "value": "ELASTANO / SPANDEX",
         "data_type": "string",
         "is_active": true
     },
@@ -84,6 +84,62 @@
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: LANA",
         "value": "LANA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1012,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: VISCOSA",
+        "value": "VISCOSA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1013,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: LYOCELL",
+        "value": "LYOCELL",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1014,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: SEDA",
+        "value": "SEDA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1015,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: ALPACA",
+        "value": "ALPACA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1016,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: MODAL",
+        "value": "MODAL",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1017,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: POLIAMIDA",
+        "value": "POLIAMIDA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1018,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: POLIESTER RECICLADO",
+        "value": "POLIESTER RECICLADO",
         "data_type": "string",
         "is_active": true
     }
