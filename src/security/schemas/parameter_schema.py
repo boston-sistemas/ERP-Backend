@@ -26,6 +26,14 @@ class ParameterBase(CustomBaseModel):
         from_attributes = True
 
 
+class ParameterValueSchema(CustomBaseModel):
+    id: int
+    value: str
+
+    class Config:
+        from_attributes = True
+
+
 class ParameterSchema(ParameterBase):
     pass
 

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from .routers import (
+    fiber_router,
     mecsa_color_router,
     programacion_tintoreria_router,
     reporte_stock_tejeduria_router,
@@ -12,3 +13,8 @@ router.include_router(reporte_stock_tejeduria_router.router)
 router.include_router(revision_stock_tejeduria_router.router)
 router.include_router(programacion_tintoreria_router.router)
 router.include_router(mecsa_color_router.router)
+router.include_router(
+    router=fiber_router.router,
+    prefix="/fibers",
+    tags=["[AREA OPERACIONES] GESTION DE FIBRAS"],
+)

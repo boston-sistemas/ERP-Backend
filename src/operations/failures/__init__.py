@@ -1,5 +1,6 @@
 from .color_failures import ColorFailures
 from .especialidad_empresa_failures import EspecialidadEmpresaFailures
+from .fiber_failure import FIBER_NOT_FOUND_FAILURE
 from .mecsa_color_failure import (
     MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE,
     MECSA_COLOR_NOT_FOUND_FAILURE,
@@ -14,6 +15,7 @@ from .proveedor_failures import ProveedorFailures
 from .reporte_stock_tejeduria_failures import ReporteStockTejeduriaFailures
 
 __all__ = [
+    "FIBER_NOT_FOUND_FAILURE",
     "MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE",
     "MECSA_COLOR_NOT_FOUND_FAILURE",
     "MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE",

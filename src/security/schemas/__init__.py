@@ -15,6 +15,7 @@ from .parameter_public_schema import DataType, DataTypeListSchema
 from .parameter_schema import (
     ParameterCreateSchema,
     ParameterSchema,
+    ParameterValueSchema,
     ParameterWithCategoryListSchema,
     ParameterWithCategorySchema,
 )
@@ -39,6 +40,7 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "ParameterValueSchema",
     "DataType",
     "DataTypeListSchema",
     "ParameterCreateSchema",
