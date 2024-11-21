@@ -9,6 +9,7 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     String,
     func,
+    and_
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -286,37 +287,92 @@ class MecsaColor(PromecBase):
 
     __table_args__ = ({"schema": "PUB"},)
 
-
-class OrdenCompra(PromecBase):
+class OrdenCompra(Base):
     __tablename__ = "opecocmp"
-    __table_args__ = {"schema": "PUB"}
 
     codcia: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODCIA))
     tpooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_TPOOC))
     nrooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_NROOC))
-    codpro: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODPRO))
+    codprov: Mapped[str] = mapped_column("codpro", String(length=MAX_LENGTH_CODPRO))
     fchemi: Mapped[datetime] = mapped_column()
     fchvto: Mapped[datetime] = mapped_column()
     codmon: Mapped[int] = mapped_column()
+    fmapgo: Mapped[str] = mapped_column(String(length=MAX_LENGTH_FMAPGO))
     flgest: Mapped[str] = mapped_column(String(length=MAX_LENGTH_FLGEST))
+
+    detalles = relationship(
+        "OrdenCompraDetalle",
+        primaryjoin=lambda: and_(
+            OrdenCompra.codcia == OrdenCompraDetalle.codcia,
+            OrdenCompra.tpooc == OrdenCompraDetalle.tpooc,
+            OrdenCompra.nrooc == OrdenCompraDetalle.nrooc
+        ),
+        back_populates="orden_compra",
+        single_parent=True,  # one to many
+        foreign_keys=lambda: [  # columnas usadas para la relación
+            OrdenCompraDetalle.codcia,
+            OrdenCompraDetalle.tpooc,
+            OrdenCompraDetalle.nrooc
+        ]
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "tpooc", "nrooc"),
+        {"schema": "PUB"}
     )
 
-class OrdenCompraDetalle(PromecBase):
+class OrdenCompraDetalle(Base):
     __tablename__ = "opedocmp"
-    __table_args__ = {"schema": "PUB"}
 
     codcia: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODCIA))
     tpooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_TPOOC))
     nrooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_NROOC))
-    codprod: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODPROD))
+    codhilado: Mapped[str] = mapped_column("codprod", String(length=MAX_LENGTH_CODPROD))
     canord: Mapped[float] = mapped_column()
     canate: Mapped[float] = mapped_column()
     flgest: Mapped[str] = mapped_column(String(length=MAX_LENGTH_FLGEST))
     codund: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODUND))
 
+    orden_compra = relationship(
+        "OrdenCompra",
+        primaryjoin=lambda: and_(
+            OrdenCompra.codcia == OrdenCompraDetalle.codcia,
+            OrdenCompra.tpooc == OrdenCompraDetalle.tpooc,
+            OrdenCompra.nrooc == OrdenCompraDetalle.nrooc
+        ),
+        back_populates="detalles",
+        foreign_keys=lambda: [
+            OrdenCompraDetalle.codcia,
+            OrdenCompraDetalle.tpooc,
+            OrdenCompraDetalle.nrooc
+        ]
+    )
+
+    hilado_detalle = relationship(
+        "Hilado",
+        primaryjoin=lambda: and_(
+            OrdenCompraDetalle.codcia == Hilado.codcia,
+            OrdenCompraDetalle.codhilado == Hilado.codprod
+        )
+    )
+
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "tpooc", "nrooc", "codprod"),
+        {"schema": "PUB"}
     )
+
+    def __repr__(self):
+        return f"<OrdenCompraDetalle(codprod={self.codprod}>"
+
+# Entidad Temp
+class Hilado(Base):
+    __tablename__ = "almprodg"
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "codprod"),
+        {"schema": "PUB"}
+    )
+
+    codcia: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODCIA))
+    codprod: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODPROD))
+    codfam: Mapped[str] = mapped_column(String(length=6))
+    subfam: Mapped[str] = mapped_column(String(length=6))
