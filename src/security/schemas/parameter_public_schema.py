@@ -13,41 +13,44 @@ class DataType(str, Enum):
     LIST_STRING = "list_string"
 
 
+DATA_TYPES = {
+    DataType.STRING.value: {
+        "id": DataType.STRING.value,
+        "name": "Cadena de texto",
+        "description": "Secuencia de caracteres, como: Hola Mundo",
+    },
+    DataType.INTEGER.value: {
+        "id": DataType.INTEGER.value,
+        "name": "Entero",
+        "description": "Número sin decimales, como: 200",
+    },
+    DataType.FLOAT.value: {
+        "id": DataType.FLOAT.value,
+        "name": "Flotante",
+        "description": "Número con decimales, como: 3.14",
+    },
+    DataType.BOOLEAN.value: {
+        "id": DataType.BOOLEAN.value,
+        "name": "Booleano",
+        "description": "Valor lógico: true o false",
+    },
+    DataType.DATE.value: {
+        "id": DataType.DATE.value,
+        "name": "Fecha",
+        "description": "Fecha en formato: DD/MM/YYYY",
+    },
+    DataType.DATETIME.value: {
+        "id": DataType.DATETIME.value,
+        "name": "Fecha y hora",
+        "description": "Fecha y hora en formato: DD/MM/YYYY HH:MM:SS",
+    },
+    DataType.LIST_STRING.value: {
+        "id": DataType.LIST_STRING.value,
+        "name": "Lista de cadenas de texto",
+        "description": "Colección de cadenas, como: Boston,Sweet Cotton,Ropa Interior",
+    },
+}
+
+
 class DataTypeListSchema(CustomBaseModel):
-    data_types: list[dict[str, str]] = [
-        {
-            "id": DataType.STRING.value,
-            "name": "Cadena de texto",
-            "description": "Secuencia de caracteres, como: Hola Mundo",
-        },
-        {
-            "id": DataType.INTEGER.value,
-            "name": "Entero",
-            "description": "Número sin decimales, como: 200",
-        },
-        {
-            "id": DataType.FLOAT.value,
-            "name": "Flotante",
-            "description": "Número con decimales, como: 3.14",
-        },
-        {
-            "id": DataType.BOOLEAN.value,
-            "name": "Booleano",
-            "description": "Valor lógico: true o false",
-        },
-        {
-            "id": DataType.DATE.value,
-            "name": "Fecha",
-            "description": "Fecha en formato: DD/MM/YYYY",
-        },
-        {
-            "id": DataType.DATETIME.value,
-            "name": "Fecha y hora",
-            "description": "Fecha y hora en formato: DD/MM/YYYY HH:MM:SS",
-        },
-        {
-            "id": DataType.LIST_STRING.value,
-            "name": "Lista de cadenas de texto",
-            "description": "Colección de cadenas, como: Boston,Sweet Cotton,Ropa Interior",
-        },
-    ]
+    data_types: list[dict[str, str]] = list(DATA_TYPES.values())

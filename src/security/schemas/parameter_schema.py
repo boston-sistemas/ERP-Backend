@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, computed_field
 
 from src.core.schemas import CustomBaseModel
 from src.security.constants import (
@@ -7,7 +7,7 @@ from src.security.constants import (
 )
 
 from .parameter_category_schema import ParameterCategorySchema
-from .parameter_public_schema import DataType
+from .parameter_public_schema import DATA_TYPES, DataType
 
 
 class ParameterBase(CustomBaseModel):
@@ -17,6 +17,10 @@ class ParameterBase(CustomBaseModel):
     value: str
     data_type: str
     is_active: bool
+
+    @computed_field
+    def data_type_name(self) -> str | None:
+        return DATA_TYPES.get(self.data_type, {}).get("name", None)
 
     class Config:
         from_attributes = True
