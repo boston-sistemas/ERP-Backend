@@ -8,12 +8,16 @@ from sqlalchemy import (
     Integer,
     PrimaryKeyConstraint,
     String,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base, PromecBase
 from src.operations.constants import (
+    FIBER_DENOMINATION_MAX_LENGTH,
+    FIBER_ID_MAX_LENGTH,
+    FIBER_ORIGIN_MAX_LENGTH,
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,
     MAX_LENGTH_CRUDO_ID,
@@ -28,7 +32,9 @@ from src.operations.constants import (
     MAX_LENGTH_SERVICIO_NOMBRE,
     MAX_LENGTH_TEJIDO_ID,
     MAX_LENGTH_TEJIDO_NOMBRE,
+    MECSA_COLOR_ID_MAX_LENGTH,
 )
+from src.security.models import Parameter
 
 
 class Proveedor(Base):
@@ -277,3 +283,37 @@ class MecsaColor(PromecBase):
     is_active: Mapped[str] = mapped_column("Condicion", default="A")
 
     __table_args__ = ({"schema": "PUB"},)
+
+
+class Fiber(Base):
+    __tablename__ = "fibras"
+
+    id: Mapped[str] = mapped_column(
+        String(length=FIBER_ID_MAX_LENGTH), primary_key=True
+    )
+    category_id: Mapped[int] = mapped_column("categoria_param_id")
+    denomination: Mapped[str] = mapped_column(
+        "denominacion", String(length=FIBER_DENOMINATION_MAX_LENGTH), nullable=True
+    )
+    origin: Mapped[str] = mapped_column(
+        "procedencia", String(length=FIBER_ORIGIN_MAX_LENGTH), nullable=True
+    )
+    color_id: Mapped[str] = mapped_column(
+        String(length=MECSA_COLOR_ID_MAX_LENGTH), nullable=True
+    )
+    is_active: Mapped[bool] = mapped_column(default=True)
+
+    category: Mapped[Parameter] = relationship(
+        Parameter,
+        primaryjoin="Fiber.category_id == Parameter.id",
+        foreign_keys="[Fiber.category_id]",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "categoria_param_id",
+            "denominacion",
+            "procedencia",
+            "color_id",
+        ),
+    )
