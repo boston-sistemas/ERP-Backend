@@ -209,7 +209,7 @@ class ParameterCategory(Base):
 class Parameter(Base):
     __tablename__ = "parameters"
 
-    id: Mapped[int] = mapped_column(Identity(start=1001), primary_key=True)
+    id: Mapped[int] = mapped_column(Identity(start=1050), primary_key=True)
     category_id: Mapped[int] = mapped_column(nullable=True)
     description: Mapped[str] = mapped_column(
         String(length=PARAMETER_DESCRIPTION_MAX_LENGTH), nullable=True
