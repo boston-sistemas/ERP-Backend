@@ -200,7 +200,7 @@ class AuthToken(Base):
 class ParameterCategory(Base):
     __tablename__ = "parameter_categories"
 
-    id: Mapped[int] = mapped_column(Identity(start=101), primary_key=True)
+    id: Mapped[int] = mapped_column(Identity(start=120), primary_key=True)
     name: Mapped[str] = mapped_column(
         String(length=PARAMETER_CATEGORY_NAME_MAX_LENGTH), unique=True
     )
