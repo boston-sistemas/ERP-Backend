@@ -13,7 +13,7 @@ from .mecsa_color_service import MecsaColorService
 class FiberService:
     def __init__(self, db: AsyncSession, promec_db: AsyncSession):
         self.repository = FiberRepository(db=db)
-        self.mecsa_color_service = MecsaColorService(db=promec_db)
+        self.mecsa_color_service = MecsaColorService(promec_db=promec_db)
 
     async def _assign_colors_to_fibers(self, fibers: list[Fiber]) -> None:
         color_ids = {fiber.color_id for fiber in fibers if fiber.color_id is not None}
