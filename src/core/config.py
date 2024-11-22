@@ -3,16 +3,21 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+BASE_DIR = str(Path(__file__).resolve().parent.parent.parent) + "/"
 
-class ProjectSettings(BaseSettings):
-    BASE_DIR: str = str(Path(__file__).resolve().parent.parent.parent) + "/"
+
+class ProjectBaseSettings(BaseSettings):
     PROJECT_DIR: str = BASE_DIR + "src/"
     ASSETS_DIR: str = PROJECT_DIR + "core/assets/"
-    ENV_FILE: str = BASE_DIR + ".env"
+
     model_config = SettingsConfigDict(
-        env_file=ENV_FILE, env_ignore_empty=True, extra="ignore"
+        env_file=[BASE_DIR + ".env", BASE_DIR + ".env.local"],
+        env_ignore_empty=True,
+        extra="ignore",
     )
 
+
+class ProjectSettings(ProjectBaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "MECSA - API"
     ENVIRONMENT: str
@@ -36,7 +41,7 @@ class ProjectSettings(BaseSettings):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        sys.path.append(self.BASE_DIR)
+        sys.path.append(BASE_DIR)
 
 
 settings = ProjectSettings()
