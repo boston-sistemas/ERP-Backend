@@ -11,7 +11,7 @@ from .parameter_category_schema import (
     ParameterCategoryListSchema,
     ParameterCategorySchema,
 )
-from .parameter_public_schema import DataType, DataTypeListSchema
+from .parameter_public_schema import DataType, DataTypeListSchema, FiberCategoriesSchema
 from .parameter_schema import (
     ParameterCreateSchema,
     ParameterSchema,
@@ -40,6 +40,7 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "FiberCategoriesSchema",
     "ParameterValueSchema",
     "DataType",
     "DataTypeListSchema",

@@ -54,3 +54,12 @@ DATA_TYPES = {
 
 class DataTypeListSchema(CustomBaseModel):
     data_types: list[dict[str, str]] = list(DATA_TYPES.values())
+
+
+class FiberCategoriesSchema(CustomBaseModel):
+    fiber_categories: list["ParameterValueSchema"]
+
+
+from .parameter_schema import ParameterValueSchema  # noqa: E402
+
+FiberCategoriesSchema.model_rebuild()

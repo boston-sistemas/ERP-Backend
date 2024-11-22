@@ -116,3 +116,13 @@ class ParameterService:
         await self.repository.save(parameter)
 
         return Success(parameter)
+
+    async def read_parameters_by_category(
+        self,
+        parameter_category_id: int,
+    ) -> Result[list[Parameter], CustomException]:
+        parameters = await self.repository.find_all(
+            filter=Parameter.category_id == parameter_category_id
+        )
+
+        return Success(parameters)
