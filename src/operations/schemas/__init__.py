@@ -1,3 +1,9 @@
+from .fiber_schema import (
+    FiberCompleteListSchema,
+    FiberCompleteSchema,
+    FiberCreateSchema,
+    FiberSchema,
+)
 from .mecsa_color_schema import (
     MecsaColorCreateSchema,
     MecsaColorListSchema,
@@ -52,6 +58,10 @@ from .orden_compra_schema import (
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
 
 __all__ = [
+    "FiberSchema",
+    "FiberCreateSchema",
+    "FiberCompleteListSchema",
+    "FiberCompleteSchema",
     "MecsaColorCreateSchema",
     "MecsaColorSchema",
     "MecsaColorListSchema",

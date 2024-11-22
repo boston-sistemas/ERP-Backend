@@ -8,6 +8,7 @@ from sqlalchemy import (
     Integer,
     PrimaryKeyConstraint,
     String,
+    UniqueConstraint,
     func,
     and_
 )
@@ -15,6 +16,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base, PromecBase
 from src.operations.constants import (
+    FIBER_DENOMINATION_MAX_LENGTH,
+    FIBER_ID_MAX_LENGTH,
+    FIBER_ORIGIN_MAX_LENGTH,
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,
     MAX_LENGTH_CRUDO_ID,
@@ -37,7 +41,9 @@ from src.operations.constants import (
     STATUS_FLAG_MAX_LENGTH,
     PRODUCT_CODE_MAX_LENGTH,
     UNIT_CODE_MAX_LENGTH,
+    MECSA_COLOR_ID_MAX_LENGTH,
 )
+from src.security.models import Parameter
 
 
 class Proveedor(Base):
@@ -283,7 +289,7 @@ class MecsaColor(PromecBase):
     name: Mapped[str] = mapped_column("nombre")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
-    is_active: Mapped[str] = mapped_column("Condicion")
+    is_active: Mapped[str] = mapped_column("Condicion", default="A")
 
     __table_args__ = ({"schema": "PUB"},)
 
@@ -389,3 +395,36 @@ class Hilado(Base):
     family_code: Mapped[str] = mapped_column("codfam", String(length=6))
     subfamily_code: Mapped[str] = mapped_column("subfam", String(length=6))
     details: Mapped[str] = mapped_column("detalle", String(length=120))
+
+class Fiber(Base):
+    __tablename__ = "fibras"
+
+    id: Mapped[str] = mapped_column(
+        String(length=FIBER_ID_MAX_LENGTH), primary_key=True
+    )
+    category_id: Mapped[int] = mapped_column("categoria_param_id")
+    denomination: Mapped[str] = mapped_column(
+        "denominacion", String(length=FIBER_DENOMINATION_MAX_LENGTH), nullable=True
+    )
+    origin: Mapped[str] = mapped_column(
+        "procedencia", String(length=FIBER_ORIGIN_MAX_LENGTH), nullable=True
+    )
+    color_id: Mapped[str] = mapped_column(
+        String(length=MECSA_COLOR_ID_MAX_LENGTH), nullable=True
+    )
+    is_active: Mapped[bool] = mapped_column(default=True)
+
+    category: Mapped[Parameter] = relationship(
+        Parameter,
+        primaryjoin="Fiber.category_id == Parameter.id",
+        foreign_keys="[Fiber.category_id]",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "categoria_param_id",
+            "denominacion",
+            "procedencia",
+            "color_id",
+        ),
+    )

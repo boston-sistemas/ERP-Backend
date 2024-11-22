@@ -1,0 +1,146 @@
+[
+    {
+        "id": 1001,
+        "category_id": 101,
+        "description": "LONGITUD MINIMA DE LA CONTRASEÑA",
+        "value": "8",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1002,
+        "category_id": 101,
+        "description": "NUMERO MINIMO DE MAYUSCULAS EN LA CONTRASEÑA",
+        "value": "1",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1003,
+        "category_id": 101,
+        "description": "NUMERO MINIMO DE MINUSCULAS EN LA CONTRASEÑA",
+        "value": "1",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1004,
+        "category_id": 101,
+        "description": "NUMERO MINIMO DE DIGITOS EN LA CONTRASEÑA",
+        "value": "1",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1005,
+        "category_id": 101,
+        "description": "NUMERO MINIMO DE SIMBOLOS EN LA CONTRASEÑA",
+        "value": "1",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1006,
+        "category_id": 101,
+        "description": "NUMERO DE CONTRASEÑAS ALMACENADAS PARA EVITAR REPETICIONES",
+        "value": "3",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1007,
+        "category_id": 101,
+        "description": "VIGENCIA DE LAS NUEVAS CONTRASEÑAS EN DIAS",
+        "value": "90",
+        "data_type": "integer",
+        "is_active": true
+    },
+    {
+        "id": 1008,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: ALGODON",
+        "value": "ALGODON",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1009,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: ELASTANO",
+        "value": "ELASTANO / SPANDEX",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1010,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: POLIESTER",
+        "value": "POLIESTER",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1011,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: LANA",
+        "value": "LANA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1012,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: VISCOSA",
+        "value": "VISCOSA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1013,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: LYOCELL",
+        "value": "LYOCELL",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1014,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: SEDA",
+        "value": "SEDA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1015,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: ALPACA",
+        "value": "ALPACA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1016,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: MODAL",
+        "value": "MODAL",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1017,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: POLIAMIDA",
+        "value": "POLIAMIDA",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1018,
+        "category_id": 102,
+        "description": "CATEGORIA DE FIBRA: POLIESTER RECICLADO",
+        "value": "POLIESTER RECICLADO",
+        "data_type": "string",
+        "is_active": true
+    }
+]

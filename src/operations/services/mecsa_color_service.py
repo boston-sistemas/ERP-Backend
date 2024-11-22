@@ -86,3 +86,12 @@ class MecsaColorService:
         return Success(
             [mecsa_color for mecsa_color in mecsa_colors if mecsa_color.id.isdigit()]
         )
+
+    async def map_colors_by_ids(self, color_ids: set[str]) -> dict[str, MecsaColor]:
+        if not color_ids:
+            return {}
+
+        colors = await self.repository.find_all(
+            (MecsaColor.table == "COL") & MecsaColor.id.in_(color_ids)
+        )
+        return {color.id: color for color in colors}

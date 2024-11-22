@@ -28,6 +28,10 @@ from src.security.constants import (
     MAX_LENGTH_USUARIO_EMAIL,
     MAX_LENGTH_USUARIO_PASSWORD,
     MAX_LENGTH_USUARIO_USERNAME,
+    PARAMETER_CATEGORY_NAME_MAX_LENGTH,
+    PARAMETER_DATATYPE_MAX_LENGTH,
+    PARAMETER_DESCRIPTION_MAX_LENGTH,
+    PARAMETER_VALUE_MAX_LENGTH,
 )
 
 
@@ -190,4 +194,32 @@ class AuthToken(Base):
         ForeignKeyConstraint(
             ["usuario_id"], ["usuario.usuario_id"], ondelete="CASCADE"
         ),
+    )
+
+
+class ParameterCategory(Base):
+    __tablename__ = "parameter_categories"
+
+    id: Mapped[int] = mapped_column(Identity(start=120), primary_key=True)
+    name: Mapped[str] = mapped_column(
+        String(length=PARAMETER_CATEGORY_NAME_MAX_LENGTH), unique=True
+    )
+
+
+class Parameter(Base):
+    __tablename__ = "parameters"
+
+    id: Mapped[int] = mapped_column(Identity(start=1050), primary_key=True)
+    category_id: Mapped[int] = mapped_column(nullable=True)
+    description: Mapped[str] = mapped_column(
+        String(length=PARAMETER_DESCRIPTION_MAX_LENGTH), nullable=True
+    )
+    data_type: Mapped[str] = mapped_column(String(length=PARAMETER_DATATYPE_MAX_LENGTH))
+    value: Mapped[str] = mapped_column(String(length=PARAMETER_VALUE_MAX_LENGTH))
+    is_active: Mapped[bool] = mapped_column(default=True)
+
+    category: Mapped[ParameterCategory] = relationship()
+
+    __table_args__ = (
+        ForeignKeyConstraint(["category_id"], ["parameter_categories.id"]),
     )

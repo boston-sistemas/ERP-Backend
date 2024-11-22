@@ -1,5 +1,6 @@
 from .color_service import ColorService
 from .especialidad_empresa_service import EspecialidadEmpresaService
+from .fiber_service import FiberService
 from .mecsa_color_service import MecsaColorService
 from .orden_servicio_tejeduria_detalle_service import (
     OrdenServicioTejeduriaDetalleService,
@@ -16,6 +17,7 @@ from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 from .orden_compra_service import OrdenCompraService
 
 __all__ = [
+    "FiberService",
     "OrdenServicioTintoreriaDetalleService",
     "OrdenServicioTintoreriaService",
     "OrdenServicioTejeduriaService",

@@ -1,4 +1,5 @@
 from config import settings
+from loguru import logger
 from sqlalchemy import Engine, create_engine, text
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
@@ -24,12 +25,10 @@ def test_database_connection(_engine: Engine) -> bool:
     try:
         with _engine.connect() as db:
             db.execute(text(stmt))
-
-        print("\t***** Database connection successful *****")
+        logger.info("Database connection successful")
         return True
     except SQLAlchemyError as e:
-        print("SQLAlchemy Error:", str(e))
-        print("\t***** Database connection unsuccessful *****")
+        logger.error(f"Database connection unsuccessful, {str(e)}")
         return False
 
 

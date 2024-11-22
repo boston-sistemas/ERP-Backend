@@ -1,0 +1,65 @@
+[
+    {
+        "id": "100100100101",
+        "category_id": 1008,
+        "denomination": "TANGÜIS",
+        "origin": "PER",
+        "color_id": null
+    },
+    {
+        "id": "100100100102",
+        "category_id": 1008,
+        "denomination": "PIMA",
+        "origin": "PER",
+        "color_id": null
+    },
+    {
+        "id": "100100100103",
+        "category_id": 1008,
+        "denomination": "UPLAND",
+        "origin": "USA",
+        "color_id": null
+    },
+    {
+        "id": "100100100104",
+        "category_id": 1009,
+        "denomination": "CREORA",
+        "origin": null,
+        "color_id": null
+    },
+    {
+        "id": "100100100105",
+        "category_id": 1009,
+        "denomination": "LYCRA",
+        "origin": null,
+        "color_id": null
+    },
+    {
+        "id": "100100100106",
+        "category_id": 1010,
+        "denomination": null,
+        "origin": null,
+        "color_id": "100102"
+    },
+    {
+        "id": "100100100107",
+        "category_id": 1010,
+        "denomination": null,
+        "origin": null,
+        "color_id": "100101"
+    },
+    {
+        "id": "100100100108",
+        "category_id": 1012,
+        "denomination": null,
+        "origin": null,
+        "color_id": null
+    },
+    {
+        "id": "100100100109",
+        "category_id": 1018,
+        "denomination": null,
+        "origin": null,
+        "color_id": null
+    }
+]
