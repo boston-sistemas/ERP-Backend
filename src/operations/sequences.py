@@ -4,7 +4,7 @@ from src.core.database import PromecBase
 
 product_id_seq = Sequence(
     name="product_id_seq",
-    start=100100100100,
+    start=100100100200,
     metadata=PromecBase.metadata,
 )
 

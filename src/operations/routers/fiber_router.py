@@ -2,7 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
-from src.operations.schemas import FiberCompleteListSchema, FiberCompleteSchema
+from src.operations.schemas import (
+    FiberCompleteListSchema,
+    FiberCompleteSchema,
+    FiberCreateSchema,
+)
 from src.operations.services import FiberService
 
 router = APIRouter()
@@ -35,3 +39,18 @@ async def read_fibers(
 
     if result.is_success:
         return result.value
+
+
+@router.post("/")
+async def create_fiber(
+    form: FiberCreateSchema,
+    db: AsyncSession = Depends(get_db),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = FiberService(db=db, promec_db=promec_db)
+    result = await service.create_fiber(form=form)
+
+    if result.is_success:
+        return {"message": "Fibra creada con éxito."}
+
+    raise result.error
