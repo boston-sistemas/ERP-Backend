@@ -42,6 +42,15 @@ from .proveedor_schema import ProveedorSchema
 from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
+from .orden_compra_schema import (
+    # OrdenCompraBase,
+    # OrdenCompraSimpleSchema,
+    OrdenCompraWithDetallesListSchema,
+    # OrdenCompraWithDetallesSchema,
+)
+
+# from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
+
 __all__ = [
     "MecsaColorCreateSchema",
     "MecsaColorSchema",
@@ -75,4 +84,8 @@ __all__ = [
     "ReporteStockTejeduriaResponse",
     "RevisionStockTejeduriaResponse",
     "ProgramacionTintoreriaParametersResponse",
+    # "OrdenCompraBase",
+    # "OrdenCompraSimpleSchema",
+    "OrdenCompraWithDetallesListSchema",
+    # "OrdenCompraWithDetallesSchema",
 ]

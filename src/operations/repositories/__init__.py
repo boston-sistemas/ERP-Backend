@@ -11,6 +11,7 @@ from .orden_servicio_tintoreria_detalle_repository import (
 from .orden_servicio_tintoreria_repository import OrdenServicioTintoreriaRepository
 from .programacion_tintoreria_repository import ProgramacionTintoreriaRepository
 from .proveedor_repository import ProveedorRepository
+from .orden_compra_repository import OrdenCompraRepository
 
 __all__ = [
     "MecsaColorRepository",
@@ -22,4 +23,5 @@ __all__ = [
     "OrdenServicioTintoreriaRepository",
     "OrdenServicioTintoreriaDetalleRepository",
     "ProgramacionTintoreriaRepository",
+    "OrdenCompraRepository",
 ]

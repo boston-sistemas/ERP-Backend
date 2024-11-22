@@ -29,14 +29,14 @@ from src.operations.constants import (
     MAX_LENGTH_SERVICIO_NOMBRE,
     MAX_LENGTH_TEJIDO_ID,
     MAX_LENGTH_TEJIDO_NOMBRE,
-    MAX_LENGTH_CODCIA,
-    MAX_LENGTH_TPOOC,
-    MAX_LENGTH_NROOC,
-    MAX_LENGTH_CODPRO,
-    MAX_LENGTH_FMAPGO,
-    MAX_LENGTH_FLGEST,
-    MAX_LENGTH_CODPROD,
-    MAX_LENGTH_CODUND,
+    CODCIA_MAX_LENGTH,
+    PURCHASE_ORDER_TYPE_MAX_LENGTH,
+    PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+    SUPPLIER_CODE_MAX_LENGTH,
+    PAYMENT_METHOD_MAX_LENGTH,
+    STATUS_FLAG_MAX_LENGTH,
+    PRODUCT_CODE_MAX_LENGTH,
+    UNIT_CODE_MAX_LENGTH,
 )
 
 
@@ -290,29 +290,30 @@ class MecsaColor(PromecBase):
 class OrdenCompra(Base):
     __tablename__ = "opecocmp"
 
-    codcia: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODCIA))
-    tpooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_TPOOC))
-    nrooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_NROOC))
-    codprov: Mapped[str] = mapped_column("codpro", String(length=MAX_LENGTH_CODPRO))
-    fchemi: Mapped[datetime] = mapped_column()
-    fchvto: Mapped[datetime] = mapped_column()
-    codmon: Mapped[int] = mapped_column()
-    fmapgo: Mapped[str] = mapped_column(String(length=MAX_LENGTH_FMAPGO))
-    flgest: Mapped[str] = mapped_column(String(length=MAX_LENGTH_FLGEST))
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    purchase_order_type: Mapped[str] = mapped_column("tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH))
+    purchase_order_number: Mapped[str] = mapped_column("nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH))
+    supplier_code: Mapped[str] = mapped_column("codpro", String(length=SUPPLIER_CODE_MAX_LENGTH))
+    issue_date: Mapped[datetime] = mapped_column("fchemi")
+    due_date: Mapped[datetime] = mapped_column("fchvto")
+    currency_code: Mapped[int] = mapped_column("codmon")
+    payment_method: Mapped[str] = mapped_column("fmapgo", String(length=PAYMENT_METHOD_MAX_LENGTH))
+    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
 
-    detalles = relationship(
+    detalle = relationship(
         "OrdenCompraDetalle",
         primaryjoin=lambda: and_(
             OrdenCompra.codcia == OrdenCompraDetalle.codcia,
-            OrdenCompra.tpooc == OrdenCompraDetalle.tpooc,
-            OrdenCompra.nrooc == OrdenCompraDetalle.nrooc
+            OrdenCompra.purchase_order_type == OrdenCompraDetalle.purchase_order_type,
+            OrdenCompra.purchase_order_number == OrdenCompraDetalle.purchase_order_number
         ),
         back_populates="orden_compra",
+        lazy="select",
         single_parent=True,  # one to many
         foreign_keys=lambda: [  # columnas usadas para la relación
             OrdenCompraDetalle.codcia,
-            OrdenCompraDetalle.tpooc,
-            OrdenCompraDetalle.nrooc
+            OrdenCompraDetalle.purchase_order_type,
+            OrdenCompraDetalle.purchase_order_number
         ]
     )
 
@@ -321,40 +322,51 @@ class OrdenCompra(Base):
         {"schema": "PUB"}
     )
 
+# OrdenCompraDetalleHilado
+# OrdenCompraDetalleElastico
+
 class OrdenCompraDetalle(Base):
     __tablename__ = "opedocmp"
 
-    codcia: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODCIA))
-    tpooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_TPOOC))
-    nrooc: Mapped[str] = mapped_column(String(length=MAX_LENGTH_NROOC))
-    codhilado: Mapped[str] = mapped_column("codprod", String(length=MAX_LENGTH_CODPROD))
-    canord: Mapped[float] = mapped_column()
-    canate: Mapped[float] = mapped_column()
-    flgest: Mapped[str] = mapped_column(String(length=MAX_LENGTH_FLGEST))
-    codund: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODUND))
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    purchase_order_type: Mapped[str] = mapped_column("tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH))
+    purchase_order_number: Mapped[str] = mapped_column("nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH))
+    product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+    quantity_ordered: Mapped[float] = mapped_column("canord")
+    quantity_supplied: Mapped[float] = mapped_column("canate")
+    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+    unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
 
     orden_compra = relationship(
         "OrdenCompra",
         primaryjoin=lambda: and_(
             OrdenCompra.codcia == OrdenCompraDetalle.codcia,
-            OrdenCompra.tpooc == OrdenCompraDetalle.tpooc,
-            OrdenCompra.nrooc == OrdenCompraDetalle.nrooc
+            OrdenCompra.purchase_order_type == OrdenCompraDetalle.purchase_order_type,
+            OrdenCompra.purchase_order_number == OrdenCompraDetalle.purchase_order_number
         ),
-        back_populates="detalles",
+        back_populates="detalle",
         foreign_keys=lambda: [
             OrdenCompraDetalle.codcia,
-            OrdenCompraDetalle.tpooc,
-            OrdenCompraDetalle.nrooc
+            OrdenCompraDetalle.purchase_order_type,
+            OrdenCompraDetalle.purchase_order_number
         ]
     )
 
-    hilado_detalle = relationship(
+    hilado = relationship(
         "Hilado",
         primaryjoin=lambda: and_(
             OrdenCompraDetalle.codcia == Hilado.codcia,
-            OrdenCompraDetalle.codhilado == Hilado.codprod
-        )
+            OrdenCompraDetalle.product_code == Hilado.yarn_code
+        ),
+        lazy="select",
+        foreign_keys=lambda: [
+            OrdenCompraDetalle.codcia,
+            OrdenCompraDetalle.product_code
+        ],
+        viewonly=True
     )
+
+    # elastico
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "tpooc", "nrooc", "codprod"),
@@ -372,7 +384,8 @@ class Hilado(Base):
         {"schema": "PUB"}
     )
 
-    codcia: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODCIA))
-    codprod: Mapped[str] = mapped_column(String(length=MAX_LENGTH_CODPROD))
-    codfam: Mapped[str] = mapped_column(String(length=6))
-    subfam: Mapped[str] = mapped_column(String(length=6))
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+    family_code: Mapped[str] = mapped_column("codfam", String(length=6))
+    subfamily_code: Mapped[str] = mapped_column("subfam", String(length=6))
+    details: Mapped[str] = mapped_column("detalle", String(length=120))

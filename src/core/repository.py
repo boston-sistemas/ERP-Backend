@@ -56,6 +56,7 @@ class BaseRepository(Generic[ModelType]):
         self,
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
+        joins: Sequence[tuple] = None,
         apply_unique: bool = False,
     ) -> list[ModelType]:
         stmt = select(self.model)
@@ -63,9 +64,22 @@ class BaseRepository(Generic[ModelType]):
         if filter is not None:
             stmt = stmt.where(filter)
 
+        if joins:
+            for join_item in joins:
+                if isinstance(join_item, tuple) and len(join_item) == 2:
+                    stmt = stmt.join(join_item[0], join_item[1])
+                else:
+                    stmt = stmt.join(join_item)
+
         if options:
             stmt = stmt.options(*options)
 
+        print("STMT: ", stmt)
+        print()
+        print()
+        print()
+
+        stmt = stmt
         if apply_unique:
             return (await self.db.scalars(stmt)).unique().all()
 
