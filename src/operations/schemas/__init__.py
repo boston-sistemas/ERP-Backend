@@ -3,6 +3,7 @@ from .fiber_schema import (
     FiberCompleteSchema,
     FiberCreateSchema,
     FiberSchema,
+    FiberUpdateSchema,
 )
 from .mecsa_color_schema import (
     MecsaColorCreateSchema,
@@ -50,6 +51,7 @@ from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 
 __all__ = [
     "FiberSchema",
+    "FiberUpdateSchema",
     "FiberCreateSchema",
     "FiberCompleteListSchema",
     "FiberCompleteSchema",

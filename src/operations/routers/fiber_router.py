@@ -1,3 +1,5 @@
+from copy import copy
+
 from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +8,7 @@ from src.operations.schemas import (
     FiberCompleteListSchema,
     FiberCompleteSchema,
     FiberCreateSchema,
+    FiberUpdateSchema,
 )
 from src.operations.services import FiberService
 
@@ -51,9 +54,29 @@ async def create_fiber(
     result = await service.create_fiber(form=form)
 
     if result.is_success:
-        return {"message": "Fibra creada con éxito."}
+        return {"message": "La fibra ha sido creada con éxito."}
 
-    raise result.error
+    error = copy(result.error)
+    error.detail += " No se pudo crear la fibra."
+    raise error
+
+
+@router.patch("/{fiber_id}")
+async def update_fiber(
+    fiber_id: str,
+    form: FiberUpdateSchema,
+    db: AsyncSession = Depends(get_db),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = FiberService(db=db, promec_db=promec_db)
+    result = await service.update_fiber(fiber_id=fiber_id, form=form)
+
+    if result.is_success:
+        return {"message": "La fibra ha sido actualizada con éxito."}
+
+    error = copy(result.error)
+    error.detail += " No se pudo actualizar la fibra."
+    raise error
 
 
 @router.put("/{fiber_id}/status")

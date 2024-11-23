@@ -4,16 +4,17 @@ from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
 from src.operations.failures import (
-    COLOR_DISABLED_WHEN_CREATING_FIBER_FAILURE,
-    COLOR_NOT_FOUND_WHEN_CREATING_FIBER_FAILURE,
+    CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE,
+    CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE,
+    CATEGORY_NULL_FIBER_VALIDATION_FAILURE,
+    COLOR_DISABLED_FIBER_VALIDATION_FAILURE,
+    COLOR_NOT_FOUND_FIBER_VALIDATION_FAILURE,
     FIBER_ALREADY_EXISTS_FAILURE,
-    FIBER_CATEGORY_DISABLED_WHEN_CREATING_FIBER_FAILURE,
-    FIBER_CATEGORY_NOT_FOUND_WHEN_CREATING_FIBER_FAILURE,
     FIBER_NOT_FOUND_FAILURE,
 )
 from src.operations.models import Fiber
 from src.operations.repositories import FiberRepository
-from src.operations.schemas import FiberCreateSchema
+from src.operations.schemas import FiberCreateSchema, FiberUpdateSchema
 from src.operations.sequences import product_id_seq
 from src.security.loaders import FiberCategories
 
@@ -47,30 +48,21 @@ class FiberService:
         origin: str | None,
         color_id: str | None,
     ) -> bool:
-        fiber = await self.repository.find(
+        fibers = await self.repository.find_all(
             (Fiber.category_id == category_id)
             & (Fiber.denomination == denomination)
             & (Fiber.origin == origin)
             & (Fiber.color_id == color_id)
         )
-        return fiber is None
+
+        return len(fibers) - 1 <= 0
 
     async def _validate_fiber_data(
         self,
         category_id: int | None = None,
         color_id: str | None = None,
-        action: str = "create",
+        **kwargs,
     ) -> Result[None, CustomException]:
-        failures = {
-            "create": {
-                "category_not_found": FIBER_CATEGORY_NOT_FOUND_WHEN_CREATING_FIBER_FAILURE,
-                "category_disabled": FIBER_CATEGORY_DISABLED_WHEN_CREATING_FIBER_FAILURE,
-                "color_not_found": COLOR_NOT_FOUND_WHEN_CREATING_FIBER_FAILURE,
-                "color_disabled": COLOR_DISABLED_WHEN_CREATING_FIBER_FAILURE,
-            }
-        }
-        current_failures = failures.get(action, {})
-
         if category_id is not None:
             categories = await self.fiber_categories.get()
             category_result = next(
@@ -78,16 +70,16 @@ class FiberService:
                 None,
             )
             if category_result is None:
-                return current_failures["category_not_found"]
+                return CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE
             if not category_result.is_active:
-                return current_failures["category_disabled"]
+                return CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE
 
         if color_id is not None:
             color_result = await self.mecsa_color_service.read_mecsa_color(color_id)
             if color_result.is_failure:
-                return current_failures["color_not_found"]
+                return COLOR_NOT_FOUND_FIBER_VALIDATION_FAILURE
             if color_result.value.is_active != "A":
-                return current_failures["color_disabled"]
+                return COLOR_DISABLED_FIBER_VALIDATION_FAILURE
 
         return Success(None)
 
@@ -133,6 +125,39 @@ class FiberService:
         await self.repository.save(fiber)
 
         return Success(fiber)
+
+    async def update_fiber(
+        self, fiber_id: str, form: FiberUpdateSchema
+    ) -> Result[Fiber, CustomException]:
+        fiber_result = await self.read_fiber(fiber_id)
+        if fiber_result.is_failure:
+            return fiber_result
+
+        fiber: Fiber = fiber_result.value
+        fiber_data = form.model_dump(exclude_unset=True)
+
+        if fiber_data.get("category_id", None) is None:
+            return CATEGORY_NULL_FIBER_VALIDATION_FAILURE
+
+        validation_result = await self._validate_fiber_data(**fiber_data)
+        if validation_result.is_failure:
+            return validation_result
+
+        for key, value in fiber_data.items():
+            setattr(fiber, key, value)
+
+        if not (
+            await self._is_fiber_unique(
+                category_id=fiber.category_id,
+                denomination=fiber.denomination,
+                origin=fiber.origin,
+                color_id=fiber.color_id,
+            )
+        ):
+            return FIBER_ALREADY_EXISTS_FAILURE
+
+        await self.repository.save(fiber)
+        return Success(None)
 
     async def update_status(
         self, fiber_id: str, is_active: bool = True

@@ -43,3 +43,7 @@ class FiberCreateSchema(CustomBaseModel):
     )
     origin: CountryAlpha3 | None = Field(default=None)
     color_id: str | None = Field(default=None, max_length=MECSA_COLOR_ID_MAX_LENGTH)
+
+
+class FiberUpdateSchema(FiberCreateSchema):
+    category_id: int | None = None
