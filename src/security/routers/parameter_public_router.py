@@ -18,8 +18,9 @@ async def read_datatypes():
 async def read_fiber_categories(db: AsyncSession = Depends(get_db)):
     service = ParameterService(db=db)
 
-    result = await service.read_parameters_by_category(
-        parameter_category_id=param_settings.FIBER_CATEGORY_PARAM_CATEGORY_ID
+    result = await service.read_active_parameters_by_category(
+        parameter_category_id=param_settings.FIBER_CATEGORY_PARAM_CATEGORY_ID,
+        load_only_value=True,
     )
 
     return FiberCategoriesSchema(fiber_categories=result.value)

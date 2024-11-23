@@ -135,3 +135,17 @@ class ParameterService:
         )
 
         return Success(parameters)
+
+    async def read_active_parameters_by_category(
+        self,
+        parameter_category_id: int,
+        include_category: bool = False,
+        load_only_value: bool = False,
+    ) -> Result[list[Parameter], CustomException]:
+        parameters = await self.repository.find_parameters(
+            filter=(Parameter.category_id == parameter_category_id)
+            & (Parameter.is_active),
+            include_category=include_category,
+            load_only_value=load_only_value,
+        )
+        return Success(parameters)
