@@ -13,14 +13,9 @@ from src.operations.failures import (
 )
 from src.operations.models import Fiber
 from src.operations.repositories import FiberRepository
-from src.operations.schemas import (
-    FiberCompleteListSchema,
-    FiberCompleteSchema,
-    FiberCreateSchema,
-)
+from src.operations.schemas import FiberCreateSchema
 from src.operations.sequences import product_id_seq
 from src.security.loaders import FiberCategories
-from src.security.services import ParameterService
 
 from .mecsa_color_service import MecsaColorService
 
@@ -28,7 +23,6 @@ from .mecsa_color_service import MecsaColorService
 class FiberService:
     def __init__(self, db: AsyncSession, promec_db: AsyncSession):
         self.repository = FiberRepository(db=db)
-        self.parameter_service = ParameterService(db=db)
         self.mecsa_color_service = MecsaColorService(promec_db=promec_db)
         self.product_sequence = SequenceRepository(
             sequence=product_id_seq, db=promec_db
@@ -99,7 +93,7 @@ class FiberService:
 
     async def read_fiber(
         self, fiber_id: str, include_category: bool = False, include_color: bool = False
-    ) -> Result[FiberCompleteSchema, CustomException]:
+    ) -> Result[Fiber, CustomException]:
         fiber = await self.repository.find_fiber_by_id(
             fiber_id=fiber_id, include_category=include_category
         )
@@ -110,15 +104,15 @@ class FiberService:
         if include_color:
             await self._assign_colors_to_fibers(fibers=[fiber])
 
-        return Success(FiberCompleteSchema.model_validate(fiber))
+        return Success(fiber)
 
-    async def read_fibers(self) -> Result[FiberCompleteListSchema, CustomException]:
+    async def read_fibers(self) -> Result[list[Fiber], CustomException]:
         fibers = await self.repository.find_all(
             options=(self.repository.include_category(),)
         )
         await self._assign_colors_to_fibers(fibers=fibers)
 
-        return Success(FiberCompleteListSchema(fibers=fibers))
+        return Success(fibers)
 
     async def create_fiber(
         self, form: FiberCreateSchema
@@ -136,6 +130,19 @@ class FiberService:
         fiber_id = await self.product_sequence.next_value()
         fiber = Fiber(**fiber_dict, id=str(fiber_id))
 
+        await self.repository.save(fiber)
+
+        return Success(fiber)
+
+    async def update_status(
+        self, fiber_id: str, is_active: bool = True
+    ) -> Result[Fiber, CustomException]:
+        fiber_result = await self.read_fiber(fiber_id=fiber_id)
+        if fiber_result.is_failure:
+            return fiber_result
+
+        fiber: Fiber = fiber_result.value
+        fiber.is_active = is_active
         await self.repository.save(fiber)
 
         return Success(fiber)

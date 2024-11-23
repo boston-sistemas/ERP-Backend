@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
@@ -24,7 +24,7 @@ async def read_fiber(
     )
 
     if result.is_success:
-        return result.value
+        return FiberCompleteSchema.model_validate(result.value)
 
     raise result.error
 
@@ -38,7 +38,7 @@ async def read_fibers(
     result = await service.read_fibers()
 
     if result.is_success:
-        return result.value
+        return FiberCompleteListSchema(fibers=result.value)
 
 
 @router.post("/")
@@ -52,5 +52,22 @@ async def create_fiber(
 
     if result.is_success:
         return {"message": "Fibra creada con éxito."}
+
+    raise result.error
+
+
+@router.put("/{fiber_id}/status")
+async def update_fiber_status(
+    fiber_id: str,
+    is_active: bool = Body(embed=True),
+    db: AsyncSession = Depends(get_db),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = FiberService(db=db, promec_db=promec_db)
+    result = await service.update_status(fiber_id=fiber_id, is_active=is_active)
+
+    if result.is_success:
+        msg = f"La fibra ha sido {''if is_active else 'des'}activada con éxito"
+        return {"message": msg}
 
     raise result.error

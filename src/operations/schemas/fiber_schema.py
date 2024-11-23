@@ -17,6 +17,7 @@ class FiberBase(CustomBaseModel):
     denomination: str | None
     origin: str | None
     color_id: str | None
+    is_active: bool
 
     class Config:
         from_attributes = True
