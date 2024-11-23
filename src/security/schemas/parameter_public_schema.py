@@ -60,6 +60,16 @@ class FiberCategoriesSchema(CustomBaseModel):
     fiber_categories: list["ParameterValueSchema"]
 
 
+class UserPasswordPolicySchema(CustomBaseModel):
+    min_length: int = 6
+    min_uppercase: int = 1
+    min_lowercase: int = 1
+    min_digits: int = 1
+    min_symbols: int = 1
+    validity_days: int = 30
+    history_size: int = 3
+
+
 from .parameter_schema import ParameterValueSchema  # noqa: E402
 
 FiberCategoriesSchema.model_rebuild()

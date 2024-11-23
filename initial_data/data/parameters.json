@@ -50,7 +50,7 @@
     {
         "id": 1007,
         "category_id": 101,
-        "description": "VIGENCIA DE LAS NUEVAS CONTRASEÑAS EN DIAS",
+        "description": "NUMERO DE DIAS DE VIGENCIA DE LAS NUEVAS CONTRASEÑAS",
         "value": "90",
         "data_type": "integer",
         "is_active": true
