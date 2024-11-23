@@ -19,6 +19,7 @@ from src.operations.schemas import (
     FiberCreateSchema,
 )
 from src.operations.sequences import product_id_seq
+from src.security.loaders import FiberCategories
 from src.security.services import ParameterService
 
 from .mecsa_color_service import MecsaColorService
@@ -32,6 +33,7 @@ class FiberService:
         self.product_sequence = SequenceRepository(
             sequence=product_id_seq, db=promec_db
         )
+        self.fiber_categories = FiberCategories(db=db)
 
     async def _assign_colors_to_fibers(self, fibers: list[Fiber]) -> None:
         color_ids = {fiber.color_id for fiber in fibers if fiber.color_id is not None}
@@ -76,10 +78,14 @@ class FiberService:
         current_failures = failures.get(action, {})
 
         if category_id is not None:
-            category_result = await self.parameter_service.read_parameter(category_id)
-            if category_result.is_failure:
+            categories = await self.fiber_categories.get()
+            category_result = next(
+                (category for category in categories if category.id == category_id),
+                None,
+            )
+            if category_result is None:
                 return current_failures["category_not_found"]
-            if not category_result.value.is_active:
+            if not category_result.is_active:
                 return current_failures["category_disabled"]
 
         if color_id is not None:
