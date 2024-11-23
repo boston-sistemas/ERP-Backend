@@ -6,9 +6,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     BASE_DIR: str = str(Path(__file__).resolve().parent.parent) + "/"
-    ENV_FILE: str = BASE_DIR + ".env"
     model_config = SettingsConfigDict(
-        env_file=ENV_FILE, env_ignore_empty=True, extra="ignore"
+        env_file=[BASE_DIR + ".env.local", BASE_DIR + ".env"],
+        env_ignore_empty=True,
+        extra="ignore",
     )
     DATABASE_URL: str
     PROMEC_DATABASE_URL: str

@@ -11,9 +11,8 @@ from sqlalchemy.orm import DeclarativeBase
 
 class Settings(BaseSettings):
     BASE_DIR: str = str(Path(__file__).resolve().parent.parent.parent) + "/"
-    ENV_FILE: str = BASE_DIR + ".env"
     model_config = SettingsConfigDict(
-        env_file=[BASE_DIR + ".env", BASE_DIR + ".env.local"],
+        env_file=[BASE_DIR + ".env.local", BASE_DIR + ".env"],
         env_ignore_empty=True,
         extra="ignore",
     )
