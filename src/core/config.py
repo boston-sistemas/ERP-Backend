@@ -11,7 +11,7 @@ class ProjectBaseSettings(BaseSettings):
     ASSETS_DIR: str = PROJECT_DIR + "core/assets/"
 
     model_config = SettingsConfigDict(
-        env_file=[BASE_DIR + ".env", BASE_DIR + ".env.local"],
+        env_file=BASE_DIR + ".env",
         env_ignore_empty=True,
         extra="ignore",
     )

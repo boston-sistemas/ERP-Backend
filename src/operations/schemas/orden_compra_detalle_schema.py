@@ -7,7 +7,10 @@ class HiladoSchema(BaseModel):
     yarn_code: str
     family_code: str
     subfamily_code: str
-    details: str
+    details: str | None
+
+    class Config:
+        from_attributes = True
 
 class OrdenCompraDetalleBase(BaseModel):
     codcia: str
