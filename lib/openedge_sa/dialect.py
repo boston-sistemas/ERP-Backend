@@ -89,12 +89,17 @@ class OpenEdgeDialect(OpenEdgeDialectBase):
 
     def do_ping(self, dbapi_connection: DBAPIConnection) -> bool:
         cursor = None
-
-        cursor = dbapi_connection.cursor()
         try:
-            cursor.execute("SELECT 1 FROM SYSPROGRESS.SYSCALCTABLE WHERE 1=0")
-        finally:
-            cursor.close()
+            cursor = dbapi_connection.cursor()
+            try:
+                cursor.execute("SELECT 1 FROM SYSPROGRESS.SYSCALCTABLE WHERE 1=0")
+            finally:
+                cursor.close()
+        except self.loaded_dbapi.Error:
+            raise
+        except Exception:
+            # TODO: Handle only sqlalchemy.exc.OperationalError to identify disconnection causes.
+            return False
         return True
 
 
