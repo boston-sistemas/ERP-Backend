@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from operations.schemas.mecsa_color_schema import MecsaColorCreateSchema
 from src.core.database import get_promec_db
 from src.operations.schemas import (
+    MecsaColorCreateSchema,
     MecsaColorListSchema,
     MecsaColorSchema,
 )
