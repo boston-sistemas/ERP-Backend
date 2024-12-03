@@ -8,13 +8,24 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from src.core.config import settings
 
 engine = create_engine(
-    settings.DATABASE_URL, max_identifier_length=60, echo=settings.DEBUG
+    settings.DATABASE_URL,
+    max_identifier_length=60,
+    echo=settings.DEBUG,
+    pool_recycle=3600,
 )
-engine_async = create_async_engine(settings.DATABASE_URL_ASYNC, echo=settings.DEBUG)
+engine_async = create_async_engine(
+    settings.DATABASE_URL_ASYNC, echo=settings.DEBUG, pool_recycle=3600
+)
 
-promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=settings.DEBUG)
+promec_engine = create_engine(
+    settings.PROMEC_DATABASE_URL,
+    echo=settings.DEBUG,
+    pool_pre_ping=True,
+)
 promec_async_engine = create_async_engine(
-    settings.PROMEC_DATABASE_URL_ASYNC, echo=settings.DEBUG
+    settings.PROMEC_DATABASE_URL_ASYNC,
+    echo=settings.DEBUG,
+    pool_pre_ping=True,
 )
 
 

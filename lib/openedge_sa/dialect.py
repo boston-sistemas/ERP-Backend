@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, Connection, text
 from sqlalchemy.connectors.aioodbc import aiodbcConnector
 from sqlalchemy.connectors.pyodbc import PyODBCConnector
 from sqlalchemy.engine.default import DefaultDialect
+from sqlalchemy.engine.interfaces import DBAPIConnection
 from sqlalchemy.types import Date, DateTime, Integer, String
 
 from .compiler import (
@@ -85,6 +86,21 @@ class OpenEdgeDialect(OpenEdgeDialectBase):
         """)
         result = connection.execute(query).fetchone()
         return result is not None
+
+    def do_ping(self, dbapi_connection: DBAPIConnection) -> bool:
+        cursor = None
+        try:
+            cursor = dbapi_connection.cursor()
+            try:
+                cursor.execute("SELECT 1 FROM SYSPROGRESS.SYSCALCTABLE WHERE 1=0")
+            finally:
+                cursor.close()
+        except self.loaded_dbapi.Error:
+            raise
+        except Exception:
+            # TODO: Handle only sqlalchemy.exc.OperationalError to identify disconnection causes.
+            return False
+        return True
 
 
 class OpenEdgeDialectAsync(aiodbcConnector, OpenEdgeDialect):

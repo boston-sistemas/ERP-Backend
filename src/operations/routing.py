@@ -7,6 +7,7 @@ from .routers import (
     reporte_stock_tejeduria_router,
     revision_stock_tejeduria_router,
     orden_compra_router,
+    unit_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]
@@ -19,4 +20,9 @@ router.include_router(
     router=fiber_router.router,
     prefix="/fibers",
     tags=["[AREA OPERACIONES] GESTION DE FIBRAS"],
+)
+router.include_router(
+    router=unit_router.router,
+    prefix="/units",
+    tags=["[AREA OPERACIONES] GESTION UNIDADES DE MEDIDA"],
 )

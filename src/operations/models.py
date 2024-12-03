@@ -441,3 +441,28 @@ class Fiber(Base):
             "color_id",
         ),
     )
+
+
+class BaseUnit(PromecBase):
+    __tablename__ = "AlmUnidades"
+
+    code: Mapped[str] = mapped_column("CodUnd", primary_key=True)
+    description: Mapped[str] = mapped_column("DesUnd")
+
+    derived_units: Mapped[list["DerivedUnit"]] = relationship(
+        "DerivedUnit", primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)"
+    )
+
+    __table_args__ = ({"schema": "PUB"},)
+
+
+class DerivedUnit(PromecBase):
+    __tablename__ = "almequiv"
+
+    code: Mapped[str] = mapped_column("UndEqu", primary_key=True)
+    base_code: Mapped[str] = mapped_column("CodUnd", primary_key=True)
+    description: Mapped[str] = mapped_column("DesEqu")
+    factor: Mapped[float] = mapped_column("Factor")
+    sunat_code: Mapped[str] = mapped_column("UniMed_Sunat")
+
+    __table_args__ = ({"schema": "PUB"},)

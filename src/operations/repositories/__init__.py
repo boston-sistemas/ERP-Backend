@@ -1,3 +1,4 @@
+from .base_unit_repository import BaseUnitRepository
 from .color_repository import ColorRepository
 from .especialidad_empresa_repository import EspecialidadEmpresaRepository
 from .fiber_repository import FiberRepository
@@ -15,6 +16,7 @@ from .proveedor_repository import ProveedorRepository
 from .orden_compra_repository import OrdenCompraRepository
 
 __all__ = [
+    "BaseUnitRepository",
     "FiberRepository",
     "MecsaColorRepository",
     "OrdenServicioTejeduriaRepository",

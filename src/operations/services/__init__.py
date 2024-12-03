@@ -15,8 +15,10 @@ from .proveedor_service import ProveedorService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 from .orden_compra_service import OrdenCompraService
+from .unit_service import UnitService
 
 __all__ = [
+    "UnitService",
     "FiberService",
     "OrdenServicioTintoreriaDetalleService",
     "OrdenServicioTintoreriaService",
