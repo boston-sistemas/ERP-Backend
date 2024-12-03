@@ -10,10 +10,10 @@ class OrdenCompraService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = OrdenCompraRepository(db)
 
-    async def read_ordenes_hilado(
+    async def read_ordenes_yarn(
         self,
         include_detalle: bool = False,
     ) -> list[OrdenCompra]:
-        return await self.repository.find_ordenes_hilado(
+        return await self.repository.find_ordenes_yarn(
             include_detalle=include_detalle
         )

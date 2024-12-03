@@ -3,6 +3,7 @@ from .fiber_schema import (
     FiberCompleteSchema,
     FiberCreateSchema,
     FiberSchema,
+    FiberUpdateSchema,
 )
 from .mecsa_color_schema import (
     MecsaColorCreateSchema,
@@ -59,6 +60,7 @@ from .orden_compra_schema import (
 
 __all__ = [
     "FiberSchema",
+    "FiberUpdateSchema",
     "FiberCreateSchema",
     "FiberCompleteListSchema",
     "FiberCompleteSchema",

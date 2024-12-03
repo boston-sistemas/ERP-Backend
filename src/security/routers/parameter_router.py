@@ -28,7 +28,7 @@ async def read_parameter(parameter_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/", response_model=ParameterWithCategoryListSchema)
 async def read_parameters(db: AsyncSession = Depends(get_db)):
     parameter_service = ParameterService(db=db)
-    result = await parameter_service.read_parameters()
+    result = await parameter_service.read_parameters(include_category=True)
 
     if result.is_success:
         return ParameterWithCategoryListSchema(parameters=result.value)

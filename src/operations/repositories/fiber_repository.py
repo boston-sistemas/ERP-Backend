@@ -4,6 +4,7 @@ from sqlalchemy.orm.strategy_options import Load
 
 from src.core.repository import BaseRepository
 from src.operations.models import Fiber
+from src.security.models import Parameter
 
 
 class FiberRepository(BaseRepository[Fiber]):
@@ -12,7 +13,9 @@ class FiberRepository(BaseRepository[Fiber]):
 
     @staticmethod
     def include_category() -> Load:
-        return joinedload(Fiber.category)
+        return joinedload(Fiber.category).load_only(
+            Parameter.id, Parameter.value, raiseload=True
+        )
 
     async def find_fiber_by_id(
         self, fiber_id: str, include_category: bool = False, **kwargs

@@ -1,8 +1,8 @@
 
-from pydantic import BaseModel
+from src.core.schemas import CustomBaseModel
 
 # Schema Temp
-class HiladoSchema(BaseModel):
+class YarnSchema(CustomBaseModel):
     codcia: str
     yarn_code: str
     family_code: str
@@ -12,7 +12,7 @@ class HiladoSchema(BaseModel):
     class Config:
         from_attributes = True
 
-class OrdenCompraDetalleBase(BaseModel):
+class OrdenCompraDetalleBase(CustomBaseModel):
     codcia: str
     purchase_order_type: str
     purchase_order_number: str
@@ -21,10 +21,10 @@ class OrdenCompraDetalleBase(BaseModel):
     quantity_supplied: float
     status_flag: str
     unit_code: str
-    hilado: HiladoSchema | None
+    yarn: YarnSchema | None
 
     class Config:
         from_attributes = True
 
-class OrdenCompraDetalleCreateSchema(OrdenCompraDetalleBase):
-    pass
+# class OrdenCompraDetalleCreateSchema(OrdenCompraDetalleBase):
+#     pass

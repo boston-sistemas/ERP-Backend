@@ -68,6 +68,7 @@ class BaseRepository(Generic[ModelType]):
 
         if joins:
             for join_item in joins:
+                # stmt = stmt.join(*join_item)
                 if isinstance(join_item, tuple) and len(join_item) == 2:
                     stmt = stmt.join(join_item[0], join_item[1])
                 else:
@@ -75,11 +76,6 @@ class BaseRepository(Generic[ModelType]):
 
         if options:
             stmt = stmt.options(*options)
-
-        print("STMT: ", stmt)
-        print()
-        print()
-        print()
 
         stmt = stmt
         if apply_unique:

@@ -14,11 +14,11 @@ router = APIRouter(
     prefix="/orden-compra",
 )
 
-@router.get("/hilados", response_model=OrdenCompraWithDetallesListSchema)
-async def get_ordenes_hilados(
+@router.get("/yarns", response_model=OrdenCompraWithDetallesListSchema)
+async def get_ordenes_yarns(
     db: AsyncSession = Depends(get_promec_db)
 ):
     orden_service = OrdenCompraService(db)
-    ordenes = await orden_service.read_ordenes_hilado(include_detalle=True)
+    ordenes = await orden_service.read_ordenes_yarn(include_detalle=True)
 
     return OrdenCompraWithDetallesListSchema(ordenes=ordenes)

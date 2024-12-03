@@ -314,7 +314,6 @@ class OrdenCompra(Base):
             OrdenCompra.purchase_order_number == OrdenCompraDetalle.purchase_order_number
         ),
         back_populates="orden_compra",
-        lazy="select",
         single_parent=True,  # one to many
         foreign_keys=lambda: [  # columnas usadas para la relación
             OrdenCompraDetalle.codcia,
@@ -327,9 +326,6 @@ class OrdenCompra(Base):
         PrimaryKeyConstraint("codcia", "tpooc", "nrooc"),
         {"schema": "PUB"}
     )
-
-# OrdenCompraDetalleHilado
-# OrdenCompraDetalleElastico
 
 class OrdenCompraDetalle(Base):
     __tablename__ = "opedocmp"
@@ -358,13 +354,12 @@ class OrdenCompraDetalle(Base):
         ]
     )
 
-    hilado = relationship(
-        "Hilado",
+    yarn = relationship(
+        "Yarn",
         primaryjoin=lambda: and_(
-            OrdenCompraDetalle.codcia == Hilado.codcia,
-            OrdenCompraDetalle.product_code == Hilado.yarn_code
+            OrdenCompraDetalle.codcia == Yarn.codcia,
+            OrdenCompraDetalle.product_code == Yarn.yarn_code
         ),
-        lazy="select",
         foreign_keys=lambda: [
             OrdenCompraDetalle.codcia,
             OrdenCompraDetalle.product_code
@@ -380,10 +375,28 @@ class OrdenCompraDetalle(Base):
     )
 
     def __repr__(self):
-        return f"<OrdenCompraDetalle(codprod={self.codprod}>"
+        return f"<OrdenCompraDetalle(codprod={self.product_code}>"
+
+# class Movement(Base):
+#
+# # Class generica, distribuir con pydantic
+# class MovIngressYarnOC(Base):
+#     __tablename__ = "almcmovi"
+#     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH), default="001")
+#     storage_code: Mapped[str] = mapped_column("codalm", String(length=), default="006")  # Schemas
+#     movement_type: Mapped[str] = mapped_column("tpomov", String(length=), default="I")
+#     movement_code: Mapped[str] = mapped_column("codmov", String(length=), default="01")
+#     document_code: Mapped[str] = mapped_column("coddoc", String(length=), default="P/I")
+#     ingress_number: Mapped[str] = mapped_column("nrodoc", String(length=), default="")
+#     periodo: Mapped[int] = mapped_column("periodo")  # Manejar en los services
+#     creation_date: Mapped[datetime] = mapped_column("fchdoc")  # Manejar en los services
+#     creation_time: Mapped[str] = mapped_column("horadoc")  # Manejar en los services
+
+
+
 
 # Entidad Temp
-class Hilado(Base):
+class Yarn(Base):
     __tablename__ = "almprodg"
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "codprod"),

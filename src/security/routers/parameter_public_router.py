@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.security.parameter_settings import param_settings
-from src.security.schemas import DataTypeListSchema, FiberCategoriesSchema
-from src.security.services import ParameterService
+from src.security.loaders import FiberCategories, UserPasswordPolicy
+from src.security.schemas import (
+    DataTypeListSchema,
+    FiberCategoriesSchema,
+    UserPasswordPolicySchema,
+)
 
 router = APIRouter()
 
@@ -16,10 +19,11 @@ async def read_datatypes():
 
 @router.get("/fiber-categories", response_model=FiberCategoriesSchema)
 async def read_fiber_categories(db: AsyncSession = Depends(get_db)):
-    service = ParameterService(db=db)
-
-    result = await service.read_parameters_by_category(
-        parameter_category_id=param_settings.FIBER_CATEGORY_PARAM_CATEGORY_ID
+    return FiberCategoriesSchema(
+        fiber_categories=await FiberCategories(db=db).get(actives_only=True)
     )
 
-    return FiberCategoriesSchema(fiber_categories=result.value)
+
+@router.get("/password-rules", response_model=UserPasswordPolicySchema)
+async def password_restrictions(db: AsyncSession = Depends(get_db)):
+    return await UserPasswordPolicy(db=db).get_schema()
