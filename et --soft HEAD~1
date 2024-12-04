@@ -1,0 +1,2270 @@
+[33mcommit fe3bb5c28735b4808193ef65629511c5ea200dea[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/movimiento-ingreso-hilado-oc[m[33m)[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Dec 4 11:46:39 2024 -0500
+
+    mend
+
+[33mcommit e15915c3ebe4e8f99f4d4f58e25065df1791db43[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Dec 4 11:46:24 2024 -0500
+
+    feat: models movimiento hilado
+
+[33mcommit 182d63a166ff6522d61dbdf9ebf84ad4e59cd691[m
+Merge: 6b5264d ad0c48b
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Dec 3 13:55:18 2024 -0500
+
+    feat: merge
+
+[33mcommit 6b5264ddf14369e9a3f4d6295cbe6e3c28dd0a93[m
+Merge: c8cb34b 94fc055
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Dec 3 13:53:24 2024 -0500
+
+    feat: merge
+
+[33mcommit ad0c48b8c453539b0817766617433aca39a57d97[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Dec 1 15:27:33 2024 -0500
+
+    feat(operations): add measurement units management
+
+[33mcommit 915e12302f26b7e65b690f52e2b63d6d440552ed[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 29 12:29:23 2024 -0500
+
+    fix(lib): improve error handling in `do_ping` method
+
+[33mcommit 4a2181e106d4cb108f82b293b2fe841198f8540a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 28 23:38:09 2024 -0500
+
+    chore(core): configure database engines with connection pool settings
+
+[33mcommit cf701d03ede4b91b0182866dc4bebff2df3bb974[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 28 23:37:25 2024 -0500
+
+    feat(lib): add `do_ping` method to OpenEdgeDialect
+
+[33mcommit c8cb34bc11b861596d71871c5206616735d7426e[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Nov 27 20:53:31 2024 -0500
+
+    feat: endpoint O/C
+
+[33mcommit 94fc0558874f9ff59747568572d031d798fc5951[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Nov 23 22:38:26 2024 -0500
+
+    chore: add Makefile for deployment and command automation
+
+[33mcommit 6a3469c4a92afb8dc73909061484b2c224395744[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Nov 23 16:03:49 2024 -0500
+
+    feat(operations): add `PATCH /{fiber_id}` endpoint to update a fiber
+
+[33mcommit b0372f77091439905121dd42d132d168a3a791b1[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Nov 23 13:42:37 2024 -0500
+
+    feat(operations): add `PUT /{fiber_id}/status` endpoint to activate/deactivate fiber
+
+[33mcommit b73a818cfa7b47e814ae0e9289d8d9ab5714b611[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Nov 23 04:33:44 2024 -0500
+
+    fix(operations): ensure valid fiber category ID is accepted
+
+[33mcommit 5bad174ebef538c5cf49fcf8dd2bd22bc5edeabf[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Nov 23 03:56:43 2024 -0500
+
+    feat(security): add GET /password-rules endpoint
+
+[33mcommit f830f530a56395a85c910a7487f2501e3dc9bd5e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Nov 23 01:22:37 2024 -0500
+
+    feat(security): add abstraction layer for parameter loading
+
+[33mcommit 99ca8ee2c68ef9167211ca7fa5f16ae8044cfe07[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 22 23:08:07 2024 -0500
+
+    feat(security): return only active fiber categories
+
+[33mcommit 674e082a5cc7349f9ab2a1e3c5e3ad8b3dc61a39[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 22 22:46:06 2024 -0500
+
+    feat(security): add support to retrieve only parameter values in ParameterRepository
+
+[33mcommit 3e2f8cc33c68d94cc66ba1d8d6aa52e311269421[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 22 20:19:30 2024 -0500
+
+    fix(config): reorder env file loading to prioritize `.env` over `.env.local`
+
+[33mcommit d2afd5d65fa89e1e7ca6090e985cb3d16436f479[m[33m ([m[1;31morigin/feat/movimiento-ingreso-hilado-oc[m[33m)[m
+Merge: 46f709d 0c7c237
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Nov 22 14:13:15 2024 -0500
+
+    feat: merge main
+
+[33mcommit 46f709d3f20a0e4aba36e2fcfe241fe4e4bf993a[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Nov 22 13:36:04 2024 -0500
+
+    feat: endpoint O/C hilado
+
+[33mcommit 0c7c237c4b501660e58a16bd7e1677adc505f888[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 22 01:15:26 2024 -0500
+
+    chore(initial_data): ensure proper disposal of database sessions
+
+[33mcommit caa8343cded2a0e8c5809a8df48bb2a2555f0fd0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 22 01:14:27 2024 -0500
+
+    feat(operations): add POST / endpoint for fiber creation
+
+[33mcommit 3c2e68301be9785bd5b3e9ecf211d90a575eb7cf[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 22:28:33 2024 -0500
+
+    feat(security): add GET /fiber-categories endpoint
+
+[33mcommit aba3204a53ee2f8c42c6a29629400f598b002414[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 22:25:55 2024 -0500
+
+    chore(security): add parameter settings configuration
+
+[33mcommit 57db47c8eae33655a661242acda23a1d75948fbe[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 20:42:37 2024 -0500
+
+    fix(operations): correct initialization of MecsaColorService
+
+[33mcommit 2281c56f1ad1fb4572924223ec981ea8105e6f84[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 20:34:18 2024 +0000
+
+    feat(initial_data): add population script for Fiber model
+
+[33mcommit 1eead05fbb670664b4f629c392b43b781f9492ec[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 20:33:58 2024 +0000
+
+    feat(operations): add fiber management
+
+[33mcommit e407b6e1957f8406a2dda67b39aaa05431ced6f2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 20:33:14 2024 +0000
+
+    feat(operations): add Fiber model
+
+[33mcommit 89c4fcc5fbbae48ba8e1754a0a87cc773ca72dac[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 16:39:50 2024 +0000
+
+    feat(security): add data_type_name field to Parameter schema
+
+[33mcommit 4fd5743e954c8a65294f0f3eb913d64df66c5cc0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 16:06:19 2024 +0000
+
+    chore(requirements): add loguru and remove deprecated library
+
+[33mcommit b379dbff29db87b67fdaa7ad5451f6e471aee636[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Thu Nov 21 10:56:13 2024 -0500
+
+    feat: Entidades O/C con joins
+
+[33mcommit 6ce2c87d8dd961bf4d4dc8e9f727b69206bb28f0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 02:00:21 2024 -0500
+
+    chore(initial_data): add population script for Parameter model
+
+[33mcommit eee6bf1c86ac9c546a668725b100865d353106fd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 01:59:01 2024 -0500
+
+    chore(initial_data): add population script for ParameterCategory model
+
+[33mcommit 818f160b1d6cf4764ff9d682a8130204c3d690f2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 01:58:04 2024 -0500
+
+    chore(initial_data): add population script for MecsaColor model
+
+[33mcommit 187ece6ecf3ecf070ea85cd2c5a14364668df475[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 21 01:56:35 2024 -0500
+
+    refactor(initial_data): add scripts/ folder
+
+[33mcommit 457eedd3a1c4511c60a04839ddb4be9b12678b73[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Nov 20 03:39:24 2024 -0500
+
+    feat(security): add parameter management
+
+[33mcommit bbe2451790c12dd15a5f3de5f61d61e0bb694908[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Nov 20 03:38:31 2024 -0500
+
+    feat(security): add router for public parameters management
+    
+    - Added /parameters/public/data-types GET endpoint.
+
+[33mcommit 69fedaedcca58dc6f555c907da37b4ea6265f361[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Nov 20 03:32:07 2024 -0500
+
+    feat(security): add parameter categories management
+
+[33mcommit e8b9edf9d0543f0d4e3e616810aac567e0b0286b[m
+Merge: 9a3081f d0d52d2
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Nov 19 13:28:52 2024 -0500
+
+    Merge branch 'main' into feat/movimiento-ingreso-hilado-oc
+
+[33mcommit 9a3081f41369d9a445afcddd717192a253fd7956[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Nov 19 13:27:24 2024 -0500
+
+    feat: reorganización de archivos
+
+[33mcommit 4d4a40d5624f4e5e75556c52d8aa4434038fd26f[m
+Merge: 2c88064 424eced
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Nov 12 11:47:51 2024 -0500
+
+    Merge branch 'main' into feat/movimiento-ingreso-hilado-oc
+
+[33mcommit 04172bb70cd08df2aa913aa8ba1f2bb0bb056157[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 15 00:30:23 2024 -0500
+
+    feat(core): add kwargs support to find_by_id() in BaseRepository class
+    
+    This change allows passing extra arguments (e.g., `populate_existing`)
+
+[33mcommit d0d52d2c85565d611a2a4559a3060850a56a822d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 12 21:25:15 2024 -0500
+
+    feat(resources): add GET countries/ endpoint
+
+[33mcommit 848aa9fca74922d6c7e12c663d34a158c5e6d3f8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 12 14:13:45 2024 -0500
+
+    feat(scripts): add ping commands for main and promec databases
+
+[33mcommit 2c8806418a0d21fc0dd3f65a4e25bcb4a734c762[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Nov 12 11:46:48 2024 -0500
+
+    feat: Creación inicial de router
+
+[33mcommit 424eced0878fa51f2eae05efe4f3efd1d2d7d3c8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 12 03:13:29 2024 -0500
+
+    chore(initial_data): add MecsaColor population script
+
+[33mcommit efc598187a3a079879a5145740e92e9c890a738c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 12 03:12:35 2024 -0500
+
+    feat(operations): add MecsaColor router
+
+[33mcommit 2492f08fe30d664ffbd15a0f1f3651f4f3868e6a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 12 03:11:31 2024 -0500
+
+    feat(operations): add MecsaColor service
+
+[33mcommit 0beb994393d53733a7e354f7b4f32510dc0000ae[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 12 03:10:39 2024 -0500
+
+    fix(deps): resolve conflict in requirements.txt
+
+[33mcommit 468661b7644e5eb12849f473927000fb8c18cef6[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Nov 11 20:45:51 2024 -0500
+
+    feat(operations): add MecsaColor repository
+
+[33mcommit e0712e60fd373bbbdb37da2f6fc1ac551045a1ca[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Nov 12 00:03:47 2024 -0500
+
+    feat: Creación de schemas O/C
+
+[33mcommit ab2dbc10ae605fafee64855ae55c1140a722bd04[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Nov 11 22:49:31 2024 -0500
+
+    feat: Creación de entidades O/C
+
+[33mcommit 3f4cdd67a6b7d45a8d63c246f8f56a2b8e5551d9[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Nov 11 20:43:47 2024 -0500
+
+    feat(core): add SequenceRepository class
+
+[33mcommit c2dbea4bad8229fc8deaff4eb030ac59836e8287[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Nov 11 01:59:38 2024 -0500
+
+    feat(email): integrate MailHog for non-production email delivery
+
+[33mcommit c3fa4a61fa3b166ff153825973de9f143e4260de[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Nov 11 01:57:31 2024 -0500
+
+    feat(core): add email schema
+
+[33mcommit d4104b2bf53c228805cb150cd2707675711dcc07[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Nov 10 23:51:04 2024 -0500
+
+    feat(core): add CustomBaseModel schema with camelCase alias support
+
+[33mcommit d9f63b7e7247162f36a6f52cb0baacec97e91dff[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Nov 10 23:49:00 2024 -0500
+
+    chore(initial_data): add admin user creation
+
+[33mcommit af0b79e22b51034bad75871cdfa14010dc8de4ee[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Nov 10 18:21:42 2024 -0500
+
+    refactor(security): change import from absolute to relative path: hash_service
+
+[33mcommit 3c6b5e0e2026dec8093ab75fa929295c0767c8a5[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Nov 10 18:20:17 2024 -0500
+
+    refactor(operations): replace hard-coded asset path
+
+[33mcommit 961bffb53a42d3eb7489123aced7be3e083a4d2a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 8 14:41:45 2024 -0500
+
+    feat: add sequence management for Promec db
+
+[33mcommit c64836991440ec34263fbf1766306ae2aae14639[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Nov 8 14:36:51 2024 -0500
+
+    feat(lib): add support for sequences
+
+[33mcommit 759e7153e16d167c661093af0c87dad3f4773af5[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 7 15:24:47 2024 -0500
+
+    feat(operations): add color_id sequence
+
+[33mcommit 43c46f522e60b20453ea5960002422670c9e8571[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 7 14:06:20 2024 -0500
+
+    feat(core): add async session generator for Promec database
+
+[33mcommit 32b69ae9a67678babf01039a2fa5e702d4608fd6[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 7 14:04:51 2024 -0500
+
+    feat(operations): add product_id sequence
+
+[33mcommit ffb9da3d2334c7448900efe475bdb837b351f043[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Nov 7 12:07:26 2024 -0500
+
+    chore(docker): add unixodbc installation for pyodbc support in deployment
+
+[33mcommit 5526c2a41038a7f3b7f6314131a8cfa353fdb439[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Nov 5 16:06:34 2024 -0500
+
+    feat(lib): add OpenEdgeDialect class
+
+[33mcommit 83412fc33a8d4be2be12bb027f5ea526e8cea2e0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Oct 29 12:29:34 2024 -0500
+
+    docs(core): add documentation for transactional decorator
+
+[33mcommit ca7e1260dc721307c385dd7e17d9446d6ad22518[m
+Merge: bfec662 5222054
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Tue Oct 29 11:48:42 2024 -0500
+
+    Merge pull request #9 from boston-sistemas/refactor/programacion_tintoreria_email
+    
+    Refactoring of PDF generation for dry cleaning scheduling
+
+[33mcommit 522205439a630617211f43a92df6f059321dc1ed[m[33m ([m[1;31morigin/refactor/programacion_tintoreria_email[m[33m)[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Oct 29 11:39:52 2024 -0500
+
+    refactor: relocate programacion_tintoreria folder and add calculate_time function
+
+[33mcommit 0252fd96a84ecf00f45eaf19c24d95c9539f45a0[m[33m ([m[1;32mrefactor/programacion_tintoreria_email[m[33m)[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Aug 20 12:09:33 2024 -0500
+
+    refactor: Reorganización de generación de PDF y HTML en módulos separados
+
+[33mcommit 4c424f67894e3509f2375b6dbd36e82d25e4c90b[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Aug 16 08:18:55 2024 -0500
+
+    refactor(operations): remove send_email_with_pdf() function
+
+[33mcommit 4c23620fdf7f4ca833d605b99cb14a3c8366a75c[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Aug 12 14:32:22 2024 -0500
+
+    refactor(operations): add utils folder and clean up code
+
+[33mcommit bfec662f11273bad8b3c78e4c64ee9b9899cd454[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 22 23:40:24 2024 -0500
+
+    chore: add CODEOWNERS file to assign default reviewer
+
+[33mcommit e192d5fc0f44a77b350268ab6dfbe0f7f37f5514[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 22 23:04:32 2024 -0500
+
+    refactor(core): simplify transaction commit logic
+
+[33mcommit 647d581fe2609a9973f7d91a94e724af94ed6f08[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Jul 18 11:56:59 2024 -0500
+
+    feat(security): update stock subordenes when creating a programacion tintoreria
+
+[33mcommit 53a7ef91d9f714791a978054d2ec33bd689cdf0b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Jul 18 11:03:27 2024 -0500
+
+    feat(security): reduce minimum secure password length
+
+[33mcommit 084ddda0a5df7ec8977662aadaf0a28f3a7ba473[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 15:58:05 2024 -0500
+
+    feat(security): add username field in reset password email
+
+[33mcommit c5ffce8ac34c35ee76a007ae85adce4e54eaa135[m
+Merge: 5f1be73 97b3471
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Wed Jul 17 15:26:23 2024 -0500
+
+    Merge pull request #8 from boston-sistemas/commit
+    
+    fix commit
+
+[33mcommit 97b3471b4c30453d33e2418b8a38548541e4c2cd[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jul 17 15:24:21 2024 -0500
+
+     feat:fix
+
+[33mcommit 5f1be7379b6a317379fe7e4268151cf6dcf05fb5[m
+Merge: 4264a7b bd9bece
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Wed Jul 17 14:26:30 2024 -0500
+
+    Merge pull request #7 from boston-sistemas/pdf-send
+    
+    feat: pdf
+
+[33mcommit 4264a7bb870e471ff801948ac842cb902cc9aea8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 14:24:24 2024 -0500
+
+    feat(operations): add current stock by tejeduria endpoint
+
+[33mcommit bd9bece5708669d961b42f7a6f6b2a25c7f7a6cb[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jul 17 14:24:15 2024 -0500
+
+    feat: remove pdf
+
+[33mcommit 77e66e14222344d13d8352e8f7f0b293857a6742[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jul 17 14:14:09 2024 -0500
+
+    feat: pdf
+
+[33mcommit 44ca40e3518a905caf15429c8216172e8bfa7fff[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 14:08:50 2024 -0500
+
+    feat(security): send user credentials when creating it
+
+[33mcommit 58c690d5fc03075551ac8f1cd74ab3d9fdae549c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 14:02:01 2024 -0500
+
+    fix(operations): change color_service to color_repository
+
+[33mcommit bb2e42860a30b4d9f6b337464b50a5982caeac69[m
+Merge: 8873035 6bb08e0
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Wed Jul 17 13:06:16 2024 -0500
+
+    Merge pull request #6 from boston-sistemas/feature/reset-password
+    
+    feat: send-reset
+
+[33mcommit 6bb08e05b6d72eb407a9a02cc145029b2e6c737b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 13:03:41 2024 -0500
+
+    feat(security): add display_name field to email html
+
+[33mcommit 54f225dc372dfa3108c91f1268c1843181f8839a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 12:58:39 2024 -0500
+
+    refactor(security): rename send_reset_password method to reset_password
+
+[33mcommit 8873035ad085fbf4f4cb6991d42782b44aebba34[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 12:20:25 2024 -0500
+
+    feat(security): make access_token readable by JS
+
+[33mcommit d2df5ce6ca7b39ff7420c220cb1b931f663bfec0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 12:16:39 2024 -0500
+
+    feat(security): hash authentication token
+
+[33mcommit 7660cd92683a919dbab80e5807e77d0c70e9efbd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 12:15:04 2024 -0500
+
+    feat(security): add HashService class
+
+[33mcommit 982f7d3db25e8c975b3a86a4a7e4f86984355226[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jul 17 11:52:53 2024 -0500
+
+    feat: send-reset
+
+[33mcommit 0625155d9973ae2dd561da84b9b978604b8ed4c6[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 11:35:48 2024 -0500
+
+    feat(security): rename path update password endpoint
+
+[33mcommit b01ba5e93e5f12f57337cafeafa346e8e3d7ab44[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 11:26:48 2024 -0500
+
+    feat(operations): add partial implementation of programacion tintoreria email
+
+[33mcommit 62464c9a6605d26638657dd443c3fbe646d976e4[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 11:24:19 2024 -0500
+
+    feat(operations): verify color existence during orders creation
+
+[33mcommit 9d90725eb712612eef3b2a32034409019631a221[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 17 10:51:43 2024 -0500
+
+    feat(operations): add ColorFailures class
+
+[33mcommit 4b09264d9441fcdb7c918639fe28a6d89494802d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 16 21:06:43 2024 -0500
+
+    refactor(security): replace custom transaction management with @transactional
+
+[33mcommit d96ba95468b57133030f43e6b01a5d667164f03e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 16 21:05:15 2024 -0500
+
+    refactor(repositories): replace commit parameter with flush in all repositories
+
+[33mcommit 8744549d1f18960e4654193274afb23e261e4f36[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 16 20:57:08 2024 -0500
+
+    refactor(core): remove transaction management from BaseRepository
+    
+    - Removed commit from BaseRepository.
+    - Transaction management is now handled in the get_db dependency.
+
+[33mcommit f8ace4589cab48913fb5a52384c187f1a8b71f6d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 14:45:53 2024 -0500
+
+    refactor(operations): rename primary key of the ProgramacionTintoreria model
+
+[33mcommit 83404ab22b2d1c9a1cc8dad3267491dbb98a3844[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 22:04:36 2024 -0500
+
+    feat(operations): add and update schemas for update order stock
+
+[33mcommit 892b688b4d5bf6e81ba4e5dc8c17b276d232792e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 14:44:42 2024 -0500
+
+    feat(operations): add ProgramacionTintoreriaRepository class
+
+[33mcommit a4b72af6a9b1e98ae73cf9fa43fc6ed209417b6d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 14:51:40 2024 -0500
+
+    feat(operations): add programacion-tintoreria/ POST endpoint
+
+[33mcommit 5199e31a337959ce9f5698bfc6a047ce7adea5ea[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 14:44:22 2024 -0500
+
+    fix(operations): correct create_ordenes_with_detalle function to work as expected
+
+[33mcommit 29a6fb8322ad459c092af01edc980d66d08b2ef2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 14:41:41 2024 -0500
+
+    feat(core): add transactional decorator to ensure methods are transactional
+
+[33mcommit 85623a98090d241897258ae0afdd73b5298c75e7[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jul 12 14:30:04 2024 -0500
+
+    fix(operations): add missing await in read_proveedor method
+
+[33mcommit 6a2c7a7966ea9e983163d375051fc6b9a82b28c9[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Jul 11 14:34:15 2024 -0500
+
+    feat(operations): add programacion-tintoreria/parametros endpoint
+
+[33mcommit 466a9dd8be3fb2aef7b0056f0d284a24f5381516[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Jul 11 14:33:27 2024 -0500
+
+    fix(operations): add missing await in read_especialidad_by_nombre method
+
+[33mcommit d0a7282f130aad19aa80509ba068c57a8ada046a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Jul 11 14:07:00 2024 -0500
+
+    feat(operations): add ProgramacionTintoreriaCreateSchema class
+
+[33mcommit cea4b1432423719de17ea1c6f1cd370ca4815dab[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 17:16:26 2024 -0500
+
+    feat(operations): add OrdenServicioTintoreriaService class
+
+[33mcommit 4413359374d77611e6a3470b66db7fef77bd2188[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 17:17:32 2024 -0500
+
+    feat(operations): add OrdenServicioTintoreriaDetalleService class
+
+[33mcommit a31d8833c7b97b99d5860243fc7a13a715b3523b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 15:59:36 2024 -0500
+
+    feat(operations): add OrdenServicioTintoreriaDetalleRepository class
+
+[33mcommit 6e541520d57b09e0a2f09754aeb22f7e8f90de98[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 14:49:00 2024 -0500
+
+    feat(operations): add OrdenServicioTintoreria schema
+
+[33mcommit f8210f2a3d019e527c1dbc0f2d9cf222e42f12b2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 14:50:35 2024 -0500
+
+    feat(operations): add OrdenServicioTintoreriaDetalle schema
+
+[33mcommit ea69dd21985edf765aecc2809c5157f78ca67e45[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 11:46:00 2024 -0500
+
+    feat(operations): add OrdenServicioTintoreriaRepository class
+
+[33mcommit 7a432d53d6d8506564fcfa9667cb37bbf0debc2e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 11:01:41 2024 -0500
+
+    chore(scripts): add delete_tables.sql script for database cleanup
+
+[33mcommit 026fca88984a02b8176d1d12711dd9a148f78bd2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 16 17:54:03 2024 -0500
+
+    fix(scripts): correct date conversion for 'fecha' field
+
+[33mcommit d26d6b56c15e4362df0f02e4e72409b4c905b3e8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 16 16:20:41 2024 -0500
+
+    refactor(security): rename expiration variables for consistency
+
+[33mcommit 054a285c977570c2e247a678e6fa6e97dbd80804[m
+Author: Luis-Golac <83737085+Luis-Golac@users.noreply.github.com>
+Date:   Tue Jul 16 14:56:24 2024 -0500
+
+    feat(Delete) .look_nvim
+
+[33mcommit 67065e6ad5e7674682d6c403848051de1c33be6d[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jul 16 13:48:46 2024 -0500
+
+    feat: Fix
+
+[33mcommit 22aed9622106562e09ff7ba6c9a654b946e355e8[m
+Merge: fb4d669 0ea89e8
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jul 16 13:19:35 2024 -0500
+
+    feat: Update Password
+
+[33mcommit fb4d669c4d6bd0a621d62072ba79dd51d5bc9eee[m
+Merge: 3e0b56e 1db6056
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jul 16 13:18:47 2024 -0500
+
+    feat: Update Password
+
+[33mcommit 0ea89e87f0caf88101e0ac2993f6a7c8a31b1223[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Tue Jul 16 11:55:26 2024 -0500
+
+    feat(Core): Adding emails for welcome and reporte stock
+
+[33mcommit 3e0b56e0ba36a6effa003924f773f01f5b8522a6[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jul 16 10:15:20 2024 -0500
+
+    Update Password
+
+[33mcommit 1db60565b405b9f44ba856c723271f324188c730[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 15 14:33:32 2024 -0500
+
+    feat(security): add rol_id field in RolSchema
+
+[33mcommit 11ba8c4658b85e6c0eb6b79e3517aa963acd3ad0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 15 12:31:43 2024 -0500
+
+    chore(requirements.txt): remove non-local development dependencies
+
+[33mcommit a7f4188643bc3c9432c6bb11494494205c655da4[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Mon Jul 15 12:30:41 2024 -0500
+
+    feat: Changing dumm data generate rol to RGB
+
+[33mcommit 89e1c698da4bfe3d29713409f71e1f90bf2db2c0[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Mon Jul 15 12:27:13 2024 -0500
+
+    feat: Changing dumm data generate rol to RGB
+
+[33mcommit b8466d4b415f83401fceb716fc6bfd9cc73cc2a4[m
+Merge: da62c61 cf93e28
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 10:24:55 2024 -0500
+
+    Requeriments
+
+[33mcommit da62c619686ba90724243ec6827ddc93b67035b9[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 10:24:39 2024 -0500
+
+    Requeriments
+
+[33mcommit cf93e2805b95bd1382dd5a33f91fb322b87716a2[m
+Merge: 4a4f470 adcb178
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Mon Jul 15 10:16:53 2024 -0500
+
+    feat(security): add expiration_password_at field to Usuario model
+
+[33mcommit 4a4f4700e648fe2ea93c215f081c4c3f848bde1c[m
+Merge: 07a8204 f917c77
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 10:16:13 2024 -0500
+
+    Merge Mixin
+
+[33mcommit f917c770d57be2590e621b929bd74859da59127e[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 10:15:08 2024 -0500
+
+    After Merge
+
+[33mcommit adcb178d5031d4eb84c19616b17764abad812d64[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Mon Jul 15 10:14:17 2024 -0500
+
+    feature: Agregar expiration_password_at
+
+[33mcommit 07a820451575acf5ec3702e915cc67dc93903378[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 10:09:24 2024 -0500
+
+    Get Post Patch
+
+[33mcommit 6a84ebacc3911c7daa02e0e4190724c60f7a03b9[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 09:56:05 2024 -0500
+
+    Changes
+
+[33mcommit 4ee9c3a35597ef865abbedbdefd7448309da30e3[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 09:34:21 2024 -0500
+
+    Begin
+
+[33mcommit 725f41c96855157ea021dc27a1f70a26f0f14bf2[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jul 15 09:10:00 2024 -0500
+
+    Declarion Mixin
+
+[33mcommit 53f8c2fd0e6f3fcc7e9998102b5c9a12b4d8dff9[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Sat Jul 13 23:35:45 2024 -0500
+
+    PdfService
+
+[33mcommit dbc2624b4a4572e0dedbb59adf64908ee1d2f30d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 19:56:25 2024 -0500
+
+    feat(security): add access_token in cookies
+
+[33mcommit d6e6535d4dc2b95a74e33f238e3cf1cbcc0b1346[m
+Merge: f4b6825 729cf5c
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Sat Jul 13 12:45:21 2024 -0500
+
+    feat(security): add user access information to access token
+
+[33mcommit 729cf5c51af67419282b998b82f79c3151c1b6b9[m
+Merge: a6a54d0 f4b6825
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 12:41:47 2024 -0500
+
+    Merge branch 'main' into feature/AccesosToken
+
+[33mcommit f4b68256f41923d80aa853cb20855d4ec2d71506[m
+Merge: e4387fe 4e96df0
+Author: Johan Tanta <40219652+JohanTv@users.noreply.github.com>
+Date:   Sat Jul 13 04:37:43 2024 -0500
+
+    feat(security): send auth token by email
+
+[33mcommit 4e96df0491cdcd383626e5c236df68a0cce8e30f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 04:31:39 2024 -0500
+
+    feat(core): add ALLOWED_ORIGINS environment variable
+
+[33mcommit 0136b315cc5b8c3072dc3a6b352df109be6a3a0d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 04:30:44 2024 -0500
+
+    feat(core): add EMAIL_FROM environment variable
+
+[33mcommit c5c8ef0bf01c4dad17ddb0a4600b3da026999fe7[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 04:10:18 2024 -0500
+
+    feat(core): add FRONTEND_URL to environment settings
+
+[33mcommit a288cd80a642b33ec6d4eded3cae03d58319b8b1[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 00:54:58 2024 -0500
+
+    chore(core): move resend_html/ folder to assets/email_templates
+
+[33mcommit eaf3b3b460fdf3deddab5d7738895604a8578d41[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 00:36:38 2024 -0500
+
+    feat(core): add RESEND_API_KEY to environment settings
+
+[33mcommit e301355bae0f2e19b0075b1de99ac8fdf5bdf5d8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 00:32:39 2024 -0500
+
+    style: format code with ruff
+
+[33mcommit 7ac04aeb67096c618e90ad69999010920e237b38[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 13 00:19:06 2024 -0500
+
+    feat(requirements): add resend and pillow dependencies
+
+[33mcommit a6a54d05066dc199781899901294ace6f150d491[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Sat Jul 13 03:11:41 2024 -0500
+
+    feat(seguridad): Add Accesos en token
+
+[33mcommit 63b447ec78ec573ce7785353d6cf2b89390fa810[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Sat Jul 13 03:10:51 2024 -0500
+
+    feat(seguridad): Add generar roles y accesos
+
+[33mcommit fc38878e85c93f033d83fc4b6354024f7650b60c[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Sat Jul 13 03:07:47 2024 -0500
+
+    feat(security): Add ModuloSistemaRepository class
+
+[33mcommit b00cbf12365065c5d5de1a899338422c131a3c71[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Sat Jul 13 01:11:15 2024 -0500
+
+    feat: models de Accesos y Modulo Sistema
+
+[33mcommit 8cd9df360665aa0b5ecd04c8507171efca94013b[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Fri Jul 12 22:35:08 2024 -0500
+
+    fix: Cambiando el html de send token
+
+[33mcommit 28769794319dfbc8e81b0c05d0c553acb0ae5606[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Fri Jul 12 22:34:44 2024 -0500
+
+    fix: Cambiando el html de send token
+
+[33mcommit 772a0bd240e7940b655ad890c832eccde3e2e2d6[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Fri Jul 12 00:40:39 2024 -0500
+
+    fix: cors en main.py
+
+[33mcommit d1179ccfe29d8356a1d3bf0ccbe4c191c097d66f[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 22:23:32 2024 -0500
+
+    feat: Seguridad modelo de html de token de autenticacion
+
+[33mcommit cacdf66882cc5125b80f7622da199ffaf320de36[m
+Author: Aaron Coorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 20:24:48 2024 -0500
+
+    feat: Adding html templates
+
+[33mcommit e0b5e4871ff040746aacd5dc60aeeeb7638607e8[m
+Author: Aaron Coorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 20:22:56 2024 -0500
+
+    feat: Adding html templates
+
+[33mcommit 6b4f4f7d9d3ec8132c22f67de2c400ee40b97a56[m
+Merge: 8c019c2 702b412
+Author: Aaron Coorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 10:24:58 2024 -0500
+
+    Merge branch 'feature/CodigoAutenticacion' of https://github.com/boston-sistemas/ERP-Backend into feature/CodigoAutenticacion
+
+[33mcommit 8c019c2b6e04d561189164e6a6ac51becb588f39[m
+Author: Aaron Coorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 10:22:45 2024 -0500
+
+    Moviendo cambios desde main a feature/CodigoAutenticacion
+
+[33mcommit 85192dcf8f79787ef6806706e8ffb33cbe449088[m
+Author: Aaron Coorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 10:20:35 2024 -0500
+
+    Moviendo cambios desde main a feature/CodigoAutenticacion
+
+[33mcommit 702b41225ea870c5ba0ab2c363eee9aff3d2a608[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Thu Jul 11 00:46:26 2024 -0500
+
+    feat(seguridad): Add 2fa
+
+[33mcommit 0fafb664be26d28fa953e175bd264ee0e7ead329[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Jul 10 23:52:17 2024 -0500
+
+    feat(Seguridad): Adding 2 auth service
+
+[33mcommit 2cea6f3d434d367dd0223ff70f3af0a438d0edbd[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Jul 10 16:59:52 2024 -0500
+
+    feat(Security): Add send token endpoint
+
+[33mcommit c0eb52a08f32561748d2a46c5ab7acfb48c4096b[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Jul 10 16:55:13 2024 -0500
+
+    feat(Security): Add send token endpoint
+
+[33mcommit 6a92c7b3f86db742019d6be639cebcfdf1a40174[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Jul 10 14:39:35 2024 -0500
+
+    fead: add TokenModels class
+
+[33mcommit e4387fed0a2833522b417752f11eac7e1eb25516[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 10:17:59 2024 -0500
+
+    refactor(operations): rename schemas files for consistency
+
+[33mcommit 54dc488df95d6466921df2dd4e3722bd89a46684[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:54:57 2024 -0500
+
+    fix(data): correct dummy_data file to insert data properly
+
+[33mcommit ba5c689c23a91a64dce8fed124c7332bf2f11ae6[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:50:14 2024 -0500
+
+    chore(requirements): remove SQLModel dependency
+
+[33mcommit eb0f69fc05cc7dc5dae305430b9e3ab35569a6d3[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:26:02 2024 -0500
+
+    refactor(core): replace hardcoded SECRET_KEY and SIGNING_ALGORITHM with settings
+
+[33mcommit ba78bcda2db183df3c03a2868b0be4a404caa600[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:22:44 2024 -0500
+
+    chore(core): add .env.local file for local development environment
+
+[33mcommit b51b135c2549bb56b45051516696a569edd40787[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:16:59 2024 -0500
+
+    feat(core): add DEBUG field with default value True to settings
+
+[33mcommit 74e24de1de085347d628206629cfbe5e7e081492[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:07:52 2024 -0500
+
+    chore(core): remove deprecated CRUD class
+
+[33mcommit 645821eb59521bd085f21343736afe9041c8f5ba[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:03:28 2024 -0500
+
+    feat(operations): add ProgramacionTintoreriaParameters schema
+
+[33mcommit b19b2314e2eb58a0d42efdca7863a8b655bd053d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:02:15 2024 -0500
+
+    feat(operations): add Proveedor schema
+
+[33mcommit 351f441d5442a38634f0162fe66d9a38246cddf1[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 09:01:53 2024 -0500
+
+    feat(operations) add Color schema
+
+[33mcommit 4b9df9cc0ed44fdb392683617fb6ec42e8dfb184[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jul 10 08:58:06 2024 -0500
+
+    chore(operations): remove deprecated ProgramacionTintoreria router
+
+[33mcommit f8729bb1dbb945806ca53b2927644450f55538ad[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 9 02:21:23 2024 -0500
+
+    feat(operations): add ProveedorService class
+
+[33mcommit 116430a18403679115b244492dde99514b75b5d4[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 9 01:49:15 2024 -0500
+
+    feat(operations): add EspecialidadEmpresaService class
+
+[33mcommit ea97c9c36a07306b18527a0ac9c41c16ecf6fe13[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 9 01:32:06 2024 -0500
+
+    feat(operations): add ColorService class
+
+[33mcommit e0538b54563184bc00c72a29c555e9ca66766956[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 9 01:31:47 2024 -0500
+
+    feat(operations): add ColorRepository class
+
+[33mcommit 038c67a0581d360593518ba538696b5cc76d7796[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 9 01:17:25 2024 -0500
+
+    feat(operations): rename Partida model to OrdenServicioTintoreria
+
+[33mcommit d85e25264c4f6995f4494f5134ab7a7273fcf972[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 23:58:42 2024 -0500
+
+    refactor(operations): remove unnecessary back_populates argument
+
+[33mcommit d79e8e50354ee343920ca56bad0194c7542bbb0e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 23:57:27 2024 -0500
+
+    refactor(operations): rename Servicio model to EspecialidadEmpresa
+
+[33mcommit 5a3358825fc915d3900dd35264773c962508c738[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 18:08:13 2024 -0500
+
+    feat(operations): include ReporteStockTejeduria and RevisionStockTejeduria routers
+
+[33mcommit 215c07600c7a27bd07b9eacbcf19995434bffbc8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 18:05:24 2024 -0500
+
+    feat(operations): add RevisionStockTejeduria router
+
+[33mcommit 571701cb0466f6dcfb228690df7f0419da169095[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 18:02:44 2024 -0500
+
+    feat(operations): add ReporteStockTejeduria router
+
+[33mcommit f263f06d5a2f8db71dfbe58f91867e35c14a0d35[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 17:40:47 2024 -0500
+
+    feat(operations): delete stock router
+
+[33mcommit 1b69960844c124b148454a89fa25916cfa22ed7d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 16:29:11 2024 -0500
+
+    feat(operations): add RevisionStockTejeduriaService class
+
+[33mcommit f491c2aea67825051c5a131f76f69a4d907089dc[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 16:26:12 2024 -0500
+
+    feat(operations): add ReporteStockTejeduriaService class
+
+[33mcommit b6b644b827e998943e4f51f1c8b0ed8ddb1a23a1[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 16:22:49 2024 -0500
+
+    feat(operations): add RevisionStockTejeduriaResponse schema
+
+[33mcommit 1b68d397ccc8c3ffa57c10df865f885029a72d66[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 16:22:25 2024 -0500
+
+    feat(operations): add RevisionStockTejeduriaResponse schema
+
+[33mcommit 38a97d909e398eeeb0cc9669862c5ab667414093[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 16:08:49 2024 -0500
+
+    refactor(operations): change from SQLModel to BaseModel in schemas/
+
+[33mcommit 27be966ee41ffd776877cca3d9c01d791463a6cc[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 15:52:14 2024 -0500
+
+    feat(operations): add ReporteStockTejeduriaFailures class
+
+[33mcommit bc303f85af72bac4d402f0235bf957576dc6de00[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 13:09:51 2024 -0500
+
+    feat(operations): add OrdenServicioTejeduriaDetalleService class
+
+[33mcommit 1d660ddf667941581cc923c32af03eba1520b672[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 13:09:16 2024 -0500
+
+    feat(operations): add OrdenServicioTejeduriaService class
+
+[33mcommit 934d53e82a2fb71c0be7c5436d1e98e35cecdd5e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 13:08:53 2024 -0500
+
+    feat(operations): add OrdenServicioTejeduriaDetalleFailures class
+
+[33mcommit e9dd085e73efe6a81137099d2247cbaacc8caf59[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 13:08:36 2024 -0500
+
+    feat(operations): add OrdenServicioTejeduriaFailures class
+
+[33mcommit ce91947587c4fe3c9a5d75eeeee35c73bca0b342[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 13:08:09 2024 -0500
+
+    feat(operations): add OrdenServicioTejeduriaDetalle class
+
+[33mcommit 1026ff0894f280dadaa0fb9fa9e6062bae627347[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 13:07:51 2024 -0500
+
+    feat(operations): add OrdenServicioTejeduriaRepository class
+
+[33mcommit 7b0843a33ecd70e311060ec4b0d8d7c5842d5132[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 02:19:01 2024 -0500
+
+    refactor(security): change create_rol endpoint to create_rol_with_accesos
+
+[33mcommit 601242855236742850fc637bdfb59569dd7e5486[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 02:16:51 2024 -0500
+
+    feat(security): add read_acceso()
+
+[33mcommit e6bb9eed64db4098fe4105654f288c6e7ca39f20[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 02:16:23 2024 -0500
+
+    feat(security): add AccesoFailures class
+
+[33mcommit 0776c8cf6cc00a732ff6c379c4da6e6376533706[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 01:43:38 2024 -0500
+
+    feat(security): add UserCreateWithRolesSchema
+
+[33mcommit 70244f9e53515cd260c79b835e634e176840445f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 01:17:10 2024 -0500
+
+    refactor(security): change create_user endpoint to create_user_with_roles endpoint
+
+[33mcommit 86e23f89fd13127a211183c8fe90aa1cb41deca3[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 8 01:15:29 2024 -0500
+
+    feat(core): add "flush" property in BaseRepository class
+
+[33mcommit dbbfe4c483a5f72a3ed4913fb813db35e0f80204[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 19:02:42 2024 -0500
+
+    refactor(security): rename schema file for user role access
+
+[33mcommit 6d72a6e20e0e48b73e1fc27fd5ca00ec04b5c74e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 19:00:41 2024 -0500
+
+    refactor(security): rename routers files and update routers import
+    
+    - Renamed routers files to follow the new naming convention
+    - Improved code organization and clarity
+
+[33mcommit 2bebe47237c31ff1ef2e2565d4c46fc11509a767[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 18:52:23 2024 -0500
+
+    feat(scripts): add linting script
+    
+    - Added lint.sh script to perform linting using ruff
+
+[33mcommit 77be6ab358bdc887e0f46eb23c6f3417d845ddbc[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 18:50:23 2024 -0500
+
+    feat(security): add AuthFailures class
+
+[33mcommit 1af78c13d9bbc90956a3d2c1136525a8d5734c94[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 18:41:19 2024 -0500
+
+    fix(docker-compose): add timezone configuration to PostgreSQL container
+    
+    - Set the timezone to `America/Lima`
+    - Ensures that the database operates in the correct timezone
+
+[33mcommit eb7760ced8b8c464f18197e80fce3aad67ea1dcb[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 18:37:56 2024 -0500
+
+    feat(security): add UserSesion class
+
+[33mcommit 1ffdcac48c59e66ca11179576f3dc96379bf6b06[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 17:51:28 2024 -0500
+
+    feat(security): add RolFailures class
+
+[33mcommit 67e19db86cf9509f38bb8af370b59c0428bf7a31[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 17:50:19 2024 -0500
+
+    fix(security): change http method for update_rol endpoint
+
+[33mcommit fda1c503876c69a62f93f238e52ac7283ed49b06[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 17:49:17 2024 -0500
+
+    fix(security): update read_role endpoint to include access
+
+[33mcommit 7958ba90829a8e51d50ae0101b8f212a6d111c6e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 17:12:52 2024 -0500
+
+    feat(security) add UserFailures class
+
+[33mcommit 1db17ac0751ede9eb7b236889367e77b377740aa[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 16:16:10 2024 -0500
+
+    feat(security): add TokenFailures class
+
+[33mcommit 646264954b9ed31fdfdb2588e400373f5b8369c2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:51:42 2024 -0500
+
+    chore: update dependencies to their latest versions
+
+[33mcommit bd2c6b2201a158ff3a651aa0e4f8ae813d00fef4[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:33:12 2024 -0500
+
+    chore(security): remove cruds.py and utils.py files
+
+[33mcommit 2a6eae8c9fc8da326e12d0e60282013b9396f022[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:32:16 2024 -0500
+
+    feat(security): update routers module
+
+[33mcommit 071e47f0ed5afa2f2e4827e837432f1c379f24c3[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:31:44 2024 -0500
+
+    feat(security): update models, remove lazy
+
+[33mcommit 8c320083f644b15014898f1fd89967e3a298e843[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:27:13 2024 -0500
+
+    feat(security) update services module
+
+[33mcommit 4f1306d5b63076036473792cc2e444b8373cd080[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:25:57 2024 -0500
+
+    feat(security): update schemas module
+
+[33mcommit d9f208720f86bd20eedfaa50c67da1fe5959be2c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:19:50 2024 -0500
+
+    feat(security): add repository module for Usuario, UsuarioRol, UsuarioSesion, Rol, RolAcceso and Acceso
+
+[33mcommit 6eab541a2312e917ace07838e956c1d5c07baa58[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sun Jul 7 02:03:31 2024 -0500
+
+    fix(core): ensure unique results are retrieved when options are applied
+
+[33mcommit 119042af6c48271ec84a0b966f48426cef2e005f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 6 03:02:26 2024 -0500
+
+    feat(core): add Result, Success and Failure classes
+
+[33mcommit fdd06f4c133dcf1b2b2b79d9fca28e0ebf900122[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 6 03:01:30 2024 -0500
+
+    feat(core): add BaseRepository class
+
+[33mcommit 33e546b10ad9c6f7ed10b0b5898b7d62d721c937[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 6 02:57:49 2024 -0500
+
+    chore(core): update get_db() to use AsyncGenerator
+
+[33mcommit bdef446448a5dbb0caa63e83e136e3fddb706023[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 6 02:54:43 2024 -0500
+
+    feat(core): add exceptions/ folder
+
+[33mcommit 4635dd3d86c24777d3cec4a00cefad4797311850[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jul 6 02:52:28 2024 -0500
+
+    chore: add DATABASE_URL_ASYNC to docker-compose environment
+
+[33mcommit 2d3b7617b26916bdf53376a130930f1ce6c4a14c[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jul 2 14:33:24 2024 -0500
+
+    Fix
+
+[33mcommit 39eaca1e9df545f9ca031f70af89b87ec95416bc[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jul 2 14:31:30 2024 -0500
+
+    Async
+
+[33mcommit 150b6d71f97be0d8519ab324e1b89c649c65e189[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jul 2 00:12:30 2024 -0500
+
+    refactor(scripts): migrate to SQLAlchemy and ensure functionality
+    
+    - Updated cli.py to use SQLAlchemy
+    - Modified db.py to configure SQLAlchemy engine and session
+    - Refactored dummy_data.py to work with SQLAlchemy models
+    - Ensured all functionalities work correctly after migration
+
+[33mcommit aaaca1498df5f41d751ce71c1d5b93ba6e384bd5[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 1 23:55:41 2024 -0500
+
+    refactor(operations.models): rename table names for OrdenServicioTejeduria and OrdenServicioTejeduriaDetalle models
+
+[33mcommit 8f4935e196fc6679a5323dde7d08e98228f273f1[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jul 1 23:28:26 2024 -0500
+
+    feat(operations.models): remove OrdenServicioTejeduriaEstado and OrdenServicioTejeduriaDetalleEstado models
+
+[33mcommit 017655e9939ff91becfa22e5e0ff659f163b1332[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Jun 28 12:32:04 2024 -0500
+
+    Fixed
+
+[33mcommit ae53b2c9e3422e58df52974d7262d37b0496cdbd[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Jun 28 12:31:30 2024 -0500
+
+    Routers Login funcionales
+
+[33mcommit 50211e0db7799dfd8773bee943e2b4a4e1b7637b[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Jun 28 11:51:08 2024 -0500
+
+    Routers Users funcionales
+
+[33mcommit a21b20d223ade3899f2ffa1360f74a7c14acc9d3[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Jun 28 10:19:26 2024 -0500
+
+    Routers Roles funcionales
+
+[33mcommit 0036f8985918ef72fb4ef59b544e9f96ed19bda2[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jun 25 08:12:21 2024 -0500
+
+    Merge
+
+[33mcommit de4bdc7352e17302b0ff1b249c42fe7b8c7a11c1[m
+Merge: dd1f376 e285d03
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jun 25 08:11:42 2024 -0500
+
+    Merge
+
+[33mcommit dd1f376f437fff2e397522e03993664b1bc434d4[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Tue Jun 25 08:11:15 2024 -0500
+
+    Merge
+
+[33mcommit d4162c532dc8ccf5eea479fea3d27ff1f18671fb[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Mon Jun 24 10:54:19 2024 -0500
+
+    Models security
+
+[33mcommit e285d0370da119e713b3c57d518d3c41bc0c79c4[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 24 10:51:59 2024 -0500
+
+    fix(operations): correct relationships between models
+
+[33mcommit a48748c85142aa0c908c645a196c2fe5166a223a[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Fri Jun 21 12:43:23 2024 -0500
+
+    Primeros cambios
+
+[33mcommit f8cc10bc65534d5dfb976bb847fe7f9dc2e9d760[m
+Merge: e2f5f61 57908e4
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jun 19 14:56:37 2024 -0500
+
+    Init
+
+[33mcommit 57908e43f0d36a95ab604948f225ab3c44a4f32e[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jun 19 14:54:35 2024 -0500
+
+    Merge
+
+[33mcommit 9bcf26ddbbacea6d12c19a25822d01267f3cac94[m
+Merge: d8510e5 831d4a1
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jun 19 14:53:25 2024 -0500
+
+    Init
+
+[33mcommit d8510e5076cb65a1af66750ef63c0507778e369e[m
+Author: Luis-Golac <luis.golac@utec.edu.pe>
+Date:   Wed Jun 19 14:51:45 2024 -0500
+
+    Init
+
+[33mcommit 831d4a1fd0161cf028c01f4d40db267a8d47b1c2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jun 19 14:49:25 2024 -0500
+
+    feat: add UsuarioPassword model
+
+[33mcommit e9b92cd6bea5451039db9636049477d34bf74bd3[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jun 19 14:48:34 2024 -0500
+
+    refactor: change relative imports to absolute imports
+
+[33mcommit e2f5f617a550e541b89da931b665a25712824226[m
+Author: Luis-Golac <83737085+Luis-Golac@users.noreply.github.com>
+Date:   Wed Jun 19 13:31:28 2024 -0500
+
+    Update README.md
+
+[33mcommit 6cdc5baca0af5e86452e98d11bc07e6d956b65cb[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jun 19 11:40:29 2024 -0500
+
+    style: reformat code in scripts/ and main.py
+
+[33mcommit 5fe901c878554b58de44588607a13772189ed417[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jun 19 11:05:39 2024 -0500
+
+    chore: change port from 8080 to 8000 in docker-compose.yaml
+
+[33mcommit e565880db06d4ad8c90480b6fd62798058755daa[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 17 14:09:56 2024 -0500
+
+    chore: update docker-compose.yaml
+
+[33mcommit a42f62372cc0dbfdbab4d7dffb96339dff7179bf[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 17 06:59:42 2024 -0500
+
+    chore: update project structure
+
+[33mcommit a6f08b5334a78ecdcf79c08ac7eb3fd2e8379ddf[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 17 06:18:32 2024 -0500
+
+    chore: rename utils/ to scripts/
+
+[33mcommit 85c88a37a84a72de3dac0f752355552348517889[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 17 06:08:46 2024 -0500
+
+    chore: add .pre-commit-config.yaml
+
+[33mcommit a2084164f01832443314657fa42bf994b59c3a72[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 17 06:08:00 2024 -0500
+
+    chore: update requirements.txt
+
+[33mcommit e82a7f24083ffa26b72c3e0d8d29df3bd2cdcf4c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jun 14 17:00:05 2024 -0500
+
+    feat: add POST endpoint: /auth/refresh
+
+[33mcommit e7135b75dfde4430edb83b1898046e22bc9235a7[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Jun 14 01:17:27 2024 -0500
+
+    feat: add POST endpoint: programacion-tintoreria/
+
+[33mcommit 9b74cd079a415c8260bea604888f86ced337bb10[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 10 10:47:08 2024 -0500
+
+    feat: oracle db up
+
+[33mcommit 87925bc74fc1f81896acc27843e0b1e346e89f69[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 10 01:01:06 2024 -0500
+
+    feat: update GET endpoint: /programacion-tintoreria
+
+[33mcommit 3f67f88a891dfe1935ef91b832d6c25580f75975[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 10 00:58:13 2024 -0500
+
+    feat: add proveedores relationship to Servicio model
+
+[33mcommit 53b3c1a98602351a28d4d7b5d887ec363b87c62a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 10 00:08:55 2024 -0500
+
+    feat: update insert_data command due to new models and updates
+
+[33mcommit ac72f431485a6f080b6a195fafc1f7cc4eddc488[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 10 00:07:13 2024 -0500
+
+    feat: add Color model
+
+[33mcommit a5a78381878ca89ae8407c9655d4bb75cb4f5490[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 10 00:06:55 2024 -0500
+
+    feat: add Servicio and ProveedorServicio models
+
+[33mcommit 12f2bb2c49396a482a1c64987fae49e205ae92cd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jun 8 23:35:46 2024 -0500
+
+    feat: add programacion-tintoreria/{tejeduria_id}/stock endpoint
+
+[33mcommit 4a57506f6b46a2aa017857f21329f8a77abd3e4f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jun 8 18:53:53 2024 -0500
+
+    feat: remove unique constraint from email field in Usuario model
+
+[33mcommit a6c361e98ee1a0719cec67995d227d023c5352c6[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Sat Jun 8 18:19:23 2024 -0500
+
+    feat: add MAX_LENGTHs to Usuarios module
+
+[33mcommit 3c8177b8f86a84afcf87d9a9f63b49d28d44f602[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Jun 6 09:26:12 2024 -0500
+
+    feat: add MAX_LENGTHs for area_operaciones module
+
+[33mcommit b2c5b9e88928df09c539f1b66328213ee46fee89[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Jun 5 16:55:54 2024 -0500
+
+    feat: add MAX_LENGTHs for Core module
+
+[33mcommit 557883faf6a1335b77f30addc91c333352bc8c1d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jun 4 16:03:05 2024 -0500
+
+    feat: return 'ordenes' instead of 'subordenes' in reporte-stock/ endpoint
+
+[33mcommit 667d545e9b558ee7d9f4cbd3f5ce2ed5ec779f72[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Jun 4 15:46:40 2024 -0500
+
+    feat(models): add consumido_kg field to OrdenServicioTejeduriaDetalle model
+
+[33mcommit 3d5d8a614c2d02bdf1762b4f909689e9566200d2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 15:57:50 2024 -0500
+
+    refactor: update response to return fecha field
+
+[33mcommit 0b219eb6e38fd280808767902e2206ba8a022bd7[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 14:02:25 2024 -0500
+
+    feat: add response model /revision-stock and /programacion-tintoreria endpoints
+
+[33mcommit 4e00ee292c74bef138a5f9fa44ce53976bc7544f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 13:55:28 2024 -0500
+
+    feat: add fecha field to OrdenServicioTejeduria model
+
+[33mcommit 8fced4ba43c16eae25149964731b887dbcf55cde[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 12:58:03 2024 -0500
+
+    feat: add revision-stock/ordenes endpoint
+
+[33mcommit b7e626bd2eb3f3091d0382d666b271d1b71b5e10[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 12:13:46 2024 -0500
+
+    feat: add reporte-stock/subordenes endpoint
+
+[33mcommit 1e2cdc4929f5d1a7ee735c1ed625745d0b7afe20[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 10:52:26 2024 -0500
+
+    feat: update reporte-stock endpoint to return suborders instead of orders
+
+[33mcommit a3247e584b753d296d595bafe64f0ac4711b2531[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Jun 3 10:44:51 2024 -0500
+
+    refactor: update endpoint routes
+
+[33mcommit fbbe36257320c7373fb215630fea112059c31778[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 31 14:12:24 2024 -0500
+
+    refactor(usuarios.schemas): update schemas
+
+[33mcommit 0a2b41f5d3d8a0333a303ebc162ccd519a1d6d21[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 31 12:37:46 2024 -0500
+
+    feat(usuarios.api): refactor: change parameter 'username' to 'usuario_id' in endpoints
+
+[33mcommit d0df0abf31610f11cdbcdfbf3ae9bc44c8e4564e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 31 01:20:13 2024 -0500
+
+    feat(modulo2.routing): add programacion_tintoreria endpoint
+
+[33mcommit 2d735709d627d3735e58c8032821a3c5ef5cdecd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 31 01:11:26 2024 -0500
+
+    refactor(usuarios.api): update login endpoint
+
+[33mcommit 7f179e2c39bd8d8e265f471d51f28e8df20a237b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 31 01:02:51 2024 -0500
+
+    feat(usuarios.models): add blocked_until field to Usuario model
+
+[33mcommit 62b5cbb10b3e08874ac4816ea5d982460bc57290[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed May 29 16:00:03 2024 -0500
+
+    feat(modulo1): add reporte_stock and revision_stock endpoints
+
+[33mcommit 7c2a72f2b1deb19c9b84a29a19a2659a96972d69[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed May 29 15:07:18 2024 -0500
+
+    feat(usuarios.api): add login and logout endpoints
+
+[33mcommit 3fbe5f2b778b59cf225a5f79e7a511019ad1a0a4[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed May 29 15:06:40 2024 -0500
+
+    feat(usuarios.models): add Sesion model
+
+[33mcommit b1b39d78fe33c3faa470c9ae0f030adc1fa35010[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 17:01:53 2024 -0500
+
+    feat(usuarios.api): add endpoints to manage role access (add and remove)
+
+[33mcommit 52e95a90eed701f3a78bcd6a9ef4a54ce4260acc[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 16:49:42 2024 -0500
+
+    fix: remove usuario_id and acceso_id fields during data insertion
+
+[33mcommit 54e19f13829eafadbd25d1eaf1f8da644926f7ae[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 16:24:09 2024 -0500
+
+    feat: implement GET, CREATE, UPDATE, and DELETE endpoints for Rol model
+
+[33mcommit f202c569423b45e024e8e463c162be1ce1b7545f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 15:23:29 2024 -0500
+
+    feat: add is_active field  to Usuario model
+
+[33mcommit 77354cc6a2cba7344cad65211d738a0af22a4847[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 15:15:35 2024 -0500
+
+    feat(usuarios.api): validate user and email existence
+
+[33mcommit 4a2a9948f71262441b892e4592793c3abe177191[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 14:52:13 2024 -0500
+
+    feat(usuarios): add validate_usuario_data function in crud/usuario.py
+
+[33mcommit f33e9481b68f8c06181282122d5c022b29edac2c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 14:50:24 2024 -0500
+
+    chore(requirements.txt): add email_validator 2.1.1 dependency
+
+[33mcommit 7c07bf5adbb65b4277b1656c918a4886a350262c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 13:14:19 2024 -0500
+
+    feat(usuario.models): add is_active field and unique constraints to Rol and Acceso models
+
+[33mcommit e9a5422c8cc7f3f0d438c035f728b71fab775adb[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 24 12:58:15 2024 -0500
+
+    refactor(usuarios): remove UsuarioAcceso relationship and add usuario_id field to Usuario model
+
+[33mcommit dbda26467f3fbb29f5feae1873d9adbb9a2e7521[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 14:49:54 2024 -0500
+
+    perf(api): optimize data loading in list_accesos endpoint
+
+[33mcommit 916cc9fbcad197a58da1e4e51d2150ab47150e5c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 14:45:00 2024 -0500
+
+    feat(usuarios.api): add endpoints to manage user accesos (add and delete)
+
+[33mcommit 76f401b50079b2d15644aa72e623c254e98405c4[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 14:41:24 2024 -0500
+
+    fix(usuarios.models): resolve relationship conflict between Rol and Acceso
+
+[33mcommit 255df066e28402969d065d9a6765789ac2615870[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 14:03:21 2024 -0500
+
+    feat(usuarios.api): add endpoints to manage user roles (add and delete)
+
+[33mcommit 6b9887ba7cf1a54b3f223853189a2b1c7420cbf1[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 01:10:20 2024 -0500
+
+    feat(usuarios): add routing configuration for usuarios module
+
+[33mcommit 52aff687e4b16d92b2ff2422de8e78f4310970a6[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 01:07:46 2024 -0500
+
+    feat(usuarios.api): add login endpoint
+
+[33mcommit b2973680818fc5bded2de9d2569e6e447798b607[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 01:04:24 2024 -0500
+
+    feat(usuarios.api): add endpoints to list for Acceso and Rol models
+
+[33mcommit 20c86986b217027bc8578b2caa9dddf5aa5d4c7f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 00:54:13 2024 -0500
+
+    feat(usuarios.api): add CRUD endpoints for Usuario model
+
+[33mcommit 9e15c8718c726c3bba6aee35d188f05eba262516[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 00:48:34 2024 -0500
+
+    feat(usuarios): add security.py for password hashing and JWT handling
+
+[33mcommit fa808e17c1b5fd8b6dd2d9789388f60db22adf11[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri May 17 00:37:18 2024 -0500
+
+    feat(helpers): add CRUD class
+
+[33mcommit 257f417438fe7da28d0a01f7db874ae3f9e929cd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu May 9 14:02:42 2024 -0500
+
+    feat(usuarios.api): add endpoints for Usuario, Rol and Acceso models
+
+[33mcommit e69aa0fb2fdf3caafbcd200d1a0735a6798af713[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu May 9 13:55:56 2024 -0500
+
+    feat(usuarios.schemas): add schemas for Usuario, Rol, Acceso models
+
+[33mcommit 3a0bbdfe8a714adf6ea758fa99946db3e5fecddc[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu May 9 13:54:15 2024 -0500
+
+    feat(usuarios.models): add relationships
+
+[33mcommit e6fbcafe27ee2dc1e28cf6dceb376fb50f36189c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu May 9 11:02:58 2024 -0500
+
+    feat(utils): add dummy data for Rol, Acceso, and RolAcceso models
+
+[33mcommit dd843581bf40383542928370ce3dd8177ac16eb1[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Sat May 4 01:36:12 2024 -0500
+
+    autenticacion pruebas
+
+[33mcommit 91dc7d255d92e244e57eb9203fcc53fc4efc5e75[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Tue Apr 30 16:03:18 2024 -0500
+
+    cors habilitado para todo
+
+[33mcommit ac7cd31fb08448d6a0191c90539f7d374c6b70ec[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 14:24:28 2024 -0500
+
+    feat(modulo0.api): add update and update_multiple endpoints for OrdenServicioTejeduria
+
+[33mcommit f22827ff941b946b82c3d81a806d42eee6d0e0bd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 12:31:08 2024 -0500
+
+    refactor(modulo0.schema): Remove default value for 'detalles' in OrdenServicioTejeduriaSchema
+
+[33mcommit 9a0e8d5b72ce7940fcb43bb9f33a6235a40569ce[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 12:23:09 2024 -0500
+
+    fix(modulo0.models): Fix Proveedor relationship definition for OrdenServicioTejeduria
+
+[33mcommit 62e3c4b71acd2a01f346224f289a1cfb55674261[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 12:18:43 2024 -0500
+
+    feat(modulo0.schemas): add schemas for OrdenServicioTejeduria and OrdenServicioTejeduriaDetalle models
+
+[33mcommit e1b7b54fe05e8584a8182386cf9fd99b208fff17[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 12:17:53 2024 -0500
+
+    feat(core.schemas): add schema for Proveedor model
+
+[33mcommit 3483d4399c7eb5965e12fd985cc2dc08aa269d14[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 12:14:15 2024 -0500
+
+    feat(models): add relationships to Proveedor, OrdenServicioTejeduria and OrdenServicioTejeduriaDetalle models
+
+[33mcommit ba0661ecd3cdb417504e53a7997e18614fdf5831[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 10:13:43 2024 -0500
+
+    refactor(models): refactorize OrdenServicioTejeduriaDetalleReporteLog model
+
+[33mcommit d2b23062921b478d155ec960ff5c47d9a5ad037c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 25 10:10:34 2024 -0500
+
+    fix(models): change data type to Decimal to resolve Pydantic warning
+
+[33mcommit fdf06a624fc97b5003c6366cc1f9938ade3165e9[m
+Merge: 54e9782 1dc5e00
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Apr 24 16:57:53 2024 -0500
+
+    Merge branch 'main' of https://github.com/MecsaERP/MECSA-Backend
+
+[33mcommit 54e9782b2900021fd97d7bcc30dd5b7ae0dd1818[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Apr 24 16:54:54 2024 -0500
+
+    cambio en el loguin, ahora devuelve los accesos
+
+[33mcommit 1dc5e005b805e186a4e387a36e8d07bd3b50ab55[m
+Merge: a9a1c84 f8d5cdf
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 13:41:19 2024 -0500
+
+    Merge branch 'main' of https://github.com/MecsaERP/MECSA-Backend
+
+[33mcommit a9a1c843035f08c389c4610d4bde29cd9a75809e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 13:40:16 2024 -0500
+
+    feat(modulo0.api): add implement filtering function for OrdenServicioTejeduria endpoints
+
+[33mcommit f8d5cdf12036fdbf5dd585fe3ee05d9600b7f97b[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Wed Apr 24 13:25:50 2024 -0500
+
+    refactorizar usuarios
+
+[33mcommit 6c716fb85d2d5eded4c68076cf30e719ac1ea03e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 11:02:08 2024 -0500
+
+    chore: remove unnecessary package from requirements.txt
+
+[33mcommit 3891acfea4301568328db96d602ff9f9a87576d0[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 00:53:15 2024 -0500
+
+    chore(utils.generics): add incomplete implementation of GenericView class
+
+[33mcommit 37819e71fd6ee98539068bd54839a83a5089734b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 00:51:56 2024 -0500
+
+    feat(modulo0.routing): include routers for OrdenServicioTejeduria and Tejido
+
+[33mcommit 9eee5ee8d450619a412286813693391d8f366278[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 00:50:09 2024 -0500
+
+    feat(modulo0.api): add OrdenServicioTejeduria and Tejido endpoints
+
+[33mcommit 4cee441a14bb8d9670f0083ff9ca464417c45d51[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 00:47:52 2024 -0500
+
+    feat(modulo0.schemas): add ListSchema for OrdenServicioTejeduria
+
+[33mcommit 4f2d5cdc8d8836bd5e2aa9293e97cb3b61f47be2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 24 00:44:18 2024 -0500
+
+    feat(config.database): add SessionDependency declaration for endpoints
+
+[33mcommit cf0b8b69a45fd9aec20472ec9a55eb8ed3a001e5[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Tue Apr 23 16:13:27 2024 -0500
+
+    feat Rutas de Creacion, Listado y Logueo de Usuarios
+
+[33mcommit 44b2de7b0b3de029cdf4ce87d6460e3d89758cfe[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Tue Apr 23 12:39:03 2024 -0500
+
+    Endpoints de registro y listado Usuarios
+
+[33mcommit 6b361dc36a1043c954332603327f14b3d5dd5bea[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Tue Apr 23 12:38:35 2024 -0500
+
+    models usuarios, borrado On Cascade
+
+[33mcommit 34b3720ce044bb89093372507f81c32856471054[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Mon Apr 22 15:41:31 2024 -0500
+
+    Se agrega tablas usuarios a database.util.py
+
+[33mcommit 41761066ceda2f5bb7a24442e6962a5ae0bcfdf4[m
+Author: AaronCoorahua <ruben.coorahua@utec.edu.pe>
+Date:   Mon Apr 22 15:40:40 2024 -0500
+
+    Primer modelo relacional del modulo usuarios
+
+[33mcommit 8ef9a108e4d66e430dff5d42d53fc9e7c7323f9b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Apr 19 15:35:00 2024 -0500
+
+    feat(modulo0.routing): Add route for retrieving data as a test
+
+[33mcommit d950ea18ad259732611773c4ca44f31798909ff5[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Apr 19 15:33:20 2024 -0500
+
+    feat(database.utils): Add command for inserting dummy data
+
+[33mcommit c398b020cea52c1a98a286516695591b3418009c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Apr 19 15:32:00 2024 -0500
+
+    feat(utils): Add dummy_data.py file for database data insertion
+
+[33mcommit d9203342f54b5994e7b146c90a68371a09e6efa5[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Apr 19 15:29:00 2024 -0500
+
+    feat: Add dummy data to CSV files for testing
+
+[33mcommit 8c55a7669fcbfe520f038f776a42764e70d006f2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Apr 19 12:39:45 2024 -0500
+
+    feat: create utils/ folder and move files
+
+[33mcommit 2c1911bd5c0a23369cdb0f63a9e11abc2966a2fd[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Fri Apr 19 10:02:42 2024 -0500
+
+    refactor: rename function get_db to get_session
+
+[33mcommit cbafa7fee5759bffae71f0fb4fbc4147a66b42a7[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 18 14:05:17 2024 -0500
+
+    feat(database.utils): Include index statement SQL
+
+[33mcommit 514738102889f50bc157089c49f0d766b69b0c68[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 18 14:03:04 2024 -0500
+
+    refactor(modulo1.models): Refactor foreign keys
+
+[33mcommit 46a5bb752bcdf7a34286a2d3023ef521f82fe052[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 18 14:02:29 2024 -0500
+
+    refactor(core.models): Refactor foreign keys
+
+[33mcommit f17108697af5f20426fd5374e37fa9a0761a4ff5[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 18 11:53:02 2024 -0500
+
+    feat(models.modulo0): Replace primary key 'id' with 'estado' field in models OrdenServicioTejeduriaEstado and OrdenServicioTejeduriaDetalleEstado
+
+[33mcommit 77ed373168aa89ffb4d4b2498d9442b30902ccae[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Thu Apr 18 11:47:58 2024 -0500
+
+    refactor(modulo0.models): rename field to proveedor_id
+
+[33mcommit d986e02d3d6c2f60bce3d7c877df37d9c353aa5f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 17 13:59:39 2024 -0500
+
+    feat(modul1.models): add model for OrdenServicioTejeduriaDetalleReporteLog
+
+[33mcommit 72eb18d89687652cbd91ecc8891da070ab6edf11[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 17 13:36:06 2024 -0500
+
+    feat(modulo0.models): add models for OrdenServicioTejeduriaEstado, OrdenServicioTejeduriaDetalleEstado
+
+[33mcommit bf4706035afd00f0bb56431302235d608435d799[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Wed Apr 17 11:08:31 2024 -0500
+
+    feat: Add 'proveedor' field to Hilado model
+
+[33mcommit e1d72941079164afb613af0b1154b92a5bac5d4e[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Apr 16 23:35:16 2024 -0500
+
+    refactor(database.utils): refactor generate_sql utility function
+
+[33mcommit d9cfa95f7d8b8aadb0dd4b58d651c94d0125c256[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Apr 16 23:33:53 2024 -0500
+
+    add(modulo0.models): add some 'modulo0' module  models
+
+[33mcommit 9bb831caebc3c329736546a2f39394817d5bc569[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Apr 16 23:30:43 2024 -0500
+
+    add(core.models): add models for Movimiento, MovimientoDescripcion, Almacen, MovimientoIngreso, MovimientoIngresoOrdenCompra
+
+[33mcommit dcd029366e5442c530477be8e5a9bcc3acb71a9b[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Apr 16 16:30:36 2024 -0500
+
+    refactor: Move models to core from module 0
+
+[33mcommit 56e9bb88dc44cc522882733281d8ec284f6f6a6d[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Tue Apr 16 14:31:36 2024 -0500
+
+    add generate sql function to create all tables
+
+[33mcommit f5772aad14292a37cecc5d4d5f09a3015cfc6499[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 23:43:06 2024 -0500
+
+    feat(database): add database utility functions for testing connection, creating, and deleting tables
+
+[33mcommit 377d13e202c03effc5b79a9e050e23338b7dcde7[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 23:21:14 2024 -0500
+
+    feat(modulo0.models): add models for Proveedor, OrdenCompra, Producto, and Hilado
+
+[33mcommit ba153d40c081451a06cd2ee7e92a66a94b81ba69[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 21:58:43 2024 -0500
+
+    feat: Add files for local deployment in containers
+
+[33mcommit 18e4464201b9bf30d603d6512c29f118b5ce1271[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 21:54:48 2024 -0500
+
+    feat: Configure connection to postgres database
+
+[33mcommit 924e9da5ef700b55a9ecc8682c687941583cb8d8[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 21:03:19 2024 -0500
+
+    feat(settings): Add routers for 'modulo0', 'modulo1', 'modulo2', and 'usuarios' modules
+
+[33mcommit 829cc07a9f6f3ee5944af987d30ee805315f8774[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 20:56:30 2024 -0500
+
+    feat: Add 'usuarios' module
+
+[33mcommit b2d035fa50742ca9f102b66e4ddf4533b974fd8a[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 20:55:40 2024 -0500
+
+    feat: Add 'modulo2' module
+
+[33mcommit 7a3e6a208315a9e560c5c16f14eaa01f29f8441f[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 20:54:49 2024 -0500
+
+    feat: Add 'modulo1' module
+
+[33mcommit dfb12d222f4f2811b40e6c1efb5620fefa619cc2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 20:54:05 2024 -0500
+
+    feat: Add 'modulo0' module
+
+[33mcommit 050f7093ee2e6e92621ed73fbd5a0219da25710c[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 20:47:41 2024 -0500
+
+    feat: add initial project setup
+
+[33mcommit b1c69665f940e44269555199e9eadf2dbd12d9e2[m
+Author: JohanTv <johan.tanta@utec.edu.pe>
+Date:   Mon Apr 15 09:39:54 2024 -0500
+
+    first commit

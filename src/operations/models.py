@@ -42,9 +42,41 @@ from src.operations.constants import (
     PRODUCT_CODE_MAX_LENGTH,
     UNIT_CODE_MAX_LENGTH,
     MECSA_COLOR_ID_MAX_LENGTH,
+    STORAGE_CODE_MAX_LENGTH,
+    MOVEMENT_TYPE_MAX_LENGTH,
+    MOVEMENT_CODE_MAX_LENGTH,
+    DOCUMENT_CODE_MAX_LENGTH,
+    DOCUMENT_NUMBER_MAX_LENGTH,
+    DOCUMENT_NOTE_MAX_LENGTH,
+    CLFAUX_MAX_LENGTH,
+    AUXILIARY_CODE_MAX_LENGTH,
+    REFERENCE_DOCUMENT_MAX_LENGTH,
+    REFERENCE_NUMBER_MAX_LENGTH,
+    NROGF_MAX_LENGTH,
+    SERGF_MAX_LENGTH,
+    ORIGMOV_MAX_LENGTH,
+    ANNULMENT_USER_ID_MAX_LENGTH,
+    SERIAL_NUMBER_MAX_LENGTH,
+    PRINTED_FLAG_MAX_LENGTH,
+    FLGACT_MAX_LENGTH,
+    FLGRECLAMO_MAX_LENGTH,
+    FLGSIT_MAX_LENGTH,
+    VOUCHER_NUMBER_MAX_LENGTH,
+    SERVADI_MAX_LENGTH,
+    INGRESS_NUMBER_MAX_LENGTH,
+    FCHCBD_MAX_LENGTH,
+    ORIGIN_STATION_MAX_LENGTH,
+    UNDPESOBRUTOTOTAL_MAX_LENGTH,
+    TRANSACTION_MODE_MAX_LENGTH,
+    SUPPLIER_BATCH_MAX_LENGTH,
+    MECSA_BATCH_MAX_LENGTH,
+    REFERENCE_CODE_MAX_LENGTH,
+    GROUP_NUMBER_MAX_LENGTH,
+    USER_ID_MAX_LENGTH,
+    AUXILIARY_NAME_MAX_LENGTH,
+    EXIT_NUMBER_MAX_LENGTH
 )
 from src.security.models import Parameter
-
 
 class Proveedor(Base):
     __tablename__ = "proveedor"
@@ -293,7 +325,7 @@ class MecsaColor(PromecBase):
 
     __table_args__ = ({"schema": "PUB"},)
 
-class OrdenCompra(Base):
+class OrdenCompra(PromecBase):
     __tablename__ = "opecocmp"
 
     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
@@ -327,7 +359,7 @@ class OrdenCompra(Base):
         {"schema": "PUB"}
     )
 
-class OrdenCompraDetalle(Base):
+class OrdenCompraDetalle(PromecBase):
     __tablename__ = "opedocmp"
 
     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
@@ -377,23 +409,151 @@ class OrdenCompraDetalle(Base):
     def __repr__(self):
         return f"<OrdenCompraDetalle(codprod={self.product_code}>"
 
-# class Movement(Base):
-#
-# # Class generica, distribuir con pydantic
-# class MovIngressYarnOC(Base):
-#     __tablename__ = "almcmovi"
-#     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH), default="001")
-#     storage_code: Mapped[str] = mapped_column("codalm", String(length=), default="006")  # Schemas
-#     movement_type: Mapped[str] = mapped_column("tpomov", String(length=), default="I")
-#     movement_code: Mapped[str] = mapped_column("codmov", String(length=), default="01")
-#     document_code: Mapped[str] = mapped_column("coddoc", String(length=), default="P/I")
-#     ingress_number: Mapped[str] = mapped_column("nrodoc", String(length=), default="")
-#     periodo: Mapped[int] = mapped_column("periodo")  # Manejar en los services
-#     creation_date: Mapped[datetime] = mapped_column("fchdoc")  # Manejar en los services
-#     creation_time: Mapped[str] = mapped_column("horadoc")  # Manejar en los services
+class Movement(PromecBase):
+    __tablename__ = "almcmovi"
 
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    storage_code: Mapped[str] = mapped_column("codalm", String(length=STORAGE_CODE_MAX_LENGTH))
+    movement_type: Mapped[str] = mapped_column("tpomov", String(length=MOVEMENT_TYPE_MAX_LENGTH))
+    movement_code: Mapped[str] = mapped_column("codmov", String(length=MOVEMENT_CODE_MAX_LENGTH))
+    document_code: Mapped[str] = mapped_column("coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
+    document_number: Mapped[str] = mapped_column("nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
+    period: Mapped[int] = mapped_column("periodo")
+    creation_date: Mapped[datetime] = mapped_column("fchdoc")
+    creation_time: Mapped[str] = mapped_column("horadoc")
+    currency_code: Mapped[int] = mapped_column("codmon")
+    exchange_rate: Mapped[float] = mapped_column("tpocmb")
+    document_note: Mapped[str] = mapped_column("notadoc", String(length=DOCUMENT_NOTE_MAX_LENGTH))
+    clfaux: Mapped[str] = mapped_column("clfaux", String(length=CLFAUX_MAX_LENGTH))
+    auxiliary_code: Mapped[str] = mapped_column("codaux", String(length=AUXILIARY_CODE_MAX_LENGTH))
+    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+    user_id: Mapped[str] = mapped_column("idusers", String(length=USER_ID_MAX_LENGTH))
+    auxiliary_name: Mapped[str] = mapped_column("nomaux", String(length=AUXILIARY_NAME_MAX_LENGTH))
+    reference_document: Mapped[str] = mapped_column("refdoc", String(length=REFERENCE_DOCUMENT_MAX_LENGTH))
+    reference_number: Mapped[str] = mapped_column("refnro", String(length=REFERENCE_NUMBER_MAX_LENGTH))
+    nrogf: Mapped[str] = mapped_column("nrogf", String(length=NROGF_MAX_LENGTH))  # //! Definir nombre representativo
+    sergf: Mapped[str] = mapped_column("sergf", String(length=SERGF_MAX_LENGTH))  # //! Definir nombre representativo
+    fecgf: Mapped[datetime] = mapped_column("fecgf")  # //! Definir nombre representativo
+    origmov: Mapped[str] = mapped_column("origmov", String(length=ORIGMOV_MAX_LENGTH))
+    annulment_date: Mapped[datetime] = mapped_column("fchanu")
+    annulment_user_id: Mapped[str] = mapped_column("userid_a", String(length=ANNULMENT_USER_ID_MAX_LENGTH))
+    serial_number: Mapped[str] = mapped_column("nroser", String(length=SERIAL_NUMBER_MAX_LENGTH))
+    printed_flag: Mapped[str] = mapped_column("flgprt", String(length=PRINTED_FLAG_MAX_LENGTH))
+    flgact: Mapped[str] = mapped_column("flgact", String(length=FLGACT_MAX_LENGTH))
+    flgtras: Mapped[bool] = mapped_column("flgtras")  # //! Definir nombre representativo
+    flgreclamo: Mapped[str] = mapped_column("flgreclamo", String(length=FLGRECLAMO_MAX_LENGTH))
+    flgsit: Mapped[str] = mapped_column("flgsit", String(length=FLGSIT_MAX_LENGTH))
+    voucher_number: Mapped[str] = mapped_column("nrovou", String(length=VOUCHER_NUMBER_MAX_LENGTH))
+    servadi: Mapped[str] = mapped_column("servadi", String(length=SERVADI_MAX_LENGTH))
+    tarfservadi: Mapped[float] = mapped_column("tarfservadi")
+    fchcp: Mapped[datetime] = mapped_column("fchcp")
+    fchcbd: Mapped[str] = mapped_column("fchcbd", String(length=FCHCBD_MAX_LENGTH))
+    origin_station: Mapped[str] = mapped_column("estacion", String(length=ORIGIN_STATION_MAX_LENGTH))
+    undpesobrutototal: Mapped[str] = mapped_column("undpesobrutototal", String(length=UNDPESOBRUTOTOTAL_MAX_LENGTH))
+    transaction_mode: Mapped[str] = mapped_column("modtrans", String(length=TRANSACTION_MODE_MAX_LENGTH))
+    intentosenvele: Mapped[int] = mapped_column("intentosenvele")
+    supplier_batch: Mapped[str] = mapped_column("loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH))
+    mecsa_batch: Mapped[str] = mapped_column("lotem", String(length=MECSA_BATCH_MAX_LENGTH))
 
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "codalm", "tpomov", "codmov", "coddoc", "nrodoc", "periodo"),
+        {"schema": "PUB"}
+    )
 
+class MovementDetail(PromecBase):
+    __tablename__ = "almdmovi"
+
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    period: Mapped[int] = mapped_column("periodo")
+    storage_code: Mapped[str] = mapped_column("codalm", String(length=STORAGE_CODE_MAX_LENGTH))
+    movement_type: Mapped[str] = mapped_column("tpomov", String(length=MOVEMENT_TYPE_MAX_LENGTH))
+    movement_code: Mapped[str] = mapped_column("codmov", String(length=MOVEMENT_CODE_MAX_LENGTH))
+    document_code: Mapped[str] = mapped_column("coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
+    document_number: Mapped[str] = mapped_column("nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
+    item_number: Mapped[int] = mapped_column("nroitm")
+    creation_date: Mapped[datetime] = mapped_column("fchdoc")
+    creation_time: Mapped[str] = mapped_column("horadoc")
+    product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+    unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
+    factor: Mapped[int] = mapped_column("factor")
+    quantity: Mapped[float] = mapped_column("cantidad")
+    mecsa_weight: Mapped[float] = mapped_column("pesomecsa")
+    precto: Mapped[float] = mapped_column("precto")  # //! Definir nombre representativo
+    impctop: Mapped[float] = mapped_column("impctop")  # //! Definir nombre representativo
+    currency_code: Mapped[int] = mapped_column("codmon")
+    exchange_rate: Mapped[float] = mapped_column("tpocmb")
+    impmn1: Mapped[float] = mapped_column("impmn1")  # //! Definir nombre representativo
+    impmn2: Mapped[float] = mapped_column("impmn2")  # //! Definir nombre representativo
+    stkgen: Mapped[float] = mapped_column("stkgen")
+    stkalm: Mapped[float] = mapped_column("stkalm")
+    ctomn1: Mapped[float] = mapped_column("ctomn1")  # //! Definir nombre representativo
+    ctomn2: Mapped[float] = mapped_column("ctomn2")  # //! Definir nombre representativo
+    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+
+    __table_args__ = (
+        PrimaryKeyConstraint(
+            "codcia",
+            "periodo",
+            "codalm",
+            "tpomov",
+            "codmov",
+            "coddoc",
+            "nrodoc",
+            "nroitm"
+        ),
+        {"schema": "PUB"}
+    )
+
+class MovementDetailAux(PromecBase):
+    __tablename__ = "detauxmov"
+
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    document_code: Mapped[str] = mapped_column("movdoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
+    document_number: Mapped[str] = mapped_column("movnro", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
+    item_number: Mapped[int] = mapped_column("nroitm")
+    period: Mapped[int] = mapped_column("periodo")
+    product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+    unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
+    factor: Mapped[int] = mapped_column("factor")
+    precto: Mapped[float] = mapped_column("precto")
+    impctop: Mapped[float] = mapped_column("impctop")
+    fchemi: Mapped[datetime] = mapped_column("fchemi")
+    net_weight: Mapped[float] = mapped_column("pesoneto")
+    gross_weight: Mapped[float] = mapped_column("pesobrto")
+    cone_count: Mapped[int] = mapped_column("nroconos")
+    package_count: Mapped[int] = mapped_column("nrobolsas")
+    reference_code: Mapped[str] = mapped_column("codref", String(length=REFERENCE_CODE_MAX_LENGTH))
+
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "movdoc", "movnro", "nroitm", "periodo"),
+        {"schema": "PUB"}
+    )
+
+class MovementYarnOCHeavy(PromecBase):
+    __tablename__ = "opehilado"
+
+    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+    group_number: Mapped[str] = mapped_column("grupo", String(length=GROUP_NUMBER_MAX_LENGTH))
+    ingress_number: Mapped[str] = mapped_column("nroing", String(length=INGRESS_NUMBER_MAX_LENGTH))
+    item_number: Mapped[int] = mapped_column("nroitm")
+    exit_number: Mapped[str] = mapped_column("nrosal", String(length=EXIT_NUMBER_MAX_LENGTH))
+    #  ProHil
+    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+    entry_user_id: Mapped[str] = mapped_column("idusers", String(length=USER_ID_MAX_LENGTH))
+    exit_user_id: Mapped[str] = mapped_column("idusersal", String(length=USER_ID_MAX_LENGTH))
+    cone_count: Mapped[int] = mapped_column("nroconos")
+    package_count: Mapped[int] = mapped_column("nrobolsas")
+    destination_storage: Mapped[str] = mapped_column("almdest", String(length=STORAGE_CODE_MAX_LENGTH))
+    net_weight: Mapped[float] = mapped_column("pesoneto")
+    gross_weight: Mapped[float] = mapped_column("pesobruto")
+    dispatch_status: Mapped[bool] = mapped_column("flgdesp")
+    packages_left: Mapped[int] = mapped_column("nrobolsasrest")
+
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "codprod", "grupo",  "nroitm"),
+        {"schema": "PUB"}
+    )
 
 # Entidad Temp
 class Yarn(Base):
