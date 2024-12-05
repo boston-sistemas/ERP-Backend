@@ -142,5 +142,37 @@
         "value": "POLIESTER RECICLADO",
         "data_type": "string",
         "is_active": true
+    },
+    {
+        "id": 1019,
+        "category_id": 103,
+        "description": "TIPO DE ACABADO: OPEN END",
+        "value": "OPEN END",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1020,
+        "category_id": 103,
+        "description": "TIPO DE ACABADO: CARDADO",
+        "value": "CARDADO",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1021,
+        "category_id": 103,
+        "description": "TIPO DE ACABADO: PEINADO",
+        "value": "PEINADO",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1022,
+        "category_id": 103,
+        "description": "TIPO DE ACABADO: VORTEX",
+        "value": "VORTEX",
+        "data_type": "string",
+        "is_active": true
     }
 ]

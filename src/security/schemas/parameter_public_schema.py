@@ -70,6 +70,10 @@ class UserPasswordPolicySchema(CustomBaseModel):
     history_size: int = 3
 
 
+class SpinningMethodsSchema(CustomBaseModel):
+    spinning_methods: list["ParameterValueSchema"]
+
+
 from .parameter_schema import ParameterValueSchema  # noqa: E402
 
 FiberCategoriesSchema.model_rebuild()

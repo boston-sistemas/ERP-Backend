@@ -17,9 +17,11 @@ class MultiParameterLoader:
         self.service = ParameterService(db=db)
 
     async def get(self, actives_only: bool = False) -> list[Parameter]:
-        result = self.service.find_parameters_by_ids(
-            parameter_ids=self.ids, load_only_value=True, actives_only=actives_only
-        )
+        result = (
+            await self.service.find_parameters_by_ids(
+                parameter_ids=self.ids, load_only_value=True, actives_only=actives_only
+            )
+        ).value
         return result
 
     async def get_and_mapping(self, actives_only: bool = False) -> dict[int, Parameter]:
