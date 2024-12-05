@@ -19,16 +19,10 @@ class MultiParameterLoaderByCategory:
         self.service = ParameterService(db=db)
 
     async def get(self, actives_only: bool = False) -> list[Parameter]:
-        result = (
-            await self.service.read_active_parameters_by_category(
-                parameter_category_id=self.param_category_id,
-                load_only_value=True,
-            )
-            if actives_only
-            else await self.service.read_parameters_by_category(
-                parameter_category_id=self.param_category_id,
-                load_only_value=True,
-            )
+        result = await self.service.read_parameters_by_category(
+            parameter_category_id=self.param_category_id,
+            load_only_value=True,
+            actives_only=actives_only,
         )
         return result.value
 

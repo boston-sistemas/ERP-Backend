@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.security.models import Parameter
-from src.security.repositories import ParameterRepository
+from src.security.services import ParameterService
 
 
 class MultiParameterLoader:
@@ -14,17 +14,12 @@ class MultiParameterLoader:
         super().__init_subclass__(**kwargs)
 
     def __init__(self, db: AsyncSession):
-        self.repo = ParameterRepository(db=db)
+        self.service = ParameterService(db=db)
 
     async def get(self, actives_only: bool = False) -> list[Parameter]:
-        filter = Parameter.id.in_(self.ids)
-        if actives_only:
-            filter = filter & (Parameter.is_active)
-
-        result = await self.repo.find_all(
-            filter=filter, options=(self.repo.load_only_value(),)
+        result = self.service.find_parameters_by_ids(
+            parameter_ids=self.ids, load_only_value=True, actives_only=actives_only
         )
-
         return result
 
     async def get_and_mapping(self, actives_only: bool = False) -> dict[int, Parameter]:

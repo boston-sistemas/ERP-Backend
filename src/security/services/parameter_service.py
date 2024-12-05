@@ -127,25 +127,63 @@ class ParameterService:
         parameter_category_id: int,
         include_category: bool = False,
         load_only_value: bool = False,
+        actives_only: bool = False,
     ) -> Result[list[Parameter], CustomException]:
+        filter = Parameter.category_id == parameter_category_id
+        if actives_only:
+            filter &= Parameter.is_active
+
         parameters = await self.repository.find_parameters(
-            filter=Parameter.category_id == parameter_category_id,
+            filter=filter,
             include_category=include_category,
             load_only_value=load_only_value,
         )
 
         return Success(parameters)
 
-    async def read_active_parameters_by_category(
+    async def find_parameters_by_ids(
         self,
-        parameter_category_id: int,
+        parameter_ids: list[int],
         include_category: bool = False,
         load_only_value: bool = False,
-    ) -> Result[list[Parameter], CustomException]:
+        actives_only: bool = False,
+    ) -> list[Parameter]:
+        if len(parameter_ids) == 0:
+            return []
+
+        if len(parameter_ids) == 1:
+            id = parameter_ids[0]
+            result = await self.read_parameter(
+                parameter_id=id,
+                include_category=include_category,
+                load_only_value=load_only_value,
+            )
+            if result.is_success and (not actives_only or result.value.is_active):
+                return [result.value]
+
+            return []
+
+        filter = Parameter.id.in_(parameter_ids)
+        if actives_only:
+            filter &= Parameter.is_active
+
         parameters = await self.repository.find_parameters(
-            filter=(Parameter.category_id == parameter_category_id)
-            & (Parameter.is_active),
+            filter=Parameter.id.in_(parameter_ids),
             include_category=include_category,
             load_only_value=load_only_value,
         )
-        return Success(parameters)
+        return parameters
+
+    async def map_parameters_by_ids(
+        self,
+        parameter_ids: list[int],
+        include_category: bool = False,
+        load_only_value: bool = False,
+    ) -> dict[int, Parameter]:
+        parameters = await self.find_parameters_by_ids(
+            parameter_ids=parameter_ids,
+            include_category=include_category,
+            load_only_value=load_only_value,
+        )
+
+        return {parameter.id: parameter for parameter in parameters}
