@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.database import Base, PromecBase
 from src.operations.constants import (
     FIBER_DENOMINATION_MAX_LENGTH,
@@ -280,7 +281,7 @@ class MecsaColor(PromecBase):
     name: Mapped[str] = mapped_column("nombre")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
-    is_active: Mapped[str] = mapped_column("Condicion", default="A")
+    is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
 
     __table_args__ = ({"schema": "PUB"},)
 

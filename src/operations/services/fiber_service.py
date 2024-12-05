@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
+from src.core.utils import is_active_status
 from src.operations.failures import (
     CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE,
     CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE,
     CATEGORY_NULL_FIBER_VALIDATION_FAILURE,
-    COLOR_DISABLED_FIBER_VALIDATION_FAILURE,
-    COLOR_NOT_FOUND_FIBER_VALIDATION_FAILURE,
     FIBER_ALREADY_EXISTS_FAILURE,
     FIBER_NOT_FOUND_FAILURE,
+    MECSA_COLOR_DISABLED_FAILURE,
 )
 from src.operations.models import Fiber
 from src.operations.repositories import FiberRepository
@@ -77,9 +77,9 @@ class FiberService:
         if color_id is not None:
             color_result = await self.mecsa_color_service.read_mecsa_color(color_id)
             if color_result.is_failure:
-                return COLOR_NOT_FOUND_FIBER_VALIDATION_FAILURE
-            if color_result.value.is_active != "A":
-                return COLOR_DISABLED_FIBER_VALIDATION_FAILURE
+                return color_result
+            if not is_active_status(color_result.value.is_active):
+                return MECSA_COLOR_DISABLED_FAILURE
 
         return Success(None)
 
