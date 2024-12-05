@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from uuid import UUID
 
 from sqlalchemy import (
@@ -164,7 +164,7 @@ class OrdenServicioTejeduria(Base):
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ID)
     )
     tejeduria_id: Mapped[str] = mapped_column(String(length=MAX_LENGTH_PROVEEDOR_ID))
-    fecha: Mapped[datetime] = mapped_column()
+    fecha: Mapped[date] = mapped_column()
     estado: Mapped[str] = mapped_column(
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
     )
@@ -218,7 +218,7 @@ class OrdenServicioTejeduriaDetalleReporteLog(Base):
     )
     reporte_tejeduria_nro_rollos: Mapped[int] = mapped_column()
     reporte_tejeduria_cantidad_kg: Mapped[float] = mapped_column()
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
+    created_at: Mapped[date] = mapped_column(TIMESTAMP, server_default=func.now())
 
     __table_args__ = (PrimaryKeyConstraint("log_id"),)
 
@@ -332,8 +332,8 @@ class OrdenCompra(PromecBase):
     purchase_order_type: Mapped[str] = mapped_column("tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH))
     purchase_order_number: Mapped[str] = mapped_column("nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH))
     supplier_code: Mapped[str] = mapped_column("codpro", String(length=SUPPLIER_CODE_MAX_LENGTH))
-    issue_date: Mapped[datetime] = mapped_column("fchemi")
-    due_date: Mapped[datetime] = mapped_column("fchvto")
+    issue_date: Mapped[date] = mapped_column("fchemi")
+    due_date: Mapped[date] = mapped_column("fchvto")
     currency_code: Mapped[int] = mapped_column("codmon")
     payment_method: Mapped[str] = mapped_column("fmapgo", String(length=PAYMENT_METHOD_MAX_LENGTH))
     status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
@@ -419,7 +419,7 @@ class Movement(PromecBase):
     document_code: Mapped[str] = mapped_column("coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
     document_number: Mapped[str] = mapped_column("nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
     period: Mapped[int] = mapped_column("periodo")
-    creation_date: Mapped[datetime] = mapped_column("fchdoc")
+    creation_date: Mapped[date] = mapped_column("fchdoc")
     creation_time: Mapped[str] = mapped_column("horadoc")
     currency_code: Mapped[int] = mapped_column("codmon")
     exchange_rate: Mapped[float] = mapped_column("tpocmb")
@@ -433,9 +433,9 @@ class Movement(PromecBase):
     reference_number: Mapped[str] = mapped_column("refnro", String(length=REFERENCE_NUMBER_MAX_LENGTH))
     nrogf: Mapped[str] = mapped_column("nrogf", String(length=NROGF_MAX_LENGTH))  # //! Definir nombre representativo
     sergf: Mapped[str] = mapped_column("sergf", String(length=SERGF_MAX_LENGTH))  # //! Definir nombre representativo
-    fecgf: Mapped[datetime] = mapped_column("fecgf")  # //! Definir nombre representativo
+    fecgf: Mapped[date] = mapped_column("fecgf")  # //! Definir nombre representativo
     origmov: Mapped[str] = mapped_column("origmov", String(length=ORIGMOV_MAX_LENGTH))
-    annulment_date: Mapped[datetime] = mapped_column("fchanu")
+    annulment_date: Mapped[date] = mapped_column("fchanu")
     annulment_user_id: Mapped[str] = mapped_column("userid_a", String(length=ANNULMENT_USER_ID_MAX_LENGTH))
     serial_number: Mapped[str] = mapped_column("nroser", String(length=SERIAL_NUMBER_MAX_LENGTH))
     printed_flag: Mapped[str] = mapped_column("flgprt", String(length=PRINTED_FLAG_MAX_LENGTH))
@@ -446,7 +446,7 @@ class Movement(PromecBase):
     voucher_number: Mapped[str] = mapped_column("nrovou", String(length=VOUCHER_NUMBER_MAX_LENGTH))
     servadi: Mapped[str] = mapped_column("servadi", String(length=SERVADI_MAX_LENGTH))
     tarfservadi: Mapped[float] = mapped_column("tarfservadi")
-    fchcp: Mapped[datetime] = mapped_column("fchcp")
+    fchcp: Mapped[date] = mapped_column("fchcp")
     fchcbd: Mapped[str] = mapped_column("fchcbd", String(length=FCHCBD_MAX_LENGTH))
     origin_station: Mapped[str] = mapped_column("estacion", String(length=ORIGIN_STATION_MAX_LENGTH))
     undpesobrutototal: Mapped[str] = mapped_column("undpesobrutototal", String(length=UNDPESOBRUTOTOTAL_MAX_LENGTH))
@@ -471,7 +471,7 @@ class MovementDetail(PromecBase):
     document_code: Mapped[str] = mapped_column("coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
     document_number: Mapped[str] = mapped_column("nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
     item_number: Mapped[int] = mapped_column("nroitm")
-    creation_date: Mapped[datetime] = mapped_column("fchdoc")
+    creation_date: Mapped[date] = mapped_column("fchdoc")
     creation_time: Mapped[str] = mapped_column("horadoc")
     product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
     unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
@@ -517,7 +517,7 @@ class MovementDetailAux(PromecBase):
     factor: Mapped[int] = mapped_column("factor")
     precto: Mapped[float] = mapped_column("precto")
     impctop: Mapped[float] = mapped_column("impctop")
-    fchemi: Mapped[datetime] = mapped_column("fchemi")
+    fchemi: Mapped[date] = mapped_column("fchemi")
     net_weight: Mapped[float] = mapped_column("pesoneto")
     gross_weight: Mapped[float] = mapped_column("pesobrto")
     cone_count: Mapped[int] = mapped_column("nroconos")
@@ -556,7 +556,7 @@ class MovementYarnOCHeavy(PromecBase):
     )
 
 # Entidad Temp
-class Yarn(Base):
+class Yarn(PromecBase):
     __tablename__ = "almprodg"
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "codprod"),
@@ -567,7 +567,7 @@ class Yarn(Base):
     yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
     family_code: Mapped[str] = mapped_column("codfam", String(length=6))
     subfamily_code: Mapped[str] = mapped_column("subfam", String(length=6))
-    details: Mapped[str] = mapped_column("detalle", String(length=120))
+    details: Mapped[str] = mapped_column("desprod", String(length=120))
 
 class Fiber(Base):
     __tablename__ = "fibras"

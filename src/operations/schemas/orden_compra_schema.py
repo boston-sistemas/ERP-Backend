@@ -1,16 +1,18 @@
-from datetime import datetime
+from datetime import date
 
-from pydantic import BaseModel
+from src.core.schemas import CustomBaseModel
 
 from .orden_compra_detalle_schema import OrdenCompraDetalleBase
 
-class OrdenCompraBase(BaseModel):
+# from pydantic import field_serializer
+
+class OrdenCompraBase(CustomBaseModel):
     codcia: str
     purchase_order_type: str
     purchase_order_number: str
     supplier_code: str
-    issue_date: datetime | None
-    due_date: datetime | None
+    issue_date: date | None
+    due_date: date | None
     payment_method: str | None
     status_flag: str
     currency_code: int
@@ -18,11 +20,17 @@ class OrdenCompraBase(BaseModel):
     class Config:
         from_attributes = True
 
+    # @field_serializer('issue_date', 'due_date')
+    # def serialize_dates(self, value):
+    #     if value is not None:
+    #         return value.strftime('%Y-%m-%d')
+    #     return None
+
 class OrdenCompraSimpleSchema(OrdenCompraBase):
     pass
 
 class OrdenCompraWithDetallesSchema(OrdenCompraBase):
     detalle: list[OrdenCompraDetalleBase] = []
 
-class OrdenCompraWithDetallesListSchema(BaseModel):
+class OrdenCompraWithDetallesListSchema(CustomBaseModel):
     ordenes: list[OrdenCompraWithDetallesSchema]
