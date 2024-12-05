@@ -30,7 +30,7 @@ class FiberService:
         )
         self.fiber_categories = FiberCategories(db=db)
 
-    async def _assign_colors_to_fibers(self, fibers: list[Fiber]) -> None:
+    async def _assign_color_to_fibers(self, fibers: list[Fiber]) -> None:
         color_ids = {fiber.color_id for fiber in fibers if fiber.color_id is not None}
 
         if not color_ids:
@@ -64,14 +64,10 @@ class FiberService:
         **kwargs,
     ) -> Result[None, CustomException]:
         if category_id is not None:
-            categories = await self.fiber_categories.get()
-            category_result = next(
-                (category for category in categories if category.id == category_id),
-                None,
-            )
-            if category_result is None:
+            result = await self.fiber_categories.validate(id=category_id)
+            if result.is_failure:
                 return CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE
-            if not category_result.is_active:
+            if not result.value.is_active:
                 return CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE
 
         if color_id is not None:
@@ -94,7 +90,7 @@ class FiberService:
             return FIBER_NOT_FOUND_FAILURE
 
         if include_color:
-            await self._assign_colors_to_fibers(fibers=[fiber])
+            await self._assign_color_to_fibers(fibers=[fiber])
 
         return Success(fiber)
 
@@ -102,7 +98,7 @@ class FiberService:
         fibers = await self.repository.find_all(
             options=(self.repository.include_category(),)
         )
-        await self._assign_colors_to_fibers(fibers=fibers)
+        await self._assign_color_to_fibers(fibers=fibers)
 
         return Success(fibers)
 
