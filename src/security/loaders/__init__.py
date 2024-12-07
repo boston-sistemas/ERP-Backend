@@ -9,8 +9,10 @@ from .password_loader import (
     UserPasswordPolicy,
     UserPasswordValidityDays,
 )
+from .spinning_methods_loader import SpinningMethods
 
 __all__ = [
+    "SpinningMethods",
     "FiberCategories",
     "MinUserPasswordSymbols",
     "MinUserPasswordLowercase",

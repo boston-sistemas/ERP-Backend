@@ -1,11 +1,12 @@
 from pydantic import Field, field_validator
 
-from operations.constants import (
+from src.core.schemas import CustomBaseModel
+from src.core.utils import is_active_status
+from src.operations.constants import (
     MAX_LENGTH_MECSA_COLOR_HEXADECIMAL,
     MAX_LENGTH_MECSA_COLOR_NAME,
     MAX_LENGTH_MECSA_COLOR_SKU,
 )
-from src.core.schemas import CustomBaseModel
 
 
 class MecsaColorBase(CustomBaseModel):
@@ -22,7 +23,7 @@ class MecsaColorBase(CustomBaseModel):
 class MecsaColorSchema(MecsaColorBase):
     @field_validator("is_active", mode="before")
     def convert_is_active(cls, value):
-        return value == "A"
+        return is_active_status(value)
 
 
 class MecsaColorListSchema(CustomBaseModel):

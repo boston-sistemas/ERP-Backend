@@ -19,6 +19,7 @@ class ParameterSettings(ProjectBaseSettings):
     MIN_PASSWORD_SYMBOLS_PARAM_ID: int
     PASSWORD_VALIDITY_DAYS_PARAM_ID: int
     PASSWORD_HISTORY_SIZE_PARAM_ID: int
+    SPINNING_METHOD_PARAM_CATEGORY_ID: int
 
 
 param_settings = ParameterSettings()

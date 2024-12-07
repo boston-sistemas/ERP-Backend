@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
+from src.core.utils import is_active_status
 from src.operations.failures import (
     CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE,
     CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE,
     CATEGORY_NULL_FIBER_VALIDATION_FAILURE,
-    COLOR_DISABLED_FIBER_VALIDATION_FAILURE,
-    COLOR_NOT_FOUND_FIBER_VALIDATION_FAILURE,
     FIBER_ALREADY_EXISTS_FAILURE,
     FIBER_NOT_FOUND_FAILURE,
+    MECSA_COLOR_DISABLED_FAILURE,
 )
 from src.operations.models import Fiber
 from src.operations.repositories import FiberRepository
@@ -30,7 +30,7 @@ class FiberService:
         )
         self.fiber_categories = FiberCategories(db=db)
 
-    async def _assign_colors_to_fibers(self, fibers: list[Fiber]) -> None:
+    async def _assign_color_to_fibers(self, fibers: list[Fiber]) -> None:
         color_ids = {fiber.color_id for fiber in fibers if fiber.color_id is not None}
 
         if not color_ids:
@@ -47,15 +47,21 @@ class FiberService:
         denomination: str | None,
         origin: str | None,
         color_id: str | None,
+        current_fiber: Fiber | None = None,
     ) -> bool:
-        fibers = await self.repository.find_all(
+        _fibers = await self.repository.find_all(
             (Fiber.category_id == category_id)
             & (Fiber.denomination == denomination)
             & (Fiber.origin == origin)
             & (Fiber.color_id == color_id)
         )
 
-        return len(fibers) - 1 <= 0
+        fibers = (
+            _fibers
+            if current_fiber is None
+            else [fiber for fiber in _fibers if fiber != current_fiber]
+        )
+        return len(fibers) == 0
 
     async def _validate_fiber_data(
         self,
@@ -64,22 +70,18 @@ class FiberService:
         **kwargs,
     ) -> Result[None, CustomException]:
         if category_id is not None:
-            categories = await self.fiber_categories.get()
-            category_result = next(
-                (category for category in categories if category.id == category_id),
-                None,
-            )
-            if category_result is None:
+            result = await self.fiber_categories.validate(id=category_id)
+            if result.is_failure:
                 return CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE
-            if not category_result.is_active:
+            if not result.value.is_active:
                 return CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE
 
         if color_id is not None:
             color_result = await self.mecsa_color_service.read_mecsa_color(color_id)
             if color_result.is_failure:
-                return COLOR_NOT_FOUND_FIBER_VALIDATION_FAILURE
-            if color_result.value.is_active != "A":
-                return COLOR_DISABLED_FIBER_VALIDATION_FAILURE
+                return color_result
+            if not is_active_status(color_result.value.is_active):
+                return MECSA_COLOR_DISABLED_FAILURE
 
         return Success(None)
 
@@ -94,15 +96,17 @@ class FiberService:
             return FIBER_NOT_FOUND_FAILURE
 
         if include_color:
-            await self._assign_colors_to_fibers(fibers=[fiber])
+            await self._assign_color_to_fibers(fibers=[fiber])
 
         return Success(fiber)
 
-    async def read_fibers(self) -> Result[list[Fiber], CustomException]:
-        fibers = await self.repository.find_all(
-            options=(self.repository.include_category(),)
-        )
-        await self._assign_colors_to_fibers(fibers=fibers)
+    async def read_fibers(
+        self, include_category: bool = False, include_color: bool = False
+    ) -> Result[list[Fiber], CustomException]:
+        fibers = await self.repository.find_fibers(include_category=include_category)
+
+        if include_color:
+            await self._assign_color_to_fibers(fibers=fibers)
 
         return Success(fibers)
 
@@ -135,8 +139,10 @@ class FiberService:
 
         fiber: Fiber = fiber_result.value
         fiber_data = form.model_dump(exclude_unset=True)
+        if len(fiber_data) == 0:
+            return Success(fiber)
 
-        if fiber_data.get("category_id", None) is None:
+        if fiber_data.get("category_id", "") is None:
             return CATEGORY_NULL_FIBER_VALIDATION_FAILURE
 
         validation_result = await self._validate_fiber_data(**fiber_data)
@@ -152,6 +158,7 @@ class FiberService:
                 denomination=fiber.denomination,
                 origin=fiber.origin,
                 color_id=fiber.color_id,
+                current_fiber=fiber,
             )
         ):
             return FIBER_ALREADY_EXISTS_FAILURE
@@ -171,3 +178,49 @@ class FiberService:
         await self.repository.save(fiber)
 
         return Success(fiber)
+
+    async def find_fibers_by_ids(
+        self,
+        fiber_ids: list[str],
+        include_category: bool = False,
+        include_color: bool = False,
+    ) -> Result[list[Fiber], CustomException]:
+        if not fiber_ids:
+            return Success([])
+
+        if len(fiber_ids) == 1:
+            id = fiber_ids[0]
+            result = await self.read_fiber(
+                fiber_id=id,
+                include_category=include_category,
+                include_color=include_color,
+            )
+            if result.is_success:
+                return Success([result.value])
+
+            return Success([])
+
+        fibers = await self.repository.find_fibers(
+            filter=Fiber.id.in_(fiber_ids), include_category=include_category
+        )
+
+        if include_color:
+            await self._assign_color_to_fibers(fibers)
+
+        return Success(fibers)
+
+    async def map_fibers_by_ids(
+        self,
+        fiber_ids: list[str],
+        include_category: bool = False,
+        include_color: bool = False,
+    ) -> Result[dict[int, Fiber], CustomException]:
+        fibers = (
+            await self.find_fibers_by_ids(
+                fiber_ids=fiber_ids,
+                include_category=include_category,
+                include_color=include_color,
+            )
+        ).value
+
+        return Success({fiber.id: fiber for fiber in fibers})

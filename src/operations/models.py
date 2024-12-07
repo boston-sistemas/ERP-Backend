@@ -9,10 +9,12 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     String,
     UniqueConstraint,
+    and_,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.core.constants import ACTIVE_STATUS_PROMEC, MECSA_COMPANY_CODE
 from src.core.database import Base, PromecBase
 from src.operations.constants import (
     FIBER_DENOMINATION_MAX_LENGTH,
@@ -33,6 +35,7 @@ from src.operations.constants import (
     MAX_LENGTH_TEJIDO_ID,
     MAX_LENGTH_TEJIDO_NOMBRE,
     MECSA_COLOR_ID_MAX_LENGTH,
+    YARN_ID_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -280,7 +283,7 @@ class MecsaColor(PromecBase):
     name: Mapped[str] = mapped_column("nombre")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
-    is_active: Mapped[str] = mapped_column("Condicion", default="A")
+    is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
 
     __table_args__ = ({"schema": "PUB"},)
 
@@ -342,3 +345,58 @@ class DerivedUnit(PromecBase):
     sunat_code: Mapped[str] = mapped_column("UniMed_Sunat")
 
     __table_args__ = ({"schema": "PUB"},)
+
+
+class InventoryItem(PromecBase):
+    __tablename__ = "almprodg"
+
+    company_code: Mapped[str] = mapped_column(
+        "CodCia", primary_key=True, default=MECSA_COMPANY_CODE
+    )
+    id: Mapped[str] = mapped_column("CodProd", primary_key=True)
+    family_id: Mapped[str] = mapped_column("CodFam")
+    subfamily_id: Mapped[str] = mapped_column("SubFam")
+    base_unit_code: Mapped[str] = mapped_column("UndMed")
+    inventory_unit_code: Mapped[str] = mapped_column("CodUnd")
+    purchase_unit_code: Mapped[str] = mapped_column("UndCmp")
+    description: Mapped[str] = mapped_column("DesProd")
+    purchase_description: Mapped[str] = mapped_column("DesCompra")
+    is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
+
+    field1: Mapped[str] = mapped_column("Estruct1")
+    field2: Mapped[str] = mapped_column("Estruct2")
+    field3: Mapped[str] = mapped_column("Estruct3")
+    field4: Mapped[str] = mapped_column("Estruct4", default=None, nullable=True)
+
+    yarn_color: Mapped[MecsaColor] = relationship(
+        MecsaColor,
+        primaryjoin=lambda: and_(
+            InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
+        ),
+        foreign_keys=lambda: [
+            MecsaColor.id,
+        ],
+    )
+
+    __table_args__ = ({"schema": "PUB"},)
+
+
+class YarnFiber(Base):
+    __tablename__ = "hilado_fibras"
+
+    yarn_id: Mapped[str] = mapped_column(
+        "hilado_id", String(length=YARN_ID_MAX_LENGTH), primary_key=True
+    )
+    fiber_id: Mapped[str] = mapped_column(
+        "fibra_id", String(length=FIBER_ID_MAX_LENGTH), primary_key=True
+    )
+    proportion: Mapped[float] = mapped_column("proporcion", nullable=False)
+
+    # fiber: Mapped[Fiber] = relationship()
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fibra_id"],
+            ["fibras.id"],
+        ),
+    )

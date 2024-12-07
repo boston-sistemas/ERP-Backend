@@ -15,6 +15,7 @@ from .parameter_public_schema import (
     DataType,
     DataTypeListSchema,
     FiberCategoriesSchema,
+    SpinningMethodsSchema,
     UserPasswordPolicySchema,
 )
 from .parameter_schema import (
@@ -45,6 +46,7 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "SpinningMethodsSchema",
     "UserPasswordPolicySchema",
     "FiberCategoriesSchema",
     "ParameterValueSchema",
