@@ -47,15 +47,21 @@ class FiberService:
         denomination: str | None,
         origin: str | None,
         color_id: str | None,
+        current_fiber: Fiber | None = None,
     ) -> bool:
-        fibers = await self.repository.find_all(
+        _fibers = await self.repository.find_all(
             (Fiber.category_id == category_id)
             & (Fiber.denomination == denomination)
             & (Fiber.origin == origin)
             & (Fiber.color_id == color_id)
         )
 
-        return len(fibers) - 1 <= 0
+        fibers = (
+            _fibers
+            if current_fiber is None
+            else [fiber for fiber in _fibers if fiber != current_fiber]
+        )
+        return len(fibers) == 0
 
     async def _validate_fiber_data(
         self,
@@ -94,11 +100,13 @@ class FiberService:
 
         return Success(fiber)
 
-    async def read_fibers(self) -> Result[list[Fiber], CustomException]:
-        fibers = await self.repository.find_all(
-            options=(self.repository.include_category(),)
-        )
-        await self._assign_color_to_fibers(fibers=fibers)
+    async def read_fibers(
+        self, include_category: bool = False, include_color: bool = False
+    ) -> Result[list[Fiber], CustomException]:
+        fibers = await self.repository.find_fibers(include_category=include_category)
+
+        if include_color:
+            await self._assign_color_to_fibers(fibers=fibers)
 
         return Success(fibers)
 
@@ -131,8 +139,10 @@ class FiberService:
 
         fiber: Fiber = fiber_result.value
         fiber_data = form.model_dump(exclude_unset=True)
+        if len(fiber_data) == 0:
+            return Success(fiber)
 
-        if fiber_data.get("category_id", None) is None:
+        if fiber_data.get("category_id", "") is None:
             return CATEGORY_NULL_FIBER_VALIDATION_FAILURE
 
         validation_result = await self._validate_fiber_data(**fiber_data)
@@ -148,6 +158,7 @@ class FiberService:
                 denomination=fiber.denomination,
                 origin=fiber.origin,
                 color_id=fiber.color_id,
+                current_fiber=fiber,
             )
         ):
             return FIBER_ALREADY_EXISTS_FAILURE
@@ -167,3 +178,4 @@ class FiberService:
         await self.repository.save(fiber)
 
         return Success(fiber)
+
