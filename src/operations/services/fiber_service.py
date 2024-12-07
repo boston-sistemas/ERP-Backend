@@ -179,3 +179,48 @@ class FiberService:
 
         return Success(fiber)
 
+    async def find_fibers_by_ids(
+        self,
+        fiber_ids: list[str],
+        include_category: bool = False,
+        include_color: bool = False,
+    ) -> Result[list[Fiber], CustomException]:
+        if not fiber_ids:
+            return Success([])
+
+        if len(fiber_ids) == 1:
+            id = fiber_ids[0]
+            result = await self.read_fiber(
+                fiber_id=id,
+                include_category=include_category,
+                include_color=include_color,
+            )
+            if result.is_success:
+                return Success([result.value])
+
+            return Success([])
+
+        fibers = await self.repository.find_fibers(
+            filter=Fiber.id.in_(fiber_ids), include_category=include_category
+        )
+
+        if include_color:
+            await self._assign_color_to_fibers(fibers)
+
+        return Success(fibers)
+
+    async def map_fibers_by_ids(
+        self,
+        fiber_ids: list[str],
+        include_category: bool = False,
+        include_color: bool = False,
+    ) -> Result[dict[int, Fiber], CustomException]:
+        fibers = (
+            await self.find_fibers_by_ids(
+                fiber_ids=fiber_ids,
+                include_category=include_category,
+                include_color=include_color,
+            )
+        ).value
+
+        return Success({fiber.id: fiber for fiber in fibers})
