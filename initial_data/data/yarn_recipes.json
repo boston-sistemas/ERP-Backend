@@ -1,0 +1,62 @@
+[
+    {
+        "yarn_id": "100100100110",
+        "fiber_id": "100100100101",
+        "proportion": 100
+    },
+    {
+        "yarn_id": "100100100111",
+        "fiber_id": "100100100101",
+        "proportion": 100
+    },
+    {
+        "yarn_id": "100100100112",
+        "fiber_id": "100100100103",
+        "proportion": 100
+    },
+    {
+        "yarn_id": "100100100113",
+        "fiber_id": "100100100103",
+        "proportion": 100
+    },
+    {
+        "yarn_id": "100100100114",
+        "fiber_id": "100100100101",
+        "proportion": 70
+    },
+    {
+        "yarn_id": "100100100114",
+        "fiber_id": "100100100106",
+        "proportion": 30
+    },
+    {
+        "yarn_id": "100100100115",
+        "fiber_id": "100100100101",
+        "proportion": 70
+    },
+    {
+        "yarn_id": "100100100115",
+        "fiber_id": "100100100106",
+        "proportion": 30
+    },
+    {
+        "yarn_id": "100100100116",
+        "fiber_id": "100100100101",
+        "proportion": 80
+    },
+    {
+        "yarn_id": "100100100116",
+        "fiber_id": "100100100107",
+        "proportion": 20
+    },
+    {
+        "yarn_id": "100100100117",
+        "fiber_id": "100100100105",
+        "proportion": 100
+    },
+    {
+        "yarn_id": "100100100118",
+        "fiber_id": "100100100104",
+        "proportion": 100
+    }
+]
