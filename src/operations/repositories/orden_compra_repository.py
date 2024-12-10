@@ -8,8 +8,8 @@ from sqlalchemy.orm import (
 from sqlalchemy.orm.strategy_options import Load
 
 from src.core.repository import BaseRepository
-from src.operations.models import OrdenCompra, OrdenCompraDetalle, Yarn
-
+from src.operations.models import OrdenCompra, OrdenCompraDetalle, InventoryItem
+from .yarn_repository import YarnRepository
 
 class OrdenCompraRepository(BaseRepository[OrdenCompra]):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
@@ -37,12 +37,12 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
             OrdenCompra.codcia == '001',
             OrdenCompra.status_flag == 'P',
             func.locate('TITULO GRATUITO', OrdenCompra.payment_method) == 0,
-            Yarn.family_code == '03',
-            Yarn.subfamily_code == '09'
+            InventoryItem.family_id == '03',
+            InventoryItem.subfamily_id == '09'
         )
 
         options.append(
-            contains_eager(OrdenCompra.detalle).contains_eager(OrdenCompraDetalle.yarn)
+            contains_eager(OrdenCompra.detalle).contains_eager(OrdenCompraDetalle.yarn).joinedload(InventoryItem.yarn_color)
         )
 
         ordenes = await self.find_all(

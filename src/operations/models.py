@@ -390,10 +390,10 @@ class OrdenCompraDetalle(PromecBase):
     )
 
     yarn = relationship(
-        "Yarn",
+        "InventoryItem",
         primaryjoin=lambda: and_(
-            OrdenCompraDetalle.codcia == Yarn.codcia,
-            OrdenCompraDetalle.product_code == Yarn.yarn_code
+            OrdenCompraDetalle.codcia == InventoryItem.company_code,
+            OrdenCompraDetalle.product_code == InventoryItem.id
         ),
         foreign_keys=lambda: [
             OrdenCompraDetalle.codcia,
@@ -559,18 +559,18 @@ class MovementYarnOCHeavy(PromecBase):
     )
 
 # Entidad Temp
-class Yarn(PromecBase):
-    __tablename__ = "almprodg"
-    __table_args__ = (
-        PrimaryKeyConstraint("codcia", "codprod"),
-        {"schema": "PUB"}
-    )
-
-    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
-    yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
-    family_code: Mapped[str] = mapped_column("codfam", String(length=6))
-    subfamily_code: Mapped[str] = mapped_column("subfam", String(length=6))
-    details: Mapped[str] = mapped_column("desprod", String(length=120))
+# class Yarn(PromecBase):
+#     __tablename__ = "almprodg"
+#     __table_args__ = (
+#         PrimaryKeyConstraint("codcia", "codprod"),
+#         {"schema": "PUB"}
+#     )
+#
+#     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+#     yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+#     family_code: Mapped[str] = mapped_column("codfam", String(length=6))
+#     subfamily_code: Mapped[str] = mapped_column("subfam", String(length=6))
+#     details: Mapped[str] = mapped_column("desprod", String(length=120))
 
 class Fiber(Base):
     __tablename__ = "fibras"

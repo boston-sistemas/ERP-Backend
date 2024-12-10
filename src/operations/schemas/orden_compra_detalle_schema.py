@@ -1,13 +1,7 @@
 
 from src.core.schemas import CustomBaseModel
 
-# Schema Temp
-class YarnSchema(CustomBaseModel):
-    yarn_code: str
-    details: str | None
-
-    class Config:
-        from_attributes = True
+from src.operations.schemas import YarnSchema
 
 class OrdenCompraDetalleBase(CustomBaseModel):
     quantity_ordered: float
