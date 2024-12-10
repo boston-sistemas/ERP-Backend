@@ -20,6 +20,7 @@ from .orden_servicio_tejeduria_failures import OrdenServicioTejeduriaFailures
 from .orden_servicio_tintoreria_failures import OrdenServicioTintoreriaFailures
 from .proveedor_failures import ProveedorFailures
 from .reporte_stock_tejeduria_failures import ReporteStockTejeduriaFailures
+from .series_failure import SERIES_NOT_FOUND_FAILURE
 from .yarn_failure import (
     DUPLICATE_FIBER_IN_YARN_RECIPE_FAILURE,
     FIBER_DISABLED_IN_YARN_RECIPE_FAILURE,
@@ -35,6 +36,7 @@ from .yarn_failure import (
 )
 
 __all__ = [
+    "SERIES_NOT_FOUND_FAILURE",
     "YARN_RECIPE_NULL_VALIDATION_FAILURE",
     "YARN_COUNT_NULL_VALIDATION_FAILURE",
     "YARN_NUMBERING_NULL_VALIDATION_FAILURE",

@@ -28,6 +28,7 @@ class YarnBase(CustomBaseModel):
     purchase_unit_code: str | None
     description: str | None
     purchase_description: str | None
+    barcode: int | None
     field1: str | None = Field(alias="yarnCount", exclude=True)
     field2: str | None = Field(alias="numberingSystem", exclude=True)
     # field3: str = Field(alias="spinningMethodId")

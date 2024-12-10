@@ -24,6 +24,7 @@ class YarnRepository(InventoryItemRepository):
             InventoryItem.purchase_unit_code,
             InventoryItem.description,
             InventoryItem.purchase_description,
+            InventoryItem.barcode,
             InventoryItem.field1,
             InventoryItem.field2,
             InventoryItem.field3,

@@ -14,10 +14,13 @@ from .programacion_tintoreria_service import ProgramacionTintoreriaService
 from .proveedor_service import ProveedorService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
+from .series_service import BarcodeSeries, SeriesService
 from .unit_service import UnitService
 from .yarn_service import YarnService
 
 __all__ = [
+    "BarcodeSeries",
+    "SeriesService",
     "YarnService",
     "UnitService",
     "FiberService",

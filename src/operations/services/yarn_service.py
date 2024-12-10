@@ -37,6 +37,7 @@ from src.security.services import ParameterService
 
 from .fiber_service import FiberService
 from .mecsa_color_service import MecsaColorService
+from .series_service import BarcodeSeries
 
 
 class YarnService:
@@ -50,6 +51,7 @@ class YarnService:
         self.spinning_methods = SpinningMethods(db=db)
         self.fiber_service = FiberService(db=db, promec_db=promec_db)
         self.recipe_repository = YarnRecipeRepository(db=db)
+        self.barcode_series = BarcodeSeries(promec_db=promec_db)
         """
         field1 = yarn_count
         field2 = numbering_system
@@ -297,6 +299,9 @@ class YarnService:
             return YARN_ALREADY_EXISTS_FAILURE
 
         yarn_id = str(await self.product_sequence.next_value())
+        barcode = (
+            await self.barcode_series.next_number()
+        )  # Throws failure if series not found
         yarn = InventoryItem(
             id=yarn_id,
             family_id=SUPPLY_FAMILY_ID,
@@ -306,6 +311,7 @@ class YarnService:
             purchase_unit_code="KG",
             description=form.description,
             purchase_description=form.description,
+            barcode=barcode,
             field1=form.yarn_count,
             field2=form.numbering_system,
             field3=form.spinning_method_id_,

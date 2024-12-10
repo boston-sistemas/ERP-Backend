@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from operations.schemas.mecsa_color_schema import MecsaColorCreateSchema
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
@@ -11,6 +10,7 @@ from src.operations.failures import (
 )
 from src.operations.models import MecsaColor
 from src.operations.repositories import MecsaColorRepository
+from src.operations.schemas import MecsaColorCreateSchema
 from src.operations.sequences import color_id_seq
 
 
@@ -38,7 +38,7 @@ class MecsaColorService:
         sku_exists = False
         if sku is not None:
             colors = await self.repository.find_mecsa_colors(
-                filter=MecsaColor.sku == sku
+                filter=MecsaColor.sku == sku, exclude_legacy=True
             )
             sku_exists = any(color.sku == sku for color in colors)
 

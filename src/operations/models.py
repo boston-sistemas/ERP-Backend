@@ -362,6 +362,7 @@ class InventoryItem(PromecBase):
     description: Mapped[str] = mapped_column("DesProd")
     purchase_description: Mapped[str] = mapped_column("DesCompra")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
+    barcode: Mapped[int] = mapped_column("CodBarras", default=0)
 
     field1: Mapped[str] = mapped_column("Estruct1")
     field2: Mapped[str] = mapped_column("Estruct2")
@@ -400,3 +401,14 @@ class YarnFiber(Base):
             ["fibras.id"],
         ),
     )
+
+
+class Series(PromecBase):
+    __tablename__ = "admseries"
+
+    company_code: Mapped[str] = mapped_column("CodCia", primary_key=True)
+    document_code: Mapped[str] = mapped_column("CodDoc", primary_key=True)
+    service_number: Mapped[int] = mapped_column("NroSer", primary_key=True)
+    number: Mapped[int] = mapped_column("NroDoc")
+
+    __table_args__ = ({"schema": "PUB"},)
