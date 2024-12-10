@@ -19,36 +19,28 @@ class MecsaColorService:
         self.repository = MecsaColorRepository(db=promec_db)
         self.color_sequence = SequenceRepository(sequence=color_id_seq, db=promec_db)
 
-    async def validate_mecsa_color_data(
+    async def _validate_mecsa_color_data(
         self,
         name: str | None = None,
         sku: str | None = None,
         hexadecimal: str | None = None,
-    ):
+    ) -> Result[None, CustomException]:
         name_exists = False
         if name is not None:
-            colors = await self.repository.find_all(
-                (MecsaColor.table == "COL") & (MecsaColor.name == name)
+            colors = await self.repository.find_mecsa_colors(
+                filter=MecsaColor.name == name, exclude_legacy=True
             )
-
-            for color in colors:
-                if color.id.isdigit() and color.name == name:
-                    name_exists = True
-                    break
+            name_exists = any(color.name == name for color in colors)
 
         if name_exists:
             return MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE(name)
 
         sku_exists = False
         if sku is not None:
-            colors = await self.repository.find_all(
-                (MecsaColor.table == "COL") & (MecsaColor.sku == sku)
+            colors = await self.repository.find_mecsa_colors(
+                filter=MecsaColor.sku == sku
             )
-
-            for color in colors:
-                if color.id.isdigit() and color.name == name:
-                    sku_exists = True
-                    break
+            sku_exists = any(color.sku == sku for color in colors)
 
         if sku_exists:
             return MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE(sku)
@@ -60,7 +52,7 @@ class MecsaColorService:
     async def create_mecsa_color(
         self, form: MecsaColorCreateSchema
     ) -> Result[MecsaColor, CustomException]:
-        validation_result = await self.validate_mecsa_color_data(
+        validation_result = await self._validate_mecsa_color_data(
             name=form.name, sku=form.sku, hexadecimal=form.hexadecimal
         )
         if validation_result.is_failure:
@@ -76,22 +68,36 @@ class MecsaColorService:
     async def read_mecsa_color(
         self, color_id: str
     ) -> Result[MecsaColor, CustomException]:
-        mecsa_color = await self.repository.find_by_id({"table": "COL", "id": color_id})
+        mecsa_color = await self.repository.find_mecsa_color_by_id(color_id=color_id)
         if mecsa_color is not None:
             return Success(mecsa_color)
         return MECSA_COLOR_NOT_FOUND_FAILURE
 
-    async def read_mecsa_colors(self) -> Result[list[MecsaColor], CustomException]:
-        mecsa_colors = await self.repository.find_all(MecsaColor.table == "COL")
-        return Success(
-            [mecsa_color for mecsa_color in mecsa_colors if mecsa_color.id.isdigit()]
+    async def read_mecsa_colors(
+        self, exclude_legacy: bool = False
+    ) -> Result[list[MecsaColor], CustomException]:
+        mecsa_colors = await self.repository.find_mecsa_colors(
+            exclude_legacy=exclude_legacy
+        )
+        return Success(mecsa_colors)
+
+    async def find_mecsa_colors_by_ids(
+        self, mecsa_color_ids: list[str]
+    ) -> Result[list[MecsaColor], CustomException]:
+        if not mecsa_color_ids:
+            return Success([])
+
+        mecsa_colors = await self.repository.find_mecsa_colors(
+            filter=MecsaColor.id.in_(mecsa_color_ids)
         )
 
-    async def map_colors_by_ids(self, color_ids: set[str]) -> dict[str, MecsaColor]:
-        if not color_ids:
-            return {}
+        return Success(mecsa_colors)
 
-        colors = await self.repository.find_all(
-            (MecsaColor.table == "COL") & MecsaColor.id.in_(color_ids)
-        )
-        return {color.id: color for color in colors}
+    async def map_colors_by_ids(
+        self, color_ids: list[str]
+    ) -> Result[dict[str, MecsaColor], CustomException]:
+        mecsa_colors = (
+            await self.find_mecsa_colors_by_ids(mecsa_color_ids=color_ids)
+        ).value
+
+        return Success({mecsa_color.id: mecsa_color for mecsa_color in mecsa_colors})

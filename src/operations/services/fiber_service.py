@@ -36,7 +36,9 @@ class FiberService:
         if not color_ids:
             return None
 
-        color_mapping = await self.mecsa_color_service.map_colors_by_ids(color_ids)
+        color_mapping = (
+            await self.mecsa_color_service.map_colors_by_ids(color_ids)
+        ).value
 
         for fiber in fibers:
             fiber.color = color_mapping.get(fiber.color_id, None)

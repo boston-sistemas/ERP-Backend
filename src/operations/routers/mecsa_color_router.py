@@ -9,7 +9,7 @@ from src.operations.schemas import (
 )
 from src.operations.services import MecsaColorService
 
-router = APIRouter(tags=["Area Operaciones - Color MECSA"], prefix="/color-mecsa")
+router = APIRouter()
 
 
 @router.get("/{color_id}", response_model=MecsaColorSchema)
@@ -27,9 +27,9 @@ async def read_mecsa_color(
 
 @router.get("/", response_model=MecsaColorListSchema)
 async def read_mecsa_colors(promec_db: AsyncSession = Depends(get_promec_db)):
-    mecsa_color_service = MecsaColorService(promec_db)
+    mecsa_color_service = MecsaColorService(promec_db=promec_db)
 
-    result = await mecsa_color_service.read_mecsa_colors()
+    result = await mecsa_color_service.read_mecsa_colors(exclude_legacy=True)
     if result.is_success:
         return MecsaColorListSchema(mecsa_colors=result.value)
 
@@ -38,14 +38,12 @@ async def read_mecsa_colors(promec_db: AsyncSession = Depends(get_promec_db)):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_mecsa_color(
-    mecsa_color_form: MecsaColorCreateSchema, db: AsyncSession = Depends(get_promec_db)
+    form: MecsaColorCreateSchema, promec_db: AsyncSession = Depends(get_promec_db)
 ):
-    mecsa_color_service = MecsaColorService(db)
+    mecsa_color_service = MecsaColorService(promec_db=promec_db)
 
-    creation_result = await mecsa_color_service.create_mecsa_color(
-        form=mecsa_color_form
-    )
+    creation_result = await mecsa_color_service.create_mecsa_color(form=form)
     if creation_result.is_success:
-        return {"message": "Color MECSA creado con éxito"}
+        return {"message": "El color ha sido creado con éxito."}
 
     raise creation_result.error
