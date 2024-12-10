@@ -558,20 +558,6 @@ class MovementYarnOCHeavy(PromecBase):
         {"schema": "PUB"}
     )
 
-# Entidad Temp
-# class Yarn(PromecBase):
-#     __tablename__ = "almprodg"
-#     __table_args__ = (
-#         PrimaryKeyConstraint("codcia", "codprod"),
-#         {"schema": "PUB"}
-#     )
-#
-#     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
-#     yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
-#     family_code: Mapped[str] = mapped_column("codfam", String(length=6))
-#     subfamily_code: Mapped[str] = mapped_column("subfam", String(length=6))
-#     details: Mapped[str] = mapped_column("desprod", String(length=120))
-
 class Fiber(Base):
     __tablename__ = "fibras"
 
