@@ -38,7 +38,7 @@ async def read_fibers(
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FiberService(db=db, promec_db=promec_db)
-    result = await service.read_fibers()
+    result = await service.read_fibers(include_category=True, include_color=True)
 
     if result.is_success:
         return FiberCompleteListSchema(fibers=result.value)

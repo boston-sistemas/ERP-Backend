@@ -9,3 +9,6 @@ LOGO_MECSA = "https://lh3.googleusercontent.com/pw/AP1GczOxb5h_TPjSWvXctIscyr_Ye
 
 MECSA_COMPANY_CODE = "001"
 COMPANY_CODE_MAX_LENGTH = 6
+
+ACTIVE_STATUS_PROMEC = "A"
+INACTIVE_STATUS_PROMEC = "I"

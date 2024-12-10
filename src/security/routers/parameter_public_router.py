@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.security.loaders import FiberCategories, UserPasswordPolicy
+from src.security.loaders import FiberCategories, SpinningMethods, UserPasswordPolicy
 from src.security.schemas import (
     DataTypeListSchema,
     FiberCategoriesSchema,
+    SpinningMethodsSchema,
     UserPasswordPolicySchema,
 )
 
@@ -27,3 +28,10 @@ async def read_fiber_categories(db: AsyncSession = Depends(get_db)):
 @router.get("/password-rules", response_model=UserPasswordPolicySchema)
 async def password_restrictions(db: AsyncSession = Depends(get_db)):
     return await UserPasswordPolicy(db=db).get_schema()
+
+
+@router.get("/spinning-methods", response_model=SpinningMethodsSchema)
+async def read_spinning_methods(db: AsyncSession = Depends(get_db)):
+    return SpinningMethodsSchema(
+        spinning_methods=await SpinningMethods(db=db).get(actives_only=True)
+    )

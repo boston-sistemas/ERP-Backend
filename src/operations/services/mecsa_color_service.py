@@ -67,7 +67,7 @@ class MecsaColorService:
             return validation_result
 
         mecsa_color_id = await self.color_sequence.next_value()
-        mecsa_color = MecsaColor(id=mecsa_color_id, **form.model_dump(), is_active="A")
+        mecsa_color = MecsaColor(id=mecsa_color_id, **form.model_dump())
 
         await self.repository.save(mecsa_color)
 
