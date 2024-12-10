@@ -22,12 +22,19 @@ class InventoryItemRepository(BaseRepository[InventoryItem]):
     async def find_items(
         self,
         filter: BinaryExpression = None,
+        exclude_legacy: bool = False,
         options: Sequence[Load] = None,
         apply_unique: bool = False,
     ) -> list[InventoryItem]:
         base_filter = InventoryItem.company_code == MECSA_COMPANY_CODE
         filter = base_filter & filter if filter is not None else base_filter
 
-        return await self.find_all(
+        inventory_items = await self.find_all(
             filter=filter, options=options, apply_unique=apply_unique
+        )
+
+        return (
+            [item for item in inventory_items if item.id.isdigit()]
+            if exclude_legacy
+            else inventory_items
         )

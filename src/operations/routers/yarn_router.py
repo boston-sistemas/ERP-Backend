@@ -42,12 +42,13 @@ async def read_yarns(
 ):
     service = YarnService(db=db, promec_db=promec_db)
     result = await service.read_yarns(
-        include_color=True, include_spinning_method=True, include_recipe=True
+        include_color=True,
+        include_spinning_method=True,
+        include_recipe=True,
+        exclude_legacy=True,
     )
     if result.is_success:
-        response = result.value
-        response.yarns = [yarn for yarn in response.yarns if yarn.id.isdigit()]
-        return response
+        return result.value
 
     raise result.error
 

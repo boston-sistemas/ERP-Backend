@@ -59,7 +59,10 @@ class YarnRepository(InventoryItemRepository):
         )
 
     async def find_yarns(
-        self, filter: BinaryExpression = None, include_color: bool = False
+        self,
+        filter: BinaryExpression = None,
+        include_color: bool = False,
+        exclude_legacy: bool = False,
     ) -> list[InventoryItem]:
         base_filter = (InventoryItem.family_id == SUPPLY_FAMILY_ID) & (
             InventoryItem.subfamily_id == YARN_SUBFAMILY_ID
@@ -67,6 +70,8 @@ class YarnRepository(InventoryItemRepository):
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options(include_color=include_color)
 
-        yarns = await self.find_items(filter=filter, options=options)
+        yarns = await self.find_items(
+            filter=filter, exclude_legacy=exclude_legacy, options=options
+        )
 
         return yarns

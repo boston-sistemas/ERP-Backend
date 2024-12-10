@@ -262,8 +262,11 @@ class YarnService:
         include_color: bool = False,
         include_spinning_method: bool = False,
         include_recipe: bool = False,
+        exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
-        yarns = await self.repository.find_yarns(include_color=include_color)
+        yarns = await self.repository.find_yarns(
+            include_color=include_color, exclude_legacy=exclude_legacy
+        )
 
         if include_spinning_method:
             await self._assign_spinning_method_to_yarns(yarns)
