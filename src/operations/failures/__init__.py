@@ -34,6 +34,10 @@ from .yarn_failure import (
     YARN_RECIPE_NULL_VALIDATION_FAILURE,
 )
 
+from .yarn_purchase_entry_failures import (
+    YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE
+)
+
 __all__ = [
     "YARN_RECIPE_NULL_VALIDATION_FAILURE",
     "YARN_COUNT_NULL_VALIDATION_FAILURE",
@@ -62,4 +66,5 @@ __all__ = [
     "ProveedorFailures",
     "ColorFailures",
     "OrdenServicioTintoreriaFailures",
+    "YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE",
 ]

@@ -1,6 +1,6 @@
-from typing import Any, Generic, Sequence, TypeVar
+from typing import Any, Generic, Sequence, TypeVar, Union
 
-from sqlalchemy import BinaryExpression, func, select
+from sqlalchemy import BinaryExpression, func, select, Column, ClauseElement
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
 
@@ -60,6 +60,9 @@ class BaseRepository(Generic[ModelType]):
         options: Sequence[Load] = None,
         joins: Sequence[tuple] = None,
         apply_unique: bool = False,
+        offset: int = None,
+        limit: int = None,
+        order_by: Union[Column, ClauseElement, Sequence[Union[Column, ClauseElement]]] = None,
     ) -> list[ModelType]:
         stmt = select(self.model)
 
@@ -77,7 +80,18 @@ class BaseRepository(Generic[ModelType]):
         if options:
             stmt = stmt.options(*options)
 
-        stmt = stmt
+        if order_by is not None:
+            if isinstance(order_by, (list, tuple)):
+                stmt = stmt.order_by(*order_by)
+            else:
+                stmt = stmt.order_by(order_by)
+
+        if offset is not None:
+            stmt = stmt.offset(offset)
+
+        if limit is not None:
+            stmt = stmt.limit(limit)
+
         if apply_unique:
             return (await self.db.scalars(stmt)).unique().all()
 

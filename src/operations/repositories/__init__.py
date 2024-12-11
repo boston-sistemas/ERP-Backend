@@ -17,6 +17,7 @@ from .proveedor_repository import ProveedorRepository
 from .orden_compra_repository import OrdenCompraRepository
 from .yarn_recipe_repository import YarnRecipeRepository
 from .yarn_repository import YarnRepository
+from .yarn_purchase_entry_repository import YarnPurchaseEntryRepository
 
 __all__ = [
     "YarnRecipeRepository",
@@ -34,4 +35,5 @@ __all__ = [
     "OrdenServicioTintoreriaDetalleRepository",
     "ProgramacionTintoreriaRepository",
     "OrdenCompraRepository",
+    "YarnPurchaseEntryRepository",
 ]

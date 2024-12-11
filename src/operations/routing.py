@@ -9,6 +9,7 @@ from .routers import (
     orden_compra_router,
     unit_router,
     yarn_router,
+    yarn_purchase_entry_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]
@@ -31,4 +32,9 @@ router.include_router(
     router=yarn_router.router,
     prefix="/yarns",
     tags=["[AREA OPERACIONES] GESTION DE HILADOS"],
+)
+router.include_router(
+    router=yarn_purchase_entry_router.router,
+    prefix="/yarn-purchase-entries",
+    tags=["[AREA OPERACIONES] GESTION DE INGRESO DE HILADOS POR O/C"],
 )

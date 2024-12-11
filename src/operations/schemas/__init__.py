@@ -70,6 +70,12 @@ from .orden_compra_schema import (
     # OrdenCompraWithDetallesSchema,
 )
 
+from .yarn_purchase_entry_schema import (
+    YarnPurchaseEntriesSimpleListSchema,
+    YarnPurchaseEntrySchema,
+    YarnPurchaseEntrySearchSchema
+)
+
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
 
 __all__ = [
@@ -124,4 +130,8 @@ __all__ = [
     # "OrdenCompraSimpleSchema",
     "OrdenCompraWithDetallesListSchema",
     # "OrdenCompraWithDetallesSchema",
+    "YarnPurchaseEntriesSimpleListSchema",
+    "YarnPurchaseEntrySchema",
+    "YarnPurchaseEntrySearchSchema",
+
 ]

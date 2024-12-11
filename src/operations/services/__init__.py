@@ -17,6 +17,7 @@ from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 from .orden_compra_service import OrdenCompraService
 from .unit_service import UnitService
 from .yarn_service import YarnService
+from .yarn_purchase_entry_service import YarnPurchaseEntryService
 
 __all__ = [
     "YarnService",
@@ -34,4 +35,5 @@ __all__ = [
     "ProgramacionTintoreriaService",
     "MecsaColorService",
     "OrdenCompraService",
+    "YarnPurchaseEntryService",
 ]
