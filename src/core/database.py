@@ -21,11 +21,13 @@ promec_engine = create_engine(
     settings.PROMEC_DATABASE_URL,
     echo=settings.DEBUG,
     pool_pre_ping=True,
+    query_cache_size=0,
 )
 promec_async_engine = create_async_engine(
     settings.PROMEC_DATABASE_URL_ASYNC,
     echo=settings.DEBUG,
     pool_pre_ping=True,
+    query_cache_size=0,
 )
 
 
