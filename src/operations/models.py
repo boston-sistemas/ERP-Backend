@@ -68,6 +68,7 @@ class EspecialidadEmpresa(Base):
     )
 
     proveedores: Mapped[list[Proveedor]] = relationship(
+        lazy="noload",
         secondary="proveedor_especialidad"
     )
 
@@ -131,8 +132,8 @@ class OrdenServicioTejeduria(Base):
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
     )
 
-    proveedor: Mapped[Proveedor] = relationship()
-    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship()
+    proveedor: Mapped[Proveedor] = relationship(lazy="noload")
+    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship(lazy="noload")
 
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id"),
@@ -308,6 +309,7 @@ class Fiber(Base):
 
     category: Mapped[Parameter] = relationship(
         Parameter,
+        lazy="noload",
         primaryjoin="Fiber.category_id == Parameter.id",
         foreign_keys="[Fiber.category_id]",
     )
@@ -329,7 +331,7 @@ class BaseUnit(PromecBase):
     description: Mapped[str] = mapped_column("DesUnd")
 
     derived_units: Mapped[list["DerivedUnit"]] = relationship(
-        "DerivedUnit", primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)"
+        "DerivedUnit", lazy="noload", primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)"
     )
 
     __table_args__ = ({"schema": "PUB"},)
@@ -371,6 +373,7 @@ class InventoryItem(PromecBase):
 
     yarn_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
+        lazy="noload",
         primaryjoin=lambda: and_(
             InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
         ),
