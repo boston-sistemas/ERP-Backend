@@ -1,6 +1,6 @@
 from typing import Any, Generic, Sequence, TypeVar, Union
 
-from sqlalchemy import BinaryExpression, func, select, Column, ClauseElement
+from sqlalchemy import BinaryExpression, ClauseElement, Column, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
 
@@ -37,9 +37,18 @@ class BaseRepository(Generic[ModelType]):
     async def find(
         self,
         filter: BinaryExpression,
+        joins: Sequence[tuple] = None,
         options: Sequence[Load] = None,
     ) -> ModelType:
         stmt = select(self.model).where(filter)
+
+        if joins:
+            for join_item in joins:
+                # stmt = stmt.join(*join_item)
+                if isinstance(join_item, tuple) and len(join_item) == 2:
+                    stmt = stmt.join(join_item[0], join_item[1])
+                else:
+                    stmt = stmt.join(join_item)
 
         if options:
             stmt = stmt.options(*options)
@@ -62,7 +71,9 @@ class BaseRepository(Generic[ModelType]):
         apply_unique: bool = False,
         offset: int = None,
         limit: int = None,
-        order_by: Union[Column, ClauseElement, Sequence[Union[Column, ClauseElement]]] = None,
+        order_by: Union[
+            Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
+        ] = None,
     ) -> list[ModelType]:
         stmt = select(self.model)
 

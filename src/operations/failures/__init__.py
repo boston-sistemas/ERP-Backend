@@ -13,6 +13,9 @@ from .mecsa_color_failure import (
     MECSA_COLOR_NOT_FOUND_FAILURE,
     MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE,
 )
+from .orden_compra_failures import (
+    PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE,
+)
 from .orden_servicio_tejeduria_detalle_failures import (
     OrdenServicioTejeduriaDetalleFailures,
 )
@@ -33,9 +36,11 @@ from .yarn_failure import (
     YARN_NUMBERING_NULL_VALIDATION_FAILURE,
     YARN_RECIPE_NULL_VALIDATION_FAILURE,
 )
-
 from .yarn_purchase_entry_failures import (
-    YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE
+    YARN_PURCHASE_ENTRY_CONE_COUNT_MISMATCH_FAILURE,
+    YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE,
+    YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE,
+    YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE,
 )
 
 __all__ = [
@@ -67,4 +72,8 @@ __all__ = [
     "ColorFailures",
     "OrdenServicioTintoreriaFailures",
     "YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE",
+    "YARN_PURCHASE_ENTRY_CONE_COUNT_MISMATCH_FAILURE",
+    "YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE",
+    "PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE",
+    "YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE",
 ]

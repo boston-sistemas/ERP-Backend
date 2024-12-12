@@ -1,23 +1,19 @@
-
 from sqlalchemy import BinaryExpression
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.operations.schemas import (
-    YarnPurchaseEntrySearchSchema
-)
-
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
-from src.operations.models import Movement, MovementDetail, MovementYarnOCHeavy
-from .movement_repository import MovementRepository
 
 from src.operations.constants import (
-    YARN_PURCHASE_ENTRY_STORAGE_CODE,
-    YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
-    YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_DOCUMENT_CODE,
+    YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
+    YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
+    YARN_PURCHASE_ENTRY_STORAGE_CODE,
 )
+from src.operations.models import Movement, MovementDetail
+from src.operations.schemas import YarnPurchaseEntrySearchSchema
+
+from .movement_repository import MovementRepository
+
 
 class YarnPurchaseEntryRepository(MovementRepository):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
@@ -55,30 +51,23 @@ class YarnPurchaseEntryRepository(MovementRepository):
             Movement.origin_station,
             Movement.transaction_mode,
             Movement.supplier_batch,
-            Movement.mecsa_batch
+            Movement.mecsa_batch,
         )
-
 
     @staticmethod
     def include_details(include_heavy: bool = True) -> list[Load]:
-        # Siempre cargamos detalle y detalle_aux
         base_options = [
-            joinedload(Movement.detalle).joinedload(MovementDetail.detalle_aux)
+            joinedload(Movement.detail).joinedload(MovementDetail.detail_aux)
         ]
 
-        # Si se solicita heavy, agregamos detalle_heavy
         if include_heavy:
             base_options.append(
-                joinedload(Movement.detalle).joinedload(MovementDetail.detalle_heavy)
+                joinedload(Movement.detail).joinedload(MovementDetail.detail_heavy)
             )
 
         return base_options
 
-
-    def get_load_options(
-        self,
-        include_details: bool = False
-    ) -> list[Load]:
+    def get_load_options(self, include_details: bool = False) -> list[Load]:
         options: list[Load] = []
 
         if include_details:
@@ -88,17 +77,19 @@ class YarnPurchaseEntryRepository(MovementRepository):
         return options
 
     async def find_yarn_purchase_by_entry_number(
-        self, purchase_entry_number: str,
+        self,
+        purchase_entry_number: str,
         form: YarnPurchaseEntrySearchSchema,
         filter: BinaryExpression = None,
         include_details: bool = False,
     ) -> Movement | None:
-
-        base_filter = (Movement.storage_code == YARN_PURCHASE_ENTRY_STORAGE_CODE) & (
-            Movement.movement_type == YARN_PURCHASE_ENTRY_MOVEMENT_TYPE) & (
-            Movement.movement_code == YARN_PURCHASE_ENTRY_MOVEMENT_CODE) & (
-            Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE) & (
-                Movement.period == form.period)
+        base_filter = (
+            (Movement.storage_code == YARN_PURCHASE_ENTRY_STORAGE_CODE)
+            & (Movement.movement_type == YARN_PURCHASE_ENTRY_MOVEMENT_TYPE)
+            & (Movement.movement_code == YARN_PURCHASE_ENTRY_MOVEMENT_CODE)
+            & (Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE)
+            & (Movement.period == form.period)
+        )
 
         filter = base_filter & filter if filter is not None else base_filter
 
@@ -110,7 +101,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             options=options,
         )
 
-        return yarn_purchase_entry
+        return yarn_purchase_entry if yarn_purchase_entry is not None else None
 
     async def find_yarn_purchase_entries(
         self,
@@ -119,12 +110,13 @@ class YarnPurchaseEntryRepository(MovementRepository):
         offset: int = None,
         filter: BinaryExpression = None,
     ) -> list[Movement]:
-
-        base_filter = (Movement.storage_code == YARN_PURCHASE_ENTRY_STORAGE_CODE) & (
-            Movement.movement_type == YARN_PURCHASE_ENTRY_MOVEMENT_TYPE) & (
-            Movement.movement_code == YARN_PURCHASE_ENTRY_MOVEMENT_CODE) & (
-            Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE) & (
-                Movement.period == form.period)
+        base_filter = (
+            (Movement.storage_code == YARN_PURCHASE_ENTRY_STORAGE_CODE)
+            & (Movement.movement_type == YARN_PURCHASE_ENTRY_MOVEMENT_TYPE)
+            & (Movement.movement_code == YARN_PURCHASE_ENTRY_MOVEMENT_CODE)
+            & (Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE)
+            & (Movement.period == form.period)
+        )
 
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options()

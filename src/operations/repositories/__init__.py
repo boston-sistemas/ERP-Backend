@@ -4,6 +4,7 @@ from .especialidad_empresa_repository import EspecialidadEmpresaRepository
 from .fiber_repository import FiberRepository
 from .inventory_item_repository import InventoryItemRepository
 from .mecsa_color_repository import MecsaColorRepository
+from .orden_compra_repository import OrdenCompraRepository
 from .orden_servicio_tejeduria_detalle_repository import (
     OrdenServicioTejeduriaDetalleRepository,
 )
@@ -14,10 +15,9 @@ from .orden_servicio_tintoreria_detalle_repository import (
 from .orden_servicio_tintoreria_repository import OrdenServicioTintoreriaRepository
 from .programacion_tintoreria_repository import ProgramacionTintoreriaRepository
 from .proveedor_repository import ProveedorRepository
-from .orden_compra_repository import OrdenCompraRepository
+from .yarn_purchase_entry_repository import YarnPurchaseEntryRepository
 from .yarn_recipe_repository import YarnRecipeRepository
 from .yarn_repository import YarnRepository
-from .yarn_purchase_entry_repository import YarnPurchaseEntryRepository
 
 __all__ = [
     "YarnRecipeRepository",

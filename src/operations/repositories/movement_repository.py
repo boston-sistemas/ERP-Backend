@@ -1,14 +1,13 @@
 from typing import Sequence, Union
 
+from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
-from sqlalchemy import BinaryExpression, Column, ClauseElement
-
-
-from src.core.repository import BaseRepository
 
 from src.core.constants import MECSA_COMPANY_CODE
+from src.core.repository import BaseRepository
 from src.operations.models import Movement
+
 
 class MovementRepository(BaseRepository[Movement]):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
@@ -19,10 +18,11 @@ class MovementRepository(BaseRepository[Movement]):
         document_number: str,
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
-        **kwargs
+        **kwargs,
     ) -> Movement | None:
         base_filter = (Movement.company_code == MECSA_COMPANY_CODE) & (
-            Movement.document_number == document_number)
+            Movement.document_number == document_number
+        )
         filter = base_filter & filter if filter is not None else base_filter
 
         return await self.find(filter=filter, options=options, **kwargs)
@@ -34,7 +34,9 @@ class MovementRepository(BaseRepository[Movement]):
         apply_unique: bool = False,
         limit: int = None,
         offset: int = None,
-        order_by: Union[Column, ClauseElement, Sequence[Union[Column, ClauseElement]]] = None,
+        order_by: Union[
+            Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
+        ] = None,
     ) -> list[Movement]:
         base_filter = Movement.company_code == MECSA_COMPANY_CODE
         filter = base_filter & filter if filter is not None else base_filter

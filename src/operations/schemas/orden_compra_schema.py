@@ -1,10 +1,13 @@
 from datetime import date
 
+from pydantic import Field
+
 from src.core.schemas import CustomBaseModel
 
 from .orden_compra_detalle_schema import OrdenCompraDetalleBase
 
 # from pydantic import field_serializer
+
 
 class OrdenCompraBase(CustomBaseModel):
     codcia: str
@@ -26,11 +29,14 @@ class OrdenCompraBase(CustomBaseModel):
     #         return value.strftime('%Y-%m-%d')
     #     return None
 
+
 class OrdenCompraSimpleSchema(OrdenCompraBase):
     pass
 
+
 class OrdenCompraWithDetallesSchema(OrdenCompraBase):
-    detalle: list[OrdenCompraDetalleBase] = []
+    detail: list[OrdenCompraDetalleBase] | None = Field([])
+
 
 class OrdenCompraWithDetallesListSchema(CustomBaseModel):
     ordenes: list[OrdenCompraWithDetallesSchema]

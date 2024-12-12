@@ -19,7 +19,11 @@ from src.operations.failures import (
     YARN_NUMBERING_NULL_VALIDATION_FAILURE,
     YARN_RECIPE_NULL_VALIDATION_FAILURE,
 )
-from src.operations.models import Fiber, InventoryItem, YarnFiber
+from src.operations.models import (
+    Fiber,
+    InventoryItem,
+    YarnFiber,
+)
 from src.operations.repositories import (
     YarnRecipeRepository,
     YarnRepository,

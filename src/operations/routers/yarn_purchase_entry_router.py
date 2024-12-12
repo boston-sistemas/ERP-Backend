@@ -1,21 +1,21 @@
-from fastapi import APIRouter, Depends, Query, Body
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_promec_db
-
+from src.core.database import get_db, get_promec_db
 from src.operations.schemas import (
-    YarnPurchaseEntrySchema,
     YarnPurchaseEntriesSimpleListSchema,
-    YarnPurchaseEntrySearchSchema
+    YarnPurchaseEntryCreateSchema,
+    YarnPurchaseEntrySchema,
+    YarnPurchaseEntrySearchSchema,
 )
-
 from src.operations.services import (
     YarnPurchaseEntryService,
 )
 
 router = APIRouter()
 
-@router.post("/", response_model=YarnPurchaseEntriesSimpleListSchema)
+
+@router.get("/", response_model=YarnPurchaseEntriesSimpleListSchema)
 async def read_yarn_purchase_entries(
     form: YarnPurchaseEntrySearchSchema,
     limit: int | None = Query(default=10, ge=1, le=100),
@@ -24,9 +24,7 @@ async def read_yarn_purchase_entries(
 ):
     service = YarnPurchaseEntryService(promec_db=promec_db)
     result = await service.read_yarn_purchase_entries(
-        limit=limit,
-        offset=offset,
-        form=form
+        limit=limit, offset=offset, form=form
     )
 
     if result.is_success:
@@ -34,7 +32,8 @@ async def read_yarn_purchase_entries(
 
     raise result.error
 
-@router.post("/{yarn_purchase_entry_number}", response_model=YarnPurchaseEntrySchema)
+
+@router.get("/{yarn_purchase_entry_number}", response_model=YarnPurchaseEntrySchema)
 async def read_yarn_purchase_entry(
     yarn_purchase_entry_number: str,
     form: YarnPurchaseEntrySearchSchema,
@@ -44,8 +43,23 @@ async def read_yarn_purchase_entry(
     result = await service.read_yarn_purchase_entry(
         yarn_purchase_entry_number=yarn_purchase_entry_number,
         form=form,
-        include_details=True
+        include_details=True,
     )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@router.post("/")
+async def create_yarn_purchase_entry(
+    form: YarnPurchaseEntryCreateSchema,
+    db: AsyncSession = Depends(get_db),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = YarnPurchaseEntryService(db=db, promec_db=promec_db)
+    result = await service.create_yarn_purchase_entry(form=form)
 
     if result.is_success:
         return result.value

@@ -1,7 +1,6 @@
-
 from src.core.schemas import CustomBaseModel
-
 from src.operations.schemas import YarnSchema
+
 
 class OrdenCompraDetalleBase(CustomBaseModel):
     quantity_ordered: float
@@ -11,6 +10,7 @@ class OrdenCompraDetalleBase(CustomBaseModel):
 
     class Config:
         from_attributes = True
+
 
 # class OrdenCompraDetalleCreateSchema(OrdenCompraDetalleBase):
 #     pass

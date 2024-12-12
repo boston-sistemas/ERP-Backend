@@ -10,6 +10,12 @@ from .mecsa_color_schema import (
     MecsaColorListSchema,
     MecsaColorSchema,
 )
+from .orden_compra_schema import (
+    # OrdenCompraBase,
+    OrdenCompraSimpleSchema,
+    OrdenCompraWithDetallesListSchema,
+    OrdenCompraWithDetallesSchema,
+)
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
     OrdenServicioTejeduriaDetalleEstadoEnum,
@@ -54,6 +60,13 @@ from .unit_schema import (
     UnitListSchema,
     UnitSchema,
 )
+from .yarn_purchase_entry_schema import (
+    YarnPurchaseEntriesSimpleListSchema,
+    YarnPurchaseEntryCreateSchema,
+    YarnPurchaseEntryDetalleCreateSchema,
+    YarnPurchaseEntrySchema,
+    YarnPurchaseEntrySearchSchema,
+)
 from .yarn_schema import (
     YarnCreateSchema,
     YarnListSchema,
@@ -61,19 +74,6 @@ from .yarn_schema import (
     YarnRecipeItemSimpleSchema,
     YarnSchema,
     YarnUpdateSchema,
-)
-
-from .orden_compra_schema import (
-    # OrdenCompraBase,
-    # OrdenCompraSimpleSchema,
-    OrdenCompraWithDetallesListSchema,
-    # OrdenCompraWithDetallesSchema,
-)
-
-from .yarn_purchase_entry_schema import (
-    YarnPurchaseEntriesSimpleListSchema,
-    YarnPurchaseEntrySchema,
-    YarnPurchaseEntrySearchSchema
 )
 
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
@@ -127,11 +127,12 @@ __all__ = [
     "RevisionStockTejeduriaResponse",
     "ProgramacionTintoreriaParametersResponse",
     # "OrdenCompraBase",
-    # "OrdenCompraSimpleSchema",
+    "OrdenCompraSimpleSchema",
     "OrdenCompraWithDetallesListSchema",
-    # "OrdenCompraWithDetallesSchema",
+    "OrdenCompraWithDetallesSchema",
     "YarnPurchaseEntriesSimpleListSchema",
     "YarnPurchaseEntrySchema",
     "YarnPurchaseEntrySearchSchema",
-
+    "YarnPurchaseEntryCreateSchema",
+    "YarnPurchaseEntryDetalleCreateSchema",
 ]

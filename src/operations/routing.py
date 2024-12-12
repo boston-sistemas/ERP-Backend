@@ -3,13 +3,13 @@ from fastapi import APIRouter
 from .routers import (
     fiber_router,
     mecsa_color_router,
+    orden_compra_router,
     programacion_tintoreria_router,
     reporte_stock_tejeduria_router,
     revision_stock_tejeduria_router,
-    orden_compra_router,
     unit_router,
-    yarn_router,
     yarn_purchase_entry_router,
+    yarn_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]

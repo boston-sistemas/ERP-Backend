@@ -2,6 +2,7 @@ from .color_service import ColorService
 from .especialidad_empresa_service import EspecialidadEmpresaService
 from .fiber_service import FiberService
 from .mecsa_color_service import MecsaColorService
+from .orden_compra_service import OrdenCompraService
 from .orden_servicio_tejeduria_detalle_service import (
     OrdenServicioTejeduriaDetalleService,
 )
@@ -14,10 +15,9 @@ from .programacion_tintoreria_service import ProgramacionTintoreriaService
 from .proveedor_service import ProveedorService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
-from .orden_compra_service import OrdenCompraService
 from .unit_service import UnitService
-from .yarn_service import YarnService
 from .yarn_purchase_entry_service import YarnPurchaseEntryService
+from .yarn_service import YarnService
 
 __all__ = [
     "YarnService",

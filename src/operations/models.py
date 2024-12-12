@@ -11,16 +11,30 @@ from sqlalchemy import (
     UniqueConstraint,
     and_,
     func,
-    and_
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.constants import ACTIVE_STATUS_PROMEC, MECSA_COMPANY_CODE
 from src.core.database import Base, PromecBase
 from src.operations.constants import (
+    ANNULMENT_USER_ID_MAX_LENGTH,
+    AUXILIARY_CODE_MAX_LENGTH,
+    AUXILIARY_NAME_MAX_LENGTH,
+    CLFAUX_MAX_LENGTH,
+    CODCIA_MAX_LENGTH,
+    DOCUMENT_CODE_MAX_LENGTH,
+    DOCUMENT_NOTE_MAX_LENGTH,
+    DOCUMENT_NUMBER_MAX_LENGTH,
+    EXIT_NUMBER_MAX_LENGTH,
     FIBER_DENOMINATION_MAX_LENGTH,
     FIBER_ID_MAX_LENGTH,
     FIBER_ORIGIN_MAX_LENGTH,
+    FLGACT_MAX_LENGTH,
+    FLGCBD_MAX_LENGTH,
+    FLGRECLAMO_MAX_LENGTH,
+    FLGSIT_MAX_LENGTH,
+    GROUP_NUMBER_MAX_LENGTH,
+    INGRESS_NUMBER_MAX_LENGTH,
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,
     MAX_LENGTH_CRUDO_ID,
@@ -35,51 +49,38 @@ from src.operations.constants import (
     MAX_LENGTH_SERVICIO_NOMBRE,
     MAX_LENGTH_TEJIDO_ID,
     MAX_LENGTH_TEJIDO_NOMBRE,
-    CODCIA_MAX_LENGTH,
-    PURCHASE_ORDER_TYPE_MAX_LENGTH,
-    PURCHASE_ORDER_NUMBER_MAX_LENGTH,
-    SUPPLIER_CODE_MAX_LENGTH,
-    PAYMENT_METHOD_MAX_LENGTH,
-    STATUS_FLAG_MAX_LENGTH,
-    PRODUCT_CODE_MAX_LENGTH,
-    UNIT_CODE_MAX_LENGTH,
+    MECSA_BATCH_MAX_LENGTH,
     MECSA_COLOR_ID_MAX_LENGTH,
-    STORAGE_CODE_MAX_LENGTH,
-    MOVEMENT_TYPE_MAX_LENGTH,
     MOVEMENT_CODE_MAX_LENGTH,
-    DOCUMENT_CODE_MAX_LENGTH,
-    DOCUMENT_NUMBER_MAX_LENGTH,
-    DOCUMENT_NOTE_MAX_LENGTH,
-    CLFAUX_MAX_LENGTH,
-    AUXILIARY_CODE_MAX_LENGTH,
+    MOVEMENT_TYPE_MAX_LENGTH,
+    NROGF_MAX_LENGTH,
+    ORIGIN_STATION_MAX_LENGTH,
+    ORIGMOV_MAX_LENGTH,
+    PAYMENT_METHOD_MAX_LENGTH,
+    PRINTED_FLAG_MAX_LENGTH,
+    PRODUCT_CODE_MAX_LENGTH,
+    PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+    PURCHASE_ORDER_TYPE_MAX_LENGTH,
+    REFERENCE_CODE_MAX_LENGTH,
     REFERENCE_DOCUMENT_MAX_LENGTH,
     REFERENCE_NUMBER_MAX_LENGTH,
-    NROGF_MAX_LENGTH,
     SERGF_MAX_LENGTH,
-    ORIGMOV_MAX_LENGTH,
-    ANNULMENT_USER_ID_MAX_LENGTH,
     SERIAL_NUMBER_MAX_LENGTH,
-    PRINTED_FLAG_MAX_LENGTH,
-    FLGACT_MAX_LENGTH,
-    FLGRECLAMO_MAX_LENGTH,
-    FLGSIT_MAX_LENGTH,
-    VOUCHER_NUMBER_MAX_LENGTH,
     SERVADI_MAX_LENGTH,
-    INGRESS_NUMBER_MAX_LENGTH,
-    FLGCBD_MAX_LENGTH,
-    ORIGIN_STATION_MAX_LENGTH,
-    UNDPESOBRUTOTOTAL_MAX_LENGTH,
-    TRANSACTION_MODE_MAX_LENGTH,
+    SERVICE_CODE_MAX_LENGTH,
+    STATUS_FLAG_MAX_LENGTH,
+    STORAGE_CODE_MAX_LENGTH,
     SUPPLIER_BATCH_MAX_LENGTH,
-    MECSA_BATCH_MAX_LENGTH,
-    REFERENCE_CODE_MAX_LENGTH,
-    GROUP_NUMBER_MAX_LENGTH,
+    SUPPLIER_CODE_MAX_LENGTH,
+    TRANSACTION_MODE_MAX_LENGTH,
+    UNDPESOBRUTOTOTAL_MAX_LENGTH,
+    UNIT_CODE_MAX_LENGTH,
     USER_ID_MAX_LENGTH,
-    AUXILIARY_NAME_MAX_LENGTH,
-    EXIT_NUMBER_MAX_LENGTH,
+    VOUCHER_NUMBER_MAX_LENGTH,
     YARN_ID_MAX_LENGTH,
 )
 from src.security.models import Parameter
+
 
 class Proveedor(Base):
     __tablename__ = "proveedor"
@@ -328,138 +329,217 @@ class MecsaColor(PromecBase):
 
     __table_args__ = ({"schema": "PUB"},)
 
+
 class OrdenCompra(PromecBase):
     __tablename__ = "opecocmp"
 
     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
-    purchase_order_type: Mapped[str] = mapped_column("tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH))
-    purchase_order_number: Mapped[str] = mapped_column("nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH))
-    supplier_code: Mapped[str] = mapped_column("codpro", String(length=SUPPLIER_CODE_MAX_LENGTH))
+    purchase_order_type: Mapped[str] = mapped_column(
+        "tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
+    )
+    purchase_order_number: Mapped[str] = mapped_column(
+        "nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH)
+    )
+    supplier_code: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
     issue_date: Mapped[date] = mapped_column("fchemi")
     due_date: Mapped[date] = mapped_column("fchvto")
     currency_code: Mapped[int] = mapped_column("codmon")
-    payment_method: Mapped[str] = mapped_column("fmapgo", String(length=PAYMENT_METHOD_MAX_LENGTH))
-    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+    payment_method: Mapped[str] = mapped_column(
+        "fmapgo", String(length=PAYMENT_METHOD_MAX_LENGTH)
+    )
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
 
-    detalle = relationship(
+    detail = relationship(
         "OrdenCompraDetalle",
+        lazy="noload",
         primaryjoin=lambda: and_(
             OrdenCompra.codcia == OrdenCompraDetalle.codcia,
             OrdenCompra.purchase_order_type == OrdenCompraDetalle.purchase_order_type,
-            OrdenCompra.purchase_order_number == OrdenCompraDetalle.purchase_order_number
+            OrdenCompra.purchase_order_number
+            == OrdenCompraDetalle.purchase_order_number,
         ),
         back_populates="orden_compra",
         single_parent=True,  # one to many
         foreign_keys=lambda: [  # columnas usadas para la relación
             OrdenCompraDetalle.codcia,
             OrdenCompraDetalle.purchase_order_type,
-            OrdenCompraDetalle.purchase_order_number
-        ]
+            OrdenCompraDetalle.purchase_order_number,
+        ],
     )
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "tpooc", "nrooc"),
-        {"schema": "PUB"}
+        {"schema": "PUB"},
     )
+
 
 class OrdenCompraDetalle(PromecBase):
     __tablename__ = "opedocmp"
 
     codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
-    purchase_order_type: Mapped[str] = mapped_column("tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH))
-    purchase_order_number: Mapped[str] = mapped_column("nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH))
-    product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
+    purchase_order_type: Mapped[str] = mapped_column(
+        "tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
+    )
+    purchase_order_number: Mapped[str] = mapped_column(
+        "nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH)
+    )
+    product_code: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
     quantity_ordered: Mapped[float] = mapped_column("canord")
     quantity_supplied: Mapped[float] = mapped_column("canate")
-    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
-    unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
+    unit_code: Mapped[str] = mapped_column(
+        "codund", String(length=UNIT_CODE_MAX_LENGTH)
+    )
 
     orden_compra = relationship(
         "OrdenCompra",
+        lazy="noload",
         primaryjoin=lambda: and_(
             OrdenCompra.codcia == OrdenCompraDetalle.codcia,
             OrdenCompra.purchase_order_type == OrdenCompraDetalle.purchase_order_type,
-            OrdenCompra.purchase_order_number == OrdenCompraDetalle.purchase_order_number
+            OrdenCompra.purchase_order_number
+            == OrdenCompraDetalle.purchase_order_number,
         ),
-        back_populates="detalle",
+        back_populates="detail",
         foreign_keys=lambda: [
             OrdenCompraDetalle.codcia,
             OrdenCompraDetalle.purchase_order_type,
-            OrdenCompraDetalle.purchase_order_number
-        ]
+            OrdenCompraDetalle.purchase_order_number,
+        ],
     )
 
     yarn = relationship(
         "InventoryItem",
+        lazy="noload",
         primaryjoin=lambda: and_(
             OrdenCompraDetalle.codcia == InventoryItem.company_code,
-            OrdenCompraDetalle.product_code == InventoryItem.id
+            OrdenCompraDetalle.product_code == InventoryItem.id,
         ),
         foreign_keys=lambda: [
             OrdenCompraDetalle.codcia,
-            OrdenCompraDetalle.product_code
+            OrdenCompraDetalle.product_code,
         ],
-        viewonly=True
+        viewonly=True,
     )
 
     # elastico
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "tpooc", "nrooc", "codprod"),
-        {"schema": "PUB"}
+        {"schema": "PUB"},
     )
 
     def __repr__(self):
         return f"<OrdenCompraDetalle(codprod={self.product_code}>"
 
+
 class Movement(PromecBase):
     __tablename__ = "almcmovi"
 
-    company_code: Mapped[str] = mapped_column("codcia", String(length=CODCIA_MAX_LENGTH))
-    storage_code: Mapped[str] = mapped_column("codalm", String(length=STORAGE_CODE_MAX_LENGTH))
-    movement_type: Mapped[str] = mapped_column("tpomov", String(length=MOVEMENT_TYPE_MAX_LENGTH))
-    movement_code: Mapped[str] = mapped_column("codmov", String(length=MOVEMENT_CODE_MAX_LENGTH))
-    document_code: Mapped[str] = mapped_column("coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
-    document_number: Mapped[str] = mapped_column("nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=CODCIA_MAX_LENGTH)
+    )
+    storage_code: Mapped[str] = mapped_column(
+        "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
+    )
+    movement_type: Mapped[str] = mapped_column(
+        "tpomov", String(length=MOVEMENT_TYPE_MAX_LENGTH)
+    )
+    movement_code: Mapped[str] = mapped_column(
+        "codmov", String(length=MOVEMENT_CODE_MAX_LENGTH)
+    )
+    document_code: Mapped[str] = mapped_column(
+        "coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH)
+    )
+    document_number: Mapped[str] = mapped_column(
+        "nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH)
+    )
     period: Mapped[int] = mapped_column("periodo")
     creation_date: Mapped[date] = mapped_column("fchdoc")
     creation_time: Mapped[str] = mapped_column("horadoc")
     currency_code: Mapped[int] = mapped_column("codmon")
     exchange_rate: Mapped[float] = mapped_column("tpocmb")
-    document_note: Mapped[str] = mapped_column("notadoc", String(length=DOCUMENT_NOTE_MAX_LENGTH))
+    document_note: Mapped[str] = mapped_column(
+        "notadoc", String(length=DOCUMENT_NOTE_MAX_LENGTH)
+    )
     clfaux: Mapped[str] = mapped_column("clfaux", String(length=CLFAUX_MAX_LENGTH))
-    auxiliary_code: Mapped[str] = mapped_column("codaux", String(length=AUXILIARY_CODE_MAX_LENGTH))
-    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+    auxiliary_code: Mapped[str] = mapped_column(
+        "codaux", String(length=AUXILIARY_CODE_MAX_LENGTH)
+    )
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
     user_id: Mapped[str] = mapped_column("idusers", String(length=USER_ID_MAX_LENGTH))
-    auxiliary_name: Mapped[str] = mapped_column("nomaux", String(length=AUXILIARY_NAME_MAX_LENGTH))
-    reference_document: Mapped[str] = mapped_column("refdoc", String(length=REFERENCE_DOCUMENT_MAX_LENGTH))
-    reference_number: Mapped[str] = mapped_column("refnro", String(length=REFERENCE_NUMBER_MAX_LENGTH))
-    nrogf: Mapped[str] = mapped_column("nrogf", String(length=NROGF_MAX_LENGTH))  # //! Definir nombre representativo
-    sergf: Mapped[str] = mapped_column("sergf", String(length=SERGF_MAX_LENGTH))  # //! Definir nombre representativo
+    auxiliary_name: Mapped[str] = mapped_column(
+        "nomaux", String(length=AUXILIARY_NAME_MAX_LENGTH)
+    )
+    reference_document: Mapped[str] = mapped_column(
+        "refdoc", String(length=REFERENCE_DOCUMENT_MAX_LENGTH)
+    )
+    reference_number: Mapped[str] = mapped_column(
+        "refnro", String(length=REFERENCE_NUMBER_MAX_LENGTH)
+    )
+    nrogf: Mapped[str] = mapped_column(
+        "nrogf", String(length=NROGF_MAX_LENGTH)
+    )  # //! Definir nombre representativo
+    sergf: Mapped[str] = mapped_column(
+        "sergf", String(length=SERGF_MAX_LENGTH)
+    )  # //! Definir nombre representativo
     fecgf: Mapped[date] = mapped_column("fecgf")  # //! Definir nombre representativo
     origmov: Mapped[str] = mapped_column("origmov", String(length=ORIGMOV_MAX_LENGTH))
     annulment_date: Mapped[date] = mapped_column("fchanu")
-    annulment_user_id: Mapped[str] = mapped_column("userid_a", String(length=ANNULMENT_USER_ID_MAX_LENGTH))
-    serial_number: Mapped[str] = mapped_column("nroser", String(length=SERIAL_NUMBER_MAX_LENGTH))
-    printed_flag: Mapped[str] = mapped_column("flgprt", String(length=PRINTED_FLAG_MAX_LENGTH))
+    annulment_user_id: Mapped[str] = mapped_column(
+        "userid_a", String(length=ANNULMENT_USER_ID_MAX_LENGTH)
+    )
+    serial_number: Mapped[str] = mapped_column(
+        "nroser", String(length=SERIAL_NUMBER_MAX_LENGTH)
+    )
+    printed_flag: Mapped[str] = mapped_column(
+        "flgprt", String(length=PRINTED_FLAG_MAX_LENGTH)
+    )
     flgact: Mapped[str] = mapped_column("flgact", String(length=FLGACT_MAX_LENGTH))
-    flgtras: Mapped[bool] = mapped_column("flgtras")  # //! Definir nombre representativo
-    flgreclamo: Mapped[str] = mapped_column("flgreclamo", String(length=FLGRECLAMO_MAX_LENGTH))
+    flgtras: Mapped[bool] = mapped_column(
+        "flgtras"
+    )  # //! Definir nombre representativo
+    flgreclamo: Mapped[str] = mapped_column(
+        "flgreclamo", String(length=FLGRECLAMO_MAX_LENGTH)
+    )
     flgsit: Mapped[str] = mapped_column("flgsit", String(length=FLGSIT_MAX_LENGTH))
-    voucher_number: Mapped[str] = mapped_column("nrovou", String(length=VOUCHER_NUMBER_MAX_LENGTH))
+    voucher_number: Mapped[str] = mapped_column(
+        "nrovou", String(length=VOUCHER_NUMBER_MAX_LENGTH)
+    )
     servadi: Mapped[str] = mapped_column("servadi", String(length=SERVADI_MAX_LENGTH))
     tarfservadi: Mapped[float] = mapped_column("tarfservadi")
     fchcp: Mapped[date] = mapped_column("fchcp")
     flgcbd: Mapped[str] = mapped_column("flgcbd", String(length=FLGCBD_MAX_LENGTH))
-    origin_station: Mapped[str] = mapped_column("estacion", String(length=ORIGIN_STATION_MAX_LENGTH))
-    undpesobrutototal: Mapped[str] = mapped_column("undpesobrutototal", String(length=UNDPESOBRUTOTOTAL_MAX_LENGTH))
-    transaction_mode: Mapped[str] = mapped_column("modtrans", String(length=TRANSACTION_MODE_MAX_LENGTH))
+    origin_station: Mapped[str] = mapped_column(
+        "estacion", String(length=ORIGIN_STATION_MAX_LENGTH)
+    )
+    undpesobrutototal: Mapped[str] = mapped_column(
+        "undpesobrutototal", String(length=UNDPESOBRUTOTOTAL_MAX_LENGTH)
+    )
+    transaction_mode: Mapped[str] = mapped_column(
+        "modtrans", String(length=TRANSACTION_MODE_MAX_LENGTH)
+    )
     intentosenvele: Mapped[int] = mapped_column("intentosenvele")
-    supplier_batch: Mapped[str] = mapped_column("loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH))
-    mecsa_batch: Mapped[str] = mapped_column("lotem", String(length=MECSA_BATCH_MAX_LENGTH))
+    supplier_batch: Mapped[str] = mapped_column(
+        "loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH)
+    )
+    mecsa_batch: Mapped[str] = mapped_column(
+        "lotem", String(length=MECSA_BATCH_MAX_LENGTH)
+    )
 
-    detalle = relationship(
+    detail = relationship(
         "MovementDetail",
+        lazy="noload",
         primaryjoin=lambda: and_(
             Movement.company_code == MovementDetail.company_code,
             Movement.storage_code == MovementDetail.storage_code,
@@ -479,32 +559,50 @@ class Movement(PromecBase):
             MovementDetail.document_code,
             MovementDetail.document_number,
             MovementDetail.period,
-        ]
+        ],
     )
 
     __table_args__ = (
-        PrimaryKeyConstraint("codcia", "codalm", "tpomov", "codmov", "coddoc", "nrodoc", "periodo"),
-        {"schema": "PUB"}
+        PrimaryKeyConstraint(
+            "codcia", "codalm", "tpomov", "codmov", "coddoc", "nrodoc", "periodo"
+        ),
+        {"schema": "PUB"},
     )
+
 
 class MovementDetail(PromecBase):
     __tablename__ = "almdmovi"
 
-    company_code: Mapped[str] = mapped_column("codcia", String(length=CODCIA_MAX_LENGTH))
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=CODCIA_MAX_LENGTH)
+    )
     period: Mapped[int] = mapped_column("periodo")
-    storage_code: Mapped[str] = mapped_column("codalm", String(length=STORAGE_CODE_MAX_LENGTH))
-    movement_type: Mapped[str] = mapped_column("tpomov", String(length=MOVEMENT_TYPE_MAX_LENGTH))
-    movement_code: Mapped[str] = mapped_column("codmov", String(length=MOVEMENT_CODE_MAX_LENGTH))
-    document_code: Mapped[str] = mapped_column("coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
-    document_number: Mapped[str] = mapped_column("nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
+    storage_code: Mapped[str] = mapped_column(
+        "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
+    )
+    movement_type: Mapped[str] = mapped_column(
+        "tpomov", String(length=MOVEMENT_TYPE_MAX_LENGTH)
+    )
+    movement_code: Mapped[str] = mapped_column(
+        "codmov", String(length=MOVEMENT_CODE_MAX_LENGTH)
+    )
+    document_code: Mapped[str] = mapped_column(
+        "coddoc", String(length=DOCUMENT_CODE_MAX_LENGTH)
+    )
+    document_number: Mapped[str] = mapped_column(
+        "nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH)
+    )
     item_number: Mapped[int] = mapped_column("nroitm")
     creation_date: Mapped[date] = mapped_column("fchdoc")
     creation_time: Mapped[str] = mapped_column("horadoc")
-    product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
-    unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
+    product_code: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    unit_code: Mapped[str] = mapped_column(
+        "codund", String(length=UNIT_CODE_MAX_LENGTH)
+    )
     factor: Mapped[int] = mapped_column("factor")
-    quantity: Mapped[float] = mapped_column("cantidad")
-    mecsa_weight: Mapped[float] = mapped_column("pesomecsa")
+    mecsa_weight: Mapped[float] = mapped_column("cantidad")
     precto: Mapped[float] = mapped_column("precto")  # //! Definir nombre representativo
     impcto: Mapped[float] = mapped_column("impcto")  # //! Definir nombre representativo
     currency_code: Mapped[int] = mapped_column("codmon")
@@ -515,10 +613,13 @@ class MovementDetail(PromecBase):
     stkalm: Mapped[float] = mapped_column("stkalm")
     ctomn1: Mapped[float] = mapped_column("ctomn1")  # //! Definir nombre representativo
     ctomn2: Mapped[float] = mapped_column("ctomn2")  # //! Definir nombre representativo
-    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
 
     movement = relationship(
         "Movement",
+        lazy="noload",
         primaryjoin=lambda: and_(
             Movement.company_code == MovementDetail.company_code,
             Movement.storage_code == MovementDetail.storage_code,
@@ -528,7 +629,7 @@ class MovementDetail(PromecBase):
             Movement.document_number == MovementDetail.document_number,
             Movement.period == MovementDetail.period,
         ),
-        back_populates="detalle",
+        back_populates="detail",
         foreign_keys=lambda: [
             MovementDetail.company_code,
             MovementDetail.storage_code,
@@ -537,11 +638,12 @@ class MovementDetail(PromecBase):
             MovementDetail.document_code,
             MovementDetail.document_number,
             MovementDetail.period,
-        ]
+        ],
     )
 
-    detalle_aux = relationship(
+    detail_aux = relationship(
         "MovementDetailAux",
+        lazy="noload",
         primaryjoin=lambda: and_(
             MovementDetail.company_code == MovementDetailAux.company_code,
             MovementDetail.document_code == MovementDetailAux.document_code,
@@ -555,11 +657,12 @@ class MovementDetail(PromecBase):
             MovementDetailAux.document_code,
             MovementDetailAux.document_number,
             MovementDetailAux.item_number,
-        ]
+        ],
     )
 
-    detalle_heavy = relationship(
+    detail_heavy = relationship(
         "MovementYarnOCHeavy",
+        lazy="noload",
         primaryjoin=lambda: and_(
             MovementDetail.company_code == MovementYarnOCHeavy.company_code,
             MovementDetail.document_number == MovementYarnOCHeavy.ingress_number,
@@ -569,21 +672,19 @@ class MovementDetail(PromecBase):
         foreign_keys=lambda: [
             MovementYarnOCHeavy.company_code,
             MovementYarnOCHeavy.ingress_number,
-            MovementYarnOCHeavy.item_number
-        ]
+            MovementYarnOCHeavy.item_number,
+        ],
     )
 
     yarn = relationship(
         "InventoryItem",
+        lazy="noload",
         primaryjoin=lambda: and_(
             MovementDetail.company_code == InventoryItem.company_code,
-            MovementDetail.product_code == InventoryItem.id
+            MovementDetail.product_code == InventoryItem.id,
         ),
-        foreign_keys=lambda: [
-            MovementDetail.company_code,
-            MovementDetail.product_code
-        ],
-        viewonly=True
+        foreign_keys=lambda: [MovementDetail.company_code, MovementDetail.product_code],
+        viewonly=True,
     )
 
     __table_args__ = (
@@ -595,69 +696,102 @@ class MovementDetail(PromecBase):
             "codmov",
             "coddoc",
             "nrodoc",
-            "nroitm"
+            "nroitm",
         ),
-        {"schema": "PUB"}
+        {"schema": "PUB"},
     )
+
 
 class MovementDetailAux(PromecBase):
     __tablename__ = "detauxmov"
 
-    company_code: Mapped[str] = mapped_column("codcia", String(length=CODCIA_MAX_LENGTH))
-    document_code: Mapped[str] = mapped_column("movdoc", String(length=DOCUMENT_CODE_MAX_LENGTH))
-    document_number: Mapped[str] = mapped_column("movnro", String(length=DOCUMENT_NUMBER_MAX_LENGTH))
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=CODCIA_MAX_LENGTH)
+    )
+    document_code: Mapped[str] = mapped_column(
+        "movdoc", String(length=DOCUMENT_CODE_MAX_LENGTH)
+    )
+    document_number: Mapped[str] = mapped_column(
+        "movnro", String(length=DOCUMENT_NUMBER_MAX_LENGTH)
+    )
     item_number: Mapped[int] = mapped_column("nroitm")
     period: Mapped[int] = mapped_column("periodo")
-    product_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
-    unit_code: Mapped[str] = mapped_column("codund", String(length=UNIT_CODE_MAX_LENGTH))
+    product_code: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    unit_code: Mapped[str] = mapped_column(
+        "codund", String(length=UNIT_CODE_MAX_LENGTH)
+    )
     factor: Mapped[int] = mapped_column("factor")
     precto: Mapped[float] = mapped_column("precto")
     impcto: Mapped[float] = mapped_column("impcto")
     fchemi: Mapped[date] = mapped_column("fchemi")
-    net_weight: Mapped[float] = mapped_column("pesoneto")
-    gross_weight: Mapped[float] = mapped_column("pesobrto")
-    cone_count: Mapped[int] = mapped_column("nroconos")
-    package_count: Mapped[int] = mapped_column("nrobolsas")
-    reference_code: Mapped[str] = mapped_column("codref", String(length=REFERENCE_CODE_MAX_LENGTH))
+    guide_net_weight: Mapped[float] = mapped_column("pesoneto")
+    guide_gross_weight: Mapped[float] = mapped_column("pesobrto")
+    guide_cone_count: Mapped[int] = mapped_column("nroconos")
+    guide_package_count: Mapped[int] = mapped_column("nrobolsas")
+    reference_code: Mapped[str] = mapped_column(
+        "codref", String(length=REFERENCE_CODE_MAX_LENGTH)
+    )
 
     movement_detail = relationship(
         "MovementDetail",
+        lazy="noload",
         primaryjoin=lambda: and_(
             MovementDetail.company_code == MovementDetailAux.company_code,
             MovementDetail.document_code == MovementDetailAux.document_code,
             MovementDetail.document_number == MovementDetailAux.document_number,
             MovementDetail.item_number == MovementDetailAux.item_number,
         ),
-        back_populates="detalle_aux",
+        back_populates="detail_aux",
         foreign_keys=lambda: [
             MovementDetailAux.company_code,
             MovementDetailAux.document_code,
             MovementDetailAux.document_number,
             MovementDetailAux.item_number,
-        ]
+        ],
     )
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "movdoc", "movnro", "nroitm", "periodo"),
-        {"schema": "PUB"}
+        {"schema": "PUB"},
     )
+
 
 class MovementYarnOCHeavy(PromecBase):
     __tablename__ = "opehilado"
 
-    company_code: Mapped[str] = mapped_column("codcia", String(length=CODCIA_MAX_LENGTH))
-    yarn_code: Mapped[str] = mapped_column("codprod", String(length=PRODUCT_CODE_MAX_LENGTH))
-    group_number: Mapped[str] = mapped_column("grupo", String(length=GROUP_NUMBER_MAX_LENGTH))
-    ingress_number: Mapped[str] = mapped_column("nroing", String(length=INGRESS_NUMBER_MAX_LENGTH))
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=CODCIA_MAX_LENGTH)
+    )
+    yarn_id: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    group_number: Mapped[str] = mapped_column(
+        "grupo", String(length=GROUP_NUMBER_MAX_LENGTH)
+    )
+    ingress_number: Mapped[str] = mapped_column(
+        "nroing", String(length=INGRESS_NUMBER_MAX_LENGTH)
+    )
     item_number: Mapped[int] = mapped_column("nroitm")
-    exit_number: Mapped[str] = mapped_column("nrosal", String(length=EXIT_NUMBER_MAX_LENGTH))
+    exit_number: Mapped[str] = mapped_column(
+        "nrosal", String(length=EXIT_NUMBER_MAX_LENGTH)
+    )
     #  ProHil
-    status_flag: Mapped[str] = mapped_column("flgest", String(length=STATUS_FLAG_MAX_LENGTH))
-    entry_user_id: Mapped[str] = mapped_column("idusers_i", String(length=USER_ID_MAX_LENGTH))
-    exit_user_id: Mapped[str] = mapped_column("idusers_s", String(length=USER_ID_MAX_LENGTH))
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
+    entry_user_id: Mapped[str] = mapped_column(
+        "idusers_i", String(length=USER_ID_MAX_LENGTH)
+    )
+    exit_user_id: Mapped[str] = mapped_column(
+        "idusers_s", String(length=USER_ID_MAX_LENGTH)
+    )
     cone_count: Mapped[int] = mapped_column("nroconos")
     package_count: Mapped[int] = mapped_column("nrobolsas")
-    destination_storage: Mapped[str] = mapped_column("almdes", String(length=STORAGE_CODE_MAX_LENGTH))
+    destination_storage: Mapped[str] = mapped_column(
+        "almdes", String(length=STORAGE_CODE_MAX_LENGTH)
+    )
     net_weight: Mapped[float] = mapped_column("pesoneto")
     gross_weight: Mapped[float] = mapped_column("pesobrto")
     dispatch_status: Mapped[bool] = mapped_column("flgdesp")
@@ -665,8 +799,23 @@ class MovementYarnOCHeavy(PromecBase):
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "codprod", "grupo", "nroitm"),
-        {"schema": "PUB"}
+        {"schema": "PUB"},
     )
+
+
+class SupplierSequenceManager(PromecBase):
+    __tablename__ = "opeservprov"
+
+    supplier_code: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+    service_code: Mapped[str] = mapped_column(
+        "codser", String(length=SERVICE_CODE_MAX_LENGTH)
+    )
+    sequence_number: Mapped[int] = mapped_column("nrocorr")
+
+    __table_args__ = (PrimaryKeyConstraint("codpro", "codser"), {"schema": "PUB"})
+
 
 class Fiber(Base):
     __tablename__ = "fibras"
@@ -688,6 +837,7 @@ class Fiber(Base):
 
     category: Mapped[Parameter] = relationship(
         Parameter,
+        lazy="noload",
         primaryjoin="Fiber.category_id == Parameter.id",
         foreign_keys="[Fiber.category_id]",
     )
@@ -709,7 +859,9 @@ class BaseUnit(PromecBase):
     description: Mapped[str] = mapped_column("DesUnd")
 
     derived_units: Mapped[list["DerivedUnit"]] = relationship(
-        "DerivedUnit", primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)"
+        "DerivedUnit",
+        lazy="noload",
+        primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)",
     )
 
     __table_args__ = ({"schema": "PUB"},)
@@ -750,6 +902,7 @@ class InventoryItem(PromecBase):
 
     yarn_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
+        lazy="noload",
         primaryjoin=lambda: and_(
             InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
         ),
