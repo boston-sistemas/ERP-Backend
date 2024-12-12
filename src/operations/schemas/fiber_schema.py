@@ -37,16 +37,16 @@ class FiberCompleteListSchema(CustomBaseModel):
 class FiberCreateSchema(CustomBaseModel):
     category_id: int
     denomination: str | None = Field(
-        default=None, ge=1, max_length=FIBER_DENOMINATION_MAX_LENGTH
+        default=None, min_length=1, max_length=FIBER_DENOMINATION_MAX_LENGTH
     )
     origin: CountryAlpha3 | None = Field(default=None)
     color_id: str | None = Field(
-        default=None, ge=1, max_length=MECSA_COLOR_ID_MAX_LENGTH
+        default=None, min_length=1, max_length=MECSA_COLOR_ID_MAX_LENGTH
     )
 
 
 class FiberUpdateSchema(FiberCreateSchema):
     category_id: int | None = None
-    denomination: str | None = Field(default=None, ge=1)
+    denomination: str | None = Field(default=None, min_length=1)
     origin: CountryAlpha3 | None = Field(default=None)
-    color_id: str | None = Field(default=None, ge=1)
+    color_id: str | None = Field(default=None, min_length=1)
