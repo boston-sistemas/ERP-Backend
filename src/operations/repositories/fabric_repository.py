@@ -3,62 +3,59 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
 
-from src.operations.constants import SUPPLY_FAMILY_ID, YARN_SUBFAMILY_ID
+from src.operations.constants import FABRIC_FAMILY_ID
 from src.operations.models import InventoryItem
 
 from .inventory_item_repository import InventoryItemRepository
 
 
-class YarnRepository(InventoryItemRepository):
+class FabricRepository(InventoryItemRepository):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
         super().__init__(db, flush)
 
     @staticmethod
-    def get_yarn_fields() -> tuple:
+    def get_fabric_fields() -> tuple:
         return (
             *InventoryItemRepository.get_fields(),
             InventoryItem.field1,
             InventoryItem.field2,
             InventoryItem.field3,
             InventoryItem.field4,
+            InventoryItem.field5,
         )
 
     @staticmethod
     def include_color() -> Load:
-        return joinedload(InventoryItem.yarn_color)
+        return joinedload(InventoryItem.fabric_color)
 
     def get_load_options(self, include_color: bool = False) -> list[Load]:
         options: list[Load] = []
         if include_color:
             options.append(self.include_color())
 
-        options.append(load_only(*self.get_yarn_fields()))
+        options.append(load_only(*self.get_fabric_fields()))
         return options
 
-    async def find_yarn_by_id(
-        self, yarn_id: str, include_color: bool = False
+    async def find_fabric_by_id(
+        self, fabric_id: str, include_color: bool = False
     ) -> InventoryItem | None:
         options = self.get_load_options(include_color=include_color)
 
-        yarn = await self.find_item_by_id(id=yarn_id, options=options)
+        fabric = await self.find_item_by_id(id=fabric_id, options=options)
 
         return (
-            yarn
-            if yarn is not None
-            and yarn.family_id == SUPPLY_FAMILY_ID
-            and yarn.subfamily_id == YARN_SUBFAMILY_ID
+            fabric
+            if fabric is not None and fabric.family_id == FABRIC_FAMILY_ID
             else None
         )
 
-    async def find_yarns(
+    async def find_fabrics(
         self,
         filter: BinaryExpression = None,
         include_color: bool = False,
         exclude_legacy: bool = False,
     ) -> list[InventoryItem]:
-        base_filter = (InventoryItem.family_id == SUPPLY_FAMILY_ID) & (
-            InventoryItem.subfamily_id == YARN_SUBFAMILY_ID
-        )
+        base_filter = InventoryItem.family_id == FABRIC_FAMILY_ID
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options(include_color=include_color)
 

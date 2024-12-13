@@ -368,13 +368,26 @@ class InventoryItem(PromecBase):
     purchase_description: Mapped[str] = mapped_column("DesCompra")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
     barcode: Mapped[int] = mapped_column("CodBarras", default=0)
+    order_: Mapped[str] = mapped_column("Orden", default="A")
 
     field1: Mapped[str] = mapped_column("Estruct1")
     field2: Mapped[str] = mapped_column("Estruct2")
     field3: Mapped[str] = mapped_column("Estruct3")
     field4: Mapped[str] = mapped_column("Estruct4", default=None, nullable=True)
+    field5: Mapped[str] = mapped_column("Estruct5")
 
     yarn_color: Mapped[MecsaColor] = relationship(
+        MecsaColor,
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
+        ),
+        foreign_keys=lambda: [
+            MecsaColor.id,
+        ],
+    )
+
+    fabric_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
         lazy="noload",
         primaryjoin=lambda: and_(
