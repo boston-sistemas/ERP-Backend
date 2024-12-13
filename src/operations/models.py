@@ -68,8 +68,7 @@ class EspecialidadEmpresa(Base):
     )
 
     proveedores: Mapped[list[Proveedor]] = relationship(
-        lazy="noload",
-        secondary="proveedor_especialidad"
+        lazy="noload", secondary="proveedor_especialidad"
     )
 
     __table_args__ = (PrimaryKeyConstraint("especialidad_id"),)
@@ -133,7 +132,9 @@ class OrdenServicioTejeduria(Base):
     )
 
     proveedor: Mapped[Proveedor] = relationship(lazy="noload")
-    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship(lazy="noload")
+    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship(
+        lazy="noload"
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id"),
@@ -331,7 +332,9 @@ class BaseUnit(PromecBase):
     description: Mapped[str] = mapped_column("DesUnd")
 
     derived_units: Mapped[list["DerivedUnit"]] = relationship(
-        "DerivedUnit", lazy="noload", primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)"
+        "DerivedUnit",
+        lazy="noload",
+        primaryjoin="BaseUnit.code == foreign(DerivedUnit.base_code)",
     )
 
     __table_args__ = ({"schema": "PUB"},)
