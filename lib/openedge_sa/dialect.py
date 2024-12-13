@@ -102,6 +102,18 @@ class OpenEdgeDialect(OpenEdgeDialectBase):
             return False
         return True
 
+    def is_disconnect(self, e, connection, cursor):
+        error_codes = ["08S01", "HYT00", "08003"]
+        if isinstance(e, self.loaded_dbapi.Error):
+            error_code = getattr(e, "args", [None])[0]
+            if error_code in error_codes:
+                return True
+        if "Socket closed" in str(e):
+            return True
+        if "connection is not available" in str(e):
+            return True
+        return False
+
 
 class OpenEdgeDialectAsync(aiodbcConnector, OpenEdgeDialect):
     driver = "aioodbc"
