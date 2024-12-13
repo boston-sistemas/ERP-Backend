@@ -6,7 +6,7 @@ from pydantic import AliasChoices, Field, computed_field
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import PRODUCT_CODE_MAX_LENGTH
 
-from .yarn_purchase_entry_detalle_heavy_schema import (
+from .yarn_purchase_entry_detail_heavy_schema import (
     YarnPurchaseEntryDetalleHeavyCreateSchema,
     YarnPurchaseEntryDetalleHeavySimpleSchema,
 )
@@ -88,3 +88,8 @@ class YarnPurchaseEntryDetalleCreateSchema(CustomBaseModel):
     guide_package_count: int = Field(gt=0)
 
     detail_heavy: list[YarnPurchaseEntryDetalleHeavyCreateSchema] = Field(default=[])
+
+    @computed_field
+    @property
+    def mecsa_weight(self) -> float:
+        return sum(heavy.net_weight for heavy in self.detail_heavy)

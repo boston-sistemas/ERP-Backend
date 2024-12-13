@@ -41,17 +41,12 @@ async def read_yarns(
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
-    import time
-
-    from loguru import logger
-
-    start = time.perf_counter()
     result = await service.read_yarns(
-        include_color=True, include_spinning_method=True, include_recipe=True
+        include_color=True,
+        include_spinning_method=True,
+        include_recipe=True,
+        exclude_legacy=True,
     )
-    end = time.perf_counter()
-    duration = end - start
-    logger.debug(f"Tiempo de ejecucion {duration:.10f}")
     if result.is_success:
         return result.value
 

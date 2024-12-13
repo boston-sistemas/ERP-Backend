@@ -1,5 +1,6 @@
 from src.core.schemas import CustomBaseModel
-from src.operations.schemas import YarnSchema
+
+from .yarn_schema import YarnSchema
 
 
 class OrdenCompraDetalleBase(CustomBaseModel):

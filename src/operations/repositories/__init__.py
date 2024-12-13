@@ -16,10 +16,12 @@ from .orden_servicio_tintoreria_repository import OrdenServicioTintoreriaReposit
 from .programacion_tintoreria_repository import ProgramacionTintoreriaRepository
 from .proveedor_repository import ProveedorRepository
 from .yarn_purchase_entry_repository import YarnPurchaseEntryRepository
+from .series_repository import SeriesRepository
 from .yarn_recipe_repository import YarnRecipeRepository
 from .yarn_repository import YarnRepository
 
 __all__ = [
+    "SeriesRepository",
     "YarnRecipeRepository",
     "InventoryItemRepository",
     "BaseUnitRepository",

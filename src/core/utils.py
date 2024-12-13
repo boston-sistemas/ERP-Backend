@@ -8,7 +8,7 @@ PERU_TIMEZONE = pytz.timezone("America/Lima")
 
 
 def calculate_time(
-    minutes: float = 0, hours: float = 0, days: float = 0, timezone=UTC
+    minutes: float = 0, hours: float = 0, days: float = 0, tz=UTC
 ) -> datetime:
     """
     Returns the current UTC time plus the specified minutes and days.
@@ -23,7 +23,7 @@ def calculate_time(
         datetime: The resulting datetime in UTC, without timezone info.
     """
 
-    current_time = datetime.now(timezone).replace(tzinfo=None)
+    current_time = datetime.now(tz).replace(tzinfo=None)
     return current_time + timedelta(minutes=minutes, hours=hours, days=days)
 
 

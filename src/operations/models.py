@@ -21,7 +21,7 @@ from src.operations.constants import (
     AUXILIARY_CODE_MAX_LENGTH,
     AUXILIARY_NAME_MAX_LENGTH,
     CLFAUX_MAX_LENGTH,
-    CODCIA_MAX_LENGTH,
+    COMPANY_CODE_MAX_LENGTH,
     DOCUMENT_CODE_MAX_LENGTH,
     DOCUMENT_NOTE_MAX_LENGTH,
     DOCUMENT_NUMBER_MAX_LENGTH,
@@ -78,6 +78,9 @@ from src.operations.constants import (
     USER_ID_MAX_LENGTH,
     VOUCHER_NUMBER_MAX_LENGTH,
     YARN_ID_MAX_LENGTH,
+    SUPPLIER_NAME_MAX_LENGTH,
+    SUPPLIER_ADDRESS_MAX_LENGTH,
+    SUPPLIER_RUC_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -333,7 +336,7 @@ class MecsaColor(PromecBase):
 class OrdenCompra(PromecBase):
     __tablename__ = "opecocmp"
 
-    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    codcia: Mapped[str] = mapped_column(String(length=COMPANY_CODE_MAX_LENGTH))
     purchase_order_type: Mapped[str] = mapped_column(
         "tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
     )
@@ -380,7 +383,7 @@ class OrdenCompra(PromecBase):
 class OrdenCompraDetalle(PromecBase):
     __tablename__ = "opedocmp"
 
-    codcia: Mapped[str] = mapped_column(String(length=CODCIA_MAX_LENGTH))
+    codcia: Mapped[str] = mapped_column(String(length=COMPANY_CODE_MAX_LENGTH))
     purchase_order_type: Mapped[str] = mapped_column(
         "tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
     )
@@ -445,7 +448,7 @@ class Movement(PromecBase):
     __tablename__ = "almcmovi"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia", String(length=CODCIA_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     storage_code: Mapped[str] = mapped_column(
         "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
@@ -574,7 +577,7 @@ class MovementDetail(PromecBase):
     __tablename__ = "almdmovi"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia", String(length=CODCIA_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     period: Mapped[int] = mapped_column("periodo")
     storage_code: Mapped[str] = mapped_column(
@@ -706,7 +709,7 @@ class MovementDetailAux(PromecBase):
     __tablename__ = "detauxmov"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia", String(length=CODCIA_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     document_code: Mapped[str] = mapped_column(
         "movdoc", String(length=DOCUMENT_CODE_MAX_LENGTH)
@@ -762,7 +765,7 @@ class MovementYarnOCHeavy(PromecBase):
     __tablename__ = "opehilado"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia", String(length=CODCIA_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     yarn_id: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
@@ -802,8 +805,46 @@ class MovementYarnOCHeavy(PromecBase):
         {"schema": "PUB"},
     )
 
+class Supplier(PromecBase):
+    __tablename__ = "proveedor"
 
-class SupplierSequenceManager(PromecBase):
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
+    )
+    code: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+    name: Mapped[str] = mapped_column(
+        "nompro", String(length=SUPPLIER_NAME_MAX_LENGTH)
+    )
+    address: Mapped[str] = mapped_column(
+        "dirpro", String(length=SUPPLIER_ADDRESS_MAX_LENGTH)
+    )
+    ruc: Mapped[str] = mapped_column(
+        "rucpro", String(length=SUPPLIER_RUC_MAX_LENGTH)
+    )
+    is_active: Mapped[str] = mapped_column(
+        "condicion", String(length=ACTIVE_STATUS_PROMEC)
+    )
+
+    services = relationship(
+        "SupplierService",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Supplier.code == SupplierService.supplier_code,
+        ),
+        back_populates="supplier",
+        foreign_keys=lambda: [
+            SupplierService.supplier_code,
+        ],
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "codpro"),
+        {"schema": "PUB"},
+    )
+
+class SupplierService(PromecBase):
     __tablename__ = "opeservprov"
 
     supplier_code: Mapped[str] = mapped_column(
@@ -815,7 +856,6 @@ class SupplierSequenceManager(PromecBase):
     sequence_number: Mapped[int] = mapped_column("nrocorr")
 
     __table_args__ = (PrimaryKeyConstraint("codpro", "codser"), {"schema": "PUB"})
-
 
 class Fiber(Base):
     __tablename__ = "fibras"
@@ -894,6 +934,7 @@ class InventoryItem(PromecBase):
     description: Mapped[str] = mapped_column("DesProd")
     purchase_description: Mapped[str] = mapped_column("DesCompra")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
+    barcode: Mapped[int] = mapped_column("CodBarras", default=0)
 
     field1: Mapped[str] = mapped_column("Estruct1")
     field2: Mapped[str] = mapped_column("Estruct2")
@@ -933,3 +974,27 @@ class YarnFiber(Base):
             ["fibras.id"],
         ),
     )
+
+
+class Series(PromecBase):
+    __tablename__ = "admseries"
+
+    company_code: Mapped[str] = mapped_column("CodCia", primary_key=True)
+    document_code: Mapped[str] = mapped_column("CodDoc", primary_key=True)
+    service_number: Mapped[int] = mapped_column("NroSer", primary_key=True)
+    number: Mapped[int] = mapped_column("NroDoc")
+
+    __table_args__ = ({"schema": "PUB"},)
+
+class CurrencyExchange(PromecBase):
+    __tablename__ = "cbdtpocmb"
+
+    exchange_date: Mapped[date] = mapped_column("fecha")
+    buy_rate: Mapped[float] = mapped_column("compra")
+    sell_rate: Mapped[float] = mapped_column("venta")
+
+    __table_args__ = (
+        PrimaryKeyConstraint("fecha"),
+        {"schema": "PUB"},
+    )
+

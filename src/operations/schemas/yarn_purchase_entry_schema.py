@@ -9,7 +9,7 @@ from src.operations.constants import (
     SERGF_MAX_LENGTH,
 )
 
-from .yarn_purchase_entry_detalle_schema import (
+from .yarn_purchase_entry_detail_schema import (
     YarnPurchaseEntryDetalleCreateSchema,
     YarnPurchaseEntryDetalleSimpleSchema,
 )
@@ -37,6 +37,8 @@ class YarnPurchaseEntryBase(CustomBaseModel):
     flgtras: bool | None
     supplier_batch: str | None
     mecsa_batch: str | None
+
+    document_note: str | None
 
     class Config:
         from_attributes = True
@@ -83,5 +85,6 @@ class YarnPurchaseEntryCreateSchema(CustomBaseModel):
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     fecgf: date
     purchase_order_number: str = Field(max_length=REFERENCE_NUMBER_MAX_LENGTH)
+    document_note: str | None = None
 
     detail: list[YarnPurchaseEntryDetalleCreateSchema] = Field(default=[])

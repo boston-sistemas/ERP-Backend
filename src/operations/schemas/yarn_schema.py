@@ -28,6 +28,7 @@ class YarnBase(CustomBaseModel):
     purchase_unit_code: str | None
     description: str | None
     purchase_description: str | None
+    barcode: int | None
     field1: str | None = Field(alias="yarnCount", exclude=True)
     field2: str | None = Field(alias="numberingSystem", exclude=True)
     # field3: str = Field(alias="spinningMethodId")
@@ -104,12 +105,12 @@ class YarnCreateSchema(CustomBaseModel):
 
 class YarnUpdateSchema(CustomBaseModel):
     yarn_count: str | None = Field(
-        default=None,  # <-
+        default=None,
         pattern=r"^\d+(/\d+)?$",
         max_length=INVENTORY_ITEM_FIELD1_MAX_LENGTH,
         examples=["30/1", "28/1", "20"],
     )
-    numbering_system: YarnNumbering | None = None  # <-
+    numbering_system: YarnNumbering | None = None
     spinning_method_id: int | None = None
     color_id: str | None = Field(default=None, max_length=MECSA_COLOR_ID_MAX_LENGTH)
     description: str | None = Field(

@@ -31,8 +31,10 @@ class MecsaColorListSchema(CustomBaseModel):
 
 
 class MecsaColorCreateSchema(CustomBaseModel):
-    name: str = Field(max_length=MAX_LENGTH_MECSA_COLOR_NAME)
-    sku: str | None = Field(default=None, max_length=MAX_LENGTH_MECSA_COLOR_SKU)
+    name: str = Field(min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_NAME)
+    sku: str | None = Field(
+        default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_SKU
+    )
     hexadecimal: str | None = Field(
-        default=None, max_length=MAX_LENGTH_MECSA_COLOR_HEXADECIMAL
+        default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_HEXADECIMAL
     )

@@ -77,7 +77,7 @@ def generate_html(
         values_email,
     )
 
-    fecha = calculate_time(timezone=PERU_TIMEZONE).strftime("%d/%m/%Y")
+    fecha = calculate_time(tz=PERU_TIMEZONE).strftime("%d/%m/%Y")
 
     html_content = template_env.render(
         from_=tejeduria.razon_social,
