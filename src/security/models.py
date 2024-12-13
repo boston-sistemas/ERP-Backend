@@ -52,7 +52,7 @@ class Usuario(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     blocked_until: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     reset_password_at: Mapped[datetime] = mapped_column()
-    roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol")
+    roles: Mapped[list["Rol"]] = relationship(secondary="usuario_rol", lazy="noload")
 
     __table_args__ = (PrimaryKeyConstraint("usuario_id"),)
 
@@ -75,7 +75,9 @@ class Rol(Base):
         String(length=MAX_LENGTH_ROL_NOMBRE), default="bg-zinc-400"
     )
 
-    accesos: Mapped[list["Acceso"]] = relationship(secondary="rol_acceso")
+    accesos: Mapped[list["Acceso"]] = relationship(
+        secondary="rol_acceso", lazy="noload"
+    )
 
     __table_args__ = (PrimaryKeyConstraint("rol_id"),)
 
@@ -169,7 +171,7 @@ class UsuarioSesion(Base):
     not_after: Mapped[datetime] = mapped_column()
     ip: Mapped[str] = mapped_column(String(length=MAX_LENGTH_SESION_IP))
 
-    usuario: Mapped["Usuario"] = relationship()
+    usuario: Mapped["Usuario"] = relationship(lazy="noload")
 
     __table_args__ = (
         PrimaryKeyConstraint("sesion_id"),
@@ -218,7 +220,7 @@ class Parameter(Base):
     value: Mapped[str] = mapped_column(String(length=PARAMETER_VALUE_MAX_LENGTH))
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    category: Mapped[ParameterCategory] = relationship()
+    category: Mapped[ParameterCategory] = relationship(lazy="noload")
 
     __table_args__ = (
         ForeignKeyConstraint(["category_id"], ["parameter_categories.id"]),
