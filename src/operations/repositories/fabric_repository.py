@@ -29,11 +29,10 @@ class FabricRepository(InventoryItemRepository):
         return joinedload(InventoryItem.fabric_color)
 
     def get_load_options(self, include_color: bool = False) -> list[Load]:
-        options: list[Load] = []
+        options: list[Load] = [load_only(*self.get_fabric_fields())]
         if include_color:
             options.append(self.include_color())
 
-        options.append(load_only(*self.get_fabric_fields()))
         return options
 
     async def find_fabric_by_id(

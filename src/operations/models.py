@@ -380,7 +380,7 @@ class InventoryItem(PromecBase):
         MecsaColor,
         lazy="noload",
         primaryjoin=lambda: and_(
-            InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
+            InventoryItem.field4 == MecsaColor.id, MecsaColor.table == "COL"
         ),
         foreign_keys=lambda: [
             MecsaColor.id,
