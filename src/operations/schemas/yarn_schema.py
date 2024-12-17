@@ -1,10 +1,15 @@
 from enum import Enum
 from typing import Self
 
-from pydantic import Field, computed_field, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    Field,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 from src.core.schemas import CustomBaseModel
-from src.core.utils import is_active_status
 from src.operations.constants import (
     FIBER_ID_MAX_LENGTH,
     INVENTORY_ITEM_DESCRIPTION_MAX_LENGTH,
@@ -14,6 +19,7 @@ from src.operations.constants import (
 from src.security.schemas import ParameterValueSchema
 
 from .fiber_schema import FiberCompleteSchema
+from .inventory_item_schema import InventoryItemBase
 from .mecsa_color_schema import MecsaColorSchema
 
 
@@ -22,42 +28,26 @@ class YarnNumbering(str, Enum):
     dn = "Dn"
 
 
-class YarnBase(CustomBaseModel):
-    id: str
-    inventory_unit_code: str | None
-    purchase_unit_code: str | None
-    description: str | None
-    purchase_description: str | None
-    barcode: int | None
-    field1: str | None = Field(alias="yarnCount", exclude=True)
-    field2: str | None = Field(alias="numberingSystem", exclude=True)
+class YarnBase(InventoryItemBase):
+    yarn_count: str | None = Field(
+        default=None, validation_alias=AliasChoices("field1")
+    )
+    numbering_system: str | None = Field(
+        default=None, validation_alias=AliasChoices("field2")
+    )
     # field3: str = Field(alias="spinningMethodId")
     # field4: str = Field(alias="colorId")
-    is_active: bool
-
     spinning_method: ParameterValueSchema | None = None
-    yarn_color: MecsaColorSchema | None = Field(default=None, alias="color")
-
-    @computed_field
-    @property
-    def yarn_count(self) -> str | None:
-        return self.field1 if self.field1 else None
-
-    @computed_field
-    @property
-    def numbering_system(self) -> str | None:
-        return self.field2 if self.field2 else None
-
-    @field_validator("is_active", mode="before")
-    def convert_is_active(cls, value):
-        return is_active_status(value)
-
-    class Config:
-        from_attributes = True
+    color: MecsaColorSchema | None = Field(
+        default=None, validation_alias=AliasChoices("yarn_color")
+    )
 
 
 class YarnSchema(YarnBase):
     recipe: list["YarnRecipeItemSchema"] = []
+
+    class Config:
+        from_attributes = True
 
 
 class YarnListSchema(CustomBaseModel):

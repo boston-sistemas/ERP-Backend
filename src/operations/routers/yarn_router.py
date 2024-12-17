@@ -3,12 +3,12 @@ from copy import copy
 from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from operations.schemas.yarn_schema import YarnUpdateSchema
 from src.core.database import get_db, get_promec_db
 from src.operations.schemas import (
     YarnCreateSchema,
     YarnListSchema,
     YarnSchema,
+    YarnUpdateSchema,
 )
 from src.operations.services import YarnService
 

@@ -216,7 +216,7 @@ class FiberService:
         fiber_ids: list[str],
         include_category: bool = False,
         include_color: bool = False,
-    ) -> Result[dict[int, Fiber], CustomException]:
+    ) -> Result[dict[str, Fiber], CustomException]:
         fibers = (
             await self.find_fibers_by_ids(
                 fiber_ids=fiber_ids,

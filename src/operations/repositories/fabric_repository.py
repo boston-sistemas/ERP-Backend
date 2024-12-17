@@ -28,18 +28,31 @@ class FabricRepository(InventoryItemRepository):
     def include_color() -> Load:
         return joinedload(InventoryItem.fabric_color)
 
-    def get_load_options(self, include_color: bool = False) -> list[Load]:
-        options: list[Load] = []
+    @staticmethod
+    def include_simple_recipe() -> Load:
+        return joinedload(InventoryItem.fabric_recipe)
+
+    def get_load_options(
+        self, include_color: bool = False, include_simple_recipe: bool = False
+    ) -> list[Load]:
+        options: list[Load] = [load_only(*self.get_fabric_fields())]
         if include_color:
             options.append(self.include_color())
 
-        options.append(load_only(*self.get_fabric_fields()))
+        if include_simple_recipe:
+            options.append(self.include_simple_recipe())
+
         return options
 
     async def find_fabric_by_id(
-        self, fabric_id: str, include_color: bool = False
+        self,
+        fabric_id: str,
+        include_color: bool = False,
+        include_simple_recipe: bool = False,
     ) -> InventoryItem | None:
-        options = self.get_load_options(include_color=include_color)
+        options = self.get_load_options(
+            include_color=include_color, include_simple_recipe=include_simple_recipe
+        )
 
         fabric = await self.find_item_by_id(id=fabric_id, options=options)
 
@@ -53,14 +66,20 @@ class FabricRepository(InventoryItemRepository):
         self,
         filter: BinaryExpression = None,
         include_color: bool = False,
+        include_simple_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> list[InventoryItem]:
         base_filter = InventoryItem.family_id == FABRIC_FAMILY_ID
         filter = base_filter & filter if filter is not None else base_filter
-        options = self.get_load_options(include_color=include_color)
+        options = self.get_load_options(
+            include_color=include_color, include_simple_recipe=include_simple_recipe
+        )
 
         yarns = await self.find_items(
-            filter=filter, exclude_legacy=exclude_legacy, options=options
+            filter=filter,
+            exclude_legacy=exclude_legacy,
+            options=options,
+            apply_unique=include_simple_recipe,
         )
 
         return yarns
