@@ -113,7 +113,7 @@ class EspecialidadEmpresa(Base):
     )
 
     proveedores: Mapped[list[Proveedor]] = relationship(
-        secondary="proveedor_especialidad"
+        lazy="noload", secondary="proveedor_especialidad"
     )
 
     __table_args__ = (PrimaryKeyConstraint("especialidad_id"),)
@@ -176,8 +176,10 @@ class OrdenServicioTejeduria(Base):
         String(length=MAX_LENGTH_ORDEN_SERVICIO_TEJEDURIA_ESTADO)
     )
 
-    proveedor: Mapped[Proveedor] = relationship()
-    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship()
+    proveedor: Mapped[Proveedor] = relationship(lazy="noload")
+    detalles: Mapped[list["OrdenServicioTejeduriaDetalle"]] = relationship(
+        lazy="noload"
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("orden_servicio_tejeduria_id"),
