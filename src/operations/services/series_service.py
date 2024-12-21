@@ -80,16 +80,18 @@ class BarcodeSeries(
 ):
     pass
 
-class MovementSeries(
-    SeriesHelper, document_code="", service_number=0
-):
 
+class MovementSeries(SeriesHelper, document_code="", service_number=0):
     async def next_number(self) -> str:
         result = await super().next_number()
 
-        return (str(self.service_number).zfill(3) + str(result).zfill(8))
+        return str(self.service_number).zfill(3) + str(result).zfill(7)
+
 
 class YarnPurchaseEntrySeries(
-    MovementSeries, name="Ingreso por compra de hilado", document_code="P/I", service_number=6
+    MovementSeries,
+    name="Ingreso por compra de hilado",
+    document_code="P/I",
+    service_number=6,
 ):
     pass

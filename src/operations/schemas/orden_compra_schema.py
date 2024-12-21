@@ -10,7 +10,7 @@ from .orden_compra_detalle_schema import OrdenCompraDetalleBase
 
 
 class OrdenCompraBase(CustomBaseModel):
-    codcia: str
+    company_code: str
     purchase_order_type: str
     purchase_order_number: str
     supplier_code: str
@@ -34,9 +34,9 @@ class OrdenCompraSimpleSchema(OrdenCompraBase):
     pass
 
 
-class OrdenCompraWithDetallesSchema(OrdenCompraBase):
+class OrdenCompraWithDetailSchema(OrdenCompraBase):
     detail: list[OrdenCompraDetalleBase] | None = Field([])
 
 
 class OrdenCompraWithDetallesListSchema(CustomBaseModel):
-    ordenes: list[OrdenCompraWithDetallesSchema]
+    ordenes: list[OrdenCompraWithDetailSchema]

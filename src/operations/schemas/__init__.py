@@ -14,7 +14,7 @@ from .orden_compra_schema import (
     # OrdenCompraBase,
     OrdenCompraSimpleSchema,
     OrdenCompraWithDetallesListSchema,
-    OrdenCompraWithDetallesSchema,
+    OrdenCompraWithDetailSchema,
 )
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
@@ -54,19 +54,34 @@ from .programacion_tintoreria_schema import (
 from .proveedor_schema import ProveedorSchema
 from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
+from .supplier_schema import (
+    SupplierSchema,
+    SupplierSimpleSchema,
+    SupplierWithServiceSchema,
+)
+from .supplier_service_schema import (
+    SupplierServiceSchema,
+)
 from .unit_schema import (
     DerivedUnitListSchema,
     DerivedUnitSchema,
     UnitListSchema,
     UnitSchema,
 )
+
+from .yarn_purchase_entry_detail_schema import (
+    YarnPurchaseEntryDetailUpdateSchema
+)
+
 from .yarn_purchase_entry_schema import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
-    YarnPurchaseEntryDetalleCreateSchema,
+    YarnPurchaseEntryUpdateSchema,
+    YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntrySearchSchema,
 )
+
 from .yarn_schema import (
     YarnCreateSchema,
     YarnListSchema,
@@ -129,10 +144,16 @@ __all__ = [
     # "OrdenCompraBase",
     "OrdenCompraSimpleSchema",
     "OrdenCompraWithDetallesListSchema",
-    "OrdenCompraWithDetallesSchema",
+    "OrdenCompraWithDetailSchema",
     "YarnPurchaseEntriesSimpleListSchema",
     "YarnPurchaseEntrySchema",
     "YarnPurchaseEntrySearchSchema",
     "YarnPurchaseEntryCreateSchema",
-    "YarnPurchaseEntryDetalleCreateSchema",
+    "YarnPurchaseEntryDetailCreateSchema",
+    "SupplierServiceSchema",
+    "SupplierSimpleSchema",
+    "SupplierSchema",
+    "SupplierWithServiceSchema",
+    "YarnPurchaseEntryUpdateSchema",
+    "YarnPurchaseEntryDetailUpdateSchema",
 ]

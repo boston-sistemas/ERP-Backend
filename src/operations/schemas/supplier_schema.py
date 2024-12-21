@@ -1,0 +1,26 @@
+from src.core.schemas import CustomBaseModel
+
+from .supplier_service_schema import SupplierServiceSchema
+
+
+class SupplierBase(CustomBaseModel):
+    code: str | None
+    name: str | None
+    address: str | None
+    ruc: str | None
+    is_active: str | None
+
+    class Config:
+        from_attributes = True
+
+
+class SupplierSimpleSchema(SupplierBase):
+    pass
+
+
+class SupplierSchema(SupplierSimpleSchema):
+    pass
+
+
+class SupplierWithServiceSchema(SupplierSimpleSchema):
+    service: list[SupplierServiceSchema] | None = []

@@ -15,15 +15,25 @@ from .mecsa_color_failure import (
 )
 from .orden_compra_failures import (
     PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE,
+    PURCHASE_YARN_ORDER_ANULLED_FAILURE
 )
 from .orden_servicio_tejeduria_detalle_failures import (
     OrdenServicioTejeduriaDetalleFailures,
 )
 from .orden_servicio_tejeduria_failures import OrdenServicioTejeduriaFailures
 from .orden_servicio_tintoreria_failures import OrdenServicioTintoreriaFailures
+from .product_inventory_failures import (
+    PRODUCT_INVENTORY_NOT_FOUND_FAILURE,
+)
 from .proveedor_failures import ProveedorFailures
+from .purchase_order_detail_failure import (
+    PURCHASE_ORDER_DETAIL_NOT_FOUND_FAILURE,
+)
 from .reporte_stock_tejeduria_failures import ReporteStockTejeduriaFailures
 from .series_failure import SERIES_NOT_FOUND_FAILURE
+from .supplier_failures import (
+    SUPPLIER_NOT_FOUND_FAILURE,
+)
 from .yarn_failure import (
     DUPLICATE_FIBER_IN_YARN_RECIPE_FAILURE,
     FIBER_DISABLED_IN_YARN_RECIPE_FAILURE,
@@ -41,7 +51,11 @@ from .yarn_purchase_entry_failures import (
     YARN_PURCHASE_ENTRY_CONE_COUNT_MISMATCH_FAILURE,
     YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE,
     YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE,
+    YARN_PURCHASE_ENTRY_UPDATE_INVENTORY_FAILURE,
     YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE,
+    YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE,
+    YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE,
+    YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE,
 )
 
 __all__ = [
@@ -78,4 +92,12 @@ __all__ = [
     "YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE",
     "PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE",
     "YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE",
+    "SUPPLIER_NOT_FOUND_FAILURE",
+    "PRODUCT_INVENTORY_NOT_FOUND_FAILURE",
+    "YARN_PURCHASE_ENTRY_UPDATE_INVENTORY_FAILURE",
+    "PURCHASE_ORDER_DETAIL_NOT_FOUND_FAILURE",
+    "YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE",
+    "YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE",
+    "YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE",
+    "PURCHASE_YARN_ORDER_ANULLED_FAILURE",
 ]

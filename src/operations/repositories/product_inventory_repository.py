@@ -6,29 +6,36 @@ from sqlalchemy.orm.strategy_options import Load
 
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
-from src.operations.models import Movement
+from src.operations.models import ProductInventory
 
 
-class MovementRepository(BaseRepository[Movement]):
+class ProductInventoryRepository(BaseRepository[ProductInventory]):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
-        super().__init__(Movement, promec_db, flush)
+        super().__init__(ProductInventory, promec_db, flush)
 
-    async def find_movement_by_document_number(
+    async def find_product_inventory_by_product_code_and_storage_code(
         self,
-        document_number: str,
+        product_code: str,
+        storage_code: str,
+        period: int,
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
         **kwargs,
-    ) -> Movement | None:
-        base_filter = (Movement.company_code == MECSA_COMPANY_CODE) & (
-            Movement.document_number == document_number
+    ) -> ProductInventory | None:
+        base_filter = (
+            (ProductInventory.company_code == MECSA_COMPANY_CODE)
+            & (ProductInventory.product_code == product_code)
+            & (ProductInventory.storage_code == storage_code)
+            & (ProductInventory.period == period)
         )
         filter = base_filter & filter if filter is not None else base_filter
 
         return await self.find(filter=filter, options=options, **kwargs)
 
-    async def find_movements(
+    async def find_products_inventory_by_product_code(
         self,
+        product_code: str,
+        period: int,
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
         apply_unique: bool = False,
@@ -37,8 +44,12 @@ class MovementRepository(BaseRepository[Movement]):
         order_by: Union[
             Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
         ] = None,
-    ) -> list[Movement]:
-        base_filter = Movement.company_code == MECSA_COMPANY_CODE
+    ) -> list[ProductInventory]:
+        base_filter = (
+            (ProductInventory.company_code == MECSA_COMPANY_CODE)
+            & (ProductInventory.product_code == product_code)
+            & (ProductInventory.period == period)
+        )
         filter = base_filter & filter if filter is not None else base_filter
 
         return await self.find_all(

@@ -15,11 +15,7 @@ from .programacion_tintoreria_service import ProgramacionTintoreriaService
 from .proveedor_service import ProveedorService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
-from .series_service import (
-    YarnPurchaseEntrySeries,
-    BarcodeSeries,
-    SeriesService
-)
+from .series_service import BarcodeSeries, SeriesService, YarnPurchaseEntrySeries
 from .unit_service import UnitService
 from .yarn_purchase_entry_service import YarnPurchaseEntryService
 from .yarn_service import YarnService

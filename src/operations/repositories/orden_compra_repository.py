@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import (
     contains_eager,
@@ -43,16 +43,22 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         start_of_year = datetime(current_year, 1, 1).date()
         end_of_year = datetime(current_year, 12, 31).date()
 
-        filter = and_(
-            OrdenCompra.codcia == "001",
-            OrdenCompra.status_flag == "P",
+        filter_conditions = [
+            OrdenCompra.company_code == "001",
             OrdenCompra.purchase_order_number == purchase_order_number,
             func.locate("TITULO GRATUITO", OrdenCompra.payment_method) == 0,
             InventoryItem.family_id == SUPPLY_FAMILY_ID,
             InventoryItem.subfamily_id == YARN_SUBFAMILY_ID,
             OrdenCompra.issue_date >= start_of_year,
             OrdenCompra.issue_date <= end_of_year,
-        )
+            or_(
+                OrdenCompra.status_flag == "P",
+                OrdenCompra.status_flag == "C",
+                OrdenCompra.status_flag == "A",
+            )
+        ]
+
+        filter = and_(*filter_conditions)
 
         if include_detalle:
             options.append(
@@ -80,7 +86,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         end_of_year = datetime(current_year, 12, 31).date()
 
         filter = and_(
-            OrdenCompra.codcia == "001",
+            OrdenCompra.company_code == "001",
             OrdenCompra.status_flag == "P",
             func.locate("TITULO GRATUITO", OrdenCompra.payment_method) == 0,
             InventoryItem.family_id == SUPPLY_FAMILY_ID,
