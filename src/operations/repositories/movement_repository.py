@@ -17,6 +17,7 @@ class MovementRepository(BaseRepository[Movement]):
         self,
         document_number: str,
         filter: BinaryExpression = None,
+        joins: list[tuple] = None,
         options: Sequence[Load] = None,
         **kwargs,
     ) -> Movement | None:
@@ -25,7 +26,12 @@ class MovementRepository(BaseRepository[Movement]):
         )
         filter = base_filter & filter if filter is not None else base_filter
 
-        return await self.find(filter=filter, options=options, **kwargs)
+        return await self.find(
+            filter=filter,
+            joins=joins,
+            options=options,
+            **kwargs
+        )
 
     async def find_movements(
         self,

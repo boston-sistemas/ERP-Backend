@@ -6,3 +6,7 @@ from src.core.result import Failure
 SUPPLIER_NOT_FOUND_FAILURE = Failure(
     NotFoundException(detail="El proveedor especificado no existe.")
 )
+
+SUPPLIER_INACTIVE_FAILURE = Failure(
+    NotFoundException(detail="El proveedor especificado se encuentra inactivo.")
+)

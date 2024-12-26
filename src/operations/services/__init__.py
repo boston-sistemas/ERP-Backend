@@ -18,8 +18,9 @@ from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 from .series_service import BarcodeSeries, SeriesService, YarnPurchaseEntrySeries
 from .unit_service import UnitService
 from .yarn_purchase_entry_service import YarnPurchaseEntryService
+from .yarn_purchase_entry_detail_heavy_service import YarnPurchaseEntryDetailHeavyService
 from .yarn_service import YarnService
-
+from .yarn_weaving_dispatch_service import YarnWeavingDispatchService
 __all__ = [
     "BarcodeSeries",
     "SeriesService",
@@ -40,4 +41,6 @@ __all__ = [
     "OrdenCompraService",
     "YarnPurchaseEntryService",
     "YarnPurchaseEntrySeries",
+    "YarnWeavingDispatchService",
+    "YarnPurchaseEntryDetailHeavyService",
 ]

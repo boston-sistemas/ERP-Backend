@@ -57,7 +57,6 @@ from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 from .supplier_schema import (
     SupplierSchema,
     SupplierSimpleSchema,
-    SupplierWithServiceSchema,
 )
 from .supplier_service_schema import (
     SupplierServiceSchema,
@@ -89,6 +88,21 @@ from .yarn_schema import (
     YarnRecipeItemSimpleSchema,
     YarnSchema,
     YarnUpdateSchema,
+)
+
+from .yarn_purchase_entry_detail_heavy_schema import (
+    YarnPurchaseEntryDetailHeavySchema
+)
+
+from .yarn_weaving_dispatch_schema import (
+    YarnWeavingDispatchSimpleListSchema,
+    YarnWeavingDispatchSimpleSchema,
+    YarnWeavingDispatchSchema,
+    YarnWeavingDispatchCreateSchema
+)
+
+from .yarn_weaving_dispatch_detail_schema import (
+    YarnWeavingDispatchDetailCreateSchema
 )
 
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
@@ -153,7 +167,12 @@ __all__ = [
     "SupplierServiceSchema",
     "SupplierSimpleSchema",
     "SupplierSchema",
-    "SupplierWithServiceSchema",
     "YarnPurchaseEntryUpdateSchema",
     "YarnPurchaseEntryDetailUpdateSchema",
+    "YarnWeavingDispatchSimpleListSchema",
+    "YarnWeavingDispatchSimpleSchema",
+    "YarnWeavingDispatchSchema",
+    "YarnWeavingDispatchCreateSchema",
+    "YarnWeavingDispatchDetailCreateSchema",
+    "YarnPurchaseEntryDetailHeavySchema",
 ]

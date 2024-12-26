@@ -74,7 +74,7 @@ class OrdenCompraService:
         purchase_order_result = await self._read_purchase_yarn_order(
             purchase_order_number=purchase_order_number,
             include_detalle=True,
-            include_all=True,
+            include_annulled=True,
         )
 
         if purchase_order_result.is_failure:

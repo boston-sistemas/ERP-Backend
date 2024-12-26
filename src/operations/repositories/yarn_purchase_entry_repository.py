@@ -12,12 +12,9 @@ from src.operations.constants import (
 from src.operations.models import (
     Movement,
     MovementDetail,
-    MovementDetail,
     OrdenCompra,
     OrdenCompraDetalle,
 )
-
-from src.operations.schemas import YarnPurchaseEntrySearchSchema
 
 from .movement_repository import MovementRepository
 
@@ -43,7 +40,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             Movement.auxiliary_code,
             Movement.status_flag,
             Movement.user_id,
-            Movement.reference_number,
+            Movement.reference_number2,
             Movement.nrogf,
             Movement.sergf,
             Movement.fecgf,
@@ -76,13 +73,13 @@ class YarnPurchaseEntryRepository(MovementRepository):
 
     def get_load_options(
         self,
-        include_details: bool = False,
+        include_detail: bool = False,
         include_purchase_order: bool = False,
         include_purchase_order_detail: bool = False,
     ) -> list[Load]:
         options: list[Load] = []
 
-        if include_details:
+        if include_detail:
             options.extend(self.include_details())
 
         if include_purchase_order:
@@ -117,7 +114,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
         filter = base_filter & filter if filter is not None else base_filter
 
         options = self.get_load_options(
-            include_details=include_details,
+            include_detail=include_details,
             include_purchase_order=include_purchase_order,
             include_purchase_order_detail=include_purchase_order_detail,
         )

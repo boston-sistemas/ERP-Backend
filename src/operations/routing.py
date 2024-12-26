@@ -10,6 +10,7 @@ from .routers import (
     unit_router,
     yarn_purchase_entry_router,
     yarn_router,
+    yarn_weaving_dispatch_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]
@@ -41,4 +42,9 @@ router.include_router(
     router=yarn_purchase_entry_router.router,
     prefix="/yarn-purchase-entries",
     tags=["[AREA OPERACIONES] GESTION DE INGRESO DE HILADOS POR O/C"],
+)
+router.include_router(
+    router=yarn_weaving_dispatch_router.router,
+    prefix="/yarn-weaving-dispatches",
+    tags=["[AREA OPERACIONES] GESTION DE SALIDA DE HILADOS A TEJEDURIA"],
 )

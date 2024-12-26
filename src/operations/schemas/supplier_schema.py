@@ -2,6 +2,7 @@ from src.core.schemas import CustomBaseModel
 
 from .supplier_service_schema import SupplierServiceSchema
 
+from pydantic import Field
 
 class SupplierBase(CustomBaseModel):
     code: str | None
@@ -9,6 +10,8 @@ class SupplierBase(CustomBaseModel):
     address: str | None
     ruc: str | None
     is_active: str | None
+    storage_code: str | None = None
+    initials: str | None = None
 
     class Config:
         from_attributes = True
@@ -19,8 +22,4 @@ class SupplierSimpleSchema(SupplierBase):
 
 
 class SupplierSchema(SupplierSimpleSchema):
-    pass
-
-
-class SupplierWithServiceSchema(SupplierSimpleSchema):
-    service: list[SupplierServiceSchema] | None = []
+    services: list[SupplierServiceSchema] | None = []

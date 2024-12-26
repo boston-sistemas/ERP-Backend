@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import AliasChoices, Field, model_validator, root_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
@@ -39,7 +39,7 @@ class YarnPurchaseEntryBase(CustomBaseModel):
     status_flag: str | None
     purchase_order_number: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("reference_number", "purchase_order_number"),
+        validation_alias=AliasChoices("reference_number2", "purchase_order_number"),
     )
     flgtras: bool | None
     supplier_batch: str | None

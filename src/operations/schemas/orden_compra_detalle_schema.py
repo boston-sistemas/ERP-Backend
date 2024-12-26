@@ -12,6 +12,7 @@ class OrdenCompraDetalleBase(CustomBaseModel):
     precto: float
     impcto: float
     yarn: YarnSchema | None
+    status_flag: str | None = "P"
     yarn_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("product_code", "yarn_id"),

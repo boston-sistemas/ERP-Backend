@@ -51,3 +51,14 @@ YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE = Failure(
     )
 )
 
+YARN_PURCHASE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE = Failure(
+    ForbiddenException(
+        detail="Toda la cantidad ordenada de la orden de compra asociada ya ha sido recibida."
+    )
+)
+
+YARN_PURCHASE_ENTRY_YARN_ALREADY_QUANTITY_RECEIVED_FAILURE = Failure(
+    ForbiddenException(
+        detail="La cantidad especificada de uno o más hilados indicados ya ha sido recibida."
+    )
+)

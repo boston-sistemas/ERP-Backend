@@ -20,6 +20,8 @@ from src.operations.failures import (
     YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE,
     YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE,
     YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE,
+    YARN_PURCHASE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE,
+    YARN_PURCHASE_ENTRY_YARN_ALREADY_QUANTITY_RECEIVED_FAILURE,
 )
 from src.operations.models import (
     CurrencyExchange,
@@ -147,6 +149,9 @@ class YarnPurchaseEntryService(MovementService):
         if yarn_order.is_failure:
             return yarn_order
 
+        if yarn_order.value.status_flag == "C":
+            return YARN_PURCHASE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE
+
         return yarn_order
 
     async def _validate_yarn_purchase_entry_detalle_data(
@@ -154,11 +159,14 @@ class YarnPurchaseEntryService(MovementService):
         data: list[YarnPurchaseEntryDetailCreateSchema],
         purchase_yarn_order: OrdenCompraWithDetailSchema,
     ) -> Result[None, CustomException]:
-        detalle_yarn_ids = [detail.yarn.id for detail in purchase_yarn_order.detail]
+        detalle_yarn_ids = {detail.yarn.id: detail.status_flag for detail in purchase_yarn_order.detail}
 
         for detail in data:
-            if detail.yarn_id not in detalle_yarn_ids:
+            if detail.yarn_id not in detalle_yarn_ids.keys():
                 return YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE
+
+            if detalle_yarn_ids[detail.yarn_id] == "C":
+                return YARN_PURCHASE_ENTRY_YARN_ALREADY_QUANTITY_RECEIVED_FAILURE
 
             if detail.detail_heavy:
                 cone_count_total = sum(
@@ -208,9 +216,14 @@ class YarnPurchaseEntryService(MovementService):
 
         supplier = (
             await self.supplier_service.read_supplier(purchase_yarn_order.supplier_code)
-        ).value
+        )
 
-        period = current_time.date().year
+        if supplier.is_failure:
+            return supplier
+
+        supplier = supplier.value
+
+        period = form.period
         creation_date = current_time.date()
         creation_time = current_time.strftime("%H:%M:%S")
 
@@ -235,7 +248,7 @@ class YarnPurchaseEntryService(MovementService):
             user_id="DESA01",
             auxiliary_name=supplier.name,
             reference_document="O/C",
-            reference_number=form.purchase_order_number,
+            reference_number2=form.purchase_order_number,
             nrogf=form.supplier_po_correlative,
             sergf=form.supplier_po_series,
             fecgf=form.fecgf,
@@ -247,7 +260,7 @@ class YarnPurchaseEntryService(MovementService):
             flgreclamo="N",
             flgsit="A",
             servadi="N",
-            tarfservadi=False,
+            tarfservadi=0,
             origin_station="SERVIDORDESA",
             undpesobrutototal="KGM",
             transaction_mode="02",
@@ -378,6 +391,7 @@ class YarnPurchaseEntryService(MovementService):
                         gross_weight=heavy.gross_weight,
                         dispatch_status=False,
                         packages_left=heavy.package_count,
+                        cones_left=heavy.cone_count,
                     )
                 )
             await self.product_inventory_service.update_current_stock(
@@ -509,7 +523,7 @@ class YarnPurchaseEntryService(MovementService):
 
         for detail in yarn_purchase_entry.detail:
             for heavy in detail.detail_heavy:
-                if heavy.exit_number is not None:
+                if heavy.exit_number != "":
                     return YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE
 
         return Success(None)
@@ -610,6 +624,7 @@ class YarnPurchaseEntryService(MovementService):
                             gross_weight=heavy.gross_weight,
                             dispatch_status=False,
                             packages_left=heavy.package_count,
+                            cones_left=heavy.cone_count,
                         )
                         await self.yarn_purchase_entry_detail_heavy_repository.save(
                             yarn_purchase_entry_detail_heavy_result
@@ -816,7 +831,7 @@ class YarnPurchaseEntryService(MovementService):
             )
 
             await self.purchase_order_service.rollback_quantity_supplied_by_product_code(
-                purchase_order_number=yarn_purchase_entry.reference_number,
+                purchase_order_number=yarn_purchase_entry.reference_number2,
                 product_code=detail.product_code,
                 quantity_supplied=detail.mecsa_weight,
             )
@@ -825,9 +840,11 @@ class YarnPurchaseEntryService(MovementService):
 
             for heavy in detail.detail_heavy:
                 heavy.status_flag = "A"
+                heavy.ingress_number = heavy.ingress_number
+                await self.yarn_purchase_entry_detail_heavy_repository.save(heavy)
 
         yarn_purchase_entry.status_flag = "A"
 
         await self.repository.save(yarn_purchase_entry)
-
+        await self.repository.save_all(yarn_purchase_entry.detail)
         return Success(None)
