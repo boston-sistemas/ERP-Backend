@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.orm import joinedload
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
@@ -23,6 +23,8 @@ from src.operations.models import (
     Movement,
     MovementDetail,
     MovementDetailAux,
+    ServiceOrder,
+    ServiceOrderStock,
 )
 from src.operations.repositories import (
     YarnWeavingDispatchRepository,
@@ -31,6 +33,7 @@ from src.operations.schemas import (
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchSchema,
     YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchUpdateSchema,
     YarnWeavingDispatchDetailCreateSchema,
     SupplierSchema
 )
@@ -42,8 +45,10 @@ from .series_service import (
     EntrySeries,
 )
 
-from src.core.repository import BaseRepository
+from datetime import date
+
 from .supplier_service import SupplierService
+from .service_order_stock_service import ServiceOrderStockService
 
 from .yarn_purchase_entry_detail_heavy_service import YarnPurchaseEntryDetailHeavyService
 
@@ -55,6 +60,8 @@ from src.operations.failures import (
     YARN_WEAVING_DISPATCH_CONE_COUNT_MISMATCH_FAILURE,
     YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE,
     YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE,
+    YARN_WEAVING_DISPATCH_ALREADY_ANULLED_FAILURE,
+    YARN_WEAVING_DISPATCH_ALREADY_ACCOUNTED_FAILURE,
 )
 
 class YarnWeavingDispatchService(MovementService):
@@ -72,6 +79,19 @@ class YarnWeavingDispatchService(MovementService):
         )
         self.yarn_entry_detail_repository = BaseRepository(
             model=MovementDetail, db=promec_db
+        )
+        self.service_order_repository = BaseRepository(
+            model=ServiceOrder, db=promec_db
+        )
+        self.service_order_stock_repository = BaseRepository(
+            model=ServiceOrderStock, db=promec_db
+        )
+        self.service_order_stock_service = ServiceOrderStockService(promec_db=promec_db)
+        self.movement_detail_repository = BaseRepository(
+            model=MovementDetail, db=promec_db
+        )
+        self.movement_detail_aux_repository = BaseRepository(
+            model=MovementDetailAux, db=promec_db
         )
 
     async def read_yarn_weaving_dispatches(
@@ -104,6 +124,7 @@ class YarnWeavingDispatchService(MovementService):
         yarn_weaving_dispatch = await self.repository.find_yarn_weaving_dispatch_by_dispatch_number(
             dispatch_number=yarn_weaving_dispatch_number,
             period=period,
+            use_outer_joins=True,
             include_detail=include_detail,
             include_detail_entry=include_detail_entry,
         )
@@ -157,6 +178,8 @@ class YarnWeavingDispatchService(MovementService):
     async def _validate_yarn_weaving_dispatch_detail_data(
         self,
         data: list[YarnWeavingDispatchDetailCreateSchema],
+        update = False,
+        dispatch_number: str = None,
     ) -> Result[None, CustomException]:
 
         for detail in data:
@@ -179,8 +202,13 @@ class YarnWeavingDispatchService(MovementService):
             if yarn_purchase_entry_detail_heavy.status_flag == "A":
                 return YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE
 
-            if yarn_purchase_entry_detail_heavy.dispatch_status:
+            if yarn_purchase_entry_detail_heavy.dispatch_status and not update:
                 return YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE
+            else:
+                if update:
+                    if (yarn_purchase_entry_detail_heavy.exit_number is not None) and (
+                            yarn_purchase_entry_detail_heavy.exit_number != dispatch_number):
+                        return YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE
 
             validate_package = yarn_purchase_entry_detail_heavy.packages_left - detail.package_count
             validate_cones = yarn_purchase_entry_detail_heavy.cones_left - detail.cone_count
@@ -279,13 +307,186 @@ class YarnWeavingDispatchService(MovementService):
                     # ctomn1=,
                     # ctomn2=,
                     detdoc=detail[i].entry_number,
+                    entry_item_number=detail[i].item_number
                 )
             )
 
-        # await self.yarn_entry_repository.save(entry_movement)
-        # await self.yarn_entry_detail_repository.save_all(entry_detail)
+            await self.product_inventory_service.update_current_stock(
+                product_code=detail[i]._yarn_purchase_entry_heavy.yarn_id,
+                period=period,
+                storage_code=storage_code,
+                new_stock=detail[i].net_weight,
+            )
+
+        await self.yarn_entry_repository.save(entry_movement)
+        await self.yarn_entry_detail_repository.save_all(entry_detail)
 
         return Success(entry_number)
+
+    async def _anulate_yarn_entry_with_dispatch(
+        self,
+        entry_number: str,
+        period: int,
+        storage_code: str,
+    ) -> Result[None, CustomException]:
+        filter = (Movement.document_number == entry_number) & (
+            Movement.company_code == MECSA_COMPANY_CODE) & (
+            Movement.storage_code == storage_code) & (
+            Movement.movement_type == ENTRY_MOVEMENT_TYPE) & (
+            Movement.movement_code == WEAVING_MOVEMENT_CODE) & (
+            Movement.document_code == ENTRY_DOCUMENT_CODE)
+
+        options = []
+
+        options.append(joinedload(Movement.detail))
+        entry_movement = await self.yarn_entry_repository.find(
+            filter=filter,
+            options=options
+        )
+
+        if entry_movement is not None:
+            entry_movement.status_flag = "A"
+
+            await self.yarn_entry_repository.save(entry_movement)
+
+            for detail in entry_movement.detail:
+                detail.status_flag = "A"
+
+            await self.yarn_entry_detail_repository.save_all(entry_movement.detail)
+
+        return Success(None)
+
+    async def _create_yarn_entry_detail_with_dispatch(
+        self,
+        storage_code: str,
+        period: int,
+        dispatch_number: str,
+        current_time: datetime,
+        supplier: SupplierSchema,
+        purchase_service_number: str,
+        entry_number: str,
+        detail: YarnWeavingDispatchUpdateSchema,
+    ) -> Result[None, CustomException]:
+        creation_date = current_time.date()
+        creation_time = current_time.strftime("%H:%M:%S")
+
+        entry_detail = []
+        for i in range(len(detail)):
+            entry_detail.append(
+                MovementDetail(
+                    company_code=MECSA_COMPANY_CODE,
+                    storage_code=storage_code,
+                    movement_type=ENTRY_MOVEMENT_TYPE,
+                    movement_code=WEAVING_MOVEMENT_CODE,
+                    document_code=ENTRY_DOCUMENT_CODE,
+                    document_number=entry_number,
+                    item_number=i + 1,
+                    period=period,
+                    creation_date=creation_date,
+                    creation_time=creation_time,
+                    product_code=detail[i]._yarn_purchase_entry_heavy.yarn_id,
+                    unit_code="KG",
+                    factor=1,
+                    mecsa_weight=detail[i].net_weight,
+                    precto=0,
+                    impcto=0,
+                    reference_code="G/R",
+                    reference_number=dispatch_number,
+                    # impmn1=,
+                    # impmn2=,
+                    # stkgen=,
+                    # stkalm=,
+                    # ctomn1=,
+                    # ctomn2=,
+                    detdoc=detail[i].entry_number,
+                    entry_item_number=detail[i].item_number
+                )
+            )
+
+            await self.product_inventory_service.update_current_stock(
+                product_code=detail[i]._yarn_purchase_entry_heavy.yarn_id,
+                period=period,
+                storage_code=storage_code,
+                new_stock=detail[i].net_weight,
+            )
+
+        await self.yarn_entry_detail_repository.save_all(entry_detail)
+
+        return Success(None)
+
+    async def create_service_order(
+        self,
+        service_order_number: str,
+        supplier_code: str,
+        issue_date: date,
+    ) -> Result[None, CustomException]:
+
+        service_order = ServiceOrder(
+            company_code=MECSA_COMPANY_CODE,
+            service_order_type="TJ",
+            service_order_number=service_order_number,
+            supplier_code=supplier_code,
+            issue_date=issue_date,
+            storage_code="006",
+            status_flag="P",
+            user_id="DESA01",
+            flgatc="N",
+            flgprt="N",
+        )
+
+        await self.service_order_repository.save(service_order)
+
+        return Success(None)
+
+    async def anulate_service_order(
+        self,
+        service_order_number: str,
+    ) -> Result[None, CustomException]:
+
+        filter = (ServiceOrder.company_code == MECSA_COMPANY_CODE) & ( ServiceOrder.service_order_type == "TJ") & (ServiceOrder.service_order_number == service_order_number)
+
+        service_order = await self.service_order_repository.find(
+            filter=filter
+        )
+
+        if service_order is not None:
+            service_order.status_flag = "A"
+
+            await self.service_order_repository.save(service_order)
+
+        return Success(None)
+
+    async def create_stock_service_order(
+        self,
+        period: int,
+        yarn_id: str,
+        service_order_number: str,
+        item_number: int,
+        storage_code: str,
+        quantity: float,
+        supplier_code: str,
+        issue_date: date,
+    ) -> Result[None, CustomException]:
+
+        stock_service_order = ServiceOrderStock(
+            company_code=MECSA_COMPANY_CODE,
+            period=period,
+            product_code=yarn_id,
+            item_number=item_number,
+            reference_number=service_order_number,
+            storage_code=storage_code,
+            stkact=quantity,
+            status_flag="P",
+            supplier_code=supplier_code,
+            creation_date=issue_date,
+            pormer=0,
+            quantity_received=0,
+            quantity_dispatched=0,
+        )
+
+        await self.service_order_stock_repository.save(stock_service_order)
+
+        return Success(None)
 
     async def create_yarn_weaving_dispatch(
         self,
@@ -314,15 +515,19 @@ class YarnWeavingDispatchService(MovementService):
         creation_date = current_time.date()
         creation_time = current_time.strftime("%H:%M:%S")
 
-        sequence_numbers = {
-            service.service_code: service.sequence_number for service in supplier.services
-        }
-
-        purchase_service_number = supplier.initials + str(
-            sequence_numbers[SERVICE_CODE_SUPPLIER_WEAVING]
+        sequence_number = await self.supplier_service.next_service_sequence(
+            supplier_code=form.supplier_code,
+            service_code=SERVICE_CODE_SUPPLIER_WEAVING,
         )
 
-        print(purchase_service_number)
+        if sequence_number.is_failure:
+            return sequence_number
+
+        sequence_number = sequence_number.value
+
+        purchase_service_number = supplier.initials + str(
+            sequence_number
+        )
 
         creation_result = await self._create_yarn_entry_with_dispatch(
             storage_code=supplier.storage_code,
@@ -352,7 +557,7 @@ class YarnWeavingDispatchService(MovementService):
             document_note=form.document_note,
             clfaux="_PRO",
             auxiliary_code=form.supplier_code,
-            # reference_document="P/I",
+            reference_code="P/I",
             reference_number1=entry_number,
             status_flag="P",
             user_id="DESA01",
@@ -381,6 +586,12 @@ class YarnWeavingDispatchService(MovementService):
 
         yarn_weaving_dispatch_detail = []
         yarn_weaving_dispatch_detail_aux = []
+
+        await self.create_service_order(
+            service_order_number=purchase_service_number,
+            supplier_code=supplier.code,
+            issue_date=creation_date,
+        )
 
         for detail in form.detail:
             yarn_weaving_dispatch_detail.append(
@@ -411,6 +622,8 @@ class YarnWeavingDispatchService(MovementService):
                     # ctomn2=,
                     nroreq=purchase_service_number,
                     status_flag="P",
+                    entry_group_number=detail.entry_group_number,
+                    entry_item_number=detail.entry_item_number,
                 )
             )
 
@@ -420,14 +633,486 @@ class YarnWeavingDispatchService(MovementService):
                     document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
                     document_number=dispatch_number,
                     item_number=detail.item_number,
-                    period=form.period,
+period=form.period,
+                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                    unit_code="KG",
+                    factor=1,
+                    reference_code="P/I",
+                    reference_number=detail.entry_number,
+                    creation_date=creation_date,
+                    mecsa_weight=detail.net_weight,
+                    guide_net_weight=detail.gross_weight,
+                    guide_cone_count=detail.cone_count,
+                    guide_package_count=detail.package_count,
+                    group_number=detail.entry_group_number,
+                )
+            )
+
+            await self.create_stock_service_order(
+                period=form.period,
+                yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
+                service_order_number=purchase_service_number,
+                item_number=detail.item_number,
+                storage_code=supplier.storage_code,
+                quantity=detail.net_weight,
+                supplier_code=supplier.code,
+                issue_date=creation_date,
+            )
+
+            update_yarn_entry_detail_heavy_result = await self.yarn_purchase_entry_detail_heavy_service.update_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+                entry_number=detail.entry_number,
+                item_number=detail.entry_item_number,
+                group_number=detail.entry_group_number,
+                period=detail.entry_period,
+                cone_count=detail.cone_count,
+                package_count=detail.package_count,
+                dispatch_number=dispatch_number,
+            )
+
+            if update_yarn_entry_detail_heavy_result.is_failure:
+                return update_yarn_entry_detail_heavy_result
+
+            await self.product_inventory_service.update_current_stock(
+                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                period=form.period,
+                storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                new_stock=detail.net_weight,
+            )
+
+        await self.repository.save(yarn_weaving_dispatch)
+        await self.yarn_entry_detail_repository.save_all(yarn_weaving_dispatch_detail)
+        await self.yarn_entry_detail_repository.save_all(yarn_weaving_dispatch_detail_aux)
+
+        return Success(None)
+
+    async def _validate_update_yarn_weaving_dispatch(
+        self,
+        yarn_weaving_dispatch: Movement,
+    ) -> Result[None, CustomException]:
+        if yarn_weaving_dispatch.status_flag == "A":
+            return YARN_WEAVING_DISPATCH_ALREADY_ANULLED_FAILURE
+
+        if yarn_weaving_dispatch.flgcbd == "S":
+            return YARN_WEAVING_DISPATCH_ALREADY_ACCOUNTED_FAILURE
+
+        return Success(None)
+
+    async def _delete_detail(
+        self,
+        yarn_weaving_dispatch_detail: MovementDetail,
+        entry_number: str,
+        supplier: SupplierSchema,
+    ) -> None:
+        await self.product_inventory_service.rollback_currents_stock(
+            product_code=yarn_weaving_dispatch_detail.product_code,
+            period=yarn_weaving_dispatch_detail.period,
+            storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+            quantity=yarn_weaving_dispatch_detail.mecsa_weight,
+        )
+
+        filter = (MovementDetail.document_number == entry_number) & (
+            MovementDetail.company_code == MECSA_COMPANY_CODE) & (
+            MovementDetail.storage_code == supplier.storage_code) & (
+            MovementDetail.movement_type == ENTRY_MOVEMENT_TYPE) & (
+            MovementDetail.movement_code == WEAVING_MOVEMENT_CODE) & (
+            MovementDetail.document_code == ENTRY_DOCUMENT_CODE) & (
+            MovementDetail.entry_item_number == yarn_weaving_dispatch_detail.entry_item_number) & (
+            MovementDetail.period == yarn_weaving_dispatch_detail.period)
+
+        yarn_entry_detail = await self.yarn_entry_detail_repository.find(
+            filter=filter
+        )
+
+        await self.service_order_stock_service.delete_service_order_stock(
+            product_code=yarn_weaving_dispatch_detail.product_code,
+            period=yarn_weaving_dispatch_detail.period,
+            storage_code=supplier.storage_code,
+            reference_number=yarn_weaving_dispatch_detail.nroreq,
+            item_number=yarn_weaving_dispatch_detail.entry_item_number,
+        )
+
+        if yarn_entry_detail is not None:
+            await self.yarn_entry_detail_repository.delete(yarn_entry_detail)
+
+        await self.product_inventory_service.rollback_currents_stock(
+            product_code=yarn_weaving_dispatch_detail.product_code,
+            period=yarn_weaving_dispatch_detail.period,
+            storage_code=supplier.storage_code,
+            quantity=yarn_weaving_dispatch_detail.mecsa_weight,
+        )
+
+        await self.yarn_purchase_entry_detail_heavy_service.rollback_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+            package_count=yarn_weaving_dispatch_detail.detail_aux.guide_package_count,
+            cone_count=yarn_weaving_dispatch_detail.detail_aux.guide_cone_count,
+            item_number=yarn_weaving_dispatch_detail.entry_item_number,
+            group_number=yarn_weaving_dispatch_detail.entry_group_number,
+            entry_number=yarn_weaving_dispatch_detail.reference_number,
+            period=yarn_weaving_dispatch_detail.period,
+        )
+
+        await self.movement_detail_aux_repository.delete(yarn_weaving_dispatch_detail.detail_aux)
+        await self.movement_detail_repository.delete(yarn_weaving_dispatch_detail)
+
+    async def _delete_yarn_weaving_dispatch_detail(
+        self,
+        yarn_weaving_dispatch_detail: list[MovementDetail],
+        supplier: SupplierSchema,
+        entry_number: str,
+        form: YarnWeavingDispatchUpdateSchema,
+    ) -> list[MovementDetail]:
+        item_numbers = [detail.item_number for detail in form.detail]
+
+        for detail in yarn_weaving_dispatch_detail:
+            if detail.item_number not in item_numbers:
+                await self._delete_detail(
+                    yarn_weaving_dispatch_detail=detail,
+                    entry_number=entry_number,
+                    supplier=supplier,
+                )
+                yarn_weaving_dispatch_detail.remove(detail)
+
+        return yarn_weaving_dispatch_detail
+
+    async def _find_yarn_weaving_dispatch_detail(
+        self,
+        yarn_weaving_dispatch_detail: list[MovementDetail],
+        item_number: int,
+    ) -> MovementDetail | None:
+        for detail in yarn_weaving_dispatch_detail:
+            if detail.item_number == item_number:
+                return detail
+
+        return None
+
+    async def _find_yarn_weaving_dispatch_detail_aux(
+        self,
+        yarn_weaving_dispatch_detail_aux: list[MovementDetail],
+        item_number: int,
+    ) -> MovementDetailAux | None:
+        for detail in yarn_weaving_dispatch_detail_aux:
+            if detail.detail_aux.item_number == item_number:
+                return detail.detail_aux
+        return None
+
+    async def update_yarn_weaving_dispatch(
+        self,
+        yarn_weaving_dispatch_number: str,
+        period: int,
+        form: YarnWeavingDispatchUpdateSchema,
+    ) -> Result[None, CustomException]:
+        yarn_weaving_dispatch_result = await self._read_yarn_weaving_dispatch(
+            yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
+            period=period,
+            include_detail=True,
+            include_detail_entry=True,
+        )
+
+        current_time = calculate_time(tz=PERU_TIMEZONE)
+
+        creation_date = current_time.date()
+        if yarn_weaving_dispatch_result.is_failure:
+            return yarn_weaving_dispatch_result
+
+        yarn_weaving_dispatch: Movement = yarn_weaving_dispatch_result.value
+
+        validation_result = await self._validate_update_yarn_weaving_dispatch(
+            yarn_weaving_dispatch=yarn_weaving_dispatch
+        )
+
+        if validation_result.is_failure:
+            return validation_result
+
+        validation_result = await self._validate_yarn_weaving_dispatch_data(
+            data=form
+        )
+
+        if validation_result.is_failure:
+            return validation_result
+
+        supplier = validation_result.value
+
+        validation_result = await self._validate_yarn_weaving_dispatch_detail_data(
+            data=form.detail,
+            update=True,
+            dispatch_number=yarn_weaving_dispatch_number,
+        )
+
+        if validation_result.is_failure:
+            return validation_result
+
+        form.detail = validation_result.value
+
+        yarn_weaving_dispatch.supplier_code = form.supplier_code
+
+        yarn_weaving_dispatch.detail = await self._delete_yarn_weaving_dispatch_detail(
+            yarn_weaving_dispatch_detail=yarn_weaving_dispatch.detail,
+            supplier=supplier,
+            entry_number=yarn_weaving_dispatch.reference_number1,
+            form=form,
+        )
+
+        for detail in form.detail:
+            yarn_weaving_dispatch_detail_result = await self._find_yarn_weaving_dispatch_detail(
+                yarn_weaving_dispatch_detail=yarn_weaving_dispatch.detail,
+                item_number=detail.item_number,
+            )
+
+            yarn_weaving_dispatch_detail_aux_result = await self._find_yarn_weaving_dispatch_detail_aux(
+                yarn_weaving_dispatch_detail_aux=yarn_weaving_dispatch.detail,
+                item_number=detail.item_number,
+            )
+
+            if yarn_weaving_dispatch_detail_result is not None:
+                await self.product_inventory_service.rollback_currents_stock(
+                    product_code=yarn_weaving_dispatch_detail_result.product_code,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                    quantity=yarn_weaving_dispatch_detail_result.mecsa_weight,
+                )
+
+                await self.product_inventory_service.update_current_stock(
+                    product_code=yarn_weaving_dispatch_detail_result.product_code,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                    new_stock=detail.net_weight,
+                )
+
+                await self.product_inventory_service.rollback_currents_stock(
+                    product_code=yarn_weaving_dispatch_detail_result.product_code,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    storage_code=supplier.storage_code,
+                    quantity=yarn_weaving_dispatch_detail_result.mecsa_weight,
+                )
+
+                await self.product_inventory_service.update_current_stock(
+                    product_code=yarn_weaving_dispatch_detail_result.product_code,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    storage_code=supplier.storage_code,
+                    new_stock=detail.net_weight,
+                )
+
+                yarn_weaving_dispatch_detail_result.mecsa_weight = detail.net_weight
+
+                await self.service_order_stock_service.rollback_current_stock(
+                    product_code=yarn_weaving_dispatch_detail_result.product_code,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    storage_code=supplier.storage_code,
+                    reference_number=yarn_weaving_dispatch_detail_result.nroreq,
+                    item_number=yarn_weaving_dispatch_detail_result.entry_item_number,
+                    quantity=yarn_weaving_dispatch_detail_result.mecsa_weight,
+                )
+
+                await self.service_order_stock_service.update_current_stock(
+                    product_code=yarn_weaving_dispatch_detail_result.product_code,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    storage_code=supplier.storage_code,
+                    reference_number=yarn_weaving_dispatch_detail_result.nroreq,
+                    item_number=yarn_weaving_dispatch_detail_result.entry_item_number,
+                    quantity=detail.net_weight,
+                )
+
+
+                await self.yarn_purchase_entry_detail_heavy_service.rollback_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+                    package_count=yarn_weaving_dispatch_detail_aux_result.package_count,
+                    cone_count=yarn_weaving_dispatch_detail_aux_result.cone_count,
+                    item_number=yarn_weaving_dispatch_detail_result.entry_item_number,
+                    group_number=yarn_weaving_dispatch_detail_result.entry_group_number,
+                    entry_number=yarn_weaving_dispatch_detail_result.reference_number,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                )
+
+                await self.yarn_purchase_entry_detail_heavy_service.update_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+                    entry_number=yarn_weaving_dispatch_detail_result.reference_number,
+                    item_number=yarn_weaving_dispatch_detail_result.entry_item_number,
+                    group_number=yarn_weaving_dispatch_detail_result.entry_group_number,
+                    period=yarn_weaving_dispatch_detail_result.period,
+                    cone_count=detail.cone_count,
+                    package_count=detail.package_count,
+                    dispatch_number=yarn_weaving_dispatch_number,
+                )
+
+                yarn_weaving_dispatch_detail_aux_result.guide_net_weight = detail.gross_weight
+                yarn_weaving_dispatch_detail_aux_result.guide_cone_count = detail.cone_count
+                yarn_weaving_dispatch_detail_aux_result.guide_package_count = detail.package_count
+
+                await self.repository.save(yarn_weaving_dispatch)
+                await self.yarn_entry_detail_repository.save(yarn_weaving_dispatch_detail_result)
+                await self.movement_detail_aux_repository.save(yarn_weaving_dispatch_detail_aux_result)
+
+            else:
+                yarn_weaving_dispatch_detail = MovementDetail(
+                    company_code=MECSA_COMPANY_CODE,
+                    storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                    movement_type=YARN_WEAVING_DISPATCH_MOVEMENT_TYPE,
+                    movement_code=YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
+                    document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
+                    document_number=yarn_weaving_dispatch_number,
+                    item_number=detail.item_number,
+                    period=period,
+                    creation_date=yarn_weaving_dispatch.creation_date,
+                    creation_time=yarn_weaving_dispatch.creation_time,
                     product_code=detail._yarn_purchase_entry_heavy.yarn_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=detail.net_weight,
+                    precto=0,
+                    impcto=0,
                     reference_code="P/I",
-
+                    reference_number=detail.entry_number,
+                    # impmn1=,
+                    # impmn2=,
+                    # stkgen=,
+                    # stkalm=,
+                    # ctomn1=,
+                    # ctomn2=,
+                    nroreq=yarn_weaving_dispatch.reference_number2,
+                    status_flag="P",
+                    entry_group_number=detail.entry_group_number,
+                    entry_item_number=detail.entry_item_number,
                 )
+
+                yarn_weaving_dispatch_detail_aux = MovementDetailAux(
+                    company_code=MECSA_COMPANY_CODE,
+                    document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
+                    document_number=yarn_weaving_dispatch_number,
+                    item_number=detail.item_number,
+                    period=period,
+                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                    unit_code="KG",
+                    factor=1,
+                    reference_code="P/I",
+                    reference_number=detail.entry_number,
+                    creation_date=yarn_weaving_dispatch.creation_date,
+                    mecsa_weight=detail.net_weight,
+                    guide_net_weight=detail.gross_weight,
+                    guide_cone_count=detail.cone_count,
+                    guide_package_count=detail.package_count,
+                    group_number=detail.entry_group_number,
+                )
+
+                await self.create_stock_service_order(
+                    period=period,
+                    yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
+                    service_order_number=yarn_weaving_dispatch.reference_number2,
+                    item_number=detail.item_number,
+                    storage_code=supplier.storage_code,
+                    quantity=detail.net_weight,
+                    supplier_code=supplier.code,
+                    issue_date=creation_date,
+                )
+
+                await self.product_inventory_service.update_current_stock(
+                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                    period=period,
+                    storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                    new_stock=detail.net_weight,
+                )
+
+                await self.yarn_purchase_entry_detail_heavy_service.update_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+                    entry_number=detail.entry_number,
+                    item_number=detail.entry_item_number,
+                    group_number=detail.entry_group_number,
+                    period=detail.entry_period,
+                    cone_count=detail.cone_count,
+                    package_count=detail.package_count,
+                    dispatch_number=yarn_weaving_dispatch_number,
+                )
+
+                await self._create_yarn_entry_detail_with_dispatch(
+                    storage_code=supplier.storage_code,
+                    period=period,
+                    dispatch_number=yarn_weaving_dispatch_number,
+                    current_time=current_time,
+                    supplier=supplier,
+                    purchase_service_number=yarn_weaving_dispatch.reference_number2,
+                    entry_number=yarn_weaving_dispatch.reference_number1,
+                    detail=form.detail,
+                )
+
+                await self.repository.save(yarn_weaving_dispatch)
+                await self.yarn_entry_detail_repository.save(yarn_weaving_dispatch_detail)
+                await self.movement_detail_aux_repository.save(yarn_weaving_dispatch_detail_aux)
+
+        return Success(None)
+
+    async def anulate_yarn_weaving_dispatch(
+        self,
+        yarn_weaving_dispatch_number: str,
+        period: int,
+    ) -> Result[None, CustomException]:
+        yarn_weaving_dispatch_result = await self._read_yarn_weaving_dispatch(
+            yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
+            period=period,
+            include_detail=True,
+        )
+
+        if yarn_weaving_dispatch_result.is_failure:
+            return yarn_weaving_dispatch_result
+
+        yarn_weaving_dispatch: Movement = yarn_weaving_dispatch_result.value
+
+        validation_result = await self._validate_update_yarn_weaving_dispatch(
+            yarn_weaving_dispatch=yarn_weaving_dispatch
+        )
+
+        if validation_result.is_failure:
+            return validation_result
+
+        supplier_result = await self.supplier_service.read_supplier(
+            supplier_code=yarn_weaving_dispatch.auxiliary_code,
+            include_service=True,
+        )
+
+        if supplier_result.is_failure:
+            return supplier_result
+
+        supplier = supplier_result.value
+
+        await self.anulate_service_order(
+            service_order_number=yarn_weaving_dispatch.reference_number2,
+        )
+
+        for detail in yarn_weaving_dispatch.detail:
+            await self.product_inventory_service.rollback_currents_stock(
+                product_code=detail.product_code,
+                period=period,
+                storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                quantity=detail.mecsa_weight,
             )
+
+            await self.product_inventory_service.rollback_currents_stock(
+                product_code=detail.product_code,
+                period=period,
+                storage_code=supplier.storage_code,
+                quantity=detail.mecsa_weight,
+            )
+
+            await self.service_order_stock_service.anulate_service_order_stock(
+                product_code=detail.product_code,
+                period=period,
+                storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                reference_number=yarn_weaving_dispatch.reference_number2,
+                item_number=detail.item_number,
+            )
+
+            await self.yarn_purchase_entry_detail_heavy_service.rollback_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+                package_count=detail.detail_aux.guide_package_count,
+                cone_count=detail.detail_aux.guide_cone_count,
+                item_number=detail.entry_item_number,
+                group_number=detail.entry_group_number,
+                entry_number=detail.reference_number,
+                period=detail.period,
+            )
+
+            detail.status_flag = "A"
+            detail.detail_aux.status_flag = "A"
+
+        yarn_weaving_dispatch.status_flag = "A"
+
+        await self.repository.save(yarn_weaving_dispatch)
+        await self.yarn_entry_detail_repository.save_all(yarn_weaving_dispatch.detail)
+        await self.movement_detail_aux_repository.save_all(
+            [detail.detail_aux for detail in yarn_weaving_dispatch.detail]
+        )
 
         return Success(None)

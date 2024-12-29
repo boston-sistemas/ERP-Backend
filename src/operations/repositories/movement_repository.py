@@ -16,6 +16,7 @@ class MovementRepository(BaseRepository[Movement]):
     async def find_movement_by_document_number(
         self,
         document_number: str,
+        use_outer_joins: bool = False,
         filter: BinaryExpression = None,
         joins: list[tuple] = None,
         options: Sequence[Load] = None,
@@ -29,6 +30,7 @@ class MovementRepository(BaseRepository[Movement]):
         return await self.find(
             filter=filter,
             joins=joins,
+            use_outer_joins=use_outer_joins,
             options=options,
             **kwargs
         )

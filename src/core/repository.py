@@ -38,17 +38,23 @@ class BaseRepository(Generic[ModelType]):
         self,
         filter: BinaryExpression,
         joins: Sequence[tuple] = None,
+        use_outer_joins: bool = False,
         options: Sequence[Load] = None,
     ) -> ModelType:
         stmt = select(self.model).where(filter)
 
         if joins:
             for join_item in joins:
-                # stmt = stmt.join(*join_item)
-                if isinstance(join_item, tuple) and len(join_item) == 2:
-                    stmt = stmt.join(join_item[0], join_item[1])
+                if use_outer_joins:
+                    if isinstance(join_item, tuple) and len(join_item) == 2:
+                        stmt = stmt.outerjoin(join_item[0], join_item[1])
+                    else:
+                        stmt = stmt.outerjoin(join_item)
                 else:
-                    stmt = stmt.join(join_item)
+                    if isinstance(join_item, tuple) and len(join_item) == 2:
+                        stmt = stmt.join(join_item[0], join_item[1])
+                    else:
+                        stmt = stmt.join(join_item)
 
         if options:
             stmt = stmt.options(*options)

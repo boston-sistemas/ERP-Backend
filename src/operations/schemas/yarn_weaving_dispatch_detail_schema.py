@@ -90,3 +90,6 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     gross_weight: float = Field(..., gt=0)
 
     _yarn_purchase_entry_heavy: YarnPurchaseEntryDetailHeavySchema | None = None
+
+class YarnWeavingDispatchDetailUpdateSchema(YarnWeavingDispatchDetailCreateSchema):
+    pass

@@ -75,3 +75,82 @@ class YarnPurchaseEntryDetailHeavyService:
             )
         )
 
+    async def rollback_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+        self,
+        package_count: int,
+        cone_count: int,
+        item_number: int,
+        group_number: int,
+        entry_number: int,
+        period: int,
+    ) -> Result[None, CustomException]:
+
+        yarn_purchase_entry_detail_heavy_result = await self._read_yarn_purchase_entry_detail_heavy(
+            ingress_number=entry_number,
+            item_number=item_number,
+            group_number=group_number,
+            period=period,
+        )
+
+        if yarn_purchase_entry_detail_heavy_result.is_failure:
+            return yarn_purchase_entry_detail_heavy_result
+
+        yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy = yarn_purchase_entry_detail_heavy_result.value
+
+        if yarn_purchase_entry_detail_heavy is None:
+            return YARN_PURCHASE_ENTRY_DETAIL_HEAVY_NOT_FOUND_FAILURE
+
+        yarn_purchase_entry_detail_heavy.packages_left += package_count
+        yarn_purchase_entry_detail_heavy.cones_left += cone_count
+
+        if yarn_purchase_entry_detail_heavy.packages_left > 0 or yarn_purchase_entry_detail_heavy.cones_left > 0:
+            yarn_purchase_entry_detail_heavy.dispatch_status = False
+
+        if (
+            yarn_purchase_entry_detail_heavy.packages_left == yarn_purchase_entry_detail_heavy.package_count
+        ) and (
+            yarn_purchase_entry_detail_heavy.cones_left == yarn_purchase_entry_detail_heavy.cone_count
+        ):
+            yarn_purchase_entry_detail_heavy.exit_number = None
+            yarn_purchase_entry_detail_heavy.exit_user_id = None
+
+        await self.repository.save(yarn_purchase_entry_detail_heavy)
+        return Success(None)
+
+    async def update_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
+        self,
+        package_count: int,
+        cone_count: int,
+        dispatch_number: str,
+        item_number: int,
+        group_number: int,
+        entry_number: int,
+        period: int,
+    ) -> Result[None, CustomException]:
+
+        yarn_purchase_entry_detail_heavy_result = await self._read_yarn_purchase_entry_detail_heavy(
+            ingress_number=entry_number,
+            item_number=item_number,
+            group_number=group_number,
+            period=period,
+        )
+
+        if yarn_purchase_entry_detail_heavy_result.is_failure:
+            return yarn_purchase_entry_detail_heavy_result
+
+        yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy = yarn_purchase_entry_detail_heavy_result.value
+
+        if yarn_purchase_entry_detail_heavy is None:
+            return YARN_PURCHASE_ENTRY_DETAIL_HEAVY_NOT_FOUND_FAILURE
+
+        yarn_purchase_entry_detail_heavy.packages_left -= package_count
+        yarn_purchase_entry_detail_heavy.cones_left -= cone_count
+
+        if yarn_purchase_entry_detail_heavy.packages_left == 0 and yarn_purchase_entry_detail_heavy.cones_left == 0:
+            yarn_purchase_entry_detail_heavy.dispatch_status = True
+
+        yarn_purchase_entry_detail_heavy.exit_number = dispatch_number
+        yarn_purchase_entry_detail_heavy.exit_user_id = "DESA01"
+
+        await self.repository.save(yarn_purchase_entry_detail_heavy)
+        return Success(None)

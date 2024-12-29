@@ -98,11 +98,12 @@ from .yarn_weaving_dispatch_schema import (
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchSimpleSchema,
     YarnWeavingDispatchSchema,
-    YarnWeavingDispatchCreateSchema
+    YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchUpdateSchema,
 )
 
 from .yarn_weaving_dispatch_detail_schema import (
-    YarnWeavingDispatchDetailCreateSchema
+    YarnWeavingDispatchDetailCreateSchema,
 )
 
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
@@ -175,4 +176,5 @@ __all__ = [
     "YarnWeavingDispatchCreateSchema",
     "YarnWeavingDispatchDetailCreateSchema",
     "YarnPurchaseEntryDetailHeavySchema",
+    "YarnWeavingDispatchUpdateSchema",
 ]

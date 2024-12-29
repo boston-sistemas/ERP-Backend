@@ -47,3 +47,15 @@ YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE = Failure(
         detail="El grupo seleccionado fue anulado."
     )
 )
+
+YARN_WEAVING_DISPATCH_ALREADY_ANULLED_FAILURE = Failure(
+    ForbiddenException(
+        detail="El movimiento de salida de hilado a tejeduria especificado fue anulado."
+    )
+)
+
+YARN_WEAVING_DISPATCH_ALREADY_ACCOUNTED_FAILURE = Failure(
+    ForbiddenException(
+        detail="El movimiento de salida de hilado a tejeduria especificado ya ha sido contabilizado."
+    )
+)

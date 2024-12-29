@@ -11,6 +11,7 @@ from src.operations.schemas import (
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchSchema,
     YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchUpdateSchema,
 )
 
 from src.core.utils import PERU_TIMEZONE, calculate_time
@@ -69,5 +70,49 @@ async def create_yarn_weaving_dispatch(
 
     if result.is_success:
         return {"message": "La salida de hilado ha tejeduría ha sido creada exitosamente."}
+
+    raise result.error
+
+@router.patch("/{yarn_weaving_dispatch_number}")
+async def update_yarn_weaving_dispatch(
+    yarn_weaving_dispatch_number: str,
+    form: YarnWeavingDispatchUpdateSchema,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year,
+        ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = YarnWeavingDispatchService(promec_db=promec_db)
+    result = await service.update_yarn_weaving_dispatch(
+        yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
+        form=form,
+        period=period
+    )
+
+    if result.is_success:
+        return {"message": "La salida de hilado ha tejeduría ha sido actualizada exitosamente."}
+
+    raise result.error
+
+@router.put("/{yarn_weaving_dispatch_number}/anulate")
+async def update_yarn_weaving_dispatch_status(
+    yarn_weaving_dispatch_number: str,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year,
+        ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+
+    service = YarnWeavingDispatchService(promec_db=promec_db)
+
+    result = await service.anulate_yarn_weaving_dispatch(
+        yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
+        period=period
+    )
+
+    if result.is_success:
+        return {"message": "La salida de hilado ha tejeduría ha sido anulada exitosamente."}
 
     raise result.error

@@ -61,7 +61,7 @@ class ProductInventoryService:
 
     async def update_current_stock(
         self, product_code: str, storage_code: str, period: int, new_stock: int
-    ) -> Result[ProductInventory, CustomException]:
+    ) -> Result[None, CustomException]:
         product_inventory = await self._read_product_inventory(
             product_code=product_code, storage_code=storage_code, period=period
         )

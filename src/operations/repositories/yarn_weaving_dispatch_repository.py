@@ -39,6 +39,8 @@ class YarnWeavingDispatchRepository(MovementRepository):
             Movement.reference_number2,
             Movement.document_note,
             Movement.printed_flag,
+            Movement.flgcbd,
+            Movement.reference_number1
         )
 
     @staticmethod
@@ -109,6 +111,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
         dispatch_number: str,
         period: int,
         filter: BinaryExpression = None,
+        use_outer_joins: bool = False,
         include_detail: bool = False,
         include_detail_entry: bool = False,
     ) -> Movement | None:
@@ -135,6 +138,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
 
         yarn_weaving_dispatch = await self.find_movement_by_document_number(
             document_number=dispatch_number,
+            use_outer_joins=use_outer_joins,
             filter=filter,
             joins=joins,
             options=options

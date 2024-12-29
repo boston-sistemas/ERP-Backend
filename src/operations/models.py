@@ -403,7 +403,6 @@ class OrdenCompra(PromecBase):
         {"schema": "PUB"},
     )
 
-
 class OrdenCompraDetalle(PromecBase):
     __tablename__ = "opedocmp"
 
@@ -469,6 +468,81 @@ class OrdenCompraDetalle(PromecBase):
     def __repr__(self):
         return f"<OrdenCompraDetalle(codprod={self.product_code}>"
 
+class ServiceOrder(PromecBase):
+    __tablename__ = "opecosmp"
+
+    company_code: Mapped[str] = mapped_column(
+        "codcia",
+        String(length=COMPANY_CODE_MAX_LENGTH)
+    )
+    service_order_type: Mapped[str] = mapped_column(
+        "tpoos", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
+    )
+    service_order_number: Mapped[str] = mapped_column(
+        "nroos", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH)
+    )
+    supplier_code: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+    issue_date: Mapped[date] = mapped_column("fchemi")
+    due_date: Mapped[date] = mapped_column("fchvto")
+    currency_code: Mapped[int] = mapped_column("codmon", default=1)
+    payment_method: Mapped[str] = mapped_column(
+        "fmapgo", String(length=PAYMENT_METHOD_MAX_LENGTH)
+    )
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
+    storage_code: Mapped[str] = mapped_column(
+        "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
+    )
+    user_id: Mapped[str] = mapped_column("idusers", String(length=USER_ID_MAX_LENGTH))
+    flgatc: Mapped[str] = mapped_column("flgatc", String(length=FLGACT_MAX_LENGTH))
+    flgprt: Mapped[str] = mapped_column("flgprt", String(length=PRINTED_FLAG_MAX_LENGTH))
+
+    __table_args__ = (
+        PrimaryKeyConstraint(
+            "codcia", "nroos", "tpoos"
+        ),
+        {"schema": "PUB"},
+    )
+
+class ServiceOrderStock(PromecBase):
+    __tablename__ = "almstkserv"
+
+    company_code: Mapped[str] = mapped_column(
+        "codcia",
+        String(length=COMPANY_CODE_MAX_LENGTH)
+    )
+    period: Mapped[int] = mapped_column("periodo")
+    product_code: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    reference_number: Mapped[str] = mapped_column(
+        "refnro", String(length=REFERENCE_NUMBER_MAX_LENGTH)
+    )
+    storage_code: Mapped[str] = mapped_column(
+        "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
+    )
+    item_number: Mapped[int] = mapped_column("nroitm")
+    stkact: Mapped[float] = mapped_column("stkact")
+    status_flag: Mapped[str] = mapped_column(
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
+    )
+    supplier_code: Mapped[str] = mapped_column(
+        "codprov", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+    creation_date: Mapped[date] = mapped_column("fchdoc")
+    pormer: Mapped[float] = mapped_column("pormer")
+    quantity_received: Mapped[float] = mapped_column("canting")
+    quantity_dispatched: Mapped[float] = mapped_column("cantsal")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(
+            "codcia", "codprod", "refnro", "nroitm"
+        ),
+        {"schema": "PUB"},
+    )
 
 class Movement(PromecBase):
     __tablename__ = "almcmovi"
@@ -740,8 +814,8 @@ class MovementDetail(PromecBase):
     guide_gross_weight: Mapped[float] = mapped_column("pesobrtoguia")
     precto: Mapped[float] = mapped_column("precto")  # //! Definir nombre representativo
     impcto: Mapped[float] = mapped_column("impcto")  # //! Definir nombre representativo
-    currency_code: Mapped[int] = mapped_column("codmon")
-    exchange_rate: Mapped[float] = mapped_column("tpocmb")
+    currency_code: Mapped[int] = mapped_column("codmon", default=1)
+    exchange_rate: Mapped[float] = mapped_column("tpocmb", default=0.0)
     impmn1: Mapped[float] = mapped_column("impmn1")  # //! Definir nombre representativo
     impmn2: Mapped[float] = mapped_column("impmn2")  # //! Definir nombre representativo
     stkgen: Mapped[float] = mapped_column("stkgen")
@@ -946,6 +1020,9 @@ class MovementDetailAux(PromecBase):
     )
     reference_number: Mapped[str] = mapped_column(
         "nroref", String(length=REFERENCE_NUMBER_MAX_LENGTH)
+    )
+    group_number: Mapped[str] = mapped_column(
+        "grupo", String(length=GROUP_NUMBER_MAX_LENGTH)
     )
     movement_detail = relationship(
         "MovementDetail",

@@ -1,4 +1,4 @@
-from pydantic import Field, root_validator, computed_field
+from pydantic import Field, model_validator, computed_field
 from typing import Any
 
 from src.core.schemas import CustomBaseModel
@@ -44,11 +44,12 @@ class YarnPurchaseEntryDetailHeavyCreateSchema(CustomBaseModel):
     gross_weight: float = Field(gt=0.0)
     net_weight: float | None = Field(default=0, gt=0.0)
 
-    @root_validator(pre=True)
-    def set_net_weight(cls, values):
-        if values.get("net_weight") is None:
-            values["net_weight"] = values["gross_weight"]
-        return values
+    @model_validator(mode="after")
+    def set_net_weight(self):
+        if self.net_weight is None:
+            self.net_weight = self.gross_weight
+
+        return self
 
 class YarnPurchaseEntryDetailHeavyUpdateSchema(YarnPurchaseEntryDetailHeavyCreateSchema):
     pass
