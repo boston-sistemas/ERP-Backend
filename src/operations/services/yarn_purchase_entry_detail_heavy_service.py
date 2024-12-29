@@ -1,28 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.core.constants import MECSA_COMPANY_CODE
+
 from src.core.exceptions import CustomException
-from src.core.repository import BaseRepository
 from src.core.result import Result, Success
-
-from src.operations.models import (
-    CurrencyExchange,
-    Movement,
-    MovementDetail,
-    MovementDetailAux,
-    MovementYarnOCHeavy,
-)
-
-from src.operations.repositories import (
-    YarnPurchaseEntryDetailHeavyRepository
-)
-
 from src.operations.failures import (
     YARN_PURCHASE_ENTRY_DETAIL_HEAVY_NOT_FOUND_FAILURE,
 )
-
-from src.operations.schemas import (
-    YarnPurchaseEntryDetailHeavySchema
+from src.operations.models import (
+    MovementYarnOCHeavy,
 )
+from src.operations.repositories import YarnPurchaseEntryDetailHeavyRepository
+from src.operations.schemas import YarnPurchaseEntryDetailHeavySchema
+
 
 class YarnPurchaseEntryDetailHeavyService:
     def __init__(self, promec_db: AsyncSession) -> None:
@@ -58,12 +46,14 @@ class YarnPurchaseEntryDetailHeavyService:
         period: int,
         include_detail_entry: bool = False,
     ) -> Result[MovementYarnOCHeavy, CustomException]:
-        yarn_purchase_entry_detail_heavy_result = await self._read_yarn_purchase_entry_detail_heavy(
-            ingress_number=ingress_number,
-            item_number=item_number,
-            group_number=group_number,
-            period=period,
-            include_detail_entry=include_detail_entry,
+        yarn_purchase_entry_detail_heavy_result = (
+            await self._read_yarn_purchase_entry_detail_heavy(
+                ingress_number=ingress_number,
+                item_number=item_number,
+                group_number=group_number,
+                period=period,
+                include_detail_entry=include_detail_entry,
+            )
         )
 
         if yarn_purchase_entry_detail_heavy_result.is_failure:
@@ -84,18 +74,21 @@ class YarnPurchaseEntryDetailHeavyService:
         entry_number: int,
         period: int,
     ) -> Result[None, CustomException]:
-
-        yarn_purchase_entry_detail_heavy_result = await self._read_yarn_purchase_entry_detail_heavy(
-            ingress_number=entry_number,
-            item_number=item_number,
-            group_number=group_number,
-            period=period,
+        yarn_purchase_entry_detail_heavy_result = (
+            await self._read_yarn_purchase_entry_detail_heavy(
+                ingress_number=entry_number,
+                item_number=item_number,
+                group_number=group_number,
+                period=period,
+            )
         )
 
         if yarn_purchase_entry_detail_heavy_result.is_failure:
             return yarn_purchase_entry_detail_heavy_result
 
-        yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy = yarn_purchase_entry_detail_heavy_result.value
+        yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy = (
+            yarn_purchase_entry_detail_heavy_result.value
+        )
 
         if yarn_purchase_entry_detail_heavy is None:
             return YARN_PURCHASE_ENTRY_DETAIL_HEAVY_NOT_FOUND_FAILURE
@@ -103,13 +96,18 @@ class YarnPurchaseEntryDetailHeavyService:
         yarn_purchase_entry_detail_heavy.packages_left += package_count
         yarn_purchase_entry_detail_heavy.cones_left += cone_count
 
-        if yarn_purchase_entry_detail_heavy.packages_left > 0 or yarn_purchase_entry_detail_heavy.cones_left > 0:
+        if (
+            yarn_purchase_entry_detail_heavy.packages_left > 0
+            or yarn_purchase_entry_detail_heavy.cones_left > 0
+        ):
             yarn_purchase_entry_detail_heavy.dispatch_status = False
 
         if (
-            yarn_purchase_entry_detail_heavy.packages_left == yarn_purchase_entry_detail_heavy.package_count
+            yarn_purchase_entry_detail_heavy.packages_left
+            == yarn_purchase_entry_detail_heavy.package_count
         ) and (
-            yarn_purchase_entry_detail_heavy.cones_left == yarn_purchase_entry_detail_heavy.cone_count
+            yarn_purchase_entry_detail_heavy.cones_left
+            == yarn_purchase_entry_detail_heavy.cone_count
         ):
             yarn_purchase_entry_detail_heavy.exit_number = None
             yarn_purchase_entry_detail_heavy.exit_user_id = None
@@ -127,18 +125,21 @@ class YarnPurchaseEntryDetailHeavyService:
         entry_number: int,
         period: int,
     ) -> Result[None, CustomException]:
-
-        yarn_purchase_entry_detail_heavy_result = await self._read_yarn_purchase_entry_detail_heavy(
-            ingress_number=entry_number,
-            item_number=item_number,
-            group_number=group_number,
-            period=period,
+        yarn_purchase_entry_detail_heavy_result = (
+            await self._read_yarn_purchase_entry_detail_heavy(
+                ingress_number=entry_number,
+                item_number=item_number,
+                group_number=group_number,
+                period=period,
+            )
         )
 
         if yarn_purchase_entry_detail_heavy_result.is_failure:
             return yarn_purchase_entry_detail_heavy_result
 
-        yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy = yarn_purchase_entry_detail_heavy_result.value
+        yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy = (
+            yarn_purchase_entry_detail_heavy_result.value
+        )
 
         if yarn_purchase_entry_detail_heavy is None:
             return YARN_PURCHASE_ENTRY_DETAIL_HEAVY_NOT_FOUND_FAILURE
@@ -146,7 +147,10 @@ class YarnPurchaseEntryDetailHeavyService:
         yarn_purchase_entry_detail_heavy.packages_left -= package_count
         yarn_purchase_entry_detail_heavy.cones_left -= cone_count
 
-        if yarn_purchase_entry_detail_heavy.packages_left == 0 and yarn_purchase_entry_detail_heavy.cones_left == 0:
+        if (
+            yarn_purchase_entry_detail_heavy.packages_left == 0
+            and yarn_purchase_entry_detail_heavy.cones_left == 0
+        ):
             yarn_purchase_entry_detail_heavy.dispatch_status = True
 
         yarn_purchase_entry_detail_heavy.exit_number = dispatch_number

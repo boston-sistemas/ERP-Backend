@@ -6,6 +6,7 @@ from src.operations.failures import PRODUCT_INVENTORY_NOT_FOUND_FAILURE
 from src.operations.models import ProductInventory
 from src.operations.repositories import ProductInventoryRepository
 
+
 class ProductInventoryService:
     def __init__(self, promec_db: AsyncSession) -> None:
         self.promec_db = promec_db
@@ -44,7 +45,6 @@ class ProductInventoryService:
         product_code: str,
         quantity: int,
     ) -> Result[None, CustomException]:
-
         product_inventory = await self._read_product_inventory(
             product_code=product_code, storage_code=storage_code, period=period
         )

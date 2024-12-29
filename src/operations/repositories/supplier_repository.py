@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
 from src.operations.models import Supplier
-from sqlalchemy.orm import joinedload
 
 
 class SupplierRepository(BaseRepository[Supplier]):
@@ -12,9 +12,7 @@ class SupplierRepository(BaseRepository[Supplier]):
 
     @staticmethod
     def include_service():
-        base_options = [
-            joinedload(Supplier.services)
-        ]
+        base_options = [joinedload(Supplier.services)]
 
         return base_options
 

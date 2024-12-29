@@ -1,22 +1,15 @@
-from sqlalchemy import BinaryExpression, cast, Integer
-from typing import Sequence, Union
+from typing import Sequence
+
+from sqlalchemy import BinaryExpression, Integer, cast
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, load_only, contains_eager
+from sqlalchemy.orm import contains_eager, load_only
 from sqlalchemy.orm.strategy_options import Load
 
 from src.core.constants import MECSA_COMPANY_CODE
-from src.operations.constants import (
-    YARN_PURCHASE_ENTRY_DOCUMENT_CODE,
-    YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
-    YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
-    YARN_PURCHASE_ENTRY_STORAGE_CODE,
-)
-from src.operations.models import (
-    Movement,
-    MovementDetail,
-    MovementYarnOCHeavy
-)
 from src.core.repository import BaseRepository
+from src.operations.models import MovementDetail, MovementYarnOCHeavy
+
+
 class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
         super().__init__(MovementYarnOCHeavy, promec_db, flush)
@@ -38,7 +31,7 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
             MovementYarnOCHeavy.dispatch_status,
             MovementYarnOCHeavy.entry_user_id,
             MovementYarnOCHeavy.exit_user_id,
-            MovementYarnOCHeavy.destination_storage
+            MovementYarnOCHeavy.destination_storage,
         )
 
     async def find_yarn_purchase_entry_detail_heavy_by_ingress_number_and_item_and_group_(
@@ -58,20 +51,18 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
         if include_detail_entry:
             joins.append(MovementYarnOCHeavy.movement_detail)
 
-        base_filter = (MovementYarnOCHeavy.company_code == MECSA_COMPANY_CODE) & (
-            MovementYarnOCHeavy.ingress_number == ingress_number) & (
-            MovementYarnOCHeavy.item_number == item_number) & (
-            (cast(MovementYarnOCHeavy.group_number, Integer)) == group_number
+        base_filter = (
+            (MovementYarnOCHeavy.company_code == MECSA_COMPANY_CODE)
+            & (MovementYarnOCHeavy.ingress_number == ingress_number)
+            & (MovementYarnOCHeavy.item_number == item_number)
+            & ((cast(MovementYarnOCHeavy.group_number, Integer)) == group_number)
         )
 
         options.append(load_only(*self.get_yarn_purchase_entry_detail_heavy_fields()))
         if include_detail_entry:
-
             base_filter = base_filter & (MovementDetail.period == period)
 
-            options.append(
-                contains_eager(MovementYarnOCHeavy.movement_detail)
-            )
+            options.append(contains_eager(MovementYarnOCHeavy.movement_detail))
 
         filter = base_filter & filter if filter is not None else base_filter
 

@@ -1,27 +1,23 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_db, get_promec_db
-
-from src.operations.services import (
-    YarnWeavingDispatchService
-)
-
+from src.core.database import get_promec_db
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
-    YarnWeavingDispatchSimpleListSchema,
-    YarnWeavingDispatchSchema,
     YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchSchema,
+    YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchUpdateSchema,
 )
+from src.operations.services import YarnWeavingDispatchService
 
-from src.core.utils import PERU_TIMEZONE, calculate_time
 router = APIRouter()
+
 
 @router.get("/", response_model=YarnWeavingDispatchSimpleListSchema)
 async def read_yarn_weaving_dispatches(
     period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year,
-        ge=2000
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     limit: int | None = Query(default=10, ge=1, le=100),
     offset: int | None = Query(default=0, ge=0),
@@ -38,12 +34,12 @@ async def read_yarn_weaving_dispatches(
 
     raise result.error
 
+
 @router.get("/{yarn_weaving_dispatch_number}", response_model=YarnWeavingDispatchSchema)
 async def read_yarn_weaving_dispatch(
     yarn_weaving_dispatch_number: str,
     period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year,
-        ge=2000
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -52,13 +48,14 @@ async def read_yarn_weaving_dispatch(
         yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
         period=period,
         include_detail=True,
-        include_detail_entry=True
+        include_detail_entry=True,
     )
 
     if result.is_success:
         return result.value
 
     raise result.error
+
 
 @router.post("/")
 async def create_yarn_weaving_dispatch(
@@ -69,17 +66,19 @@ async def create_yarn_weaving_dispatch(
     result = await service.create_yarn_weaving_dispatch(form=form)
 
     if result.is_success:
-        return {"message": "La salida de hilado ha tejeduría ha sido creada exitosamente."}
+        return {
+            "message": "La salida de hilado ha tejeduría ha sido creada exitosamente."
+        }
 
     raise result.error
+
 
 @router.patch("/{yarn_weaving_dispatch_number}")
 async def update_yarn_weaving_dispatch(
     yarn_weaving_dispatch_number: str,
     form: YarnWeavingDispatchUpdateSchema,
     period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year,
-        ge=2000
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -87,32 +86,53 @@ async def update_yarn_weaving_dispatch(
     result = await service.update_yarn_weaving_dispatch(
         yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
         form=form,
-        period=period
+        period=period,
     )
 
     if result.is_success:
-        return {"message": "La salida de hilado ha tejeduría ha sido actualizada exitosamente."}
+        return {
+            "message": "La salida de hilado ha tejeduría ha sido actualizada exitosamente."
+        }
 
     raise result.error
+
 
 @router.put("/{yarn_weaving_dispatch_number}/anulate")
 async def update_yarn_weaving_dispatch_status(
     yarn_weaving_dispatch_number: str,
     period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year,
-        ge=2000
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
-
     service = YarnWeavingDispatchService(promec_db=promec_db)
 
     result = await service.anulate_yarn_weaving_dispatch(
-        yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
-        period=period
+        yarn_weaving_dispatch_number=yarn_weaving_dispatch_number, period=period
     )
 
     if result.is_success:
-        return {"message": "La salida de hilado ha tejeduría ha sido anulada exitosamente."}
+        return {
+            "message": "La salida de hilado ha tejeduría ha sido anulada exitosamente."
+        }
+
+    raise result.error
+
+
+@router.get("/{yarn_weaving_dispatch_number}/is-updated-permission")
+async def is_updated_permission(
+    yarn_weaving_dispatch_number: str,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = YarnWeavingDispatchService(promec_db=promec_db)
+    result = await service.is_updated_permission(
+        yarn_weaving_dispatch_number=yarn_weaving_dispatch_number, period=period
+    )
+
+    if result.is_success:
+        return {"message": "La salida de hilado ha tejeduría puede ser actualizado."}
 
     raise result.error

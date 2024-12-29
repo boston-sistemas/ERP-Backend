@@ -22,19 +22,25 @@ from src.operations.constants import (
     AUXILIARY_NAME_MAX_LENGTH,
     CLFAUX_MAX_LENGTH,
     COMPANY_CODE_MAX_LENGTH,
+    DETDOC_MAX_LENGTH,
     DOCUMENT_CODE_MAX_LENGTH,
     DOCUMENT_NOTE_MAX_LENGTH,
     DOCUMENT_NUMBER_MAX_LENGTH,
+    DRIVER_CODE_MAX_LENGTH,
+    DRIVER_LICENSE_MAX_LENGTH,
     EXIT_NUMBER_MAX_LENGTH,
     FIBER_DENOMINATION_MAX_LENGTH,
     FIBER_ID_MAX_LENGTH,
     FIBER_ORIGIN_MAX_LENGTH,
     FLGACT_MAX_LENGTH,
     FLGCBD_MAX_LENGTH,
+    FLGELE_MAX_LENGTH,
     FLGRECLAMO_MAX_LENGTH,
     FLGSIT_MAX_LENGTH,
     GROUP_NUMBER_MAX_LENGTH,
+    HASHCODE_MAX_LENGTH,
     INGRESS_NUMBER_MAX_LENGTH,
+    INITIALS_MAX_LENGTH,
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,
     MAX_LENGTH_CRUDO_ID,
@@ -54,9 +60,12 @@ from src.operations.constants import (
     MOVEMENT_CODE_MAX_LENGTH,
     MOVEMENT_TYPE_MAX_LENGTH,
     NROGF_MAX_LENGTH,
+    NROREQ_MAX_LENGTH,
+    NROTARJ_MAX_LENGTH,
     ORIGIN_STATION_MAX_LENGTH,
     ORIGMOV_MAX_LENGTH,
     PAYMENT_METHOD_MAX_LENGTH,
+    PREFELE_MAX_LENGTH,
     PRINTED_FLAG_MAX_LENGTH,
     PRODUCT_CODE_MAX_LENGTH,
     PURCHASE_ORDER_NUMBER_MAX_LENGTH,
@@ -76,30 +85,20 @@ from src.operations.constants import (
     SUPPLIER_NAME_MAX_LENGTH,
     SUPPLIER_RUC_MAX_LENGTH,
     TRANSACTION_MODE_MAX_LENGTH,
+    TRANSACTION_MOTIVE_MAX_LENGTH,
+    TRANSPORTER_CODE_MAX_LENGTH,
     UNDPESOBRUTOTOTAL_MAX_LENGTH,
     UNIT_CODE_MAX_LENGTH,
     USER_ID_MAX_LENGTH,
-    VOUCHER_NUMBER_MAX_LENGTH,
-    YARN_ID_MAX_LENGTH,
-    TRANSPORTER_CODE_MAX_LENGTH,
-    TRANSACTION_MOTIVE_MAX_LENGTH,
     VEHICLE_BRAND_MAX_LENGTH,
     VEHICLE_CODE_MAX_LENGTH,
     VEHICLE_PLATE_MAX_LENGTH,
-    DRIVER_CODE_MAX_LENGTH,
-    DRIVER_LICENSE_MAX_LENGTH,
-    FLGELE_MAX_LENGTH,
-    PREFELE_MAX_LENGTH,
-    HASHCODE_MAX_LENGTH,
+    VOUCHER_NUMBER_MAX_LENGTH,
+    YARN_ID_MAX_LENGTH,
     YARN_PURCHASE_ENTRY_DOCUMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
-    INITIALS_MAX_LENGTH,
-    NROTARJ_MAX_LENGTH,
-    DETDOC_MAX_LENGTH,
-    NRODIR_MAX_LENGTH,
-    NROREQ_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -358,8 +357,7 @@ class OrdenCompra(PromecBase):
     __tablename__ = "opecocmp"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia",
-        String(length=COMPANY_CODE_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     purchase_order_type: Mapped[str] = mapped_column(
         "tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
@@ -403,10 +401,13 @@ class OrdenCompra(PromecBase):
         {"schema": "PUB"},
     )
 
+
 class OrdenCompraDetalle(PromecBase):
     __tablename__ = "opedocmp"
 
-    company_code: Mapped[str] = mapped_column("codcia", String(length=COMPANY_CODE_MAX_LENGTH))
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
+    )
     purchase_order_type: Mapped[str] = mapped_column(
         "tpooc", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
     )
@@ -468,12 +469,12 @@ class OrdenCompraDetalle(PromecBase):
     def __repr__(self):
         return f"<OrdenCompraDetalle(codprod={self.product_code}>"
 
+
 class ServiceOrder(PromecBase):
     __tablename__ = "opecosmp"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia",
-        String(length=COMPANY_CODE_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     service_order_type: Mapped[str] = mapped_column(
         "tpoos", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
@@ -498,21 +499,21 @@ class ServiceOrder(PromecBase):
     )
     user_id: Mapped[str] = mapped_column("idusers", String(length=USER_ID_MAX_LENGTH))
     flgatc: Mapped[str] = mapped_column("flgatc", String(length=FLGACT_MAX_LENGTH))
-    flgprt: Mapped[str] = mapped_column("flgprt", String(length=PRINTED_FLAG_MAX_LENGTH))
+    flgprt: Mapped[str] = mapped_column(
+        "flgprt", String(length=PRINTED_FLAG_MAX_LENGTH)
+    )
 
     __table_args__ = (
-        PrimaryKeyConstraint(
-            "codcia", "nroos", "tpoos"
-        ),
+        PrimaryKeyConstraint("codcia", "nroos", "tpoos"),
         {"schema": "PUB"},
     )
+
 
 class ServiceOrderStock(PromecBase):
     __tablename__ = "almstkserv"
 
     company_code: Mapped[str] = mapped_column(
-        "codcia",
-        String(length=COMPANY_CODE_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     period: Mapped[int] = mapped_column("periodo")
     product_code: Mapped[str] = mapped_column(
@@ -538,11 +539,10 @@ class ServiceOrderStock(PromecBase):
     quantity_dispatched: Mapped[float] = mapped_column("cantsal")
 
     __table_args__ = (
-        PrimaryKeyConstraint(
-            "codcia", "codprod", "refnro", "nroitm"
-        ),
+        PrimaryKeyConstraint("codcia", "codprod", "refnro", "nroitm"),
         {"schema": "PUB"},
     )
+
 
 class Movement(PromecBase):
     __tablename__ = "almcmovi"
@@ -674,7 +674,9 @@ class Movement(PromecBase):
     mecsa_batch: Mapped[str] = mapped_column(
         "lotem", String(length=MECSA_BATCH_MAX_LENGTH)
     )
-    fchinitras: Mapped[date] = mapped_column("fchinitras")  # //! Definir nombre representativo
+    fchinitras: Mapped[date] = mapped_column(
+        "fchinitras"
+    )  # //! Definir nombre representativo
     hashcode: Mapped[str] = mapped_column(
         "hashcode",
         String(length=HASHCODE_MAX_LENGTH),
@@ -1156,7 +1158,9 @@ class Supplier(PromecBase):
     storage_code: Mapped[str] = mapped_column(
         "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
     )
-    initials: Mapped[str] = mapped_column("iniciales", String(length=INITIALS_MAX_LENGTH))
+    initials: Mapped[str] = mapped_column(
+        "iniciales", String(length=INITIALS_MAX_LENGTH)
+    )
 
     services = relationship(
         "SupplierService",

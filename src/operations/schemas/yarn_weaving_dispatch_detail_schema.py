@@ -1,14 +1,15 @@
-from datetime import date, datetime
-
+from datetime import date
 from typing import Any
-from pydantic import AliasChoices, Field, model_validator, computed_field
-from src.core.schemas import CustomBaseModel
 
+from pydantic import AliasChoices, Field, computed_field
+
+from src.core.schemas import CustomBaseModel
 from src.core.utils import PERU_TIMEZONE, calculate_time
+
 from .yarn_purchase_entry_detail_heavy_schema import (
-    YarnPurchaseEntryDetailHeavySimpleSchema,
     YarnPurchaseEntryDetailHeavySchema,
 )
+
 
 class YarnWeavingDispatchDetailBase(CustomBaseModel):
     item_number: int | None = None
@@ -24,10 +25,14 @@ class YarnWeavingDispatchDetailBase(CustomBaseModel):
     class Config:
         from_attributes = True
 
+
 class YarnWeavingDispatchDetailSimpleSchema(YarnWeavingDispatchDetailBase):
     pass
 
-class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(YarnWeavingDispatchDetailSimpleSchema):
+
+class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(
+    YarnWeavingDispatchDetailSimpleSchema
+):
     yarn_purchase_entry: Any | None = Field(
         None,
         exclude=True,
@@ -68,15 +73,14 @@ class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(YarnWeavingDispatchDetai
     @property
     def yarn_id(self) -> str | None:
         if self.yarn_purchase_entry and hasattr(
-            self.yarn_purchase_entry,
-            "movement_detail"
+            self.yarn_purchase_entry, "movement_detail"
         ):
             if self.yarn_purchase_entry.movement_detail and hasattr(
-                self.yarn_purchase_entry.movement_detail,
-                "product_code"
+                self.yarn_purchase_entry.movement_detail, "product_code"
             ):
                 return self.yarn_purchase_entry.movement_detail.product_code
         return None
+
 
 class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     item_number: int | None = Field(default=None, ge=1)
@@ -90,6 +94,7 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     gross_weight: float = Field(..., gt=0)
 
     _yarn_purchase_entry_heavy: YarnPurchaseEntryDetailHeavySchema | None = None
+
 
 class YarnWeavingDispatchDetailUpdateSchema(YarnWeavingDispatchDetailCreateSchema):
     pass

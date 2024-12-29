@@ -1,20 +1,19 @@
-from datetime import date, datetime
+from datetime import date
+
 from pydantic import AliasChoices, Field, model_validator
+
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
-    NROGF_MAX_LENGTH,
-    REFERENCE_NUMBER_MAX_LENGTH,
-    SERGF_MAX_LENGTH,
-    SUPPLIER_BATCH_MAX_LENGTH,
     NRODIR_MAX_LENGTH,
 )
 
 from .yarn_weaving_dispatch_detail_schema import (
-    YarnWeavingDispatchDetailWithEntryYarnHeavySchema,
     YarnWeavingDispatchDetailCreateSchema,
     YarnWeavingDispatchDetailUpdateSchema,
+    YarnWeavingDispatchDetailWithEntryYarnHeavySchema,
 )
+
 
 class YarnWeavingDispatchBase(CustomBaseModel):
     exit_number: str | None = Field(
@@ -36,16 +35,19 @@ class YarnWeavingDispatchBase(CustomBaseModel):
     class Config:
         from_attributes = True
 
+
 class YarnWeavingDispatchSimpleSchema(YarnWeavingDispatchBase):
     pass
+
 
 class YarnWeavingDispatchSimpleListSchema(CustomBaseModel):
     yarn_weaving_dispatches: list[YarnWeavingDispatchSimpleSchema] | None = []
 
-class YarnWeavingDispatchSchema(YarnWeavingDispatchSimpleSchema):
 
+class YarnWeavingDispatchSchema(YarnWeavingDispatchSimpleSchema):
     printed_flag: str | None
     detail: list[YarnWeavingDispatchDetailWithEntryYarnHeavySchema] | None = []
+
 
 class YarnWeavingDispatchCreateSchema(CustomBaseModel):
     period: int
@@ -79,6 +81,7 @@ class YarnWeavingDispatchCreateSchema(CustomBaseModel):
                 m_idx += 1
 
         return self
+
 
 class YarnWeavingDispatchUpdateSchema(CustomBaseModel):
     supplier_code: str

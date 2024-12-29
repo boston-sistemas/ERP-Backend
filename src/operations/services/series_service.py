@@ -87,6 +87,7 @@ class MovementSeries(SeriesHelper, document_code="", service_number=0):
 
         return str(self.service_number).zfill(3) + str(result).zfill(7)
 
+
 class EntrySeries(
     MovementSeries,
     name="Ingreso hilado a almacén proveedor",
@@ -95,6 +96,7 @@ class EntrySeries(
 ):
     pass
 
+
 class YarnPurchaseEntrySeries(
     MovementSeries,
     name="Ingreso por compra de hilado",
@@ -102,6 +104,7 @@ class YarnPurchaseEntrySeries(
     service_number=6,
 ):
     pass
+
 
 class YarnWeavingDispatchSeries(
     MovementSeries,
@@ -112,4 +115,4 @@ class YarnWeavingDispatchSeries(
     async def next_number(self) -> str:
         result = await super().next_number()
 
-        return ('T' + result)
+        return "T" + result

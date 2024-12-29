@@ -1,8 +1,7 @@
 from src.core.exceptions import (
-    CustomException,
+    ForbiddenException,
     NotFoundException,
     UnprocessableEntityException,
-    ForbiddenException,
 )
 from src.core.result import Failure
 
@@ -37,15 +36,11 @@ YARN_WEAVING_DISPATCH_PACKAGE_COUNT_MISMATCH_FAILURE = Failure(
 )
 
 YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE = Failure(
-    ForbiddenException(
-        detail="El grupo seleccionado ya ha sido despachado."
-    )
+    ForbiddenException(detail="El grupo seleccionado ya ha sido despachado.")
 )
 
 YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE = Failure(
-    ForbiddenException(
-        detail="El grupo seleccionado fue anulado."
-    )
+    ForbiddenException(detail="El grupo seleccionado fue anulado.")
 )
 
 YARN_WEAVING_DISPATCH_ALREADY_ANULLED_FAILURE = Failure(

@@ -86,9 +86,9 @@ class YarnPurchaseEntryRepository(MovementRepository):
             options.append(joinedload(Movement.purchase_order))
             if include_purchase_order_detail:
                 options.append(
-                    joinedload(Movement.purchase_order).joinedload(
-                        OrdenCompra.detail
-                    ).joinedload(OrdenCompraDetalle.yarn)
+                    joinedload(Movement.purchase_order)
+                    .joinedload(OrdenCompra.detail)
+                    .joinedload(OrdenCompraDetalle.yarn)
                 )
 
         options.append(load_only(*self.get_yarn_purchase_entry_fields()))
@@ -143,7 +143,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             & (Movement.period == period)
         )
         if not include_inactive:
-            base_filter = base_filter & (Movement.status_flag == 'P')
+            base_filter = base_filter & (Movement.status_flag == "P")
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options()
 

@@ -2,7 +2,6 @@ from src.core.schemas import CustomBaseModel
 
 from .supplier_service_schema import SupplierServiceSchema
 
-from pydantic import Field
 
 class SupplierBase(CustomBaseModel):
     code: str | None

@@ -1,5 +1,6 @@
-from pydantic import Field, model_validator, computed_field
 from typing import Any
+
+from pydantic import Field, computed_field, model_validator
 
 from src.core.schemas import CustomBaseModel
 
@@ -18,11 +19,13 @@ class YarnPurchaseEntryDetailHeavyBase(CustomBaseModel):
     class Config:
         from_attributes = True
 
+
 class YarnPurchaseEntryDetailHeavySimpleSchema(YarnPurchaseEntryDetailHeavyBase):
     exit_number: str | None = None
     dispatch_status: bool | None = None
     packages_left: int | None = None
     cones_left: int | None = None
+
 
 class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchema):
     entry_user_id: str | None = Field(default=None)
@@ -51,6 +54,8 @@ class YarnPurchaseEntryDetailHeavyCreateSchema(CustomBaseModel):
 
         return self
 
-class YarnPurchaseEntryDetailHeavyUpdateSchema(YarnPurchaseEntryDetailHeavyCreateSchema):
-    pass
 
+class YarnPurchaseEntryDetailHeavyUpdateSchema(
+    YarnPurchaseEntryDetailHeavyCreateSchema
+):
+    pass

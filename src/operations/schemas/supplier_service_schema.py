@@ -1,5 +1,6 @@
 from src.core.schemas import CustomBaseModel
 
+
 class SupplierServiceBase(CustomBaseModel):
     supplier_code: str | None
     service_code: str | None

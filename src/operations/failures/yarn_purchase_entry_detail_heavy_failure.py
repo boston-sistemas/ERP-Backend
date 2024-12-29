@@ -1,8 +1,5 @@
 from src.core.exceptions import (
-    CustomException,
     NotFoundException,
-    UnprocessableEntityException,
-    ForbiddenException,
 )
 from src.core.result import Failure
 

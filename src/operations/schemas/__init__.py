@@ -13,8 +13,8 @@ from .mecsa_color_schema import (
 from .orden_compra_schema import (
     # OrdenCompraBase,
     OrdenCompraSimpleSchema,
-    OrdenCompraWithDetallesListSchema,
     OrdenCompraWithDetailSchema,
+    OrdenCompraWithDetallesListSchema,
 )
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
@@ -67,20 +67,16 @@ from .unit_schema import (
     UnitListSchema,
     UnitSchema,
 )
-
-from .yarn_purchase_entry_detail_schema import (
-    YarnPurchaseEntryDetailUpdateSchema
-)
-
+from .yarn_purchase_entry_detail_heavy_schema import YarnPurchaseEntryDetailHeavySchema
+from .yarn_purchase_entry_detail_schema import YarnPurchaseEntryDetailUpdateSchema
 from .yarn_purchase_entry_schema import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
-    YarnPurchaseEntryUpdateSchema,
     YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntrySearchSchema,
+    YarnPurchaseEntryUpdateSchema,
 )
-
 from .yarn_schema import (
     YarnCreateSchema,
     YarnListSchema,
@@ -89,21 +85,15 @@ from .yarn_schema import (
     YarnSchema,
     YarnUpdateSchema,
 )
-
-from .yarn_purchase_entry_detail_heavy_schema import (
-    YarnPurchaseEntryDetailHeavySchema
-)
-
-from .yarn_weaving_dispatch_schema import (
-    YarnWeavingDispatchSimpleListSchema,
-    YarnWeavingDispatchSimpleSchema,
-    YarnWeavingDispatchSchema,
-    YarnWeavingDispatchCreateSchema,
-    YarnWeavingDispatchUpdateSchema,
-)
-
 from .yarn_weaving_dispatch_detail_schema import (
     YarnWeavingDispatchDetailCreateSchema,
+)
+from .yarn_weaving_dispatch_schema import (
+    YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchSchema,
+    YarnWeavingDispatchSimpleListSchema,
+    YarnWeavingDispatchSimpleSchema,
+    YarnWeavingDispatchUpdateSchema,
 )
 
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema

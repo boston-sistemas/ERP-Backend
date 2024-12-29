@@ -6,6 +6,7 @@ from src.operations.failures import SERVICE_ORDER_STOCK_NOT_FOUND_FAILURE
 from src.operations.models import ServiceOrderStock
 from src.operations.repositories import ServiceOrderStockRepository
 
+
 class ServiceOrderStockService:
     def __init__(self, promec_db: AsyncSession) -> None:
         self.promec_db = promec_db
@@ -24,7 +25,7 @@ class ServiceOrderStockService:
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
-            item_number=item_number
+            item_number=item_number,
         )
 
         if service_order_stock is None:
@@ -41,13 +42,12 @@ class ServiceOrderStockService:
         item_number: int,
         quantity: int,
     ) -> Result[None, CustomException]:
-
         service_order_stock = await self._read_service_order_stock(
             product_code=product_code,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
-            item_number=item_number
+            item_number=item_number,
         )
 
         if service_order_stock.is_failure:
@@ -66,15 +66,14 @@ class ServiceOrderStockService:
         period: int,
         reference_number: str,
         item_number: int,
-        new_stock: int
+        new_stock: int,
     ) -> Result[None, CustomException]:
-
         service_order_stock = await self._read_service_order_stock(
             product_code=product_code,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
-            item_number=item_number
+            item_number=item_number,
         )
 
         if service_order_stock.is_failure:
@@ -95,13 +94,12 @@ class ServiceOrderStockService:
         reference_number: str,
         item_number: int,
     ) -> Result[None, CustomException]:
-
         service_order_stock = await self._read_service_order_stock(
             product_code=product_code,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
-            item_number=item_number
+            item_number=item_number,
         )
 
         if service_order_stock.is_failure:
@@ -119,13 +117,12 @@ class ServiceOrderStockService:
         reference_number: str,
         item_number: int,
     ) -> Result[None, CustomException]:
-
         service_order_stock = await self._read_service_order_stock(
             product_code=product_code,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
-            item_number=item_number
+            item_number=item_number,
         )
 
         if service_order_stock.is_failure:

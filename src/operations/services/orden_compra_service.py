@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.operations.failures import (
-    PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE,
     PURCHASE_YARN_ORDER_ANULLED_FAILURE,
+    PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE,
 )
 from src.operations.models import OrdenCompra
 from src.operations.repositories import (
@@ -60,9 +60,7 @@ class OrdenCompraService:
             return purchase_yarn_order_result
 
         return Success(
-            OrdenCompraWithDetailSchema.model_validate(
-                purchase_yarn_order_result.value
-            )
+            OrdenCompraWithDetailSchema.model_validate(purchase_yarn_order_result.value)
         )
 
     async def rollback_quantity_supplied_by_product_code(

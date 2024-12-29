@@ -1,6 +1,6 @@
-from typing import Sequence, Union
+from typing import Sequence
 
-from sqlalchemy import BinaryExpression, ClauseElement, Column
+from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
 
@@ -8,8 +8,8 @@ from src.core.constants import MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
 from src.operations.models import ServiceOrderStock
 
-class ServiceOrderStockRepository(BaseRepository[ServiceOrderStock]):
 
+class ServiceOrderStockRepository(BaseRepository[ServiceOrderStock]):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
         super().__init__(ServiceOrderStock, promec_db, flush)
 
@@ -35,4 +35,3 @@ class ServiceOrderStockRepository(BaseRepository[ServiceOrderStock]):
         filter = base_filter & filter if filter is not None else base_filter
 
         return await self.find(filter=filter, options=options, **kwargs)
-

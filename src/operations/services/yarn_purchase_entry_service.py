@@ -13,15 +13,15 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
 )
 from src.operations.failures import (
-    YARN_PURCHASE_ENTRY_CONE_COUNT_MISMATCH_FAILURE,
-    YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE,
-    YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE,
-    YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE,
     YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE,
-    YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE,
     YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE,
     YARN_PURCHASE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE,
+    YARN_PURCHASE_ENTRY_CONE_COUNT_MISMATCH_FAILURE,
+    YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE,
+    YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE,
+    YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE,
     YARN_PURCHASE_ENTRY_YARN_ALREADY_QUANTITY_RECEIVED_FAILURE,
+    YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE,
 )
 from src.operations.models import (
     CurrencyExchange,
@@ -38,10 +38,9 @@ from src.operations.schemas import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
     YarnPurchaseEntryDetailCreateSchema,
+    YarnPurchaseEntryDetailUpdateSchema,
     YarnPurchaseEntrySchema,
-    YarnPurchaseEntrySearchSchema,
     YarnPurchaseEntryUpdateSchema,
-    YarnPurchaseEntryDetailUpdateSchema
 )
 from src.operations.sequences import mecsa_batch_sq
 
@@ -124,7 +123,6 @@ class YarnPurchaseEntryService(MovementService):
         period: int = None,
         include_inactive: bool = False,
     ) -> Result[YarnPurchaseEntriesSimpleListSchema, CustomException]:
-
         yarn_purchase_entries = await self.repository.find_yarn_purchase_entries(
             limit=limit,
             offset=offset,
@@ -159,7 +157,9 @@ class YarnPurchaseEntryService(MovementService):
         data: list[YarnPurchaseEntryDetailCreateSchema],
         purchase_yarn_order: OrdenCompraWithDetailSchema,
     ) -> Result[None, CustomException]:
-        detalle_yarn_ids = {detail.yarn.id: detail.status_flag for detail in purchase_yarn_order.detail}
+        detalle_yarn_ids = {
+            detail.yarn.id: detail.status_flag for detail in purchase_yarn_order.detail
+        }
 
         for detail in data:
             if detail.yarn_id not in detalle_yarn_ids.keys():
@@ -214,8 +214,8 @@ class YarnPurchaseEntryService(MovementService):
             order_by=[CurrencyExchange.exchange_date.desc()],
         )
 
-        supplier = (
-            await self.supplier_service.read_supplier(purchase_yarn_order.supplier_code)
+        supplier = await self.supplier_service.read_supplier(
+            purchase_yarn_order.supplier_code
         )
 
         if supplier.is_failure:
@@ -407,7 +407,9 @@ class YarnPurchaseEntryService(MovementService):
             )
 
         await self.repository.save(yarn_purchase_entry)
-        await self.yarn_purchase_entry_detail_repository.save_all(yarn_purchase_entry_detail)
+        await self.yarn_purchase_entry_detail_repository.save_all(
+            yarn_purchase_entry_detail
+        )
         await self.yarn_purchase_entry_detail_aux_repository.save_all(
             yarn_purchase_entry_detail_aux
         )
@@ -421,7 +423,6 @@ class YarnPurchaseEntryService(MovementService):
         self,
         yarn_purchase_entry_detail: MovementDetail,
     ) -> None:
-
         await self.product_inventory_service.rollback_currents_stock(
             product_code=yarn_purchase_entry_detail.product_code,
             period=yarn_purchase_entry_detail.period,
@@ -441,13 +442,14 @@ class YarnPurchaseEntryService(MovementService):
         await self.yarn_purchase_entry_detail_aux_repository.delete(
             yarn_purchase_entry_detail.detail_aux
         )
-        await self.yarn_purchase_entry_detail_repository.delete(yarn_purchase_entry_detail)
+        await self.yarn_purchase_entry_detail_repository.delete(
+            yarn_purchase_entry_detail
+        )
 
     async def _delete_detail_heavy(
         self,
         yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy,
     ) -> None:
-
         await self.yarn_purchase_entry_detail_heavy_repository.delete(
             yarn_purchase_entry_detail_heavy
         )
@@ -580,18 +582,21 @@ class YarnPurchaseEntryService(MovementService):
         }
 
         for detail in form.detail:
-            yarn_purchase_entry_detail_result = await self._find_yarn_purchase_entry_detail(
-                yarn_purchase_entry_detail=yarn_purchase_entry.detail,
-                item_number=detail.item_number,
+            yarn_purchase_entry_detail_result = (
+                await self._find_yarn_purchase_entry_detail(
+                    yarn_purchase_entry_detail=yarn_purchase_entry.detail,
+                    item_number=detail.item_number,
+                )
             )
 
-            yarn_purchase_entry_detail_aux_result = await self._find_yarn_purchase_entry_detail_aux(
-                yarn_purchase_entry_detail_aux=yarn_purchase_entry.detail,
-                item_number=detail.item_number,
+            yarn_purchase_entry_detail_aux_result = (
+                await self._find_yarn_purchase_entry_detail_aux(
+                    yarn_purchase_entry_detail_aux=yarn_purchase_entry.detail,
+                    item_number=detail.item_number,
+                )
             )
 
             if yarn_purchase_entry_detail_result is not None:
-
                 yarn_purchase_entry.detail.detail_heavy = await self._delete_yarn_purchase_entry_detail_heavy(
                     yarn_purchase_entry_detail_heavy=yarn_purchase_entry_detail_result.detail_heavy,
                     form=detail,
@@ -603,11 +608,18 @@ class YarnPurchaseEntryService(MovementService):
                     )
 
                     if yarn_purchase_entry_detail_heavy_result is not None:
-
-                        yarn_purchase_entry_detail_heavy_result.cone_count = heavy.cone_count
-                        yarn_purchase_entry_detail_heavy_result.package_count = heavy.package_count
-                        yarn_purchase_entry_detail_heavy_result.net_weight = heavy.net_weight
-                        yarn_purchase_entry_detail_heavy_result.gross_weight = heavy.gross_weight
+                        yarn_purchase_entry_detail_heavy_result.cone_count = (
+                            heavy.cone_count
+                        )
+                        yarn_purchase_entry_detail_heavy_result.package_count = (
+                            heavy.package_count
+                        )
+                        yarn_purchase_entry_detail_heavy_result.net_weight = (
+                            heavy.net_weight
+                        )
+                        yarn_purchase_entry_detail_heavy_result.gross_weight = (
+                            heavy.gross_weight
+                        )
                     else:
                         yarn_purchase_entry_detail_heavy_result = MovementYarnOCHeavy(
                             company_code=MECSA_COMPANY_CODE,
@@ -630,7 +642,12 @@ class YarnPurchaseEntryService(MovementService):
                             yarn_purchase_entry_detail_heavy_result
                         )
 
-                if detail.mecsa_weight != yarn_purchase_entry_detail_result.mecsa_weight or detail.guide_net_weight != yarn_purchase_entry_detail_aux_result.guide_net_weight:
+                if (
+                    detail.mecsa_weight
+                    != yarn_purchase_entry_detail_result.mecsa_weight
+                    or detail.guide_net_weight
+                    != yarn_purchase_entry_detail_aux_result.guide_net_weight
+                ):
                     await self.product_inventory_service.rollback_currents_stock(
                         product_code=yarn_purchase_entry_detail_result.product_code,
                         period=period,
@@ -645,17 +662,28 @@ class YarnPurchaseEntryService(MovementService):
                     )
 
                     yarn_purchase_entry_detail_result.mecsa_weight = detail.mecsa_weight
-                    yarn_purchase_entry_detail_result.guide_gross_weight = detail.guide_gross_weight
+                    yarn_purchase_entry_detail_result.guide_gross_weight = (
+                        detail.guide_gross_weight
+                    )
                     if detail.mecsa_weight != 0:
-                        yarn_purchase_entry_detail_result.precto = precto[detail.yarn_id] * (
-                            detail.guide_net_weight / detail.mecsa_weight
-                        )
+                        yarn_purchase_entry_detail_result.precto = precto[
+                            detail.yarn_id
+                        ] * (detail.guide_net_weight / detail.mecsa_weight)
                     else:
                         yarn_purchase_entry_detail_result.precto = 0
-                    yarn_purchase_entry_detail_result.impcto = precto[detail.yarn_id] * detail.guide_net_weight
-                    yarn_purchase_entry_detail_result.impmn2 = detail.guide_net_weight * precto[detail.yarn_id]
-                    yarn_purchase_entry_detail_result.impmn1 = yarn_purchase_entry_detail_result.impmn2 * yarn_purchase_entry.exchange_rate
-                    yarn_purchase_entry_detail_result.stkalm = yarn_purchase_entry_detail_result.stkalm + detail.mecsa_weight
+                    yarn_purchase_entry_detail_result.impcto = (
+                        precto[detail.yarn_id] * detail.guide_net_weight
+                    )
+                    yarn_purchase_entry_detail_result.impmn2 = (
+                        detail.guide_net_weight * precto[detail.yarn_id]
+                    )
+                    yarn_purchase_entry_detail_result.impmn1 = (
+                        yarn_purchase_entry_detail_result.impmn2
+                        * yarn_purchase_entry.exchange_rate
+                    )
+                    yarn_purchase_entry_detail_result.stkalm = (
+                        yarn_purchase_entry_detail_result.stkalm + detail.mecsa_weight
+                    )
                     yarn_purchase_entry_detail_result.is_weighted = detail.is_weighted
 
                     product_inventory = await self._read_or_create_product_inventory(
@@ -681,11 +709,21 @@ class YarnPurchaseEntryService(MovementService):
                         product.current_stock for product in products_inventory
                     )
 
-                    yarn_purchase_entry_detail_aux_result.guide_net_weight = detail.guide_net_weight
-                    yarn_purchase_entry_detail_aux_result.mecsa_weight = detail.mecsa_weight
-                    yarn_purchase_entry_detail_aux_result.guide_cone_count = detail.guide_cone_count
-                    yarn_purchase_entry_detail_aux_result.guide_package_count = detail.guide_package_count
-                    yarn_purchase_entry_detail_aux_result.supplier_batch = form.supplier_batch
+                    yarn_purchase_entry_detail_aux_result.guide_net_weight = (
+                        detail.guide_net_weight
+                    )
+                    yarn_purchase_entry_detail_aux_result.mecsa_weight = (
+                        detail.mecsa_weight
+                    )
+                    yarn_purchase_entry_detail_aux_result.guide_cone_count = (
+                        detail.guide_cone_count
+                    )
+                    yarn_purchase_entry_detail_aux_result.guide_package_count = (
+                        detail.guide_package_count
+                    )
+                    yarn_purchase_entry_detail_aux_result.supplier_batch = (
+                        form.supplier_batch
+                    )
 
                     await self.product_inventory_service.update_current_stock(
                         product_code=detail.yarn_id,
@@ -700,7 +738,6 @@ class YarnPurchaseEntryService(MovementService):
                         quantity_supplied=detail.mecsa_weight,
                     )
             else:
-
                 if detail.mecsa_weight != 0:
                     precto_value = precto[detail.yarn_id] * (
                         detail.guide_net_weight / detail.mecsa_weight
@@ -735,7 +772,9 @@ class YarnPurchaseEntryService(MovementService):
                     )
                 ).value
 
-                stkgen_value = sum(product.current_stock for product in products_inventory)
+                stkgen_value = sum(
+                    product.current_stock for product in products_inventory
+                )
 
                 yarn_purchase_entry_detail_result = MovementDetail(
                     company_code=MECSA_COMPANY_CODE,
@@ -787,9 +826,13 @@ class YarnPurchaseEntryService(MovementService):
                 )
 
                 yarn_purchase_entry.detail.append(yarn_purchase_entry_detail_result)
-                yarn_purchase_entry_detail_result.detail_aux = yarn_purchase_entry_detail_aux_result
+                yarn_purchase_entry_detail_result.detail_aux = (
+                    yarn_purchase_entry_detail_aux_result
+                )
 
-            await self.yarn_purchase_entry_detail_repository.save(yarn_purchase_entry_detail_result)
+            await self.yarn_purchase_entry_detail_repository.save(
+                yarn_purchase_entry_detail_result
+            )
             await self.yarn_purchase_entry_detail_aux_repository.save(
                 yarn_purchase_entry_detail_aux_result
             )
@@ -822,7 +865,6 @@ class YarnPurchaseEntryService(MovementService):
             return validation_result
 
         for detail in yarn_purchase_entry.detail:
-
             await self.product_inventory_service.rollback_currents_stock(
                 product_code=detail.product_code,
                 period=period,
@@ -830,10 +872,12 @@ class YarnPurchaseEntryService(MovementService):
                 quantity=detail.mecsa_weight,
             )
 
-            await self.purchase_order_service.rollback_quantity_supplied_by_product_code(
-                purchase_order_number=yarn_purchase_entry.reference_number2,
-                product_code=detail.product_code,
-                quantity_supplied=detail.mecsa_weight,
+            await (
+                self.purchase_order_service.rollback_quantity_supplied_by_product_code(
+                    purchase_order_number=yarn_purchase_entry.reference_number2,
+                    product_code=detail.product_code,
+                    quantity_supplied=detail.mecsa_weight,
+                )
             )
 
             detail.status_flag = "A"
@@ -847,4 +891,28 @@ class YarnPurchaseEntryService(MovementService):
 
         await self.repository.save(yarn_purchase_entry)
         await self.repository.save_all(yarn_purchase_entry.detail)
+        return Success(None)
+
+    async def is_updated_permission(
+        self,
+        yarn_purchase_entry_number: str,
+        period: int,
+    ) -> Result[None, CustomException]:
+        yarn_purchase_entry_result = await self._read_yarn_purchase_entry(
+            yarn_purchase_entry_number=yarn_purchase_entry_number,
+            period=period,
+        )
+
+        if yarn_purchase_entry_result.is_failure:
+            return yarn_purchase_entry_result
+
+        yarn_purchase_entry: Movement = yarn_purchase_entry_result.value
+
+        validation_result = await self._validate_update_yarn_purchase_entry(
+            yarn_purchase_entry=yarn_purchase_entry
+        )
+
+        if validation_result.is_failure:
+            return validation_result
+
         return Success(None)

@@ -32,7 +32,7 @@ class MovementRepository(BaseRepository[Movement]):
             joins=joins,
             use_outer_joins=use_outer_joins,
             options=options,
-            **kwargs
+            **kwargs,
         )
 
     async def find_movements(

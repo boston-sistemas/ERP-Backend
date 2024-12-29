@@ -1,23 +1,18 @@
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, load_only, contains_eager
+from sqlalchemy.orm import contains_eager, joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
 
-from sqlalchemy import and_, func, or_
 from src.operations.constants import (
     YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
     YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
     YARN_WEAVING_DISPATCH_MOVEMENT_TYPE,
     YARN_WEAVING_DISPATCH_STORAGE_CODE,
 )
-
-from src.operations.models import (
-    Movement,
-    MovementDetail,
-    MovementYarnOCHeavy
-)
+from src.operations.models import Movement, MovementDetail, MovementYarnOCHeavy
 
 from .movement_repository import MovementRepository
+
 
 class YarnWeavingDispatchRepository(MovementRepository):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
@@ -40,7 +35,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
             Movement.document_note,
             Movement.printed_flag,
             Movement.flgcbd,
-            Movement.reference_number1
+            Movement.reference_number1,
         )
 
     @staticmethod
@@ -50,13 +45,13 @@ class YarnWeavingDispatchRepository(MovementRepository):
         base_options = []
         if not use_contains_eager:
             base_options = [
-                joinedload(Movement.detail).joinedload(
-                    MovementDetail.detail_aux
-                ),
+                joinedload(Movement.detail).joinedload(MovementDetail.detail_aux),
             ]
         else:
             base_options = [
-                contains_eager(Movement.detail).contains_eager(MovementDetail.detail_aux)
+                contains_eager(Movement.detail).contains_eager(
+                    MovementDetail.detail_aux
+                )
             ]
 
         return base_options
@@ -132,8 +127,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
         )
 
         joins = self.get_load_joins(
-            include_detail=include_detail,
-            include_detail_entry=include_detail_entry
+            include_detail=include_detail, include_detail_entry=include_detail_entry
         )
 
         yarn_weaving_dispatch = await self.find_movement_by_document_number(
@@ -141,7 +135,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
             use_outer_joins=use_outer_joins,
             filter=filter,
             joins=joins,
-            options=options
+            options=options,
         )
 
         # print("---", type(yarn_weaving_dispatch.detail[0].movement_ingress.movement_detail))

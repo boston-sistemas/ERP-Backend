@@ -1,7 +1,4 @@
-from src.core.exceptions import (
-    NotFoundException,
-    ForbiddenException
-)
+from src.core.exceptions import ForbiddenException, NotFoundException
 from src.core.result import Failure
 
 PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE = Failure(

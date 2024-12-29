@@ -55,7 +55,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
                 OrdenCompra.status_flag == "P",
                 OrdenCompra.status_flag == "C",
                 OrdenCompra.status_flag == "A",
-            )
+            ),
         ]
 
         filter = and_(*filter_conditions)

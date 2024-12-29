@@ -1,9 +1,7 @@
 from datetime import date
 from typing import Any
 
-from pydantic import (
-    AliasChoices, Field, computed_field, model_validator
-)
+from pydantic import AliasChoices, Field, computed_field, model_validator
 
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import PRODUCT_CODE_MAX_LENGTH
@@ -11,7 +9,7 @@ from src.operations.constants import PRODUCT_CODE_MAX_LENGTH
 from .yarn_purchase_entry_detail_heavy_schema import (
     YarnPurchaseEntryDetailHeavyCreateSchema,
     YarnPurchaseEntryDetailHeavySimpleSchema,
-    YarnPurchaseEntryDetailHeavyUpdateSchema
+    YarnPurchaseEntryDetailHeavyUpdateSchema,
 )
 
 
@@ -114,9 +112,13 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
     @model_validator(mode="after")
     def align_group_numbers(self):
         total = len(self.detail_heavy)
-        assigned_nums = [d.group_number for d in self.detail_heavy if d.group_number is not None]
+        assigned_nums = [
+            d.group_number for d in self.detail_heavy if d.group_number is not None
+        ]
 
-        if len(assigned_nums) != len(set(assigned_nums)) or any(num < 1 or num > total for num in assigned_nums):
+        if len(assigned_nums) != len(set(assigned_nums)) or any(
+            num < 1 or num > total for num in assigned_nums
+        ):
             for i, d in enumerate(self.detail_heavy, start=1):
                 d.group_number = i
             return self
@@ -132,8 +134,8 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
         return self
 
-class YarnPurchaseEntryDetailUpdateSchema(YarnPurchaseEntryDetailCreateSchema):
 
+class YarnPurchaseEntryDetailUpdateSchema(YarnPurchaseEntryDetailCreateSchema):
     detail_heavy: list[YarnPurchaseEntryDetailHeavyUpdateSchema] = Field(default=[])
     is_weighted: bool = Field(default=False, exclude=True)
 

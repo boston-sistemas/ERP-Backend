@@ -3,19 +3,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repository import BaseRepository
 from src.core.result import Result, Success
+from src.core.utils import is_active_status
 from src.operations.failures import (
-    SUPPLIER_NOT_FOUND_FAILURE,
     SUPPLIER_INACTIVE_FAILURE,
+    SUPPLIER_NOT_FOUND_FAILURE,
     SUPPLIER_SERVICE_NOT_FOUND_FAILURE,
 )
-from src.operations.models import (
-    Supplier,
-    SupplierService as SupplierServic
-)
+from src.operations.models import Supplier
+from src.operations.models import SupplierService as SupplierServic
 from src.operations.repositories import SupplierRepository
 from src.operations.schemas import SupplierSchema
 
-from src.core.utils import is_active_status
 
 class SupplierService:
     def __init__(self, promec_db: AsyncSession) -> None:
@@ -66,9 +64,9 @@ class SupplierService:
         supplier_code: str,
         service_code: str,
     ) -> Result[int, CustomException]:
-
         supplier_service = await self.supplier_service_repository.find(
-            (SupplierServic.supplier_code == supplier_code) & (SupplierServic.service_code == service_code),
+            (SupplierServic.supplier_code == supplier_code)
+            & (SupplierServic.service_code == service_code),
         )
 
         if supplier_service is None:

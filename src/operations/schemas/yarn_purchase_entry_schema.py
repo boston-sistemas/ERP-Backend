@@ -11,14 +11,11 @@ from src.operations.constants import (
     SUPPLIER_BATCH_MAX_LENGTH,
 )
 
+from .orden_compra_schema import OrdenCompraWithDetailSchema
 from .yarn_purchase_entry_detail_schema import (
     YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntryDetailSimpleSchema,
-    YarnPurchaseEntryDetailUpdateSchema
-)
-
-from .orden_compra_schema import (
-    OrdenCompraWithDetailSchema
+    YarnPurchaseEntryDetailUpdateSchema,
 )
 
 
@@ -84,7 +81,9 @@ class YarnPurchaseEntrySchema(YarnPurchaseEntrySimpleSchema):
     printed_flag: str | None
 
     detail: list[YarnPurchaseEntryDetailSimpleSchema] = []
-    purcharse_order: OrdenCompraWithDetailSchema | None = Field(default=None, exclude=True)
+    purcharse_order: OrdenCompraWithDetailSchema | None = Field(
+        default=None, exclude=True
+    )
 
 
 class YarnPurchaseEntryCreateSchema(CustomBaseModel):
@@ -123,6 +122,7 @@ class YarnPurchaseEntryCreateSchema(CustomBaseModel):
 
         return self
 
+
 class YarnPurchaseEntryUpdateSchema(CustomBaseModel):
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
@@ -134,7 +134,9 @@ class YarnPurchaseEntryUpdateSchema(CustomBaseModel):
     @model_validator(mode="after")
     def align_item_numbers(self):
         total = len(self.detail)
-        assigned_nums = [d.item_number for d in self.detail if d.item_number is not None]
+        assigned_nums = [
+            d.item_number for d in self.detail if d.item_number is not None
+        ]
 
         if len(assigned_nums) != len(set(assigned_nums)) or any(
             num < 1 or num > total for num in assigned_nums
