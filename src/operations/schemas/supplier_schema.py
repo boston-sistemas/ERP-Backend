@@ -1,5 +1,5 @@
 from src.core.schemas import CustomBaseModel
-
+from pydantic import model_validator, Field
 from .supplier_service_schema import SupplierServiceSchema
 
 
@@ -17,8 +17,17 @@ class SupplierBase(CustomBaseModel):
 
 
 class SupplierSimpleSchema(SupplierBase):
-    pass
+    email: str | None = Field(None, exclude=True)
+    emails: list[str] | None = []
 
+    @model_validator(mode="after")
+    def asign_emails(self):
+        if isinstance(self.email, str):
+            self.emails = self.email.split(";")
+        return self
+
+class SupplierSimpleListSchema(CustomBaseModel):
+    suppliers: list[SupplierSimpleSchema] = []
 
 class SupplierSchema(SupplierSimpleSchema):
     services: list[SupplierServiceSchema] | None = []

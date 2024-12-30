@@ -58,7 +58,7 @@ async def read_yarn_purchase_entry(
     raise result.error
 
 
-@router.post("/")
+@router.post("/", response_model=YarnPurchaseEntrySchema)
 async def create_yarn_purchase_entry(
     form: YarnPurchaseEntryCreateSchema,
     db: AsyncSession = Depends(get_db),
@@ -68,7 +68,7 @@ async def create_yarn_purchase_entry(
     result = await service.create_yarn_purchase_entry(form=form)
 
     if result.is_success:
-        return {"message": "El ingreso por compra de hilado ha sido creado con éxito."}
+        return result.value
 
     raise result.error
 
@@ -119,7 +119,7 @@ async def update_yarn_purchase_entry_status(
     raise result.error
 
 
-@router.get("/{yarn_purchase_entry_number}/is-updated-permission")
+@router.get("/{yarn_purchase_entry_number}/is-updatable")
 async def is_updated_permission(
     yarn_purchase_entry_number: str,
     period: int | None = Query(
@@ -135,6 +135,12 @@ async def is_updated_permission(
     )
 
     if result.is_success:
-        return {"message": "El ingreso por compra de hilado puede ser actualizado."}
+        return {
+            "updatable": True,
+            "message": "El ingreso por compra de hilado puede ser actualizado."
+        }
 
-    raise result.error
+    return {
+        "updatable": False,
+        "message": result.error.detail
+    }

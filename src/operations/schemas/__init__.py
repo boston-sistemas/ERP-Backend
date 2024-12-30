@@ -57,6 +57,7 @@ from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
 from .supplier_schema import (
     SupplierSchema,
     SupplierSimpleSchema,
+    SupplierSimpleListSchema,
 )
 from .supplier_service_schema import (
     SupplierServiceSchema,
@@ -167,4 +168,5 @@ __all__ = [
     "YarnWeavingDispatchDetailCreateSchema",
     "YarnPurchaseEntryDetailHeavySchema",
     "YarnWeavingDispatchUpdateSchema",
+    "SupplierSimpleListSchema",
 ]

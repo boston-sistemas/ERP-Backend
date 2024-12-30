@@ -11,8 +11,9 @@ from sqlalchemy import (
     UniqueConstraint,
     and_,
     func,
+    literal_column,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, column_property
 
 from src.core.constants import ACTIVE_STATUS_PROMEC, MECSA_COMPANY_CODE
 from src.core.database import Base, PromecBase
@@ -99,6 +100,7 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
+    EMAIL_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -1157,6 +1159,14 @@ class Supplier(PromecBase):
     )
     storage_code: Mapped[str] = mapped_column(
         "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
+    )
+    _email: Mapped[str] = mapped_column("e-mail", String(length=EMAIL_MAX_LENGTH))
+    email: Mapped[str] = column_property(
+        func.substr(
+            _email,
+            literal_column("1"),
+            literal_column("255"),
+        )
     )
     initials: Mapped[str] = mapped_column(
         "iniciales", String(length=INITIALS_MAX_LENGTH)

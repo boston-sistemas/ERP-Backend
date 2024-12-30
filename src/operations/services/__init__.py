@@ -20,6 +20,7 @@ from .unit_service import UnitService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
+from .supplier_service import SupplierService
 from .yarn_purchase_entry_service import YarnPurchaseEntryService
 from .yarn_service import YarnService
 from .yarn_weaving_dispatch_service import YarnWeavingDispatchService
@@ -46,4 +47,5 @@ __all__ = [
     "YarnPurchaseEntrySeries",
     "YarnWeavingDispatchService",
     "YarnPurchaseEntryDetailHeavyService",
+    "SupplierService",
 ]

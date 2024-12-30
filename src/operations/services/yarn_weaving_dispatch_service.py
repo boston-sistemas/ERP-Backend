@@ -33,6 +33,7 @@ from src.operations.models import (
     Movement,
     MovementDetail,
     MovementDetailAux,
+    MovementYarnOCHeavy,
     ServiceOrder,
     ServiceOrderStock,
 )
@@ -593,59 +594,63 @@ class YarnWeavingDispatchService(MovementService):
         )
 
         for detail in form.detail:
-            yarn_weaving_dispatch_detail.append(
-                MovementDetail(
-                    company_code=MECSA_COMPANY_CODE,
-                    storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
-                    movement_type=YARN_WEAVING_DISPATCH_MOVEMENT_TYPE,
-                    movement_code=YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
-                    document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
-                    document_number=dispatch_number,
-                    item_number=detail.item_number,
-                    period=form.period,
-                    creation_date=creation_date,
-                    creation_time=creation_time,
-                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
-                    unit_code="KG",
-                    factor=1,
-                    mecsa_weight=detail.net_weight,
-                    precto=0,
-                    impcto=0,
-                    reference_code="P/I",
-                    reference_number=detail.entry_number,
-                    # impmn1=,
-                    # impmn2=,
-                    # stkgen=,
-                    # stkalm=,
-                    # ctomn1=,
-                    # ctomn2=,
-                    nroreq=purchase_service_number,
-                    status_flag="P",
-                    entry_group_number=detail.entry_group_number,
-                    entry_item_number=detail.entry_item_number,
-                )
+            yarn_weaving_dispatch_detail_value = MovementDetail(
+                company_code=MECSA_COMPANY_CODE,
+                storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
+                movement_type=YARN_WEAVING_DISPATCH_MOVEMENT_TYPE,
+                movement_code=YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
+                document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
+                document_number=dispatch_number,
+                item_number=detail.item_number,
+                period=form.period,
+                creation_date=creation_date,
+                creation_time=creation_time,
+                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                unit_code="KG",
+                factor=1,
+                mecsa_weight=detail.net_weight,
+                precto=0,
+                impcto=0,
+                reference_code="P/I",
+                reference_number=detail.entry_number,
+                # impmn1=,
+                # impmn2=,
+                # stkgen=,
+                # stkalm=,
+                # ctomn1=,
+                # ctomn2=,
+                nroreq=purchase_service_number,
+                status_flag="P",
+                entry_group_number=detail.entry_group_number,
+                entry_item_number=detail.entry_item_number,
             )
 
-            yarn_weaving_dispatch_detail_aux.append(
-                MovementDetailAux(
-                    company_code=MECSA_COMPANY_CODE,
-                    document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
-                    document_number=dispatch_number,
-                    item_number=detail.item_number,
-                    period=form.period,
-                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
-                    unit_code="KG",
-                    factor=1,
-                    reference_code="P/I",
-                    reference_number=detail.entry_number,
-                    creation_date=creation_date,
-                    mecsa_weight=detail.net_weight,
-                    guide_net_weight=detail.gross_weight,
-                    guide_cone_count=detail.cone_count,
-                    guide_package_count=detail.package_count,
-                    group_number=detail.entry_group_number,
-                )
+            yarn_weaving_dispatch_detail_aux_value = MovementDetailAux(
+                company_code=MECSA_COMPANY_CODE,
+                document_code=YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
+                document_number=dispatch_number,
+                item_number=detail.item_number,
+                period=form.period,
+                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                unit_code="KG",
+                factor=1,
+                reference_code="P/I",
+                reference_number=detail.entry_number,
+                creation_date=creation_date,
+                mecsa_weight=detail.net_weight,
+                guide_net_weight=detail.gross_weight,
+                guide_cone_count=detail.cone_count,
+                guide_package_count=detail.package_count,
+                group_number=detail.entry_group_number,
             )
+
+            yarn_weaving_dispatch_detail_value.detail_aux = yarn_weaving_dispatch_detail_aux_value
+            yarn_purchase_entry = MovementYarnOCHeavy(**detail._yarn_purchase_entry_heavy.dict())
+            yarn_entry_detail = detail._yarn_purchase_entry_heavy.movement_detail
+            yarn_purchase_entry.movement_detail = yarn_entry_detail
+            yarn_weaving_dispatch_detail_value.movement_ingress = yarn_purchase_entry
+            yarn_weaving_dispatch_detail.append(yarn_weaving_dispatch_detail_value)
+            yarn_weaving_dispatch_detail_aux.append(yarn_weaving_dispatch_detail_aux_value)
 
             await self.create_stock_service_order(
                 period=form.period,
@@ -684,7 +689,9 @@ class YarnWeavingDispatchService(MovementService):
             yarn_weaving_dispatch_detail_aux
         )
 
-        return Success(None)
+        yarn_weaving_dispatch.detail = yarn_weaving_dispatch_detail
+
+        return Success(YarnWeavingDispatchSchema.model_validate(yarn_weaving_dispatch))
 
     async def _validate_update_yarn_weaving_dispatch(
         self,

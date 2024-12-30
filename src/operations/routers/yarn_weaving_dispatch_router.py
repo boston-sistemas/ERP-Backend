@@ -57,7 +57,7 @@ async def read_yarn_weaving_dispatch(
     raise result.error
 
 
-@router.post("/")
+@router.post("/", response_model=YarnWeavingDispatchSchema)
 async def create_yarn_weaving_dispatch(
     form: YarnWeavingDispatchCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -66,9 +66,7 @@ async def create_yarn_weaving_dispatch(
     result = await service.create_yarn_weaving_dispatch(form=form)
 
     if result.is_success:
-        return {
-            "message": "La salida de hilado ha tejeduría ha sido creada exitosamente."
-        }
+        return result.value
 
     raise result.error
 
@@ -119,7 +117,7 @@ async def update_yarn_weaving_dispatch_status(
     raise result.error
 
 
-@router.get("/{yarn_weaving_dispatch_number}/is-updated-permission")
+@router.get("/{yarn_weaving_dispatch_number}/is-updatable")
 async def is_updated_permission(
     yarn_weaving_dispatch_number: str,
     period: int | None = Query(
@@ -133,6 +131,12 @@ async def is_updated_permission(
     )
 
     if result.is_success:
-        return {"message": "La salida de hilado ha tejeduría puede ser actualizado."}
+        return {
+            "updatable": True,
+            "message": "La salida de hilado ha tejeduría puede ser actualizado."
+        }
 
-    raise result.error
+    return {
+        "updatable": False,
+        "message": result.error.detail
+    }
