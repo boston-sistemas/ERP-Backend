@@ -1,6 +1,8 @@
 from src.core.schemas import CustomBaseModel
 from pydantic import Field, AliasChoices
 
+from src.security.schemas import ParameterValueSchema
+
 class ServiceOrderDetailBase(CustomBaseModel):
     tissue_id: str | None = Field(
         validation_alias="product_id"
@@ -8,12 +10,13 @@ class ServiceOrderDetailBase(CustomBaseModel):
     quantity_ordered: float | None = None
     quantity_supplied: float | None = None
     price: float | None = None
+    status_param_id: int | None = None
 
     class Config:
         from_attributes = True
 
 class ServiceOrderDetailSimpleSchema(ServiceOrderDetailBase):
-    pass
+    status: ParameterValueSchema | None = None
 
 class ServiceOrderDetailSchema(ServiceOrderDetailSimpleSchema):
     pass

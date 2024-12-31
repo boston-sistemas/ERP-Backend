@@ -7,6 +7,8 @@ from .service_order_detail_schema import (
     ServiceOrderDetailUpdateSchema,
 )
 
+from src.security.schemas import ParameterValueSchema
+
 class ServiceOrderBase(CustomBaseModel):
     id: str | None = None
     supplier_id: str | None = None
@@ -14,13 +16,13 @@ class ServiceOrderBase(CustomBaseModel):
     due_date: date | None = None
     storage_code: str | None = None
     status_flag: str | None = None
-    # status_param_id: int | None = None
+    status_param_id: int | None = None
 
     class Config:
         from_attributes = True
 
 class ServiceOrderSimpleSchema(ServiceOrderBase):
-    pass
+    status: ParameterValueSchema | None = None
 
 class ServiceOrderSimpleListSchema(CustomBaseModel):
     service_orders: list[ServiceOrderSimpleSchema] | None = []

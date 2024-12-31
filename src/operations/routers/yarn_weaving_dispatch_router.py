@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_promec_db
+from src.core.database import get_promec_db, get_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnWeavingDispatchCreateSchema,
@@ -23,8 +23,9 @@ async def read_yarn_weaving_dispatches(
     offset: int | None = Query(default=0, ge=0),
     include_inactive: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = YarnWeavingDispatchService(promec_db=promec_db)
+    service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
     result = await service.read_yarn_weaving_dispatches(
         limit=limit, offset=offset, period=period, include_inactive=include_inactive
     )
@@ -42,8 +43,9 @@ async def read_yarn_weaving_dispatch(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = YarnWeavingDispatchService(promec_db=promec_db)
+    service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
     result = await service.read_yarn_weaving_dispatch(
         yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
         period=period,
@@ -61,8 +63,9 @@ async def read_yarn_weaving_dispatch(
 async def create_yarn_weaving_dispatch(
     form: YarnWeavingDispatchCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = YarnWeavingDispatchService(promec_db=promec_db)
+    service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
     result = await service.create_yarn_weaving_dispatch(form=form)
 
     if result.is_success:
@@ -79,8 +82,9 @@ async def update_yarn_weaving_dispatch(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = YarnWeavingDispatchService(promec_db=promec_db)
+    service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
     result = await service.update_yarn_weaving_dispatch(
         yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
         form=form,
@@ -102,8 +106,9 @@ async def update_yarn_weaving_dispatch_status(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = YarnWeavingDispatchService(promec_db=promec_db)
+    service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
 
     result = await service.anulate_yarn_weaving_dispatch(
         yarn_weaving_dispatch_number=yarn_weaving_dispatch_number, period=period
@@ -124,8 +129,9 @@ async def is_updated_permission(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = YarnWeavingDispatchService(promec_db=promec_db)
+    service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
     result = await service.is_updated_permission(
         yarn_weaving_dispatch_number=yarn_weaving_dispatch_number, period=period
     )

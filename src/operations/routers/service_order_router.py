@@ -20,13 +20,15 @@ async def read_service_orders(
     offset: int | None = Query(default=0, ge=0),
     include_inactive: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = ServiceOrderService(promec_db=promec_db)
+    service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.read_service_orders(
         order_type="TJ",
         limit=limit,
         offset=offset,
-        include_inactive=include_inactive
+        include_inactive=include_inactive,
+        include_status=True,
     )
 
     if result.is_success:
@@ -38,12 +40,14 @@ async def read_service_orders(
 async def read_service_order(
     order_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = ServiceOrderService(promec_db=promec_db)
+    service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.read_service_order(
         order_type="TJ",
         order_id=order_id,
         include_detail=True,
+        include_status=True,
     )
 
     if result.is_success:
@@ -55,8 +59,9 @@ async def read_service_order(
 async def create_weaving_service_order(
     form: ServiceOrderCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = ServiceOrderService(promec_db=promec_db)
+    service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.create_weaving_service_order(
         form=form
     )
@@ -71,8 +76,9 @@ async def update_weaving_service_order(
     order_id: str,
     form: ServiceOrderUpdateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = ServiceOrderService(promec_db=promec_db)
+    service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.update_weaving_service_order(
         order_id=order_id,
         form=form
@@ -87,8 +93,9 @@ async def update_weaving_service_order(
 async def anulate_weaving_service_order(
     order_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = ServiceOrderService(promec_db=promec_db)
+    service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.anulate_weaving_service_order(
         order_id=order_id
     )
@@ -102,8 +109,9 @@ async def anulate_weaving_service_order(
 async def is_updated_permission_weaving_service_order(
     order_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    service = ServiceOrderService(promec_db=promec_db)
+    service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.is_updated_permission_weaving_service_order(
         order_id=order_id
     )

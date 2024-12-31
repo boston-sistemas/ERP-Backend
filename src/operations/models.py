@@ -508,7 +508,7 @@ class ServiceOrder(PromecBase):
     flgprt: Mapped[str] = mapped_column(
         "flgprt", String(length=PRINTED_FLAG_MAX_LENGTH)
     )
-    # status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
+    status_param_id: Mapped[int] = mapped_column("status_param_id", default=1023)
 
     detail = relationship(
         "ServiceOrderDetail",
@@ -550,7 +550,7 @@ class ServiceOrderDetail(PromecBase):
     quantity_ordered: Mapped[float] = mapped_column("canord")
     quantity_supplied: Mapped[float] = mapped_column("canate")
     price: Mapped[float] = mapped_column("precto")
-    # status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
+    status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "nroos", "tpoos", "codprod"),

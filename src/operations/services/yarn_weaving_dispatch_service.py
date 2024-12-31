@@ -65,7 +65,7 @@ from .service_order_service import ServiceOrderService
 
 
 class YarnWeavingDispatchService(MovementService):
-    def __init__(self, promec_db: AsyncSession) -> None:
+    def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
         super().__init__(promec_db)
         self.repository = YarnWeavingDispatchRepository(promec_db)
         self.yarn_purchase_entry_detail_heavy_service = (
@@ -91,7 +91,7 @@ class YarnWeavingDispatchService(MovementService):
         self.movement_detail_aux_repository = BaseRepository(
             model=MovementDetailAux, db=promec_db
         )
-        self.service_order_service = ServiceOrderService(promec_db=promec_db)
+        self.service_order_service = ServiceOrderService(promec_db=promec_db, db=db)
 
     async def read_yarn_weaving_dispatches(
         self,

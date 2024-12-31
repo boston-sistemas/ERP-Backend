@@ -28,22 +28,25 @@ from src.operations.constants import (
     SERVICE_CODE_SUPPLIER_WEAVING,
 )
 from .supplier_service import SupplierService
+from src.security.services import ParameterService
 
 class ServiceOrderService:
-    def __init__(self, promec_db: AsyncSession) -> None:
+    def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
         self.promec_db = promec_db
         self.repository = ServiceOrderRepository(promec_db=promec_db)
         self.supplier_service = SupplierService(promec_db=promec_db)
         self.service_order_detail_repository = BaseRepository(
             model=ServiceOrderDetail, db=promec_db
         )
+        self.parameter_service = ParameterService(db=db)
 
     async def read_service_orders(
         self,
         order_type: str,
         limit: int,
         offset: int,
-        include_inactive: bool,
+        include_inactive: bool = False,
+        include_status: bool = False,
     ) -> Result[ServiceOrderSimpleListSchema, CustomException]:
         service_orders = await self.repository.find_service_orders_by_order_type(
             order_type=order_type,
@@ -53,13 +56,23 @@ class ServiceOrderService:
             order_by=ServiceOrder.issue_date.desc(),
         )
 
+        if include_status:
+            for service_order in service_orders:
+                status = await self.parameter_service.read_parameter(
+                    parameter_id=service_order.status_param_id
+                )
+                if status.is_failure:
+                    service_order.status = None
+                else:
+                    service_order.status = status.value
+
         return Success(ServiceOrderSimpleListSchema(service_orders=service_orders))
 
     async def _read_service_order(
         self,
         order_id: str,
         order_type: str,
-        include_detail: bool,
+        include_detail: bool = False,
     ) -> Result[ServiceOrderSchema, CustomException]:
         service_order = await self.repository.find_service_order_by_order_id_and_order_type(
             order_id=order_id,
@@ -76,20 +89,32 @@ class ServiceOrderService:
         self,
         order_id: str,
         order_type: str,
-        include_detail: bool,
+        include_detail: bool = False,
+        include_status: bool = False,
     ) -> Result[ServiceOrderSchema, CustomException]:
         service_order = await self._read_service_order(
             order_id=order_id,
             order_type=order_type,
             include_detail=include_detail,
+            include_status=include_status,
         )
 
         if service_order.is_failure:
             return service_order
 
-        return Success(ServiceOrderSchema.model_validate(
-            service_order.value
-        ))
+        service_order = service_order.value
+
+        if include_status:
+            status = await self.parameter_service.read_parameter(
+                parameter_id=service_order.status_param_id
+            )
+
+            if status.is_failure:
+                return status
+
+            service_order.status = status.value
+
+        return Success(ServiceOrderSchema.model_validate(service_order))
 
     async def _validate_service_order_data(
         self,
@@ -161,6 +186,7 @@ class ServiceOrderService:
             user_id="DESA01",
             flgatc="N",
             flgprt="N",
+            status_param_id=1023
         )
 
         service_order_detail = []
@@ -174,6 +200,7 @@ class ServiceOrderService:
                 quantity_ordered=detail.quantity_ordered,
                 quantity_supplied=0,
                 price=detail.price,
+                status_param_id=1023
             )
             service_order_detail.append(service_order_detail_value)
 
