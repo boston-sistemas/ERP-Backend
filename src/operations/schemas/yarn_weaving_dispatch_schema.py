@@ -38,6 +38,11 @@ class YarnWeavingDispatchBase(CustomBaseModel):
     status_flag: str | None
     document_note: str | None
 
+    nrodir: str | None = Field(
+        default=None,
+        validation_alias="nrodir2"
+    )
+
     class Config:
         from_attributes = True
 

@@ -36,6 +36,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
             Movement.printed_flag,
             Movement.flgcbd,
             Movement.reference_number1,
+            Movement.nrodir2,
         )
 
     @staticmethod

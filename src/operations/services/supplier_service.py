@@ -28,17 +28,19 @@ class SupplierService:
         supplier_code: str,
         include_inactive: bool = False,
         include_service: bool = False,
+        include_other_addresses: bool = False,
     ) -> Result[Supplier, CustomException]:
         supplier = await self.repository.find_supplier_by_code(
             supplier_code=supplier_code,
             include_service=include_service,
+            include_other_addresses=include_other_addresses,
         )
 
         if supplier is None:
             return SUPPLIER_NOT_FOUND_FAILURE
 
-        if not is_active_status(supplier.is_active) and not include_inactive:
-            return SUPPLIER_INACTIVE_FAILURE
+        # if not is_active_status(supplier.is_active) and not include_inactive:
+        #     return SUPPLIER_INACTIVE_FAILURE
 
         return Success(supplier)
 
@@ -47,11 +49,13 @@ class SupplierService:
         supplier_code: str,
         include_inactive: bool = False,
         include_service: bool = False,
+        include_other_addresses: bool = False,
     ) -> Result[SupplierSchema, CustomException]:
         supplier = await self._read_supplier(
             supplier_code=supplier_code,
             include_inactive=include_inactive,
             include_service=include_service,
+            include_other_addresses=include_other_addresses,
         )
 
         if supplier.is_failure:
@@ -86,6 +90,7 @@ class SupplierService:
         limit: int,
         offset: int,
         include_inactive: bool = False,
+        include_other_addresses: bool = False,
     ) -> Result[list[SupplierSchema], CustomException]:
 
         suppliers = await self.repository.find_suppliers_by_service(
@@ -93,6 +98,7 @@ class SupplierService:
             limit=limit,
             offset=offset,
             include_inactive=include_inactive,
+            include_other_addresses=include_other_addresses,
         )
 
         return Success(SupplierSimpleListSchema(suppliers=suppliers))

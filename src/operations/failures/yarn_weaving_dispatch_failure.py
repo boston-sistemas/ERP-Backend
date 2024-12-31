@@ -54,3 +54,9 @@ YARN_WEAVING_DISPATCH_ALREADY_ACCOUNTED_FAILURE = Failure(
         detail="El movimiento de salida de hilado a tejeduria especificado ya ha sido contabilizado."
     )
 )
+
+YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE = Failure(
+    UnprocessableEntityException(
+        detail="El proveedor especificado no tiene la dirección indicada de llegada para tejeduria."
+    )
+)

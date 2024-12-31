@@ -103,6 +103,8 @@ from src.operations.constants import (
     EMAIL_MAX_LENGTH,
     SERVICE_ORDER_ID_MAX_LENGTH,
     SERVICE_ORDER_TYPE_MAX_LENGTH,
+    DIRPRO_MAX_LENGTH,
+    NRODIR_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -555,6 +557,28 @@ class ServiceOrderDetail(PromecBase):
         {"schema": "PUB"},
     )
 
+class SupplierArrivalPort(PromecBase):
+    __tablename__ = "prollegada"
+
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
+    )
+    nrodir: Mapped[str] = mapped_column(
+        "nrodir",
+        String(length=NRODIR_MAX_LENGTH)
+    )
+    address: Mapped[str] = mapped_column(
+        "dirpro",
+        String(length=SUPPLIER_ADDRESS_MAX_LENGTH)
+    )
+    supplier_id: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "codpro", "nrodir"),
+        {"schema": "PUB"},
+    )
 
 class ServiceOrderStock(PromecBase):
     __tablename__ = "almstkserv"
@@ -1215,6 +1239,19 @@ class Supplier(PromecBase):
     )
     initials: Mapped[str] = mapped_column(
         "iniciales", String(length=INITIALS_MAX_LENGTH)
+    )
+
+    other_addresses = relationship(
+        "SupplierArrivalPort",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Supplier.company_code == SupplierArrivalPort.company_code,
+            Supplier.code == SupplierArrivalPort.supplier_id,
+        ),
+        foreign_keys=lambda: [
+            SupplierArrivalPort.company_code,
+            SupplierArrivalPort.supplier_id,
+        ],
     )
 
     services = relationship(

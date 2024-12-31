@@ -33,11 +33,17 @@ class SupplierRepository(BaseRepository[Supplier]):
     def get_load_options(
         self,
         include_service: bool = False,
+        include_other_addresses: bool = False,
     ):
         options = []
 
+        options.append(load_only(*self.get_supplier_fields()))
+
         if include_service:
             options.extend(self.include_service())
+
+        if include_other_addresses:
+            options.append(joinedload(Supplier.other_addresses))
 
         return options
 
@@ -45,9 +51,14 @@ class SupplierRepository(BaseRepository[Supplier]):
         self,
         supplier_code: str,
         include_service: bool = False,
+        include_other_addresses: bool = False,
     ) -> Supplier | None:
         id = {"company_code": MECSA_COMPANY_CODE, "code": supplier_code}
-        options = self.get_load_options(include_service=include_service)
+
+        options = self.get_load_options(
+            include_service=include_service,
+            include_other_addresses=include_other_addresses
+        )
 
         supplier = await self.find_by_id(id=id, options=options)
 
@@ -59,13 +70,14 @@ class SupplierRepository(BaseRepository[Supplier]):
         limit: int,
         offset: int,
         include_inactive: bool = False,
+        include_other_addresses: bool = False,
     ) -> list[Supplier]:
         options: list[Load] = []
         joins: list[tuple] = []
 
         joins.append(Supplier.services)
 
-        options.append(load_only(*self.get_supplier_fields()))
+        options = self.get_load_options(include_other_addresses=include_other_addresses)
 
         base_filter = (
             (Supplier.company_code == MECSA_COMPANY_CODE)
@@ -81,6 +93,7 @@ class SupplierRepository(BaseRepository[Supplier]):
             joins=joins,
             limit=limit,
             offset=offset,
+            apply_unique=True,
         )
 
         return suppliers

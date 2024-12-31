@@ -24,7 +24,8 @@ async def read_suppliers_by_service(
         service_code=service_code,
         limit=limit,
         offset=offset,
-        include_inactive=include_inactive
+        include_inactive=include_inactive,
+        include_other_addresses=True
     )
 
     if result.is_success:

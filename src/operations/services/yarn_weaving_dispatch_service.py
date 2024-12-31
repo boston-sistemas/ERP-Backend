@@ -28,6 +28,7 @@ from src.operations.failures import (
     YARN_WEAVING_DISPATCH_PACKAGE_COUNT_MISMATCH_FAILURE,
     YARN_WEAVING_DISPATCH_SUPPLIER_NOT_ASSOCIATED_FAILURE,
     YARN_WEAVING_DISPATCH_SUPPLIER_WITHOUT_STORAGE_FAILURE,
+    YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE,
 )
 from src.operations.models import (
     Movement,
@@ -172,6 +173,7 @@ class YarnWeavingDispatchService(MovementService):
         supplier = await self.supplier_service.read_supplier(
             supplier_code=data.supplier_code,
             include_service=True,
+            include_other_addresses=True,
         )
 
         if supplier.is_failure:
@@ -183,6 +185,9 @@ class YarnWeavingDispatchService(MovementService):
         services = [service.service_code for service in supplier.value.services]
         if SERVICE_CODE_SUPPLIER_WEAVING not in services:
             return YARN_WEAVING_DISPATCH_SUPPLIER_NOT_ASSOCIATED_FAILURE
+
+        if data.nrodir not in supplier.value.addresses.keys():
+            return YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE
 
         return Success((supplier.value, service_order.value))
 
