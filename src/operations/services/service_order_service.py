@@ -96,7 +96,6 @@ class ServiceOrderService:
             order_id=order_id,
             order_type=order_type,
             include_detail=include_detail,
-            include_status=include_status,
         )
 
         if service_order.is_failure:
@@ -113,6 +112,17 @@ class ServiceOrderService:
                 return status
 
             service_order.status = status.value
+
+        if include_detail:
+            for detail in service_order.detail:
+                status = await self.parameter_service.read_parameter(
+                    parameter_id=detail.status_param_id
+                )
+
+                if status.is_failure:
+                    detail.status = None
+                else:
+                    detail.status = status.value
 
         return Success(ServiceOrderSchema.model_validate(service_order))
 
