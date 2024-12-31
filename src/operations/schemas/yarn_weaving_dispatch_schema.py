@@ -6,6 +6,8 @@ from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NRODIR_MAX_LENGTH,
+    SUPPLIER_CODE_MAX_LENGTH,
+    SERVICE_ORDER_ID_MAX_LENGTH,
 )
 
 from .yarn_weaving_dispatch_detail_schema import (
@@ -27,7 +29,11 @@ class YarnWeavingDispatchBase(CustomBaseModel):
     )
     supplier_yarn_etry_number: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("reference_number2", "purchase_order_number"),
+        validation_alias="reference_number1",
+    )
+    service_order_id: str | None = Field(
+        default=None,
+        validation_alias="reference_number2"
     )
     status_flag: str | None
     document_note: str | None
@@ -54,6 +60,7 @@ class YarnWeavingDispatchCreateSchema(CustomBaseModel):
     supplier_code: str
     document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
     nrodir: str | None = Field("000", max_length=NRODIR_MAX_LENGTH)
+    service_order_id: str | None = Field(max_length=SERVICE_ORDER_ID_MAX_LENGTH)
 
     detail: list[YarnWeavingDispatchDetailCreateSchema] = Field(default=[])
 

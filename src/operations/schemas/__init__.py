@@ -99,6 +99,20 @@ from .yarn_weaving_dispatch_schema import (
 
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
 
+from .service_order_schema import (
+    ServiceOrderSimpleSchema,
+    ServiceOrderSchema,
+    ServiceOrderSimpleListSchema,
+    ServiceOrderCreateSchema,
+    ServiceOrderUpdateSchema,
+)
+
+from .service_order_detail_schema import (
+    ServiceOrderDetailCreateSchema,
+    ServiceOrderDetailSchema,
+    ServiceOrderDetailUpdateSchema,
+)
+
 __all__ = [
     "YarnRecipeItemSimpleSchema",
     "YarnUpdateSchema",
@@ -169,4 +183,12 @@ __all__ = [
     "YarnPurchaseEntryDetailHeavySchema",
     "YarnWeavingDispatchUpdateSchema",
     "SupplierSimpleListSchema",
+    "ServiceOrderSimpleSchema",
+    "ServiceOrderSchema",
+    "ServiceOrderSimpleListSchema",
+    "ServiceOrderCreateSchema",
+    "ServiceOrderDetailCreateSchema",
+    "ServiceOrderDetailSchema",
+    "ServiceOrderDetailUpdateSchema",
+    "ServiceOrderUpdateSchema",
 ]

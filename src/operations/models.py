@@ -101,6 +101,8 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
     EMAIL_MAX_LENGTH,
+    SERVICE_ORDER_ID_MAX_LENGTH,
+    SERVICE_ORDER_TYPE_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -478,13 +480,13 @@ class ServiceOrder(PromecBase):
     company_code: Mapped[str] = mapped_column(
         "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
-    service_order_type: Mapped[str] = mapped_column(
-        "tpoos", String(length=PURCHASE_ORDER_TYPE_MAX_LENGTH)
+    _type: Mapped[str] = mapped_column(
+        "tpoos", String(length=SERVICE_ORDER_TYPE_MAX_LENGTH)
     )
-    service_order_number: Mapped[str] = mapped_column(
-        "nroos", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH)
+    id: Mapped[str] = mapped_column(
+        "nroos", String(length=SERVICE_ORDER_ID_MAX_LENGTH)
     )
-    supplier_code: Mapped[str] = mapped_column(
+    supplier_id: Mapped[str] = mapped_column(
         "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
     issue_date: Mapped[date] = mapped_column("fchemi")
@@ -504,9 +506,52 @@ class ServiceOrder(PromecBase):
     flgprt: Mapped[str] = mapped_column(
         "flgprt", String(length=PRINTED_FLAG_MAX_LENGTH)
     )
+    # status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
+
+    detail = relationship(
+        "ServiceOrderDetail",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            ServiceOrder.company_code == ServiceOrderDetail.company_code,
+            ServiceOrder._type == ServiceOrderDetail.order_type,
+            ServiceOrder.id == ServiceOrderDetail.order_id,
+        ),
+        single_parent=True,
+        viewonly=True,
+        foreign_keys=lambda: [
+            ServiceOrderDetail.company_code,
+            ServiceOrderDetail.order_type,
+            ServiceOrderDetail.order_id,
+        ],
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "nroos", "tpoos"),
+        {"schema": "PUB"},
+    )
+
+class ServiceOrderDetail(PromecBase):
+    __tablename__ = "opedosmp"
+
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
+    )
+    order_id: Mapped[str] = mapped_column(
+        "nroos", String(length=SERVICE_ORDER_ID_MAX_LENGTH)
+    )
+    order_type: Mapped[str] = mapped_column(
+        "tpoos", String(length=SERVICE_ORDER_TYPE_MAX_LENGTH)
+    )
+    product_id: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    quantity_ordered: Mapped[float] = mapped_column("canord")
+    quantity_supplied: Mapped[float] = mapped_column("canate")
+    price: Mapped[float] = mapped_column("precto")
+    # status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
+
+    __table_args__ = (
+        PrimaryKeyConstraint("codcia", "nroos", "tpoos", "codprod"),
         {"schema": "PUB"},
     )
 

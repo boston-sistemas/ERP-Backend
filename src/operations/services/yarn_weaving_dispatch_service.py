@@ -47,6 +47,7 @@ from src.operations.schemas import (
     YarnWeavingDispatchSchema,
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchUpdateSchema,
+    ServiceOrderSchema,
 )
 
 from .movement_service import MovementService
@@ -59,6 +60,7 @@ from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
+from .service_order_service import ServiceOrderService
 
 
 class YarnWeavingDispatchService(MovementService):
@@ -88,6 +90,7 @@ class YarnWeavingDispatchService(MovementService):
         self.movement_detail_aux_repository = BaseRepository(
             model=MovementDetailAux, db=promec_db
         )
+        self.service_order_service = ServiceOrderService(promec_db=promec_db)
 
     async def read_yarn_weaving_dispatches(
         self,
@@ -155,7 +158,17 @@ class YarnWeavingDispatchService(MovementService):
     async def _validate_yarn_weaving_dispatch_data(
         self,
         data: YarnWeavingDispatchCreateSchema,
-    ) -> Result[None, CustomException]:
+    ) -> Result[tuple[SupplierSchema, ServiceOrderSchema], CustomException]:
+
+        service_order = await self.service_order_service.read_service_order(
+            order_id=data.service_order_id,
+            order_type="TJ",
+            include_detail=True,
+        )
+
+        if service_order.is_failure:
+            return service_order
+
         supplier = await self.supplier_service.read_supplier(
             supplier_code=data.supplier_code,
             include_service=True,
@@ -170,11 +183,13 @@ class YarnWeavingDispatchService(MovementService):
         services = [service.service_code for service in supplier.value.services]
         if SERVICE_CODE_SUPPLIER_WEAVING not in services:
             return YARN_WEAVING_DISPATCH_SUPPLIER_NOT_ASSOCIATED_FAILURE
-        return supplier
+
+        return Success((supplier.value, service_order.value))
 
     async def _validate_yarn_weaving_dispatch_detail_data(
         self,
         data: list[YarnWeavingDispatchDetailCreateSchema],
+        service_order: ServiceOrderSchema,
         update=False,
         dispatch_number: str = None,
     ) -> Result[None, CustomException]:
@@ -207,6 +222,8 @@ class YarnWeavingDispatchService(MovementService):
                         yarn_purchase_entry_detail_heavy.exit_number != dispatch_number
                     ):
                         return YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE
+
+            # ! VALIDAR QUE EL HILADO INGRESADO PERTENEZCA A LA RECETA DEL TEJIDO DE LA ORDEN DE SERVICIO
 
             validate_package = (
                 yarn_purchase_entry_detail_heavy.packages_left - detail.package_count
@@ -417,29 +434,6 @@ class YarnWeavingDispatchService(MovementService):
 
         return Success(None)
 
-    async def create_service_order(
-        self,
-        service_order_number: str,
-        supplier_code: str,
-        issue_date: date,
-    ) -> Result[None, CustomException]:
-        service_order = ServiceOrder(
-            company_code=MECSA_COMPANY_CODE,
-            service_order_type="TJ",
-            service_order_number=service_order_number,
-            supplier_code=supplier_code,
-            issue_date=issue_date,
-            storage_code="006",
-            status_flag="P",
-            user_id="DESA01",
-            flgatc="N",
-            flgprt="N",
-        )
-
-        await self.service_order_repository.save(service_order)
-
-        return Success(None)
-
     async def anulate_service_order(
         self,
         service_order_number: str,
@@ -499,10 +493,12 @@ class YarnWeavingDispatchService(MovementService):
         if validation_result.is_failure:
             return validation_result
 
-        supplier = validation_result.value
+        supplier = validation_result.value[0]
+        service_order = validation_result.value[1]
 
         validation_result = await self._validate_yarn_weaving_dispatch_detail_data(
-            data=form.detail
+            data=form.detail,
+            service_order=service_order
         )
 
         if validation_result.is_failure:
@@ -517,17 +513,7 @@ class YarnWeavingDispatchService(MovementService):
         creation_date = current_time.date()
         creation_time = current_time.strftime("%H:%M:%S")
 
-        sequence_number = await self.supplier_service.next_service_sequence(
-            supplier_code=form.supplier_code,
-            service_code=SERVICE_CODE_SUPPLIER_WEAVING,
-        )
-
-        if sequence_number.is_failure:
-            return sequence_number
-
-        sequence_number = sequence_number.value
-
-        purchase_service_number = supplier.initials + str(sequence_number)
+        service_order_id = service_order.id
 
         creation_result = await self._create_yarn_entry_with_dispatch(
             storage_code=supplier.storage_code,
@@ -535,7 +521,7 @@ class YarnWeavingDispatchService(MovementService):
             dispatch_number=dispatch_number,
             current_time=current_time,
             supplier=supplier,
-            purchase_service_number=purchase_service_number,
+            purchase_service_number=service_order_id,
             detail=form.detail,
         )
 
@@ -563,7 +549,7 @@ class YarnWeavingDispatchService(MovementService):
             user_id="DESA01",
             auxiliary_name=supplier.name,
             reference_document="O/S",
-            reference_number2=purchase_service_number,
+            reference_number2=service_order_id,
             origmov="A",
             transporter_code="080",
             serial_number="104",
@@ -586,12 +572,6 @@ class YarnWeavingDispatchService(MovementService):
 
         yarn_weaving_dispatch_detail = []
         yarn_weaving_dispatch_detail_aux = []
-
-        await self.create_service_order(
-            service_order_number=purchase_service_number,
-            supplier_code=supplier.code,
-            issue_date=creation_date,
-        )
 
         for detail in form.detail:
             yarn_weaving_dispatch_detail_value = MovementDetail(
@@ -619,7 +599,7 @@ class YarnWeavingDispatchService(MovementService):
                 # stkalm=,
                 # ctomn1=,
                 # ctomn2=,
-                nroreq=purchase_service_number,
+                nroreq=service_order_id,
                 status_flag="P",
                 entry_group_number=detail.entry_group_number,
                 entry_item_number=detail.entry_item_number,
@@ -655,7 +635,7 @@ class YarnWeavingDispatchService(MovementService):
             await self.create_stock_service_order(
                 period=form.period,
                 yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
-                service_order_number=purchase_service_number,
+                service_order_number=service_order_id,
                 item_number=detail.item_number,
                 storage_code=supplier.storage_code,
                 quantity=detail.net_weight,
@@ -1096,9 +1076,9 @@ class YarnWeavingDispatchService(MovementService):
 
         supplier = supplier_result.value
 
-        await self.anulate_service_order(
-            service_order_number=yarn_weaving_dispatch.reference_number2,
-        )
+        # await self.anulate_service_order(
+        #     service_order_number=yarn_weaving_dispatch.reference_number2,
+        # )
 
         for detail in yarn_weaving_dispatch.detail:
             await self.product_inventory_service.rollback_currents_stock(
