@@ -414,6 +414,7 @@ class YarnService:
         self,
         yarn_ids: list[str],
         include_color: bool = False,
+        include_spinning_method: bool = False,
         include_recipe: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         if not yarn_ids:
@@ -422,6 +423,9 @@ class YarnService:
         yarns = await self.repository.find_yarns(
             filter=InventoryItem.id.in_(yarn_ids), include_color=include_color
         )
+
+        if include_spinning_method:
+            await self._assign_spinning_method_to_yarns(yarns)
 
         if include_recipe:
             await self._assign_recipe_to_yarns(yarns, include_fiber_instance=True)
@@ -432,14 +436,33 @@ class YarnService:
         self,
         yarn_ids: list[str],
         include_color: bool = False,
+        include_spinning_method: bool = False,
         include_recipe: bool = False,
     ) -> Result[dict[str, YarnSchema], CustomException]:
         yarns = (
             await self.find_yarns_by_ids(
                 yarn_ids=yarn_ids,
                 include_color=include_color,
+                include_spinning_method=include_spinning_method,
                 include_recipe=include_recipe,
             )
         ).value.yarns
 
         return Success({yarn.id: yarn for yarn in yarns})
+
+    async def find_yarns_by_recipe(
+        self,
+        fiber_ids: list[str],
+        include_color: bool = False,
+        include_spinning_method: bool = False,
+        include_recipe: bool = False,
+    ) -> Result[YarnListSchema, CustomException]:
+        yarn_ids = await self.recipe_repository.find_yarns_by_recipe(
+            fiber_ids=fiber_ids
+        )
+        return await self.find_yarns_by_ids(
+            yarn_ids=yarn_ids,
+            include_color=include_color,
+            include_spinning_method=include_spinning_method,
+            include_recipe=include_recipe,
+        )

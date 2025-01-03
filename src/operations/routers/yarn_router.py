@@ -1,6 +1,6 @@
 from copy import copy
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
@@ -37,16 +37,26 @@ async def read_yarn(
 
 @router.get("/", response_model=YarnListSchema)
 async def read_yarns(
+    fiber_ids: list[str] = Query(default=None, min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
-    result = await service.read_yarns(
-        include_color=True,
-        include_spinning_method=True,
-        include_recipe=True,
-        exclude_legacy=True,
-    )
+    result = None
+    if fiber_ids:
+        result = await service.find_yarns_by_recipe(
+            fiber_ids=fiber_ids,
+            include_color=True,
+            include_spinning_method=True,
+            include_recipe=True,
+        )
+    else:
+        result = await service.read_yarns(
+            include_color=True,
+            include_spinning_method=True,
+            include_recipe=True,
+            exclude_legacy=True,
+        )
     if result.is_success:
         return result.value
 

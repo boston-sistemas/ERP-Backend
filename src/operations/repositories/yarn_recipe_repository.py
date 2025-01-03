@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.strategy_options import Load
@@ -22,3 +22,13 @@ class YarnRecipeRepository(BaseRepository[YarnFiber]):
         result = await self.db.scalars(stmt).all()
 
         return result
+
+    async def find_yarns_by_recipe(self, fiber_ids: list[str]) -> list[str]:
+        stmt = (
+            select(YarnFiber.yarn_id)
+            .where(YarnFiber.fiber_id.in_(fiber_ids))
+            .group_by(YarnFiber.yarn_id)
+            .having(func.count(YarnFiber.fiber_id) >= len(fiber_ids))
+        )
+
+        return (await self.db.scalars(stmt)).all()
