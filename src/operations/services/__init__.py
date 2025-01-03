@@ -17,16 +17,16 @@ from .proveedor_service import ProveedorService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 from .series_service import BarcodeSeries, SeriesService, YarnPurchaseEntrySeries
+from .service_order_service import ServiceOrderService
+from .supplier_service import SupplierService
 from .unit_service import UnitService
+from .weaving_service_entry_service import WeavingServiceEntryService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
-from .supplier_service import SupplierService
 from .yarn_purchase_entry_service import YarnPurchaseEntryService
 from .yarn_service import YarnService
 from .yarn_weaving_dispatch_service import YarnWeavingDispatchService
-from .service_order_service import ServiceOrderService
-from .weaving_service_entry_service import WeavingServiceEntryService
 
 __all__ = [
     "FabricService",

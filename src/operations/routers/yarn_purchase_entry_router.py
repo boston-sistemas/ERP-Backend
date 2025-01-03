@@ -137,10 +137,7 @@ async def is_updated_permission(
     if result.is_success:
         return {
             "updatable": True,
-            "message": "El ingreso por compra de hilado puede ser actualizado."
+            "message": "El ingreso por compra de hilado puede ser actualizado.",
         }
 
-    return {
-        "updatable": False,
-        "message": result.error.detail
-    }
+    return {"updatable": False, "message": result.error.detail}

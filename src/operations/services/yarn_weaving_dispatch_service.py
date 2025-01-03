@@ -24,11 +24,11 @@ from src.operations.failures import (
     YARN_WEAVING_DISPATCH_CONE_COUNT_MISMATCH_FAILURE,
     YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE,
     YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE,
+    YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE,
     YARN_WEAVING_DISPATCH_NOT_FOUND_FAILURE,
     YARN_WEAVING_DISPATCH_PACKAGE_COUNT_MISMATCH_FAILURE,
     YARN_WEAVING_DISPATCH_SUPPLIER_NOT_ASSOCIATED_FAILURE,
     YARN_WEAVING_DISPATCH_SUPPLIER_WITHOUT_STORAGE_FAILURE,
-    YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE,
 )
 from src.operations.models import (
     Movement,
@@ -42,13 +42,13 @@ from src.operations.repositories import (
     YarnWeavingDispatchRepository,
 )
 from src.operations.schemas import (
+    ServiceOrderSchema,
     SupplierSchema,
     YarnWeavingDispatchCreateSchema,
     YarnWeavingDispatchDetailCreateSchema,
     YarnWeavingDispatchSchema,
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchUpdateSchema,
-    ServiceOrderSchema,
 )
 
 from .movement_service import MovementService
@@ -56,12 +56,12 @@ from .series_service import (
     EntrySeries,
     YarnWeavingDispatchSeries,
 )
+from .service_order_service import ServiceOrderService
 from .service_order_stock_service import ServiceOrderStockService
 from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
-from .service_order_service import ServiceOrderService
 
 
 class YarnWeavingDispatchService(MovementService):
@@ -160,7 +160,6 @@ class YarnWeavingDispatchService(MovementService):
         self,
         data: YarnWeavingDispatchCreateSchema,
     ) -> Result[tuple[SupplierSchema, ServiceOrderSchema], CustomException]:
-
         service_order = await self.service_order_service.read_service_order(
             order_id=data.service_order_id,
             order_type="TJ",
@@ -502,8 +501,7 @@ class YarnWeavingDispatchService(MovementService):
         service_order = validation_result.value[1]
 
         validation_result = await self._validate_yarn_weaving_dispatch_detail_data(
-            data=form.detail,
-            service_order=service_order
+            data=form.detail, service_order=service_order
         )
 
         if validation_result.is_failure:
@@ -629,13 +627,19 @@ class YarnWeavingDispatchService(MovementService):
                 group_number=detail.entry_group_number,
             )
 
-            yarn_weaving_dispatch_detail_value.detail_aux = yarn_weaving_dispatch_detail_aux_value
-            yarn_purchase_entry = MovementYarnOCHeavy(**detail._yarn_purchase_entry_heavy.dict())
+            yarn_weaving_dispatch_detail_value.detail_aux = (
+                yarn_weaving_dispatch_detail_aux_value
+            )
+            yarn_purchase_entry = MovementYarnOCHeavy(
+                **detail._yarn_purchase_entry_heavy.dict()
+            )
             yarn_entry_detail = detail._yarn_purchase_entry_heavy.movement_detail
             yarn_purchase_entry.movement_detail = yarn_entry_detail
             yarn_weaving_dispatch_detail_value.movement_ingress = yarn_purchase_entry
             yarn_weaving_dispatch_detail.append(yarn_weaving_dispatch_detail_value)
-            yarn_weaving_dispatch_detail_aux.append(yarn_weaving_dispatch_detail_aux_value)
+            yarn_weaving_dispatch_detail_aux.append(
+                yarn_weaving_dispatch_detail_aux_value
+            )
 
             await self.create_stock_service_order(
                 period=form.period,

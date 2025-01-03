@@ -20,8 +20,10 @@ from .programacion_tintoreria_repository import ProgramacionTintoreriaRepository
 from .proveedor_repository import ProveedorRepository
 from .purchase_order_detail_repository import PurchaseOrderDetailRepository
 from .series_repository import SeriesRepository
+from .service_order_repository import ServiceOrderRepository
 from .service_order_stock_repository import ServiceOrderStockRepository
 from .supplier_repository import SupplierRepository
+from .weaving_service_entry_repository import WeavingServiceEntryRepository
 from .yarn_purchase_entry_detail_heavy_repository import (
     YarnPurchaseEntryDetailHeavyRepository,
 )
@@ -29,8 +31,6 @@ from .yarn_purchase_entry_repository import YarnPurchaseEntryRepository
 from .yarn_recipe_repository import YarnRecipeRepository
 from .yarn_repository import YarnRepository
 from .yarn_weaving_dispatch_repository import YarnWeavingDispatchRepository
-from .service_order_repository import ServiceOrderRepository
-from .weaving_service_entry_repository import WeavingServiceEntryRepository
 
 __all__ = [
     "FabricRepository",

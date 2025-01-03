@@ -3,22 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
 
-
-from src.operations.models import (
-    Movement,
-    MovementDetail,
-    FabricWarehouse,
-    CardOperation,
-)
-
 from src.operations.constants import (
-    ENTRY_MOVEMENT_TYPE,
     ENTRY_DOCUMENT_CODE,
+    ENTRY_MOVEMENT_TYPE,
     WEAVING_SERVICE_ENTRY_MOVEMENT_CODE,
     WEAVING_STORAGE_CODE,
 )
+from src.operations.models import (
+    FabricWarehouse,
+    Movement,
+    MovementDetail,
+)
 
 from .movement_repository import MovementRepository
+
 
 class WeavingServiceEntryRepository(MovementRepository):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
@@ -61,8 +59,7 @@ class WeavingServiceEntryRepository(MovementRepository):
 
         if include_detail_card:
             base_options.append(
-                joinedload(Movement.detail)
-                .joinedload(MovementDetail.detail_card)
+                joinedload(Movement.detail).joinedload(MovementDetail.detail_card)
             )
 
         return base_options
@@ -115,7 +112,6 @@ class WeavingServiceEntryRepository(MovementRepository):
         offset: int = None,
         filter: BinaryExpression = None,
     ) -> list[Movement]:
-
         base_filter = (
             (Movement.storage_code == WEAVING_STORAGE_CODE)
             & (Movement.movement_type == ENTRY_MOVEMENT_TYPE)

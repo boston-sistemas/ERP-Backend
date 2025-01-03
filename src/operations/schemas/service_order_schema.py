@@ -1,13 +1,14 @@
 from datetime import date
+
 from src.core.schemas import CustomBaseModel
+from src.security.schemas import ParameterValueSchema
 
 from .service_order_detail_schema import (
-    ServiceOrderDetailSchema,
     ServiceOrderDetailCreateSchema,
+    ServiceOrderDetailSchema,
     ServiceOrderDetailUpdateSchema,
 )
 
-from src.security.schemas import ParameterValueSchema
 
 class ServiceOrderBase(CustomBaseModel):
     id: str | None = None
@@ -21,18 +22,27 @@ class ServiceOrderBase(CustomBaseModel):
     class Config:
         from_attributes = True
 
+
 class ServiceOrderSimpleSchema(ServiceOrderBase):
     status: ParameterValueSchema | None = None
+
 
 class ServiceOrderSimpleListSchema(CustomBaseModel):
     service_orders: list[ServiceOrderSimpleSchema] | None = []
 
+
 class ServiceOrderSchema(ServiceOrderSimpleSchema):
     detail: list[ServiceOrderDetailSchema] | None = []
+
+
+class ServiceOrderListSchema(CustomBaseModel):
+    service_orders: list[ServiceOrderSchema] | None = []
+
 
 class ServiceOrderCreateSchema(CustomBaseModel):
     supplier_id: str
     detail: list[ServiceOrderDetailCreateSchema] = []
+
 
 class ServiceOrderUpdateSchema(CustomBaseModel):
     detail: list[ServiceOrderDetailUpdateSchema] = []

@@ -1,8 +1,11 @@
+from typing import Any
+
+from pydantic import Field, model_validator
+
 from src.core.schemas import CustomBaseModel
-from pydantic import model_validator, Field
+
 from .supplier_service_schema import SupplierServiceSchema
 
-from typing import Any
 
 class SupplierBase(CustomBaseModel):
     code: str | None
@@ -20,9 +23,7 @@ class SupplierSimpleSchema(SupplierBase):
     email: str | None = Field(None, exclude=True)
     emails: list[str] | None = []
 
-    address: str | None = Field(
-        default=None, exclude=True
-    )
+    address: str | None = Field(default=None, exclude=True)
     other_addresses: Any | None = Field(default=None, exclude=True)
 
     addresses: dict | None = []
@@ -48,8 +49,10 @@ class SupplierSimpleSchema(SupplierBase):
             self.emails = self.email.split(";")
         return self
 
+
 class SupplierSimpleListSchema(CustomBaseModel):
     suppliers: list[SupplierSimpleSchema] = []
+
 
 class SupplierSchema(SupplierSimpleSchema):
     services: list[SupplierServiceSchema] | None = []

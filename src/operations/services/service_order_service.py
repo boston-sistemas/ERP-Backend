@@ -1,36 +1,36 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.exceptions import CustomException
-from src.core.result import Result, Success
-
-from src.core.repository import BaseRepository
-from src.operations.schemas import (
-    ServiceOrderSimpleListSchema,
-    ServiceOrderSchema,
-    ServiceOrderCreateSchema,
-    ServiceOrderDetailSchema,
-    ServiceOrderUpdateSchema,
-)
 from src.core.constants import MECSA_COMPANY_CODE
+from src.core.exceptions import CustomException
+from src.core.repository import BaseRepository
+from src.core.result import Result, Success
 from src.core.utils import PERU_TIMEZONE, calculate_time
+from src.operations.constants import (
+    SERVICE_CODE_SUPPLIER_WEAVING,
+    UNSTARTED_SERVICE_ORDER_ID,
+)
+from src.operations.failures import (
+    SERVICE_ORDER_ALREADY_ANULLED_FAILURE,
+    SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE,
+    SERVICE_ORDER_NOT_FOUND_FAILURE,
+    SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE,
+)
 from src.operations.models import (
     ServiceOrder,
     ServiceOrderDetail,
 )
 from src.operations.repositories import ServiceOrderRepository
-from src.operations.failures import (
-    SERVICE_ORDER_NOT_FOUND_FAILURE,
-    SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE,
-    SERVICE_ORDER_ALREADY_ANULLED_FAILURE,
-    SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE,
+from src.operations.schemas import (
+    ServiceOrderCreateSchema,
+    ServiceOrderDetailSchema,
+    ServiceOrderListSchema,
+    ServiceOrderSchema,
+    ServiceOrderUpdateSchema,
 )
-from src.operations.constants import (
-    SERVICE_CODE_SUPPLIER_WEAVING,
-    UNSTARTED_SERVICE_ORDER_ID,
-
-)
-from .supplier_service import SupplierService
 from src.security.services import ParameterService
+
+from .supplier_service import SupplierService
+
 
 class ServiceOrderService:
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -47,13 +47,15 @@ class ServiceOrderService:
         order_type: str,
         limit: int,
         offset: int,
+        include_detail: bool = False,
         include_inactive: bool = False,
         include_status: bool = False,
-    ) -> Result[ServiceOrderSimpleListSchema, CustomException]:
+    ) -> Result[ServiceOrderListSchema, CustomException]:
         service_orders = await self.repository.find_service_orders_by_order_type(
             order_type=order_type,
             limit=limit,
             offset=offset,
+            include_detail=include_detail,
             include_inactive=include_inactive,
             order_by=ServiceOrder.issue_date.desc(),
         )
@@ -68,7 +70,18 @@ class ServiceOrderService:
                 else:
                     service_order.status = status.value
 
-        return Success(ServiceOrderSimpleListSchema(service_orders=service_orders))
+                if include_detail:
+                    for detail in service_order.detail:
+                        status = await self.parameter_service.read_parameter(
+                            parameter_id=detail.status_param_id
+                        )
+
+                        if status.is_failure:
+                            detail.status = None
+                        else:
+                            detail.status = status.value
+
+        return Success(ServiceOrderListSchema(service_orders=service_orders))
 
     async def _read_service_order(
         self,
@@ -76,10 +89,12 @@ class ServiceOrderService:
         order_type: str,
         include_detail: bool = False,
     ) -> Result[ServiceOrderSchema, CustomException]:
-        service_order = await self.repository.find_service_order_by_order_id_and_order_type(
-            order_id=order_id,
-            order_type=order_type,
-            include_detail=include_detail,
+        service_order = (
+            await self.repository.find_service_order_by_order_id_and_order_type(
+                order_id=order_id,
+                order_type=order_type,
+                include_detail=include_detail,
+            )
         )
 
         if service_order is None:
@@ -149,7 +164,6 @@ class ServiceOrderService:
         self,
         data: list[ServiceOrderDetailSchema],
     ) -> Result[None, CustomException]:
-
         # Validacion de que el tejido existe
         return Success(None)
 
@@ -157,7 +171,6 @@ class ServiceOrderService:
         self,
         form: ServiceOrderCreateSchema,
     ) -> Result[ServiceOrderSchema, CustomException]:
-
         validation_result = await self._validate_service_order_data(data=form)
 
         if validation_result.is_failure:
@@ -165,7 +178,9 @@ class ServiceOrderService:
 
         supplier = validation_result.value
 
-        validation_result = await self._validate_service_order_detail_data(data=form.detail)
+        validation_result = await self._validate_service_order_detail_data(
+            data=form.detail
+        )
 
         if validation_result.is_failure:
             return validation_result
@@ -198,7 +213,7 @@ class ServiceOrderService:
             user_id="DESA01",
             flgatc="N",
             flgprt="N",
-            status_param_id=UNSTARTED_SERVICE_ORDER_ID
+            status_param_id=UNSTARTED_SERVICE_ORDER_ID,
         )
 
         service_order_detail = []
@@ -212,7 +227,7 @@ class ServiceOrderService:
                 quantity_ordered=detail.quantity_ordered,
                 quantity_supplied=0,
                 price=detail.price,
-                status_param_id=UNSTARTED_SERVICE_ORDER_ID
+                status_param_id=UNSTARTED_SERVICE_ORDER_ID,
             )
             service_order_detail.append(service_order_detail_value)
 
@@ -276,7 +291,6 @@ class ServiceOrderService:
         order_id: str,
         form: ServiceOrderUpdateSchema,
     ) -> Result[ServiceOrderSchema, CustomException]:
-
         service_order = await self._read_service_order(
             order_id=order_id,
             order_type="TJ",
@@ -295,12 +309,14 @@ class ServiceOrderService:
         if validation_result.is_failure:
             return validation_result
 
-        validation_result = await self._validate_service_order_detail_data(data=form.detail)
+        validation_result = await self._validate_service_order_detail_data(
+            data=form.detail
+        )
 
         if validation_result.is_failure:
             return validation_result
 
-        service_order.detail = await self._delete_service_order_detail( 
+        service_order.detail = await self._delete_service_order_detail(
             service_order_detail=service_order.detail,
             form=form,
         )

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_promec_db, get_db
+from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnWeavingDispatchCreateSchema,
@@ -139,10 +139,7 @@ async def is_updated_permission(
     if result.is_success:
         return {
             "updatable": True,
-            "message": "La salida de hilado ha tejeduría puede ser actualizado."
+            "message": "La salida de hilado ha tejeduría puede ser actualizado.",
         }
 
-    return {
-        "updatable": False,
-        "message": result.error.detail
-    }
+    return {"updatable": False, "message": result.error.detail}

@@ -25,8 +25,7 @@ class OrdenCompraService:
         include_detalle: bool = False,
     ) -> list[OrdenCompra]:
         return await self.repository.find_ordenes_yarn(
-            period=period,
-            include_detalle=include_detalle
+            period=period, include_detalle=include_detalle
         )
 
     async def _read_purchase_yarn_order(

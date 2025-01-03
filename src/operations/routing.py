@@ -8,13 +8,13 @@ from .routers import (
     programacion_tintoreria_router,
     reporte_stock_tejeduria_router,
     revision_stock_tejeduria_router,
+    service_order_router,
+    supplier_router,
     unit_router,
+    weaving_service_entry_router,
     yarn_purchase_entry_router,
     yarn_router,
     yarn_weaving_dispatch_router,
-    supplier_router,
-    service_order_router,
-    weaving_service_entry_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]

@@ -62,10 +62,25 @@ from .programacion_tintoreria_schema import (
 from .proveedor_schema import ProveedorSchema
 from .reporte_stock_tejeduria_schema import ReporteStockTejeduriaResponse
 from .revision_stock_tejeduria_schema import RevisionStockTejeduriaResponse
+from .service_order_detail_schema import (
+    ServiceOrderDetailCreateSchema,
+    ServiceOrderDetailSchema,
+    ServiceOrderDetailUpdateSchema,
+)
+
+# from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
+from .service_order_schema import (
+    ServiceOrderCreateSchema,
+    ServiceOrderListSchema,
+    ServiceOrderSchema,
+    ServiceOrderSimpleListSchema,
+    ServiceOrderSimpleSchema,
+    ServiceOrderUpdateSchema,
+)
 from .supplier_schema import (
     SupplierSchema,
-    SupplierSimpleSchema,
     SupplierSimpleListSchema,
+    SupplierSimpleSchema,
 )
 from .supplier_service_schema import (
     SupplierServiceSchema,
@@ -75,6 +90,13 @@ from .unit_schema import (
     DerivedUnitSchema,
     UnitListSchema,
     UnitSchema,
+)
+from .weaving_service_entry_schema import (
+    WeavingServiceEntriesSimpleListSchema,
+    WeavingServiceEntryCreateSchema,
+    WeavingServiceEntrySchema,
+    WeavingServiceEntrySimpleSchema,
+    WeavingServiceEntryUpdateSchema,
 )
 from .yarn_purchase_entry_detail_heavy_schema import YarnPurchaseEntryDetailHeavySchema
 from .yarn_purchase_entry_detail_schema import YarnPurchaseEntryDetailUpdateSchema
@@ -103,30 +125,6 @@ from .yarn_weaving_dispatch_schema import (
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchSimpleSchema,
     YarnWeavingDispatchUpdateSchema,
-)
-
-# from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
-
-from .service_order_schema import (
-    ServiceOrderSimpleSchema,
-    ServiceOrderSchema,
-    ServiceOrderSimpleListSchema,
-    ServiceOrderCreateSchema,
-    ServiceOrderUpdateSchema,
-)
-
-from .service_order_detail_schema import (
-    ServiceOrderDetailCreateSchema,
-    ServiceOrderDetailSchema,
-    ServiceOrderDetailUpdateSchema,
-)
-
-from .weaving_service_entry_schema import (
-    WeavingServiceEntrySchema,
-    WeavingServiceEntrySimpleSchema,
-    WeavingServiceEntriesSimpleListSchema,
-    WeavingServiceEntryCreateSchema,
-    WeavingServiceEntryUpdateSchema,
 )
 
 __all__ = [
@@ -183,7 +181,6 @@ __all__ = [
     "ReporteStockTejeduriaResponse",
     "RevisionStockTejeduriaResponse",
     "ProgramacionTintoreriaParametersResponse",
-    # "OrdenCompraBase",
     "OrdenCompraSimpleSchema",
     "OrdenCompraWithDetallesListSchema",
     "OrdenCompraWithDetailSchema",
@@ -218,4 +215,5 @@ __all__ = [
     "WeavingServiceEntriesSimpleListSchema",
     "WeavingServiceEntryCreateSchema",
     "WeavingServiceEntryUpdateSchema",
+    "ServiceOrderListSchema",
 ]

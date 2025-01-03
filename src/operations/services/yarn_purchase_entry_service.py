@@ -143,7 +143,7 @@ class YarnPurchaseEntryService(MovementService):
         yarn_order = await self.purchase_order_service.read_purchase_yarn_order(
             purchase_order_number=data.purchase_order_number,
             period=data.period,
-            include_detalle=True
+            include_detalle=True,
         )
 
         if yarn_order.is_failure:
@@ -393,8 +393,12 @@ class YarnPurchaseEntryService(MovementService):
                     )
                 )
 
-            yarn_purchase_entry_detail_value.detail_heavy = yarn_purchase_entry_detail_heavy
-            yarn_purchase_entry_detail_value.detail_aux = yarn_purchase_entry_detail_aux_value
+            yarn_purchase_entry_detail_value.detail_heavy = (
+                yarn_purchase_entry_detail_heavy
+            )
+            yarn_purchase_entry_detail_value.detail_aux = (
+                yarn_purchase_entry_detail_aux_value
+            )
 
             yarn_purchase_entry_detail.append(yarn_purchase_entry_detail_value)
             yarn_purchase_entry_detail_aux.append(yarn_purchase_entry_detail_aux_value)

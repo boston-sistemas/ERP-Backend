@@ -1,7 +1,6 @@
 from src.core.exceptions import (
     ForbiddenException,
     NotFoundException,
-    UnprocessableEntityException,
 )
 from src.core.result import Failure
 
@@ -16,9 +15,7 @@ SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE = Failure(
 )
 
 SERVICE_ORDER_ALREADY_ANULLED_FAILURE = Failure(
-    ForbiddenException(
-        detail="La orden de servicio especificada fue anulada."
-    )
+    ForbiddenException(detail="La orden de servicio especificada fue anulada.")
 )
 
 SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE = Failure(

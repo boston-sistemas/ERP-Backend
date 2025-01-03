@@ -1,17 +1,15 @@
-from datetime import date
 from typing import Any
 
-from pydantic import AliasChoices, Field, computed_field, model_validator
+from pydantic import Field, computed_field
 
 from src.core.schemas import CustomBaseModel
-from src.operations.constants import PRODUCT_CODE_MAX_LENGTH
 
 from .card_operation_schema import (
     CardOperationSchema,
 )
 
-class WeavingServiceEntryDetailBase(CustomBaseModel):
 
+class WeavingServiceEntryDetailBase(CustomBaseModel):
     item_number: int | None
     fabrid_id: str | None = Field(
         validation_alias="product_code",
@@ -25,9 +23,10 @@ class WeavingServiceEntryDetailBase(CustomBaseModel):
     class Config:
         from_attributes = True
 
-class WeavingServiceEntrySimpleSchema(WeavingServiceEntryDetailBase):
 
+class WeavingServiceEntrySimpleSchema(WeavingServiceEntryDetailBase):
     pass
+
 
 class WeavingServiceEntryDetailSchema(WeavingServiceEntrySimpleSchema):
     detail_fabric: Any = Field(default=None, exclude=True)
@@ -79,6 +78,7 @@ class WeavingServiceEntryDetailSchema(WeavingServiceEntrySimpleSchema):
 
 class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     pass
+
 
 class WeavingServiceEntryDetailUpdateSchema(CustomBaseModel):
     pass

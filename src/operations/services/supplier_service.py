@@ -3,9 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repository import BaseRepository
 from src.core.result import Result, Success
-from src.core.utils import is_active_status
 from src.operations.failures import (
-    SUPPLIER_INACTIVE_FAILURE,
     SUPPLIER_NOT_FOUND_FAILURE,
     SUPPLIER_SERVICE_NOT_FOUND_FAILURE,
 )
@@ -92,7 +90,6 @@ class SupplierService:
         include_inactive: bool = False,
         include_other_addresses: bool = False,
     ) -> Result[list[SupplierSchema], CustomException]:
-
         suppliers = await self.repository.find_suppliers_by_service(
             service_code=service_code,
             limit=limit,

@@ -13,7 +13,7 @@ from sqlalchemy import (
     func,
     literal_column,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship, column_property
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from src.core.constants import ACTIVE_STATUS_PROMEC, MECSA_COMPANY_CODE
 from src.core.database import Base, PromecBase
@@ -21,15 +21,23 @@ from src.operations.constants import (
     ANNULMENT_USER_ID_MAX_LENGTH,
     AUXILIARY_CODE_MAX_LENGTH,
     AUXILIARY_NAME_MAX_LENGTH,
+    CARD_ID_MAX_LENGTH,
+    CARD_TYPE_MAX_LENGTH,
     CLFAUX_MAX_LENGTH,
+    CODCOL_MAX_LENGTH,
+    COLOR_ID_MAX_LENGTH,
     COMPANY_CODE_MAX_LENGTH,
+    DESTTEJ_MAX_LENGTH,
     DETDOC_MAX_LENGTH,
     DOCUMENT_CODE_MAX_LENGTH,
     DOCUMENT_NOTE_MAX_LENGTH,
     DOCUMENT_NUMBER_MAX_LENGTH,
     DRIVER_CODE_MAX_LENGTH,
     DRIVER_LICENSE_MAX_LENGTH,
+    EMAIL_MAX_LENGTH,
     EXIT_NUMBER_MAX_LENGTH,
+    FABRIC_ID_MAX_LENGTH,
+    FABRIC_TYPE_MAX_LENGTH,
     FIBER_DENOMINATION_MAX_LENGTH,
     FIBER_ID_MAX_LENGTH,
     FIBER_ORIGIN_MAX_LENGTH,
@@ -60,6 +68,7 @@ from src.operations.constants import (
     MECSA_COLOR_ID_MAX_LENGTH,
     MOVEMENT_CODE_MAX_LENGTH,
     MOVEMENT_TYPE_MAX_LENGTH,
+    NRODIR_MAX_LENGTH,
     NROGF_MAX_LENGTH,
     NROREQ_MAX_LENGTH,
     NROTARJ_MAX_LENGTH,
@@ -78,6 +87,8 @@ from src.operations.constants import (
     SERIAL_NUMBER_MAX_LENGTH,
     SERVADI_MAX_LENGTH,
     SERVICE_CODE_MAX_LENGTH,
+    SERVICE_ORDER_ID_MAX_LENGTH,
+    SERVICE_ORDER_TYPE_MAX_LENGTH,
     STATUS_FLAG_MAX_LENGTH,
     STORAGE_CODE_MAX_LENGTH,
     SUPPLIER_ADDRESS_MAX_LENGTH,
@@ -100,18 +111,6 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
-    EMAIL_MAX_LENGTH,
-    SERVICE_ORDER_ID_MAX_LENGTH,
-    SERVICE_ORDER_TYPE_MAX_LENGTH,
-    DIRPRO_MAX_LENGTH,
-    NRODIR_MAX_LENGTH,
-    FABRIC_ID_MAX_LENGTH,
-    CODCOL_MAX_LENGTH,
-    FABRIC_TYPE_MAX_LENGTH,
-    COLOR_ID_MAX_LENGTH,
-    CARD_ID_MAX_LENGTH,
-    CARD_TYPE_MAX_LENGTH,
-    DESTTEJ_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -502,9 +501,7 @@ class ServiceOrder(PromecBase):
     _type: Mapped[str] = mapped_column(
         "tpoos", String(length=SERVICE_ORDER_TYPE_MAX_LENGTH)
     )
-    id: Mapped[str] = mapped_column(
-        "nroos", String(length=SERVICE_ORDER_ID_MAX_LENGTH)
-    )
+    id: Mapped[str] = mapped_column("nroos", String(length=SERVICE_ORDER_ID_MAX_LENGTH))
     supplier_id: Mapped[str] = mapped_column(
         "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
@@ -549,6 +546,7 @@ class ServiceOrder(PromecBase):
         {"schema": "PUB"},
     )
 
+
 class ServiceOrderDetail(PromecBase):
     __tablename__ = "opedosmp"
 
@@ -574,19 +572,16 @@ class ServiceOrderDetail(PromecBase):
         {"schema": "PUB"},
     )
 
+
 class SupplierArrivalPort(PromecBase):
     __tablename__ = "prollegada"
 
     company_code: Mapped[str] = mapped_column(
         "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
-    nrodir: Mapped[str] = mapped_column(
-        "nrodir",
-        String(length=NRODIR_MAX_LENGTH)
-    )
+    nrodir: Mapped[str] = mapped_column("nrodir", String(length=NRODIR_MAX_LENGTH))
     address: Mapped[str] = mapped_column(
-        "dirpro",
-        String(length=SUPPLIER_ADDRESS_MAX_LENGTH)
+        "dirpro", String(length=SUPPLIER_ADDRESS_MAX_LENGTH)
     )
     supplier_id: Mapped[str] = mapped_column(
         "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
@@ -596,6 +591,7 @@ class SupplierArrivalPort(PromecBase):
         PrimaryKeyConstraint("codcia", "codpro", "nrodir"),
         {"schema": "PUB"},
     )
+
 
 class ServiceOrderStock(PromecBase):
     __tablename__ = "almstkserv"
@@ -1018,7 +1014,8 @@ class MovementDetail(PromecBase):
         lazy="noload",
         viewonly=True,
         primaryjoin=lambda: (
-            func.concat(MovementDetail.document_code, MovementDetail.document_number) == CardOperation.document_number
+            func.concat(MovementDetail.document_code, MovementDetail.document_number)
+            == CardOperation.document_number
         ),
         single_parent=True,
         foreign_keys=lambda: [
@@ -1257,6 +1254,7 @@ class MovementYarnOCHeavy(PromecBase):
             f")>"
         )
 
+
 class FabricWarehouse(PromecBase):
     __tablename__ = "almtejido"
 
@@ -1321,90 +1319,66 @@ class FabricWarehouse(PromecBase):
         {"schema": "PUB"},
     )
 
+
 class CardOperation(PromecBase):
     __tablename__ = "opetarjeta"
 
-    id: Mapped[str] = mapped_column(
-        "nrotarj",
-        String(length=CARD_ID_MAX_LENGTH)
-    )
+    id: Mapped[str] = mapped_column("nrotarj", String(length=CARD_ID_MAX_LENGTH))
     fabric_id: Mapped[str] = mapped_column(
-        "codtej",
-        String(length=FABRIC_ID_MAX_LENGTH)
+        "codtej", String(length=FABRIC_ID_MAX_LENGTH)
     )
     width: Mapped[float] = mapped_column("ancho")
     codcol: Mapped[str] = mapped_column("codcol", String(length=CODCOL_MAX_LENGTH))
     net_weight: Mapped[float] = mapped_column("pesoneto")
     gross_weight: Mapped[float] = mapped_column("pesobrto")
     document_number: Mapped[str] = mapped_column(
-        "nrodoc",
-        String(length=DOCUMENT_NUMBER_MAX_LENGTH)
+        "nrodoc", String(length=DOCUMENT_NUMBER_MAX_LENGTH)
     )
     creation_date: Mapped[date] = mapped_column("fching")
     supplier_weaving_tej: Mapped[str] = mapped_column(
-        "protej",
-        String(length=SUPPLIER_CODE_MAX_LENGTH)
+        "protej", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
     status_flag: Mapped[str] = mapped_column(
-        "flgest",
-        String(length=STATUS_FLAG_MAX_LENGTH)
+        "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
     )
     storage_code: Mapped[str] = mapped_column(
-        "codalm",
-        String(length=STORAGE_CODE_MAX_LENGTH)
+        "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
     )
     entry_user_id: Mapped[str] = mapped_column(
-        "idusers_i",
-        String(length=USER_ID_MAX_LENGTH)
+        "idusers_i", String(length=USER_ID_MAX_LENGTH)
     )
     exit_user_id: Mapped[str] = mapped_column(
-        "idusers_s",
-        String(length=USER_ID_MAX_LENGTH)
+        "idusers_s", String(length=USER_ID_MAX_LENGTH)
     )
     tint_user_id: Mapped[str] = mapped_column(
-        "idusers_t",
-        String(length=USER_ID_MAX_LENGTH)
+        "idusers_t", String(length=USER_ID_MAX_LENGTH)
     )
     product_id: Mapped[str] = mapped_column(
-        "codprod",
-        String(length=PRODUCT_CODE_MAX_LENGTH)
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     fabric_type: Mapped[str] = mapped_column(
-        "tpotej",
-        String(length=FABRIC_TYPE_MAX_LENGTH)
+        "tpotej", String(length=FABRIC_TYPE_MAX_LENGTH)
     )
     tint_supplier_id: Mapped[str] = mapped_column(
-        "protin",
-        String(length=SUPPLIER_CODE_MAX_LENGTH)
+        "protin", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
     tint_color_id: Mapped[str] = mapped_column(
-        "coltin",
-        String(length=COLOR_ID_MAX_LENGTH)
+        "coltin", String(length=COLOR_ID_MAX_LENGTH)
     )
-    desttej: Mapped[str] = mapped_column(
-        "desttej",
-        String(length=DESTTEJ_MAX_LENGTH)
-    )
-    flgsit: Mapped[str] = mapped_column(
-        "flgsit",
-        String(length=FLGSIT_MAX_LENGTH)
-    )
+    desttej: Mapped[str] = mapped_column("desttej", String(length=DESTTEJ_MAX_LENGTH))
+    flgsit: Mapped[str] = mapped_column("flgsit", String(length=FLGSIT_MAX_LENGTH))
     sdoneto: Mapped[float] = mapped_column("sdoneto")
     yarn_supplier_id: Mapped[str] = mapped_column(
-        "prohil",
-        String(length=SUPPLIER_CODE_MAX_LENGTH)
+        "prohil", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
     service_order_id: Mapped[str] = mapped_column(
-        "nroserv",
-        String(length=SERVICE_ORDER_ID_MAX_LENGTH)
+        "nroserv", String(length=SERVICE_ORDER_ID_MAX_LENGTH)
     )
     card_type: Mapped[str] = mapped_column(
-        "tpotar",
-        String(length=CARD_TYPE_MAX_LENGTH)
+        "tpotar", String(length=CARD_TYPE_MAX_LENGTH)
     )
     company_code: Mapped[str] = mapped_column(
-        "codcia",
-        String(length=COMPANY_CODE_MAX_LENGTH)
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     period: Mapped[int] = mapped_column("periodo")
 
@@ -1412,6 +1386,7 @@ class CardOperation(PromecBase):
         PrimaryKeyConstraint("nrotarj"),
         {"schema": "PUB"},
     )
+
 
 class Supplier(PromecBase):
     __tablename__ = "proveedor"
@@ -1689,6 +1664,8 @@ class CurrencyExchange(PromecBase):
         PrimaryKeyConstraint("fecha"),
         {"schema": "PUB"},
     )
+
+
 class FabricYarn(PromecBase):
     __tablename__ = "operectej"
 

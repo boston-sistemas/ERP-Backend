@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
-
 from sqlalchemy.orm.strategy_options import Load
+
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
 from src.operations.models import Supplier, SupplierService
@@ -21,7 +21,7 @@ class SupplierRepository(BaseRepository[Supplier]):
             Supplier.is_active,
             Supplier.storage_code,
             Supplier.initials,
-            Supplier.email
+            Supplier.email,
         )
 
     @staticmethod
@@ -57,7 +57,7 @@ class SupplierRepository(BaseRepository[Supplier]):
 
         options = self.get_load_options(
             include_service=include_service,
-            include_other_addresses=include_other_addresses
+            include_other_addresses=include_other_addresses,
         )
 
         supplier = await self.find_by_id(id=id, options=options)
@@ -79,13 +79,12 @@ class SupplierRepository(BaseRepository[Supplier]):
 
         options = self.get_load_options(include_other_addresses=include_other_addresses)
 
-        base_filter = (
-            (Supplier.company_code == MECSA_COMPANY_CODE)
-            & (SupplierService.service_code == service_code)
+        base_filter = (Supplier.company_code == MECSA_COMPANY_CODE) & (
+            SupplierService.service_code == service_code
         )
 
         if not include_inactive:
-            base_filter = base_filter & (Supplier.is_active == 'A')
+            base_filter = base_filter & (Supplier.is_active == "A")
 
         suppliers = await self.find_all(
             filter=base_filter,

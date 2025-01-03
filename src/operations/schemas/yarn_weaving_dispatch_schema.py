@@ -6,7 +6,6 @@ from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NRODIR_MAX_LENGTH,
-    SUPPLIER_CODE_MAX_LENGTH,
     SERVICE_ORDER_ID_MAX_LENGTH,
 )
 
@@ -32,16 +31,12 @@ class YarnWeavingDispatchBase(CustomBaseModel):
         validation_alias="reference_number1",
     )
     service_order_id: str | None = Field(
-        default=None,
-        validation_alias="reference_number2"
+        default=None, validation_alias="reference_number2"
     )
     status_flag: str | None
     document_note: str | None
 
-    nrodir: str | None = Field(
-        default=None,
-        validation_alias="nrodir2"
-    )
+    nrodir: str | None = Field(default=None, validation_alias="nrodir2")
 
     class Config:
         from_attributes = True
