@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from .routers import (
+    fabric_router,
     fiber_router,
     mecsa_color_router,
     programacion_tintoreria_router,
@@ -33,4 +34,9 @@ router.include_router(
     router=yarn_router.router,
     prefix="/yarns",
     tags=["[AREA OPERACIONES] GESTION DE HILADOS"],
+)
+router.include_router(
+    router=fabric_router.router,
+    prefix="/fabrics",
+    tags=["[AREA OPERACIONES] GESTION DE TEJIDOS"],
 )

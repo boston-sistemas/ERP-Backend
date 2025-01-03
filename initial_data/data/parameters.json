@@ -174,5 +174,45 @@
         "value": "VORTEX",
         "data_type": "string",
         "is_active": true
+    },
+    {
+        "id": 1023,
+        "category_id": 104,
+        "description": "TIPO DE TEJIDO: JERSEY",
+        "value": "JERSEY",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1024,
+        "category_id": 104,
+        "description": "TIPO DE TEJIDO: RIB",
+        "value": "RIB",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1025,
+        "category_id": 104,
+        "description": "TIPO DE TEJIDO: RIB BIVIDI",
+        "value": "RIB BIVIDI",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1026,
+        "category_id": 104,
+        "description": "TIPO DE TEJIDO: GAMUZA / INTERLOCK",
+        "value": "GAMUZA / INTERLOCK",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1027,
+        "category_id": 104,
+        "description": "TIPO DE TEJIDO: FRANELA",
+        "value": "FRANELA",
+        "data_type": "string",
+        "is_active": true
     }
 ]

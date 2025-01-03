@@ -16,20 +16,11 @@ class YarnRepository(InventoryItemRepository):
     @staticmethod
     def get_yarn_fields() -> tuple:
         return (
-            InventoryItem.id,
-            InventoryItem.family_id,
-            InventoryItem.subfamily_id,
-            InventoryItem.base_unit_code,
-            InventoryItem.inventory_unit_code,
-            InventoryItem.purchase_unit_code,
-            InventoryItem.description,
-            InventoryItem.purchase_description,
-            InventoryItem.barcode,
+            *InventoryItemRepository.get_fields(),
             InventoryItem.field1,
             InventoryItem.field2,
             InventoryItem.field3,
             InventoryItem.field4,
-            InventoryItem.is_active,
         )
 
     @staticmethod
@@ -37,11 +28,10 @@ class YarnRepository(InventoryItemRepository):
         return joinedload(InventoryItem.yarn_color)
 
     def get_load_options(self, include_color: bool = False) -> list[Load]:
-        options: list[Load] = []
+        options: list[Load] = [load_only(*self.get_yarn_fields())]
         if include_color:
             options.append(self.include_color())
 
-        options.append(load_only(*self.get_yarn_fields()))
         return options
 
     async def find_yarn_by_id(

@@ -1,5 +1,6 @@
 from .color_service import ColorService
 from .especialidad_empresa_service import EspecialidadEmpresaService
+from .fabric_service import FabricService
 from .fiber_service import FiberService
 from .mecsa_color_service import MecsaColorService
 from .orden_servicio_tejeduria_detalle_service import (
@@ -19,6 +20,7 @@ from .unit_service import UnitService
 from .yarn_service import YarnService
 
 __all__ = [
+    "FabricService",
     "BarcodeSeries",
     "SeriesService",
     "YarnService",
