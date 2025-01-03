@@ -10,6 +10,12 @@ from src.operations.constants import (
     SUPPLIER_BATCH_MAX_LENGTH,
 )
 
+from .weaving_service_entry_detail_schema import (
+    WeavingServiceEntryDetailSchema,
+    WeavingServiceEntryDetailCreateSchema,
+    WeavingServiceEntryDetailUpdateSchema,
+)
+
 class WeavingServiceEntryBase(CustomBaseModel):
     entry_number: str | None = Field(
         default=None,
@@ -45,6 +51,8 @@ class WeavingServiceEntrySchema(WeavingServiceEntrySimpleSchema):
     document_note: str | None = None
     fecgf: date | None
     user_id: str | None = None
+
+    detail: list[WeavingServiceEntryDetailSchema] = []
 
 class WeavingServiceEntryCreateSchema(WeavingServiceEntryBase):
     pass

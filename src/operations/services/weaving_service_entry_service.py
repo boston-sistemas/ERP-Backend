@@ -58,11 +58,13 @@ class WeavingServiceEntryService(MovementService):
         weaving_service_entry_number: str,
         period: int,
         include_detail: bool = False,
+        include_detail_card: bool = False,
     ) -> Result[Movement, CustomException]:
         weaving_service_entry = await self.repository.find_weaving_service_entry_by_entry_number(
             entry_number=weaving_service_entry_number,
             period=period,
             include_detail=include_detail,
+            include_detail_card=include_detail_card,
         )
 
         if weaving_service_entry is None:
@@ -75,12 +77,14 @@ class WeavingServiceEntryService(MovementService):
         weaving_service_entry_number: str,
         period: int,
         include_detail: bool = False,
+        include_detail_card: bool = False,
     ) -> Result[WeavingServiceEntrySchema, CustomException]:
 
         weaving_service_entry_result = await self._read_weaving_service_entry(
             weaving_service_entry_number=weaving_service_entry_number,
             period=period,
             include_detail=include_detail,
+            include_detail_card=include_detail_card,
         )
 
         if weaving_service_entry_result.is_failure:

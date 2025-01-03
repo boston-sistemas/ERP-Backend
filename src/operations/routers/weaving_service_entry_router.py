@@ -49,6 +49,7 @@ async def read_weaving_service_entry(
         weaving_service_entry_number=weaving_service_entry_number,
         period=period,
         include_detail=True,
+        include_detail_card=True,
     )
 
     if result.is_success:

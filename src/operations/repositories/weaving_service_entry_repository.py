@@ -7,6 +7,8 @@ from sqlalchemy.orm.strategy_options import Load
 from src.operations.models import (
     Movement,
     MovementDetail,
+    FabricWarehouse,
+    CardOperation,
 )
 
 from src.operations.constants import (
@@ -43,8 +45,25 @@ class WeavingServiceEntryRepository(MovementRepository):
         )
 
     @staticmethod
-    def include_details() -> Load:
-        base_options = [joinedload(Movement.detail)]
+    def include_details(include_detail_card: bool = True) -> list[Load]:
+        base_options = [
+            joinedload(Movement.detail)
+            .joinedload(MovementDetail.detail_fabric)
+            .load_only(
+                FabricWarehouse.guide_net_weight,
+                FabricWarehouse.roll_count,
+                FabricWarehouse.fabric_type,
+                FabricWarehouse.tint_color_id,
+                FabricWarehouse.tint_supplier_id,
+                FabricWarehouse.tint_supplier_color_id,
+            )
+        ]
+
+        if include_detail_card:
+            base_options.append(
+                joinedload(Movement.detail)
+                .joinedload(MovementDetail.detail_card)
+            )
 
         return base_options
 
@@ -66,6 +85,7 @@ class WeavingServiceEntryRepository(MovementRepository):
         entry_number: int,
         period: int,
         filter: BinaryExpression = None,
+        include_detail_card: bool = True,
         include_detail: bool = False,
     ) -> Movement | None:
         base_filter = (
