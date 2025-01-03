@@ -23,6 +23,7 @@ class ParameterSettings(ProjectBaseSettings):
     FABRIC_TYPE_PARAM_CATEGORY_ID: int
     JERSEY_FABRIC_TYPE_ID: int
     RIB_BVD_FABRIC_TYPE_ID: int
+    SERVICE_ORDER_CATEGORY_STATUS_ID: int
 
 
 param_settings = ParameterSettings()

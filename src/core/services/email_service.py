@@ -99,7 +99,7 @@ class EmailService:
         template = self.template_env.get_template("send_programming_dry_cleaners.html")
         html_content = generate_html(tejeduria, tintoreria, data, template)
 
-        current_week: int = calculate_time(timezone=PERU_TIMEZONE).isocalendar()[1]
+        current_week: int = calculate_time(tz=PERU_TIMEZONE).isocalendar()[1]
         subject = "PROGRAMACIÓN TINTORERÍA - SEMANA " + str(current_week)
 
         await self.send_email(

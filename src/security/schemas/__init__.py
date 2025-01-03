@@ -16,6 +16,7 @@ from .parameter_public_schema import (
     DataTypeListSchema,
     FabricTypesSchema,
     FiberCategoriesSchema,
+    ServiceOrderStatusSchema,
     SpinningMethodsSchema,
     UserPasswordPolicySchema,
 )
@@ -85,4 +86,5 @@ __all__ = [
     "SendTokenResponse",
     "LoginWithTokenForm",
     "UsuarioUpdatePasswordSchema",
+    "ServiceOrderStatusSchema",
 ]

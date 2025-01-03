@@ -5,6 +5,7 @@ from src.core.database import get_db
 from src.security.loaders import (
     FabricTypes,
     FiberCategories,
+    ServiceOrderStatus,
     SpinningMethods,
     UserPasswordPolicy,
 )
@@ -12,6 +13,7 @@ from src.security.schemas import (
     DataTypeListSchema,
     FabricTypesSchema,
     FiberCategoriesSchema,
+    ServiceOrderStatusSchema,
     SpinningMethodsSchema,
     UserPasswordPolicySchema,
 )
@@ -47,4 +49,11 @@ async def read_spinning_methods(db: AsyncSession = Depends(get_db)):
 async def read_fabric_types(db: AsyncSession = Depends(get_db)):
     return FabricTypesSchema(
         fabric_types=await FabricTypes(db=db).get(actives_only=True)
+    )
+
+
+@router.get("/service-order-status", response_model=ServiceOrderStatusSchema)
+async def read_service_order_status(db: AsyncSession = Depends(get_db)):
+    return ServiceOrderStatusSchema(
+        service_order_status=await ServiceOrderStatus(db=db).get(actives_only=True)
     )

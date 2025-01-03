@@ -29,14 +29,14 @@ class OrdenServicioTintoreriaService:
     async def create_orden_with_detalle(
         self, orden: OrdenServicioTintoreriaCreateSchemaWithDetalle
     ) -> Result[None, None]:
-        instance = OrdenServicioTintoreria(**orden.model_dump(exclude={"detalle"}))
+        instance = OrdenServicioTintoreria(**orden.model_dump(exclude={"detail"}))
         await self.repository.save(instance)
         subordenes = [
             OrdenServicioTintoreriaDetalleCreateSchema(
                 orden_servicio_tintoreria_id=instance.orden_servicio_tintoreria_id,
                 **suborden.model_dump(),
             )
-            for suborden in orden.detalle
+            for suborden in orden.detail
         ]
 
         await self.detalle_service.create_subordenes(subordenes)
@@ -52,7 +52,7 @@ class OrdenServicioTintoreriaService:
                 return OrdenServicioTintoreriaFailures.COLOR_NOT_FOUND_WHEN_CREATING_MULTIPLE_ORDERS_FAILURE
 
         order_instances = [
-            OrdenServicioTintoreria(**orden.model_dump(exclude={"detalle"}))
+            OrdenServicioTintoreria(**orden.model_dump(exclude={"detail"}))
             for orden in ordenes
         ]
         await self.repository.save_all(order_instances)
@@ -63,7 +63,7 @@ class OrdenServicioTintoreriaService:
                 **suborden.model_dump(),
             )
             for order_instance, orden in zip(order_instances, ordenes)
-            for suborden in orden.detalle
+            for suborden in orden.detail
         ]
         await self.suborden_repository.save_all(suborder_instances)
 

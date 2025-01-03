@@ -79,3 +79,40 @@ class BarcodeSeries(
     SeriesHelper, name="Código de Barras", document_code="BAR", service_number=1
 ):
     pass
+
+
+class MovementSeries(SeriesHelper, document_code="", service_number=0):
+    async def next_number(self) -> str:
+        result = await super().next_number()
+
+        return str(self.service_number).zfill(3) + str(result).zfill(7)
+
+
+class EntrySeries(
+    MovementSeries,
+    name="Ingreso hilado a almacén proveedor",
+    document_code="P/I",
+    service_number=1,
+):
+    pass
+
+
+class YarnPurchaseEntrySeries(
+    MovementSeries,
+    name="Ingreso por compra de hilado",
+    document_code="P/I",
+    service_number=6,
+):
+    pass
+
+
+class YarnWeavingDispatchSeries(
+    MovementSeries,
+    name="Salida de hilado a tejeduría",
+    document_code="G/R",
+    service_number=104,
+):
+    async def next_number(self) -> str:
+        result = await super().next_number()
+
+        return "T" + result

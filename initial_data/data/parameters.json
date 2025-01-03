@@ -214,5 +214,37 @@
         "value": "FRANELA",
         "data_type": "string",
         "is_active": true
+    }, 
+    {
+        "id": 1028,
+        "category_id": 105,
+        "description": "TIPO DE ESTADO: NO INICIADO",
+        "value": "NO INICIADO",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1029,
+        "category_id": 105,
+        "description": "TIPO DE ESTADO: EN PROCESO",
+        "value": "EN PROCESO",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1030,
+        "category_id": 105,
+        "description": "TIPO DE ESTADO: FINALIZADO",
+        "value": "FINALIZADO",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1031,
+        "category_id": 105,
+        "description": "TIPO DE ESTADO: CANCELADO",
+        "value": "CANCELADO",
+        "data_type": "string",
+        "is_active": true
     }
 ]

@@ -10,6 +10,7 @@ from .password_loader import (
     UserPasswordPolicy,
     UserPasswordValidityDays,
 )
+from .service_order_status_loader import ServiceOrderStatus
 from .spinning_methods_loader import SpinningMethods
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "UserPasswordHistorySize",
     "UserPasswordValidityDays",
     "UserPasswordPolicy",
+    "ServiceOrderStatus",
 ]

@@ -125,7 +125,7 @@ class ProgramacionTintoreriaService:
         suborden_ids = {
             (suborden.orden_servicio_tejeduria_id, suborden.crudo_id)
             for partida in partidas
-            for suborden in partida.detalle
+            for suborden in partida.detail
         }
 
         for suborden_id in suborden_ids:
@@ -138,7 +138,7 @@ class ProgramacionTintoreriaService:
     async def _update_subordenes_stock(self, partidas):
         subordenes = await self._get_subordenes_tejeduria(partidas)
         for partida in partidas:
-            for suborden in partida.detalle:
+            for suborden in partida.detail:
                 suborden_id = (suborden.orden_servicio_tejeduria_id, suborden.crudo_id)
                 subordenes[
                     suborden_id
@@ -168,7 +168,7 @@ class ProgramacionTintoreriaService:
                 colores[partida.color_id].nombre,
             ]
             for index, partida in enumerate(partidas, start=1)
-            for suborden in partida.detalle
+            for suborden in partida.detail
         ]
 
         table.insert(0, headers)
