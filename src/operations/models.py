@@ -277,17 +277,27 @@ class OrdenServicioTintoreriaDetalle(Base):
     )
 
 
-class MecsaColor(PromecBase):
+class AbstractTableModel(PromecBase):
     __tablename__ = "admdtabla"
 
-    table: Mapped[str] = mapped_column("tabla", default="COL", primary_key=True)
+    table: Mapped[str] = mapped_column("tabla", primary_key=True)
     id: Mapped[str] = mapped_column("codigo", primary_key=True)
-    name: Mapped[str] = mapped_column("nombre")
-    sku: Mapped[str] = mapped_column("VarChar1")
-    hexadecimal: Mapped[str] = mapped_column("VarChar3")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
 
     __table_args__ = ({"schema": "PUB"},)
+
+    __mapper_args__ = {
+        "polymorphic_abstract": True,
+        "polymorphic_on": "table",
+    }
+
+
+class MecsaColor(AbstractTableModel):
+    name: Mapped[str] = mapped_column("nombre")
+    sku: Mapped[str] = mapped_column("VarChar1")
+    hexadecimal: Mapped[str] = mapped_column("VarChar3")
+
+    __mapper_args__ = {"polymorphic_identity": "COL"}
 
 
 class Fiber(Base):
@@ -370,32 +380,34 @@ class InventoryItem(PromecBase):
     barcode: Mapped[int] = mapped_column("CodBarras", default=0)
     order_: Mapped[str] = mapped_column("Orden", default="A")
 
-    field1: Mapped[str] = mapped_column("Estruct1")
-    field2: Mapped[str] = mapped_column("Estruct2")
-    field3: Mapped[str] = mapped_column("Estruct3")
-    field4: Mapped[str] = mapped_column("Estruct4", default=None, nullable=True)
-    field5: Mapped[str] = mapped_column("Estruct5")
+    field1: Mapped[str] = mapped_column("Estruct1", default="", nullable=True)
+    field2: Mapped[str] = mapped_column("Estruct2", default="", nullable=True)
+    field3: Mapped[str] = mapped_column("Estruct3", default="", nullable=True)
+    field4: Mapped[str] = mapped_column("Estruct4", default="", nullable=True)
+    field5: Mapped[str] = mapped_column("Estruct5", default="", nullable=True)
 
     yarn_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
         lazy="noload",
         primaryjoin=lambda: and_(
-            InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
+            InventoryItem.field4 == MecsaColor.id,
         ),
         foreign_keys=lambda: [
             MecsaColor.id,
         ],
+        viewonly=True,
     )
 
     fabric_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
         lazy="noload",
         primaryjoin=lambda: and_(
-            InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
+            InventoryItem.field3 == MecsaColor.id,
         ),
         foreign_keys=lambda: [
             MecsaColor.id,
         ],
+        viewonly=True,
     )
 
     __table_args__ = ({"schema": "PUB"},)
