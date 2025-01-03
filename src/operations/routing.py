@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from .routers import (
+    fabric_router,
     fiber_router,
     mecsa_color_router,
     orden_compra_router,
@@ -65,4 +66,9 @@ router.include_router(
     router=weaving_service_entry_router.router,
     prefix="/weaving-service-entries",
     tags=["[AREA OPERACIONES] GESTION DE INGRESO POR SERVICIO DE TEJEDURIA"],
+)
+router.include_router(
+    router=fabric_router.router,
+    prefix="/fabrics",
+    tags=["[AREA OPERACIONES] GESTION DE TEJIDOS"],
 )

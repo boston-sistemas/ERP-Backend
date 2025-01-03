@@ -13,6 +13,21 @@ class InventoryItemRepository(BaseRepository[InventoryItem]):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
         super().__init__(InventoryItem, db, flush)
 
+    @staticmethod
+    def get_fields() -> tuple:
+        return (
+            InventoryItem.id,
+            InventoryItem.family_id,
+            InventoryItem.subfamily_id,
+            InventoryItem.base_unit_code,
+            InventoryItem.inventory_unit_code,
+            InventoryItem.purchase_unit_code,
+            InventoryItem.description,
+            InventoryItem.purchase_description,
+            InventoryItem.barcode,
+            InventoryItem.is_active,
+        )
+
     async def find_item_by_id(
         self, id: str, options: Sequence[Load] = None, **kwargs
     ) -> InventoryItem | None:

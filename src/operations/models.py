@@ -353,17 +353,27 @@ class OrdenServicioTintoreriaDetalle(Base):
     )
 
 
-class MecsaColor(PromecBase):
+class AbstractTableModel(PromecBase):
     __tablename__ = "admdtabla"
 
-    table: Mapped[str] = mapped_column("tabla", default="COL", primary_key=True)
+    table: Mapped[str] = mapped_column("tabla", primary_key=True)
     id: Mapped[str] = mapped_column("codigo", primary_key=True)
-    name: Mapped[str] = mapped_column("nombre")
-    sku: Mapped[str] = mapped_column("VarChar1")
-    hexadecimal: Mapped[str] = mapped_column("VarChar3")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
 
     __table_args__ = ({"schema": "PUB"},)
+
+    __mapper_args__ = {
+        "polymorphic_abstract": True,
+        "polymorphic_on": "table",
+    }
+
+
+class MecsaColor(AbstractTableModel):
+    name: Mapped[str] = mapped_column("nombre")
+    sku: Mapped[str] = mapped_column("VarChar1")
+    hexadecimal: Mapped[str] = mapped_column("VarChar3")
+
+    __mapper_args__ = {"polymorphic_identity": "COL"}
 
 
 class OrdenCompra(PromecBase):
@@ -1555,20 +1565,47 @@ class InventoryItem(PromecBase):
     purchase_description: Mapped[str] = mapped_column("DesCompra")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
     barcode: Mapped[int] = mapped_column("CodBarras", default=0)
+    order_: Mapped[str] = mapped_column("Orden", default="A")
 
-    field1: Mapped[str] = mapped_column("Estruct1")
-    field2: Mapped[str] = mapped_column("Estruct2")
-    field3: Mapped[str] = mapped_column("Estruct3")
-    field4: Mapped[str] = mapped_column("Estruct4", default=None, nullable=True)
+    field1: Mapped[str] = mapped_column("Estruct1", default="", nullable=True)
+    field2: Mapped[str] = mapped_column("Estruct2", default="", nullable=True)
+    field3: Mapped[str] = mapped_column("Estruct3", default="", nullable=True)
+    field4: Mapped[str] = mapped_column("Estruct4", default="", nullable=True)
+    field5: Mapped[str] = mapped_column("Estruct5", default="", nullable=True)
 
     yarn_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
         lazy="noload",
         primaryjoin=lambda: and_(
-            InventoryItem.field3 == MecsaColor.id, MecsaColor.table == "COL"
+            InventoryItem.field4 == MecsaColor.id,
         ),
         foreign_keys=lambda: [
             MecsaColor.id,
+        ],
+        viewonly=True,
+    )
+
+    fabric_color: Mapped[MecsaColor] = relationship(
+        MecsaColor,
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            InventoryItem.field3 == MecsaColor.id,
+        ),
+        foreign_keys=lambda: [
+            MecsaColor.id,
+        ],
+        viewonly=True,
+    )
+
+    fabric_recipe: Mapped[list["FabricYarn"]] = relationship(
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            InventoryItem.company_code == FabricYarn.company_code,
+            InventoryItem.id == FabricYarn.fabric_id,
+        ),
+        foreign_keys=lambda: [
+            FabricYarn.company_code,
+            FabricYarn.fabric_id,
         ],
     )
 
@@ -1631,7 +1668,9 @@ class YarnFiber(Base):
 class Series(PromecBase):
     __tablename__ = "admseries"
 
-    company_code: Mapped[str] = mapped_column("CodCia", primary_key=True)
+    company_code: Mapped[str] = mapped_column(
+        "CodCia", default=MECSA_COMPANY_CODE, primary_key=True
+    )
     document_code: Mapped[str] = mapped_column("CodDoc", primary_key=True)
     service_number: Mapped[int] = mapped_column("NroSer", primary_key=True)
     number: Mapped[int] = mapped_column("NroDoc")
@@ -1650,3 +1689,19 @@ class CurrencyExchange(PromecBase):
         PrimaryKeyConstraint("fecha"),
         {"schema": "PUB"},
     )
+class FabricYarn(PromecBase):
+    __tablename__ = "operectej"
+
+    company_code: Mapped[str] = mapped_column(
+        "CodCia", default=MECSA_COMPANY_CODE, primary_key=True
+    )
+    fabric_id: Mapped[str] = mapped_column("CodTej", primary_key=True)
+    yarn_id: Mapped[str] = mapped_column("CodProd", primary_key=True)
+    proportion: Mapped[float] = mapped_column("PorHil")
+
+    num_plies: Mapped[int] = mapped_column("nro_cabos", default=1)
+    galgue: Mapped[float] = mapped_column("galga", default=0.0)
+    diameter: Mapped[float] = mapped_column("diametro", default=0.0)
+    stitch_length: Mapped[float] = mapped_column("longitud_malla", default=0.0)
+
+    __table_args__ = ({"schema": "PUB"},)

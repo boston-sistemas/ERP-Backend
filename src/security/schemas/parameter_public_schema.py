@@ -74,6 +74,10 @@ class SpinningMethodsSchema(CustomBaseModel):
     spinning_methods: list["ParameterValueSchema"]
 
 
+class FabricTypesSchema(CustomBaseModel):
+    fabric_types: list["ParameterValueSchema"]
+
+
 from .parameter_schema import ParameterValueSchema  # noqa: E402
 
 FiberCategoriesSchema.model_rebuild()

@@ -1,3 +1,4 @@
+from .fabric_types_loader import FabricTypes, JerseyFabric, RibBvdFabric
 from .fiber_categories_loader import FiberCategories
 from .password_loader import (
     MinUserPasswordDigits,
@@ -12,6 +13,9 @@ from .password_loader import (
 from .spinning_methods_loader import SpinningMethods
 
 __all__ = [
+    "RibBvdFabric",
+    "JerseyFabric",
+    "FabricTypes",
     "SpinningMethods",
     "FiberCategories",
     "MinUserPasswordSymbols",

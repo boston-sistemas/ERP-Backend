@@ -26,6 +26,8 @@ from src.operations.failures import (
 )
 from src.operations.constants import (
     SERVICE_CODE_SUPPLIER_WEAVING,
+    UNSTARTED_SERVICE_ORDER_ID,
+
 )
 from .supplier_service import SupplierService
 from src.security.services import ParameterService
@@ -113,6 +115,17 @@ class ServiceOrderService:
 
             service_order.status = status.value
 
+        if include_detail:
+            for detail in service_order.detail:
+                status = await self.parameter_service.read_parameter(
+                    parameter_id=detail.status_param_id
+                )
+
+                if status.is_failure:
+                    detail.status = None
+                else:
+                    detail.status = status.value
+
         return Success(ServiceOrderSchema.model_validate(service_order))
 
     async def _validate_service_order_data(
@@ -185,7 +198,7 @@ class ServiceOrderService:
             user_id="DESA01",
             flgatc="N",
             flgprt="N",
-            status_param_id=1023
+            status_param_id=UNSTARTED_SERVICE_ORDER_ID
         )
 
         service_order_detail = []
@@ -199,7 +212,7 @@ class ServiceOrderService:
                 quantity_ordered=detail.quantity_ordered,
                 quantity_supplied=0,
                 price=detail.price,
-                status_param_id=1023
+                status_param_id=UNSTARTED_SERVICE_ORDER_ID
             )
             service_order_detail.append(service_order_detail_value)
 

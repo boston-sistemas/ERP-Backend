@@ -1,3 +1,11 @@
+from .fabric_schema import (
+    FabricCreateSchema,
+    FabricListSchema,
+    FabricRecipeItemSchema,
+    FabricRecipeItemSimpleSchema,
+    FabricSchema,
+    FabricUpdateSchema,
+)
 from .fiber_schema import (
     FiberCompleteListSchema,
     FiberCompleteSchema,
@@ -122,6 +130,12 @@ from .weaving_service_entry_schema import (
 )
 
 __all__ = [
+    "FabricCreateSchema",
+    "FabricListSchema",
+    "FabricRecipeItemSchema",
+    "FabricRecipeItemSimpleSchema",
+    "FabricSchema",
+    "FabricUpdateSchema",
     "YarnRecipeItemSimpleSchema",
     "YarnUpdateSchema",
     "YarnRecipeItemSchema",

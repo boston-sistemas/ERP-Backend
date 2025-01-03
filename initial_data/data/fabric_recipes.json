@@ -1,0 +1,74 @@
+[
+    {
+        "fabric_id": "100100100119",
+        "yarn_id": "100100100110",
+        "num_plies": 1,
+        "proportion": 100,
+        "galgue": 28,
+        "diameter": 30,
+        "stitch_length": 2.75
+    },
+    {
+        "fabric_id": "100100100120",
+        "yarn_id": "100100100112",
+        "num_plies": 1,
+        "proportion": 100,
+        "galgue": 28,
+        "diameter": 30,
+        "stitch_length": 2.75
+    },
+    {
+        "fabric_id": "100100100121",
+        "yarn_id": "100100100115",
+        "num_plies": 1,
+        "proportion": 100,
+        "galgue": 28,
+        "diameter": 30,
+        "stitch_length": 2.75
+    },
+    {
+        "fabric_id": "100100100122",
+        "yarn_id": "100100100116",
+        "num_plies": 1,
+        "proportion": 100,
+        "galgue": 28,
+        "diameter": 30,
+        "stitch_length": 2.75
+    },
+    {
+        "fabric_id": "100100100123",
+        "yarn_id": "100100100112",
+        "num_plies": 1,
+        "proportion": 96,
+        "galgue": 28,
+        "diameter": 30,
+        "stitch_length": 3.05
+    },
+    {
+        "fabric_id": "100100100123",
+        "yarn_id": "100100100117",
+        "num_plies": 1,
+        "proportion": 4,
+        "galgue": 0,
+        "diameter": 0,
+        "stitch_length": 0
+    },
+    {
+        "fabric_id": "100100100124",
+        "yarn_id": "100100100116",
+        "num_plies": 1,
+        "proportion": 96,
+        "galgue": 28,
+        "diameter": 30,
+        "stitch_length": 3.05
+    },
+    {
+        "fabric_id": "100100100124",
+        "yarn_id": "100100100117",
+        "num_plies": 1,
+        "proportion": 4,
+        "galgue": 0,
+        "diameter": 0,
+        "stitch_length": 0
+    }
+]

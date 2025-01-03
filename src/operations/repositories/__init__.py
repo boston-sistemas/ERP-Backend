@@ -1,6 +1,7 @@
 from .base_unit_repository import BaseUnitRepository
 from .color_repository import ColorRepository
 from .especialidad_empresa_repository import EspecialidadEmpresaRepository
+from .fabric_repository import FabricRepository
 from .fiber_repository import FiberRepository
 from .inventory_item_repository import InventoryItemRepository
 from .mecsa_color_repository import MecsaColorRepository
@@ -32,6 +33,7 @@ from .service_order_repository import ServiceOrderRepository
 from .weaving_service_entry_repository import WeavingServiceEntryRepository
 
 __all__ = [
+    "FabricRepository",
     "SeriesRepository",
     "YarnRecipeRepository",
     "InventoryItemRepository",
