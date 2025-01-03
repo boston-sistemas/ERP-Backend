@@ -28,11 +28,10 @@ class YarnRepository(InventoryItemRepository):
         return joinedload(InventoryItem.yarn_color)
 
     def get_load_options(self, include_color: bool = False) -> list[Load]:
-        options: list[Load] = []
+        options: list[Load] = [load_only(*self.get_yarn_fields())]
         if include_color:
             options.append(self.include_color())
 
-        options.append(load_only(*self.get_yarn_fields()))
         return options
 
     async def find_yarn_by_id(

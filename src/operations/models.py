@@ -410,6 +410,18 @@ class InventoryItem(PromecBase):
         viewonly=True,
     )
 
+    fabric_recipe: Mapped[list["FabricYarn"]] = relationship(
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            InventoryItem.company_code == FabricYarn.company_code,
+            InventoryItem.id == FabricYarn.fabric_id,
+        ),
+        foreign_keys=lambda: [
+            FabricYarn.company_code,
+            FabricYarn.fabric_id,
+        ],
+    )
+
     __table_args__ = ({"schema": "PUB"},)
 
 
@@ -437,9 +449,29 @@ class YarnFiber(Base):
 class Series(PromecBase):
     __tablename__ = "admseries"
 
-    company_code: Mapped[str] = mapped_column("CodCia", primary_key=True)
+    company_code: Mapped[str] = mapped_column(
+        "CodCia", default=MECSA_COMPANY_CODE, primary_key=True
+    )
     document_code: Mapped[str] = mapped_column("CodDoc", primary_key=True)
     service_number: Mapped[int] = mapped_column("NroSer", primary_key=True)
     number: Mapped[int] = mapped_column("NroDoc")
+
+    __table_args__ = ({"schema": "PUB"},)
+
+
+class FabricYarn(PromecBase):
+    __tablename__ = "operectej"
+
+    company_code: Mapped[str] = mapped_column(
+        "CodCia", default=MECSA_COMPANY_CODE, primary_key=True
+    )
+    fabric_id: Mapped[str] = mapped_column("CodTej", primary_key=True)
+    yarn_id: Mapped[str] = mapped_column("CodProd", primary_key=True)
+    proportion: Mapped[float] = mapped_column("PorHil")
+
+    num_plies: Mapped[int] = mapped_column("nro_cabos", default=1)
+    galgue: Mapped[float] = mapped_column("galga", default=0.0)
+    diameter: Mapped[float] = mapped_column("diametro", default=0.0)
+    stitch_length: Mapped[float] = mapped_column("longitud_malla", default=0.0)
 
     __table_args__ = ({"schema": "PUB"},)

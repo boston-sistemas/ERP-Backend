@@ -93,6 +93,11 @@ class BaseRepository(Generic[ModelType]):
         if self.flush:
             await self.db.flush()
 
-    async def delete_all(self, objects: Sequence[ModelType]) -> None:
+    async def delete_all(
+        self, objects: Sequence[ModelType], flush: bool = False
+    ) -> None:
         for object in objects:
             await self.db.delete(object)
+
+        if flush:
+            await self.db.flush()
