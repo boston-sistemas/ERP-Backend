@@ -25,34 +25,34 @@ from .mecsa_color_failure import (
     MECSA_COLOR_NOT_FOUND_FAILURE,
     MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE,
 )
-from .orden_compra_failures import (
-    PURCHASE_YARN_ORDER_ANULLED_FAILURE,
-    PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE,
-)
 from .orden_servicio_tejeduria_detalle_failures import (
     OrdenServicioTejeduriaDetalleFailures,
 )
 from .orden_servicio_tejeduria_failures import OrdenServicioTejeduriaFailures
 from .orden_servicio_tintoreria_failures import OrdenServicioTintoreriaFailures
-from .product_inventory_failures import (
+from .product_inventory_failure import (
     PRODUCT_INVENTORY_NOT_FOUND_FAILURE,
 )
 from .proveedor_failures import ProveedorFailures
 from .purchase_order_detail_failure import (
     PURCHASE_ORDER_DETAIL_NOT_FOUND_FAILURE,
 )
+from .purchase_order_failure import (
+    YARN_PURCHASE_ORDER_ANULLED_FAILURE,
+    YARN_PURCHASE_ORDER_NOT_FOUND_FAILURE,
+)
 from .reporte_stock_tejeduria_failures import ReporteStockTejeduriaFailures
 from .series_failure import SERIES_NOT_FOUND_FAILURE
-from .service_order_faiure import (
+from .service_order_failure import (
     SERVICE_ORDER_ALREADY_ANULLED_FAILURE,
     SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE,
     SERVICE_ORDER_NOT_FOUND_FAILURE,
     SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE,
 )
-from .service_order_stock_failures import (
+from .service_order_stock_failure import (
     SERVICE_ORDER_STOCK_NOT_FOUND_FAILURE,
 )
-from .supplier_failures import (
+from .supplier_failure import (
     SUPPLIER_INACTIVE_FAILURE,
     SUPPLIER_NOT_FOUND_FAILURE,
     SUPPLIER_SERVICE_NOT_FOUND_FAILURE,
@@ -76,7 +76,7 @@ from .yarn_failure import (
 from .yarn_purchase_entry_detail_heavy_failure import (
     YARN_PURCHASE_ENTRY_DETAIL_HEAVY_NOT_FOUND_FAILURE,
 )
-from .yarn_purchase_entry_failures import (
+from .yarn_purchase_entry_failure import (
     YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE,
     YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE,
     YARN_PURCHASE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE,
@@ -143,7 +143,7 @@ __all__ = [
     "YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE",
     "YARN_PURCHASE_ENTRY_CONE_COUNT_MISMATCH_FAILURE",
     "YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE",
-    "PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE",
+    "YARN_PURCHASE_ORDER_NOT_FOUND_FAILURE",
     "YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE",
     "SUPPLIER_NOT_FOUND_FAILURE",
     "PRODUCT_INVENTORY_NOT_FOUND_FAILURE",
@@ -152,7 +152,7 @@ __all__ = [
     "YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE",
     "YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE",
     "YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE",
-    "PURCHASE_YARN_ORDER_ANULLED_FAILURE",
+    "YARN_PURCHASE_ORDER_ANULLED_FAILURE",
     "YARN_WEAVING_DISPATCH_NOT_FOUND_FAILURE",
     "YARN_WEAVING_DISPATCH_SUPPLIER_WITHOUT_STORAGE_FAILURE",
     "YARN_PURCHASE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE",

@@ -10,7 +10,7 @@ SERVICE_ORDER_NOT_FOUND_FAILURE = Failure(
 
 SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE = Failure(
     ForbiddenException(
-        detail="El proveedor especificado no es del servicio de tejeduria."
+        detail="El proveedor especificado no está asociado al servicio de tejeduría."
     )
 )
 

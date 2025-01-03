@@ -45,14 +45,14 @@ class ProductInventoryService:
         product_code: str,
         quantity: int,
     ) -> Result[None, CustomException]:
-        product_inventory = await self._read_product_inventory(
+        result = await self._read_product_inventory(
             product_code=product_code, storage_code=storage_code, period=period
         )
 
-        if product_inventory.is_failure:
-            return product_inventory
+        if result.is_failure:
+            return result
 
-        product_inventory: ProductInventory = product_inventory.value
+        product_inventory: ProductInventory = result.value
         product_inventory.current_stock -= quantity
 
         await self.repository.save(product_inventory)
@@ -62,14 +62,14 @@ class ProductInventoryService:
     async def update_current_stock(
         self, product_code: str, storage_code: str, period: int, new_stock: int
     ) -> Result[None, CustomException]:
-        product_inventory = await self._read_product_inventory(
+        result = await self._read_product_inventory(
             product_code=product_code, storage_code=storage_code, period=period
         )
 
-        if product_inventory.is_failure:
-            return product_inventory
+        if result.is_failure:
+            return result
 
-        product_inventory: ProductInventory = product_inventory.value
+        product_inventory: ProductInventory = result.value
         product_inventory.current_stock += new_stock
 
         await self.repository.save(product_inventory)

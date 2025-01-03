@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
 from src.operations.failures import (
-    PURCHASE_YARN_ORDER_ANULLED_FAILURE,
-    PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE,
+    YARN_PURCHASE_ORDER_ANULLED_FAILURE,
+    YARN_PURCHASE_ORDER_NOT_FOUND_FAILURE,
 )
 from src.operations.models import OrdenCompra
 from src.operations.repositories import (
@@ -42,10 +42,10 @@ class OrdenCompraService:
         )
 
         if orden is None:
-            return PURCHASE_YARN_ORDER_NOT_FOUND_FAILURE
+            return YARN_PURCHASE_ORDER_NOT_FOUND_FAILURE
 
         if not include_annulled and orden.status_flag == "A":
-            return PURCHASE_YARN_ORDER_ANULLED_FAILURE
+            return YARN_PURCHASE_ORDER_ANULLED_FAILURE
 
         return Success(orden)
 

@@ -62,6 +62,7 @@ class ServiceOrderService:
 
         if include_status:
             for service_order in service_orders:
+                # TODO: Make this better
                 status = await self.parameter_service.read_parameter(
                     parameter_id=service_order.status_param_id
                 )
@@ -147,6 +148,7 @@ class ServiceOrderService:
         self,
         data: ServiceOrderCreateSchema,
     ) -> Result[None, CustomException]:
+        # TODO: This be done in the supplier service
         supplier = await self.supplier_service.read_supplier(
             supplier_code=data.supplier_id,
             include_service=True,
@@ -164,7 +166,7 @@ class ServiceOrderService:
         self,
         data: list[ServiceOrderDetailSchema],
     ) -> Result[None, CustomException]:
-        # Validacion de que el tejido existe
+        # TODO: Validacion de que el tejido existe
         return Success(None)
 
     async def create_weaving_service_order(
@@ -210,7 +212,7 @@ class ServiceOrderService:
             issue_date=issue_date,
             storage_code="006",
             status_flag="P",
-            user_id="DESA01",
+            user_id="DESA01",  # TODO: Set the current user's username as user_id for PROMEC
             flgatc="N",
             flgprt="N",
             status_param_id=UNSTARTED_SERVICE_ORDER_ID,
