@@ -113,17 +113,6 @@ class ServiceOrderService:
 
             service_order.status = status.value
 
-        if include_detail:
-            for detail in service_order.detail:
-                status = await self.parameter_service.read_parameter(
-                    parameter_id=detail.status_param_id
-                )
-
-                if status.is_failure:
-                    detail.status = None
-                else:
-                    detail.status = status.value
-
         return Success(ServiceOrderSchema.model_validate(service_order))
 
     async def _validate_service_order_data(

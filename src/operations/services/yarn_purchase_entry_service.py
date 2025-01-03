@@ -118,9 +118,9 @@ class YarnPurchaseEntryService(MovementService):
 
     async def read_yarn_purchase_entries(
         self,
+        period: int,
         limit: int = None,
         offset: int = None,
-        period: int = None,
         include_inactive: bool = False,
     ) -> Result[YarnPurchaseEntriesSimpleListSchema, CustomException]:
         yarn_purchase_entries = await self.repository.find_yarn_purchase_entries(
@@ -141,7 +141,9 @@ class YarnPurchaseEntryService(MovementService):
         data: YarnPurchaseEntryCreateSchema,
     ) -> Result[None, CustomException]:
         yarn_order = await self.purchase_order_service.read_purchase_yarn_order(
-            purchase_order_number=data.purchase_order_number, include_detalle=True
+            purchase_order_number=data.purchase_order_number,
+            period=data.period,
+            include_detalle=True
         )
 
         if yarn_order.is_failure:
@@ -405,6 +407,7 @@ class YarnPurchaseEntryService(MovementService):
             await self.purchase_order_service.update_quantity_supplied_by_product_code(
                 purchase_order_number=form.purchase_order_number,
                 product_code=detail.yarn_id,
+                period=period,
                 quantity_supplied=detail.mecsa_weight,
             )
 
@@ -436,6 +439,7 @@ class YarnPurchaseEntryService(MovementService):
 
         await self.purchase_order_service.rollback_quantity_supplied_by_product_code(
             purchase_order_number=yarn_purchase_entry_detail.document_number,
+            period=yarn_purchase_entry_detail.period,
             product_code=yarn_purchase_entry_detail.product_code,
             quantity_supplied=yarn_purchase_entry_detail.mecsa_weight,
         )
@@ -662,6 +666,7 @@ class YarnPurchaseEntryService(MovementService):
 
                     await self.purchase_order_service.rollback_quantity_supplied_by_product_code(
                         purchase_order_number=purchase_yarn_order.purchase_order_number,
+                        period=period,
                         product_code=yarn_purchase_entry_detail_result.product_code,
                         quantity_supplied=yarn_purchase_entry_detail_result.mecsa_weight,
                     )
@@ -740,6 +745,7 @@ class YarnPurchaseEntryService(MovementService):
                     await self.purchase_order_service.update_quantity_supplied_by_product_code(
                         purchase_order_number=purchase_yarn_order.purchase_order_number,
                         product_code=detail.yarn_id,
+                        period=period,
                         quantity_supplied=detail.mecsa_weight,
                     )
             else:
@@ -880,6 +886,7 @@ class YarnPurchaseEntryService(MovementService):
             await (
                 self.purchase_order_service.rollback_quantity_supplied_by_product_code(
                     purchase_order_number=yarn_purchase_entry.reference_number2,
+                    period=period,
                     product_code=detail.product_code,
                     quantity_supplied=detail.mecsa_weight,
                 )

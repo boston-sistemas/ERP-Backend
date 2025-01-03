@@ -105,6 +105,7 @@ from src.operations.constants import (
     SERVICE_ORDER_TYPE_MAX_LENGTH,
     DIRPRO_MAX_LENGTH,
     NRODIR_MAX_LENGTH,
+    FABRIC_ID_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -1210,6 +1211,16 @@ class MovementYarnOCHeavy(PromecBase):
             f")>"
         )
 
+# class FabricWarehouse(PromecBase):
+#     __tablename__ = "almtejido"
+#
+#     company_code: Mapped[str] = mapped_column(
+#         "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
+#     )
+#
+#     fabric_id: Mapped[str] = mapped_column(
+#         "codtej", String(length=FABRIC_ID_MAX_LENGTH)
+#     )
 
 class Supplier(PromecBase):
     __tablename__ = "proveedor"

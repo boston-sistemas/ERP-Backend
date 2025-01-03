@@ -31,6 +31,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
     async def find_yarn_order_by_purchase_order_number(
         self,
         purchase_order_number: str,
+        period: int,
         include_detalle: bool = False,
     ) -> OrdenCompra | None:
         options: list[Load] = []
@@ -39,7 +40,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         joins.append(OrdenCompra.detail)
         joins.append(OrdenCompraDetalle.yarn)
 
-        current_year = datetime.now().year
+        current_year = period
         start_of_year = datetime(current_year, 1, 1).date()
         end_of_year = datetime(current_year, 12, 31).date()
 
@@ -73,6 +74,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
 
     async def find_ordenes_yarn(
         self,
+        period: int,
         include_detalle: bool = False,
     ) -> list[OrdenCompra]:
         options: list[Load] = []
@@ -81,7 +83,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         joins.append(OrdenCompra.detail)
         joins.append(OrdenCompraDetalle.yarn)
 
-        current_year = datetime.now().year
+        current_year = period
         start_of_year = datetime(current_year, 1, 1).date()
         end_of_year = datetime(current_year, 12, 31).date()
 

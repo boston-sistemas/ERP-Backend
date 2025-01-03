@@ -113,6 +113,14 @@ from .service_order_detail_schema import (
     ServiceOrderDetailUpdateSchema,
 )
 
+from .weaving_service_entry_schema import (
+    WeavingServiceEntrySchema,
+    WeavingServiceEntrySimpleSchema,
+    WeavingServiceEntriesSimpleListSchema,
+    WeavingServiceEntryCreateSchema,
+    WeavingServiceEntryUpdateSchema,
+)
+
 __all__ = [
     "YarnRecipeItemSimpleSchema",
     "YarnUpdateSchema",
@@ -191,4 +199,9 @@ __all__ = [
     "ServiceOrderDetailSchema",
     "ServiceOrderDetailUpdateSchema",
     "ServiceOrderUpdateSchema",
+    "WeavingServiceEntrySchema",
+    "WeavingServiceEntrySimpleSchema",
+    "WeavingServiceEntriesSimpleListSchema",
+    "WeavingServiceEntryCreateSchema",
+    "WeavingServiceEntryUpdateSchema",
 ]

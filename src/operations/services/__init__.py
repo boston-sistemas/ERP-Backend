@@ -25,6 +25,7 @@ from .yarn_purchase_entry_service import YarnPurchaseEntryService
 from .yarn_service import YarnService
 from .yarn_weaving_dispatch_service import YarnWeavingDispatchService
 from .service_order_service import ServiceOrderService
+from .weaving_service_entry_service import WeavingServiceEntryService
 
 __all__ = [
     "BarcodeSeries",
@@ -50,4 +51,5 @@ __all__ = [
     "YarnPurchaseEntryDetailHeavyService",
     "SupplierService",
     "ServiceOrderService",
+    "WeavingServiceEntryService",
 ]

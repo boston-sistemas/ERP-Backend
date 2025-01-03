@@ -29,6 +29,7 @@ from .yarn_recipe_repository import YarnRecipeRepository
 from .yarn_repository import YarnRepository
 from .yarn_weaving_dispatch_repository import YarnWeavingDispatchRepository
 from .service_order_repository import ServiceOrderRepository
+from .weaving_service_entry_repository import WeavingServiceEntryRepository
 
 __all__ = [
     "SeriesRepository",
@@ -56,4 +57,5 @@ __all__ = [
     "YarnPurchaseEntryDetailHeavyRepository",
     "ServiceOrderStockRepository",
     "ServiceOrderRepository",
+    "WeavingServiceEntryRepository",
 ]
