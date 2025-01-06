@@ -291,6 +291,8 @@ class WeavingServiceEntryService(MovementService):
 
                 service_orders_stock = service_orders_stock.value
 
+                print("service_orders_stock", service_orders_stock)
+
                 if not service_orders_stock:
                     return (
                         WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_SUPPLIED_YARNS_FAILURE
@@ -319,12 +321,28 @@ class WeavingServiceEntryService(MovementService):
 
                 fabric = fabric.value
 
-                detail._fabric = fabric
+                fabric_recipe_yarns_ids = {
+                    service_order_stock.product_code: service_order_stock.supplier_yarn_id for service_order_stock in service_orders_stock
+                }
 
                 fabric_ids = {
                     fabric.fabric_id: fabric.status_param_id
                     for fabric in service_order.detail
                 }
+
+                yarn_supplier_ids = []
+
+                for yarn in fabric.recipe:
+                    if yarn.yarn_id in fabric_recipe_yarns_ids.keys():
+                        yarn_supplier_ids.append(fabric_recipe_yarns_ids[yarn.yarn_id])
+
+                yarn_supplier_ids = list(set(yarn_supplier_ids))
+
+                fabric.supplier_yarn_ids = yarn_supplier_ids
+
+                detail._fabric = fabric
+                detail._service_orders_stock = service_orders_stock
+
                 # //! Codes antiguos no estasn en el detalle
                 if detail.fabric_id not in fabric_ids.keys():
                     return WEAVING_SERVICE_ENTRY_FABRIC_NOT_FOUND_FAILURE
@@ -413,6 +431,13 @@ class WeavingServiceEntryService(MovementService):
             if detail._fabric.color:
                 color = detail._fabric.color.id
 
+            yarn_supplier_ids = ""
+
+            for supplier_id in detail._fabric.supplier_yarn_ids:
+                yarn_supplier_ids += supplier_id + ","
+
+            yarn_supplier_ids = yarn_supplier_ids[:-1]
+
             card_operation = CardOperation(
                 id=card_id,
                 fabric_id=detail.fabric_id,
@@ -433,7 +458,7 @@ class WeavingServiceEntryService(MovementService):
                 desttej="T",
                 flgsit="P",
                 sdoneto=sdoneto,
-                # yarn_supplier_id=service_order.supplier_id,
+                yarn_supplier_id=yarn_supplier_ids,
                 service_order_id=service_order.id,
                 card_type="A",
                 company_code=MECSA_COMPANY_CODE,
@@ -748,7 +773,7 @@ class WeavingServiceEntryService(MovementService):
                 self.service_order_stock_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
-                    service_orders_stock=service_orders_stock,
+                    service_orders_stock=detail._service_orders_stock,
                 )
             )
 
@@ -1094,7 +1119,7 @@ class WeavingServiceEntryService(MovementService):
                 await self.service_order_stock_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
-                    service_orders_stock=service_orders_stock,
+                    service_orders_stock=detail._service_orders_stock,
                 )
 
                 if form.generate_cards:
@@ -1235,7 +1260,7 @@ class WeavingServiceEntryService(MovementService):
                 await self.service_order_stock_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
-                    service_orders_stock=service_orders_stock,
+                    service_orders_stock=detail._service_orders_stock,
                 )
 
                 weaving_service_entry_detail_value.detail_fabric = (

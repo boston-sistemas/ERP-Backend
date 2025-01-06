@@ -128,25 +128,29 @@ class ServiceOrderStockService:
         yarn_id: str,
         quantity: int,
     ) -> Result[None, CustomException]:
-        for service_orders_stock in service_orders_stock:
-            if service_orders_stock.product_code == yarn_id:
-                if service_orders_stock.stkact <= 0:
+        for service_order_stock in service_orders_stock:
+            if service_order_stock.product_code == yarn_id:
+                if service_order_stock.stkact <= 0:
                     continue
 
                 if quantity <= 0:
                     break
 
-                if service_orders_stock.stkact <= quantity:
-                    quantity -= service_orders_stock.stkact
-                    service_orders_stock.stkact = 0
+                if service_order_stock.stkact <= quantity:
+                    quantity -= service_order_stock.stkact
+                    service_order_stock.stkact = 0
                 else:
-                    service_orders_stock.stkact -= quantity
+                    service_order_stock.stkact -= quantity
                     quantity = 0
-                await self.repository.save(service_orders_stock)
+                await self.repository.save(service_order_stock)
 
         if quantity > 0:
-            service_orders_stock[-1].stkact -= quantity
-            await self.repository.save(service_orders_stock[-1])
+            if service_orders_stock:
+                if service_orders_stock[-1].product_code == yarn_id:
+                    service_orders_stock[-1].stkact = max(
+                        service_orders_stock[-1].stkact - quantity, 0
+                    )
+                    await self.repository.save(service_orders_stock[-1])
         return Success(None)
 
     async def _rollback_remaining_amount_orders_stock_by_yarn(

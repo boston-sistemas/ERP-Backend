@@ -41,6 +41,8 @@ class FabricSchema(FabricBase):
         default=[], validation_alias=AliasChoices("fabric_recipe")
     )
 
+    supplier_yarn_ids: list[str] = Field(default=[], exclude=True)
+
     class Config:
         from_attributes = True
 

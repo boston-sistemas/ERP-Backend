@@ -19,6 +19,7 @@ from .card_operation_schema import (
 from .fabric_schema import (
     FabricSchema,
 )
+from src.operations.models import ServiceOrderStock
 
 
 class WeavingServiceEntryDetailBase(CustomBaseModel):
@@ -104,6 +105,7 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
         default=None, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
     )
     _fabric: FabricSchema | None = None
+    _service_orders_stock: list[ServiceOrderStock] | None = None
 
     # Posible forma de encapsular la validación de los campos
     @model_validator(mode="after")
