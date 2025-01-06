@@ -41,6 +41,7 @@ from src.operations.schemas import (
     YarnPurchaseEntryDetailUpdateSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
+    YarnPurchaseEntryDetailHeavyListSchema
 )
 from src.operations.sequences import mecsa_batch_sq
 
@@ -49,6 +50,7 @@ from .orden_compra_service import OrdenCompraService
 from .series_service import YarnPurchaseEntrySeries
 from .supplier_service import SupplierService
 from .yarn_service import YarnService
+from .yarn_purchase_entry_detail_heavy_service import YarnPurchaseEntryDetailHeavyService
 
 
 class YarnPurchaseEntryService(MovementService):
@@ -74,6 +76,9 @@ class YarnPurchaseEntryService(MovementService):
         )
         self.yarn_purchase_entry_detail_heavy_repository = BaseRepository(
             model=MovementYarnOCHeavy, db=promec_db
+        )
+        self.yarn_purchase_entry_detail_heavy_service = YarnPurchaseEntryDetailHeavyService(
+            promec_db=promec_db
         )
 
     async def _read_yarn_purchase_entry(
@@ -390,6 +395,7 @@ class YarnPurchaseEntryService(MovementService):
                         dispatch_status=False,
                         packages_left=heavy.package_count,
                         cones_left=heavy.cone_count,
+                        supplier_yarn_id=supplier.code,
                     )
                 )
 
@@ -650,6 +656,7 @@ class YarnPurchaseEntryService(MovementService):
                             dispatch_status=False,
                             packages_left=heavy.package_count,
                             cones_left=heavy.cone_count,
+                            supplier_yarn_id=purchase_yarn_order.supplier_code,
                         )
                         await self.yarn_purchase_entry_detail_heavy_repository.save(
                             yarn_purchase_entry_detail_heavy_result
@@ -933,3 +940,19 @@ class YarnPurchaseEntryService(MovementService):
             return validation_result
 
         return Success(None)
+
+    async def read_yarn_purchase_entry_item_group_availability(
+        self,
+        period: int,
+    ) -> Result[None, CustomException]:
+
+        yarn_purchase_entries_item_group_availability = (
+            await self.yarn_purchase_entry_detail_heavy_service.find_yarn_purchase_entries_item_group_availability(
+                period=period,
+            )
+        )
+
+        if yarn_purchase_entries_item_group_availability.is_failure:
+            return yarn_purchase_entries_item_group_availability
+
+        return Success(yarn_purchase_entries_item_group_availability.value)

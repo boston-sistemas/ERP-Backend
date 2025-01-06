@@ -5,7 +5,7 @@ from pydantic import Field, model_validator
 from src.core.schemas import CustomBaseModel
 
 from .supplier_service_schema import SupplierServiceSchema
-
+from .supplier_color_schema import SupplierColorSchema
 
 class SupplierBase(CustomBaseModel):
     code: str | None
@@ -56,3 +56,4 @@ class SupplierSimpleListSchema(CustomBaseModel):
 
 class SupplierSchema(SupplierSimpleSchema):
     services: list[SupplierServiceSchema] | None = []
+    colors: list[SupplierColorSchema] | None = []

@@ -60,3 +60,9 @@ YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE = Failure(
         detail="El proveedor especificado no tiene la dirección indicada de llegada para tejeduria."
     )
 )
+
+YARN_WEAVING_DISPATCH_YARN_NOT_ASSOCIATED_FABRIC_FAILURE = Failure(
+    ForbiddenException(
+        detail="El hilado especificado no pertenece a ningun tejido de la orden de servicio."
+    )
+)

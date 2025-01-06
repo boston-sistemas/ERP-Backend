@@ -1,5 +1,13 @@
 from src.core.schemas import CustomBaseModel
 
+from pydantic import Field
+
+from src.operations.constants import (
+    FABRIC_ID_MAX_LENGTH,
+    SUPPLIER_CODE_MAX_LENGTH,
+    COLOR_ID_MAX_LENGTH,
+    CARD_TYPE_MAX_LENGTH,
+)
 
 class CardOperationBase(CustomBaseModel):
     id: str | None = None
@@ -19,4 +27,15 @@ class CardOperationSimpleSchema(CardOperationBase):
 
 
 class CardOperationSchema(CardOperationSimpleSchema):
+    pass
+
+class CardOperationCreateSchema(CustomBaseModel):
+    fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
+    net_weight: float
+    tint_supplier_id: str = Field(max_length=SUPPLIER_CODE_MAX_LENGTH)
+    tint_color_id: str = Field(max_length=COLOR_ID_MAX_LENGTH)
+    yarn_supplier_id: str = Field(max_length=SUPPLIER_CODE_MAX_LENGTH)
+    card_type: str = Field(max_length=CARD_TYPE_MAX_LENGTH)
+
+class CardOperationUpdateSchema(CardOperationCreateSchema):
     pass

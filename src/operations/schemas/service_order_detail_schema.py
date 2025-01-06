@@ -5,7 +5,7 @@ from src.security.schemas import ParameterValueSchema
 
 
 class ServiceOrderDetailBase(CustomBaseModel):
-    tissue_id: str | None = Field(validation_alias="product_id")
+    fabric_id: str | None = Field(validation_alias="product_id")
     quantity_ordered: float | None = None
     quantity_supplied: float | None = None
     price: float | None = None
@@ -24,10 +24,10 @@ class ServiceOrderDetailSchema(ServiceOrderDetailSimpleSchema):
 
 
 class ServiceOrderDetailCreateSchema(CustomBaseModel):
-    tissue_id: str
+    fabric_id: str
     quantity_ordered: float = Field(gt=0)
     price: float = Field(gt=0)
 
 
 class ServiceOrderDetailUpdateSchema(ServiceOrderDetailCreateSchema):
-    pass
+    status_param_id: int

@@ -33,6 +33,7 @@ class SupplierRepository(BaseRepository[Supplier]):
     def get_load_options(
         self,
         include_service: bool = False,
+        include_colors: bool = False,
         include_other_addresses: bool = False,
     ):
         options = []
@@ -45,12 +46,16 @@ class SupplierRepository(BaseRepository[Supplier]):
         if include_other_addresses:
             options.append(joinedload(Supplier.other_addresses))
 
+        if include_colors:
+            options.append(joinedload(Supplier.colors))
+
         return options
 
     async def find_supplier_by_code(
         self,
         supplier_code: str,
         include_service: bool = False,
+        include_colors: bool = False,
         include_other_addresses: bool = False,
     ) -> Supplier | None:
         id = {"company_code": MECSA_COMPANY_CODE, "code": supplier_code}
@@ -58,6 +63,7 @@ class SupplierRepository(BaseRepository[Supplier]):
         options = self.get_load_options(
             include_service=include_service,
             include_other_addresses=include_other_addresses,
+            include_colors=include_colors,
         )
 
         supplier = await self.find_by_id(id=id, options=options)

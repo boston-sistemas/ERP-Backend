@@ -23,3 +23,7 @@ SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE = Failure(
         detail="La orden de servicio especificada ya ha sido abastecida."
     )
 )
+
+SERVICE_ORDER_STATUS_NOT_VALID_FAILURE = Failure(
+    ForbiddenException(detail="El estado de indicado no es válido.")
+)

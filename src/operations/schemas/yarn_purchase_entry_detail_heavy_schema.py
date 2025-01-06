@@ -6,8 +6,8 @@ from src.core.schemas import CustomBaseModel
 
 
 class YarnPurchaseEntryDetailHeavyBase(CustomBaseModel):
-    ingress_number: str | None = Field(default=None, exclude=True)
-    item_number: int | None = Field(default=None, exclude=True)
+    ingress_number: str | None = Field(default=None)  # , exclude=True)
+    item_number: int | None = Field(default=None)  # , exclude=True)
     group_number: int | None = None
     status_flag: str | None = None
     cone_count: int | None = None
@@ -31,6 +31,7 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
     entry_user_id: str | None = Field(default=None)
     exit_user_id: str | None = Field(default=None)
     movement_detail: Any | None = Field(default=None, exclude=True)
+    supplier_yarn_id: str | None = Field(default=None)
 
     @computed_field
     @property
@@ -39,6 +40,8 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
             return self.movement_detail.product_code
         return None
 
+class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
+    yarn_purchase_entries_detail_heavy: list[YarnPurchaseEntryDetailHeavySchema]
 
 class YarnPurchaseEntryDetailHeavyCreateSchema(CustomBaseModel):
     group_number: int | None = Field(default=0, ge=1)

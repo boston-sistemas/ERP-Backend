@@ -32,6 +32,7 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
             MovementYarnOCHeavy.entry_user_id,
             MovementYarnOCHeavy.exit_user_id,
             MovementYarnOCHeavy.destination_storage,
+            MovementYarnOCHeavy.supplier_yarn_id,
         )
 
     async def find_yarn_purchase_entry_detail_heavy_by_ingress_number_and_item_and_group_(
@@ -67,6 +68,40 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
         filter = base_filter & filter if filter is not None else base_filter
 
         return await self.find(
+            filter=filter,
+            options=options,
+            joins=joins,
+            **kwargs,
+        )
+
+    async def find_yarn_purchase_entries_items_groups_availability(
+        self,
+        period: int,
+        include_detail_entry: bool = False,
+        filter: BinaryExpression = None,
+        options: Sequence[Load] = None,
+        **kwargs,
+    ) -> list[MovementYarnOCHeavy]:
+        options: list[Load] = []
+        joins: list[tuple] = []
+
+        if include_detail_entry:
+            joins.append(MovementYarnOCHeavy.movement_detail)
+
+        base_filter = (
+            (MovementYarnOCHeavy.company_code == MECSA_COMPANY_CODE)
+            & (MovementYarnOCHeavy.dispatch_status == False)
+        )
+
+        options.append(load_only(*self.get_yarn_purchase_entry_detail_heavy_fields()))
+        if include_detail_entry:
+            base_filter = base_filter & (MovementDetail.period == period)
+
+            options.append(contains_eager(MovementYarnOCHeavy.movement_detail))
+
+        filter = base_filter & filter if filter is not None else base_filter
+
+        return await self.find_all(
             filter=filter,
             options=options,
             joins=joins,

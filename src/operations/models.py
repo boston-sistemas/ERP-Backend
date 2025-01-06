@@ -111,6 +111,7 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
+    SUPPLIER_COLOR_ID_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -374,6 +375,22 @@ class MecsaColor(AbstractTableModel):
 
     __mapper_args__ = {"polymorphic_identity": "COL"}
 
+class SupplierColor(PromecBase):
+    __tablename__ = "opecoltinto"
+
+    supplier_id: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+    description: Mapped[str] = mapped_column(
+        "descripcion", String(length=MAX_LENGTH_COLOR_DESCRIPCION)
+    )
+    id: Mapped[str] = mapped_column("codigo", String(length=SUPPLIER_COLOR_ID_MAX_LENGTH))
+
+    __table_args__ = (
+        PrimaryKeyConstraint("codpro", "codigo"),
+        {"schema": "PUB"},
+    )
+
 
 class OrdenCompra(PromecBase):
     __tablename__ = "opecocmp"
@@ -611,6 +628,16 @@ class ServiceOrderStock(PromecBase):
     )
     item_number: Mapped[int] = mapped_column("nroitm")
     stkact: Mapped[float] = mapped_column("stkact")
+    provided_quantity: Mapped[float] = mapped_column("cantidad_dada")
+    supplier_yarn_id: Mapped[str] = mapped_column(
+        "proveedor_hilado_id", String(length=YARN_ID_MAX_LENGTH)
+    )
+    dispatch_id: Mapped[str] = mapped_column(
+        "numero_salida", String(length=EXIT_NUMBER_MAX_LENGTH)
+    )
+    is_complement: Mapped[bool] = mapped_column(
+        "es_complemento", default=False
+    )
     status_flag: Mapped[str] = mapped_column(
         "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
     )
@@ -1185,6 +1212,9 @@ class MovementYarnOCHeavy(PromecBase):
         "nrosal", String(length=EXIT_NUMBER_MAX_LENGTH), default=""
     )
     #  ProHil
+    supplier_yarn_id: Mapped[str] = mapped_column(
+        "prohil", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
     status_flag: Mapped[str] = mapped_column(
         "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
     )
@@ -1304,12 +1334,8 @@ class FabricWarehouse(PromecBase):
     _tint_supplier_color_id: Mapped[str] = mapped_column(
         "colpro", String(length=COLOR_ID_MAX_LENGTH)
     )
-    tint_supplier_color_id: Mapped[str] = column_property(
-        func.substr(
-            _tint_supplier_color_id,
-            literal_column("1"),
-            literal_column("255"),
-        )
+    tint_supplier_color_id: Mapped[str] = mapped_column(
+        "tint_supplier_color_id", String(length=COLOR_ID_MAX_LENGTH)
     )
 
     idavctint: Mapped[str] = mapped_column(default="")
@@ -1319,6 +1345,32 @@ class FabricWarehouse(PromecBase):
         {"schema": "PUB"},
     )
 
+class ServiceCardOperation(PromecBase):
+    __tablename__ = "opetarserv"
+    company_code: Mapped[str] = mapped_column(
+        "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
+    )
+    period: Mapped[int] = mapped_column("periodo")
+    serial_code: Mapped[str] = mapped_column(
+        "codser", String(length=SERIAL_NUMBER_MAX_LENGTH)
+    )
+    supplier_id: Mapped[str] = mapped_column(
+        "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
+    )
+    codcol: Mapped[str] = mapped_column("codcol", String(length=CODCOL_MAX_LENGTH))
+    fabric_id: Mapped[str] = mapped_column(
+        "codtej", String(length=FABRIC_ID_MAX_LENGTH)
+    )
+    width: Mapped[float] = mapped_column("ancho")
+    rate: Mapped[float] = mapped_column("tarifa")
+    extended_rate: Mapped[float] = mapped_column("tarifal")
+    month_number: Mapped[int] = mapped_column("nromes")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(
+            "codcia", "codser", "codpro", "codcol", "codtej", "ancho", "periodo", "nromes"
+        ),
+    )
 
 class CardOperation(PromecBase):
     __tablename__ = "opetarjeta"
@@ -1355,6 +1407,9 @@ class CardOperation(PromecBase):
     )
     product_id: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    exit_number: Mapped[str] = mapped_column(
+        "nrosal", String(length=EXIT_NUMBER_MAX_LENGTH), default=""
     )
     fabric_type: Mapped[str] = mapped_column(
         "tpotej", String(length=FABRIC_TYPE_MAX_LENGTH)
@@ -1439,6 +1494,18 @@ class Supplier(PromecBase):
         ),
         foreign_keys=lambda: [
             SupplierService.supplier_code,
+        ],
+    )
+
+    colors = relationship(
+        "SupplierColor",
+        lazy="noload",
+        viewonly=True,
+        primaryjoin=lambda: and_(
+            Supplier.code == SupplierColor.supplier_id,
+        ),
+        foreign_keys=lambda: [
+            SupplierColor.supplier_id,
         ],
     )
 

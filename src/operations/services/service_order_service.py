@@ -8,12 +8,17 @@ from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
     SERVICE_CODE_SUPPLIER_WEAVING,
     UNSTARTED_SERVICE_ORDER_ID,
+    STARTED_SERVICE_ORDER_ID,
+    FINISHED_SERVICE_ORDER_ID,
+    CANCELLED_SERVICE_ORDER_ID,
+    CATEGORY_SERVICE_ORDER_ID,
 )
 from src.operations.failures import (
     SERVICE_ORDER_ALREADY_ANULLED_FAILURE,
     SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE,
     SERVICE_ORDER_NOT_FOUND_FAILURE,
     SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE,
+    SERVICE_ORDER_STATUS_NOT_VALID_FAILURE,
 )
 from src.operations.models import (
     ServiceOrder,
@@ -30,7 +35,7 @@ from src.operations.schemas import (
 from src.security.services import ParameterService
 
 from .supplier_service import SupplierService
-
+from .fabric_service import FabricService
 
 class ServiceOrderService:
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -41,6 +46,7 @@ class ServiceOrderService:
             model=ServiceOrderDetail, db=promec_db
         )
         self.parameter_service = ParameterService(db=db)
+        self.fabric_service = FabricService(promec_db=promec_db, db=db)
 
     async def read_service_orders(
         self,
@@ -127,9 +133,9 @@ class ServiceOrderService:
             )
 
             if status.is_failure:
-                return status
-
-            service_order.status = status.value
+                service_order.status = None
+            else:
+                service_order.status = status.value
 
         if include_detail:
             for detail in service_order.detail:
@@ -162,11 +168,58 @@ class ServiceOrderService:
             return SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE
         return supplier
 
+    async def _validate_service_order_data_update(
+        self,
+        data: ServiceOrderUpdateSchema,
+    ) -> Result[None, CustomException]:
+
+        status = await self.parameter_service.read_parameter(
+            parameter_id=data.status_param_id
+        )
+
+        if status.is_failure:
+            return status
+
+        if status.value.category_id != CATEGORY_SERVICE_ORDER_ID:
+            return SERVICE_ORDER_STATUS_NOT_VALID_FAILURE
+
+        return Success(None)
+
     async def _validate_service_order_detail_data(
         self,
         data: list[ServiceOrderDetailSchema],
     ) -> Result[None, CustomException]:
-        # TODO: Validacion de que el tejido existe
+        for detail in data:
+            fabric = await self.fabric_service.read_fabric(
+                fabric_id=detail.fabric_id,
+            )
+
+            if fabric.is_failure:
+                return fabric
+
+        return Success(None)
+
+    async def _validate_service_order_detail_data_update(
+        self,
+        data: list[ServiceOrderDetailSchema],
+    ) -> Result[None, CustomException]:
+        for detail in data:
+            fabric = await self.fabric_service.read_fabric(
+                fabric_id=detail.fabric_id,
+            )
+
+            if fabric.is_failure:
+                return fabric
+
+            status = await self.parameter_service.read_parameter(
+                parameter_id=detail.status_param_id
+            )
+
+            if status.is_failure:
+                return status
+
+            if status.value.category_id != CATEGORY_SERVICE_ORDER_ID:
+                return SERVICE_ORDER_STATUS_NOT_VALID_FAILURE
         return Success(None)
 
     async def create_weaving_service_order(
@@ -225,7 +278,7 @@ class ServiceOrderService:
                 company_code=MECSA_COMPANY_CODE,
                 order_id=purchase_service_number,
                 order_type=order_type,
-                product_id=detail.tissue_id,
+                product_id=detail.fabric_id,
                 quantity_ordered=detail.quantity_ordered,
                 quantity_supplied=0,
                 price=detail.price,
@@ -252,10 +305,10 @@ class ServiceOrderService:
         service_order_detail: list[ServiceOrderDetail],
         form: ServiceOrderUpdateSchema,
     ) -> list[ServiceOrderDetail]:
-        tissue_ids = [detail.tissue_id for detail in form.detail]
+        fabric_ids = [detail.fabric_id for detail in form.detail]
 
         for detail in service_order_detail:
-            if detail.product_id not in tissue_ids:
+            if detail.product_id not in fabric_ids:
                 await self._delete_detail(detail)
                 service_order_detail.remove(detail)
 
@@ -265,10 +318,10 @@ class ServiceOrderService:
         self,
         service_order: ServiceOrder,
     ) -> Result[None, CustomException]:
-        if service_order.status_flag == "A":
+        if service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID:
             return SERVICE_ORDER_ALREADY_ANULLED_FAILURE
 
-        if service_order.status_flag == "C":
+        if service_order.status_param_id == FINISHED_SERVICE_ORDER_ID:
             return SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE
 
         for detail in service_order.detail:
@@ -280,10 +333,10 @@ class ServiceOrderService:
     async def _find_service_order_detail(
         self,
         service_order_detail: list[ServiceOrderDetail],
-        tissue_id: str,
+        fabric_id: str,
     ) -> ServiceOrderDetail | None:
         for detail in service_order_detail:
-            if detail.product_id == tissue_id:
+            if detail.product_id == fabric_id:
                 return detail
 
         return None
@@ -311,12 +364,20 @@ class ServiceOrderService:
         if validation_result.is_failure:
             return validation_result
 
-        validation_result = await self._validate_service_order_detail_data(
+        validation_result = await self._validate_service_order_data_update(
+            data=form
+        )
+        if validation_result.is_failure:
+            return validation_result
+
+        validation_result = await self._validate_service_order_detail_data_update(
             data=form.detail
         )
 
         if validation_result.is_failure:
             return validation_result
+
+        service_order.status_param_id = form.status_param_id
 
         service_order.detail = await self._delete_service_order_detail(
             service_order_detail=service_order.detail,
@@ -326,24 +387,45 @@ class ServiceOrderService:
         for detail in form.detail:
             service_order_detail_result = await self._find_service_order_detail(
                 service_order_detail=service_order.detail,
-                tissue_id=detail.tissue_id,
+                fabric_id=detail.fabric_id,
             )
 
             if service_order_detail_result is not None:
                 service_order_detail_result.quantity_ordered = detail.quantity_ordered
                 service_order_detail_result.price = detail.price
+                service_order_detail_result.status_param_id = detail.status_param_id
 
             else:
                 service_order_detail_value = ServiceOrderDetail(
                     company_code=MECSA_COMPANY_CODE,
                     order_id=order_id,
                     order_type="TJ",
-                    product_id=detail.tissue_id,
+                    product_id=detail.fabric_id,
                     quantity_ordered=detail.quantity_ordered,
                     quantity_supplied=0,
                     price=detail.price,
+                    status_param_id=detail.status_param_id,
                 )
                 service_order.detail.append(service_order_detail_value)
+
+        count_unsupplied = 0
+
+        for detail in service_order.detail:
+            if detail.status_param_id == STARTED_SERVICE_ORDER_ID:
+                service_order.status_param_id = STARTED_SERVICE_ORDER_ID
+                service_order.status_flag = "P"
+                count_unsupplied += 1
+                break
+
+            if detail.status_param_id != FINISHED_SERVICE_ORDER_ID or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID:
+                count_unsupplied += 1
+
+        if count_unsupplied > 0:
+            service_order.status_param_id = STARTED_SERVICE_ORDER_ID
+            service_order.status_flag = "P"
+        else:
+            service_order.status_param_id = FINISHED_SERVICE_ORDER_ID
+            service_order.status_flag = "C"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
 
@@ -403,4 +485,79 @@ class ServiceOrderService:
         if validation_result.is_failure:
             return validation_result
 
+        return Success(None)
+
+    async def update_quantity_supplied_by_fabric_id(
+        self,
+        order_id: str,
+        fabric_id: str,
+        quantity_supplied: int,
+    ) -> Result[None, CustomException]:
+        service_order = await self._read_service_order(
+            order_id=order_id,
+            order_type="TJ",
+            include_detail=True,
+        )
+
+        if service_order.is_failure:
+            return service_order
+
+        service_order: ServiceOrder = service_order.value
+
+        detail_amount = len(service_order.detail)
+        count_unsupplied = 0
+
+        for detail in service_order.detail:
+            if detail.product_id == fabric_id:
+                detail.quantity_supplied += quantity_supplied
+
+                if detail.quantity_supplied >= detail.quantity_ordered:
+                    detail.status_param_id = FINISHED_SERVICE_ORDER_ID
+
+            if detail.status_param_id == FINISHED_SERVICE_ORDER_ID or detail.status_param_id == CANCELLED_SERVICE_ORDER_ID:
+                count_unsupplied += 1
+
+        if count_unsupplied == detail_amount:
+            service_order.status_param_id = FINISHED_SERVICE_ORDER_ID
+            service_order.status_flag = "C"
+
+        await self.service_order_detail_repository.save_all(service_order.detail)
+        await self.repository.save(service_order)
+        return Success(None)
+
+    async def rollback_quantity_supplied_by_fabric_id(
+        self,
+        order_id: str,
+        fabric_id: str,
+        quantity_supplied: int,
+    ) -> Result[None, CustomException]:
+        service_order = await self._read_service_order(
+            order_id=order_id,
+            order_type="TJ",
+            include_detail=True,
+        )
+
+        if service_order.is_failure:
+            return service_order
+
+        service_order: ServiceOrder = service_order.value
+
+        count_unsupplied = 0
+
+        for detail in service_order.detail:
+            if detail.product_id == fabric_id:
+                detail.quantity_supplied -= quantity_supplied
+
+                if detail.quantity_supplied < detail.quantity_ordered:
+                    detail.status_param_id = STARTED_SERVICE_ORDER_ID
+
+            if detail.status_param_id != FINISHED_SERVICE_ORDER_ID or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID:
+                count_unsupplied += 1
+
+        if count_unsupplied > 0:
+            service_order.status_param_id = STARTED_SERVICE_ORDER_ID
+            service_order.status_flag = "P"
+
+        await self.service_order_detail_repository.save_all(service_order.detail)
+        await self.repository.save(service_order)
         return Success(None)

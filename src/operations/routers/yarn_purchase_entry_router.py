@@ -36,6 +36,22 @@ async def read_yarn_purchase_entries(
 
     raise result.error
 
+@router.get("/search/items-groups-availability")
+async def read_yarn_purchase_entries_items_groups_availability(
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = YarnPurchaseEntryService(promec_db=promec_db)
+    result = await service.read_yarn_purchase_entry_item_group_availability(
+        period=period,
+    )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
 
 @router.get("/{yarn_purchase_entry_number}", response_model=YarnPurchaseEntrySchema)
 async def read_yarn_purchase_entry(
@@ -141,3 +157,4 @@ async def is_updated_permission(
         }
 
     return {"updatable": False, "message": result.error.detail}
+

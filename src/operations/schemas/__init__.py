@@ -98,7 +98,18 @@ from .weaving_service_entry_schema import (
     WeavingServiceEntrySimpleSchema,
     WeavingServiceEntryUpdateSchema,
 )
-from .yarn_purchase_entry_detail_heavy_schema import YarnPurchaseEntryDetailHeavySchema
+from .weaving_service_entry_detail_schema import (
+    WeavingServiceEntryDetailCreateSchema,
+    WeavingServiceEntryDetailUpdateSchema,
+)
+from .card_operation_schema import (
+    CardOperationCreateSchema,
+    CardOperationUpdateSchema,
+)
+from .yarn_purchase_entry_detail_heavy_schema import (
+    YarnPurchaseEntryDetailHeavySchema,
+    YarnPurchaseEntryDetailHeavyListSchema,
+)
 from .yarn_purchase_entry_detail_schema import YarnPurchaseEntryDetailUpdateSchema
 from .yarn_purchase_entry_schema import (
     YarnPurchaseEntriesSimpleListSchema,
@@ -126,6 +137,7 @@ from .yarn_weaving_dispatch_schema import (
     YarnWeavingDispatchSimpleSchema,
     YarnWeavingDispatchUpdateSchema,
 )
+
 
 __all__ = [
     "FabricCreateSchema",
@@ -216,4 +228,9 @@ __all__ = [
     "WeavingServiceEntryCreateSchema",
     "WeavingServiceEntryUpdateSchema",
     "ServiceOrderListSchema",
+    "CardOperationCreateSchema",
+    "CardOperationUpdateSchema",
+    "WeavingServiceEntryDetailCreateSchema",
+    "WeavingServiceEntryDetailUpdateSchema",
+    "YarnPurchaseEntryDetailHeavyListSchema",
 ]

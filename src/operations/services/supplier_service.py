@@ -26,11 +26,13 @@ class SupplierService:
         supplier_code: str,
         include_inactive: bool = False,
         include_service: bool = False,
+        include_colors: bool = False,
         include_other_addresses: bool = False,
     ) -> Result[Supplier, CustomException]:
         supplier = await self.repository.find_supplier_by_code(
             supplier_code=supplier_code,
             include_service=include_service,
+            include_colors=include_colors,
             include_other_addresses=include_other_addresses,
         )
 
@@ -47,12 +49,14 @@ class SupplierService:
         supplier_code: str,
         include_inactive: bool = False,
         include_service: bool = False,
+        include_colors: bool = False,
         include_other_addresses: bool = False,
     ) -> Result[SupplierSchema, CustomException]:
         supplier = await self._read_supplier(
             supplier_code=supplier_code,
             include_inactive=include_inactive,
             include_service=include_service,
+            include_colors=include_colors,
             include_other_addresses=include_other_addresses,
         )
 

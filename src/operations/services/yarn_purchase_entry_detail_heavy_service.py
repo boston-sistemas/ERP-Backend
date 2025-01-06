@@ -9,7 +9,10 @@ from src.operations.models import (
     MovementYarnOCHeavy,
 )
 from src.operations.repositories import YarnPurchaseEntryDetailHeavyRepository
-from src.operations.schemas import YarnPurchaseEntryDetailHeavySchema
+from src.operations.schemas import (
+    YarnPurchaseEntryDetailHeavySchema,
+    YarnPurchaseEntryDetailHeavyListSchema,
+)
 
 
 class YarnPurchaseEntryDetailHeavyService:
@@ -158,3 +161,20 @@ class YarnPurchaseEntryDetailHeavyService:
 
         await self.repository.save(yarn_purchase_entry_detail_heavy)
         return Success(None)
+
+    async def find_yarn_purchase_entries_item_group_availability(
+        self,
+        period: int,
+    ) -> Result[YarnPurchaseEntryDetailHeavyListSchema, CustomException]:
+        yarn_purchase_entries_detail_heavy_result = (
+            await self.repository.find_yarn_purchase_entries_items_groups_availability(
+                period=period,
+                include_detail_entry=True,
+            )
+        )
+
+        return Success(
+            YarnPurchaseEntryDetailHeavyListSchema(
+                yarn_purchase_entries_detail_heavy=yarn_purchase_entries_detail_heavy_result
+            )
+        )
