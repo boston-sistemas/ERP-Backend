@@ -17,6 +17,7 @@ class CardOperationBase(CustomBaseModel):
     tint_color_id: str | None
     yarn_supplier_id: str | None
     card_type: str | None
+    status_flag: str | None
 
     class Config:
         from_attributes = True

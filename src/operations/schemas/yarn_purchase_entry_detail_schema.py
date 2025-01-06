@@ -30,6 +30,7 @@ class YarnPurchaseEntryDetailSimpleSchema(YarnPurchaseEntryDetailBase):
     guide_gross_weight: float | None
     detail_aux: Any = Field(default=None, exclude=True)
     detail_heavy: list[YarnPurchaseEntryDetailHeavySimpleSchema]
+    supplier_batch: str | None = (Field(default=None),)
 
     @computed_field
     @property

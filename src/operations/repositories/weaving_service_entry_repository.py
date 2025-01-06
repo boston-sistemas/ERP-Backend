@@ -40,6 +40,8 @@ class WeavingServiceEntryRepository(MovementRepository):
             Movement.sergf,
             Movement.fecgf,
             Movement.user_id,
+            Movement.flgcbd,
+            Movement.reference_number1,
         )
 
     @staticmethod

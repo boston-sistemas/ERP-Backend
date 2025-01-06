@@ -130,6 +130,9 @@ class ServiceOrderStockService:
     ) -> Result[None, CustomException]:
         for service_orders_stock in service_orders_stock:
             if service_orders_stock.product_code == yarn_id:
+                if service_orders_stock.stkact <= 0:
+                    continue
+
                 if quantity <= 0:
                     break
 
@@ -140,7 +143,72 @@ class ServiceOrderStockService:
                     service_orders_stock.stkact -= quantity
                     quantity = 0
                 await self.repository.save(service_orders_stock)
+
+        if quantity > 0:
+            service_orders_stock[-1].stkact -= quantity
+            await self.repository.save(service_orders_stock[-1])
         return Success(None)
+
+    async def _rollback_remaining_amount_orders_stock_by_yarn(
+        self,
+        service_orders_stock: list[ServiceOrderStock],
+        yarn_id: str,
+        quantity: int,
+    ) -> Result[None, CustomException]:
+        for service_order_stock in service_orders_stock:
+            if service_order_stock.product_code == yarn_id:
+                if quantity <= 0:
+                    break
+
+                if service_order_stock.stkact == service_order_stock.provided_quantity:
+                    continue
+
+                if (
+                    service_order_stock.stkact + quantity
+                    <= service_order_stock.provided_quantity
+                ):
+                    service_order_stock.stkact += quantity
+                    quantity = 0
+                else:
+                    quantity -= (
+                        service_order_stock.provided_quantity
+                        - service_order_stock.stkact
+                    )
+                    service_order_stock.stkact = service_order_stock.provided_quantity
+
+                await self.repository.save(service_order_stock)
+
+        if quantity > 0:
+            if service_order_stock:
+                service_order_stock[-1].stkact += quantity
+                await self.repository.save(service_order_stock[-1])
+
+        return Success(service_orders_stock)
+
+    async def rollback_current_stock_by_fabric_recipe(
+        self,
+        fabric: FabricSchema,
+        quantity: int,
+        service_orders_stock: list[ServiceOrderStock],
+    ) -> Result[None, CustomException]:
+        service_orders_stock = service_orders_stock[::-1]
+        for yarn in fabric.recipe:
+            quantity_yarn = (yarn.proportion / 100.0) * quantity
+
+            rollback_result = (
+                await self._rollback_remaining_amount_orders_stock_by_yarn(
+                    service_orders_stock=service_orders_stock,
+                    yarn_id=yarn.yarn_id,
+                    quantity=quantity_yarn,
+                )
+            )
+
+            if rollback_result.is_failure:
+                print(rollback_result.error)
+
+            service_orders_stock = rollback_result.value
+
+        return Success(service_orders_stock)
 
     async def update_current_stock_by_fabric_recipe(
         self,

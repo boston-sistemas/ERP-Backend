@@ -25,6 +25,7 @@ class YarnPurchaseEntryDetailHeavySimpleSchema(YarnPurchaseEntryDetailHeavyBase)
     dispatch_status: bool | None = None
     packages_left: int | None = None
     cones_left: int | None = None
+    supplier_batch: str | None = (Field(default=None),)
 
 
 class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchema):

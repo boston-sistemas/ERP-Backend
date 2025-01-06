@@ -355,6 +355,7 @@ class YarnPurchaseEntryService(MovementService):
                 # ctomn2=pero no supe calcularte,
                 status_flag="P",
                 is_weighted=detail.is_weighted,
+                supplier_batch=form.supplier_batch,
             )
 
             yarn_purchase_entry_detail_aux_value = MovementDetailAux(
@@ -397,6 +398,7 @@ class YarnPurchaseEntryService(MovementService):
                         packages_left=heavy.package_count,
                         cones_left=heavy.cone_count,
                         supplier_yarn_id=supplier.code,
+                        supplier_batch=form.supplier_batch,
                     )
                 )
 

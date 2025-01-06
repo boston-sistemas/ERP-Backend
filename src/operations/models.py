@@ -955,6 +955,9 @@ class MovementDetail(PromecBase):
         "nroreq", String(length=NROREQ_MAX_LENGTH)
     )  # //! Definir nombre representativo
     detdoc: Mapped[str] = mapped_column("detdoc", String(length=DETDOC_MAX_LENGTH))
+    supplier_batch: Mapped[str] = mapped_column(
+        "loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH)
+    )
     movement = relationship(
         "Movement",
         lazy="noload",
@@ -1236,6 +1239,9 @@ class MovementYarnOCHeavy(PromecBase):
     packages_left: Mapped[int] = mapped_column("nrobolsasrest")
     cones_left: Mapped[int] = mapped_column("nroconosrest")
 
+    supplier_batch: Mapped[str] = mapped_column(
+        "loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH)
+    )
     movement_detail = relationship(
         "MovementDetail",
         lazy="noload",

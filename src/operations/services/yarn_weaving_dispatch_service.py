@@ -788,7 +788,7 @@ class YarnWeavingDispatchService(MovementService):
             & (MovementDetail.document_code == ENTRY_DOCUMENT_CODE)
             & (
                 MovementDetail.entry_item_number
-                == yarn_weaving_dispatch_detail.entry_item_number
+                == yarn_weaving_dispatch_detail.item_number
             )
             & (MovementDetail.period == yarn_weaving_dispatch_detail.period)
         )
