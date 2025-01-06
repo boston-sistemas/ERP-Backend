@@ -33,6 +33,7 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
             MovementYarnOCHeavy.exit_user_id,
             MovementYarnOCHeavy.destination_storage,
             MovementYarnOCHeavy.supplier_yarn_id,
+            MovementYarnOCHeavy.supplier_batch
         )
 
     async def find_yarn_purchase_entry_detail_heavy_by_ingress_number_and_item_and_group_(

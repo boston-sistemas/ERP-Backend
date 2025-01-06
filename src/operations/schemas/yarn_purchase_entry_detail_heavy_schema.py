@@ -41,6 +41,13 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
             return self.movement_detail.product_code
         return None
 
+    @computed_field
+    @property
+    def period(self) -> int | None:
+        if self.movement_detail and hasattr(self.movement_detail, "period"):
+            return self.movement_detail.period
+        return None
+
 
 class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
     yarn_purchase_entries_detail_heavy: list[YarnPurchaseEntryDetailHeavySchema]
