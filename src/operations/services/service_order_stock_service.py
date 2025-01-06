@@ -7,6 +7,7 @@ from src.operations.models import ServiceOrderStock
 from src.operations.repositories import ServiceOrderStockRepository
 from src.operations.schemas import FabricSchema
 
+
 class ServiceOrderStockService:
     def __init__(self, promec_db: AsyncSession) -> None:
         self.promec_db = promec_db
@@ -147,7 +148,6 @@ class ServiceOrderStockService:
         quantity: int,
         service_orders_stock: list[ServiceOrderStock],
     ) -> Result[None, CustomException]:
-
         for yarn in fabric.recipe:
             quantity_yarn = (yarn.proportion / 100.0) * quantity
 

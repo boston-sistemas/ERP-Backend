@@ -94,6 +94,7 @@ from src.operations.constants import (
     SUPPLIER_ADDRESS_MAX_LENGTH,
     SUPPLIER_BATCH_MAX_LENGTH,
     SUPPLIER_CODE_MAX_LENGTH,
+    SUPPLIER_COLOR_ID_MAX_LENGTH,
     SUPPLIER_NAME_MAX_LENGTH,
     SUPPLIER_RUC_MAX_LENGTH,
     TRANSACTION_MODE_MAX_LENGTH,
@@ -111,7 +112,6 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
-    SUPPLIER_COLOR_ID_MAX_LENGTH,
 )
 from src.security.models import Parameter
 
@@ -375,6 +375,7 @@ class MecsaColor(AbstractTableModel):
 
     __mapper_args__ = {"polymorphic_identity": "COL"}
 
+
 class SupplierColor(PromecBase):
     __tablename__ = "opecoltinto"
 
@@ -384,7 +385,9 @@ class SupplierColor(PromecBase):
     description: Mapped[str] = mapped_column(
         "descripcion", String(length=MAX_LENGTH_COLOR_DESCRIPCION)
     )
-    id: Mapped[str] = mapped_column("codigo", String(length=SUPPLIER_COLOR_ID_MAX_LENGTH))
+    id: Mapped[str] = mapped_column(
+        "codigo", String(length=SUPPLIER_COLOR_ID_MAX_LENGTH)
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("codpro", "codigo"),
@@ -635,9 +638,7 @@ class ServiceOrderStock(PromecBase):
     dispatch_id: Mapped[str] = mapped_column(
         "numero_salida", String(length=EXIT_NUMBER_MAX_LENGTH)
     )
-    is_complement: Mapped[bool] = mapped_column(
-        "es_complemento", default=False
-    )
+    is_complement: Mapped[bool] = mapped_column("es_complemento", default=False)
     status_flag: Mapped[str] = mapped_column(
         "flgest", String(length=STATUS_FLAG_MAX_LENGTH)
     )
@@ -1345,6 +1346,7 @@ class FabricWarehouse(PromecBase):
         {"schema": "PUB"},
     )
 
+
 class ServiceCardOperation(PromecBase):
     __tablename__ = "opetarserv"
     company_code: Mapped[str] = mapped_column(
@@ -1368,9 +1370,17 @@ class ServiceCardOperation(PromecBase):
 
     __table_args__ = (
         PrimaryKeyConstraint(
-            "codcia", "codser", "codpro", "codcol", "codtej", "ancho", "periodo", "nromes"
+            "codcia",
+            "codser",
+            "codpro",
+            "codcol",
+            "codtej",
+            "ancho",
+            "periodo",
+            "nromes",
         ),
     )
+
 
 class CardOperation(PromecBase):
     __tablename__ = "opetarjeta"

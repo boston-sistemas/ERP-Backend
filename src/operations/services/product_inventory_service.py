@@ -6,7 +6,6 @@ from src.operations.failures import PRODUCT_INVENTORY_NOT_FOUND_FAILURE
 from src.operations.models import ProductInventory
 from src.operations.repositories import ProductInventoryRepository
 
-from src.operations.models import ProductInventory
 
 class ProductInventoryService:
     def __init__(self, promec_db: AsyncSession) -> None:

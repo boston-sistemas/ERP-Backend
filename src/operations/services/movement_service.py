@@ -2,24 +2,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.exceptions import CustomException
+from src.core.repository import (
+    BaseRepository,
+)
 from src.core.result import Result, Success
 from src.operations.failures import (
     YARN_PURCHASE_ENTRY_UPDATE_INVENTORY_FAILURE,
 )
-from src.operations.models import ProductInventory
-from src.operations.repositories import MovementRepository
-
-from src.core.repository import (
-    BaseRepository,
-)
-from .product_inventory_service import ProductInventoryService
-
 from src.operations.models import (
+    CardOperation,
+    FabricWarehouse,
     Movement,
     MovementDetail,
-    FabricWarehouse,
-    CardOperation,
+    ProductInventory,
 )
+from src.operations.repositories import MovementRepository
+
+from .product_inventory_service import ProductInventoryService
+
 
 class MovementService:
     def __init__(self, promec_db: AsyncSession) -> None:
@@ -61,7 +61,9 @@ class MovementService:
                     current_stock=0,
                 )
 
-                await self.product_inventory_service.create_product_inventory(product_inventory)
+                await self.product_inventory_service.create_product_inventory(
+                    product_inventory
+                )
                 return Success(product_inventory)
             return YARN_PURCHASE_ENTRY_UPDATE_INVENTORY_FAILURE
 
@@ -74,7 +76,6 @@ class MovementService:
         movement_detail_fabric: list[FabricWarehouse] = [],
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
-
         await self.repository.save(movement)
 
         for detail in movement_detail:

@@ -10,8 +10,8 @@ from src.operations.models import (
 )
 from src.operations.repositories import YarnPurchaseEntryDetailHeavyRepository
 from src.operations.schemas import (
-    YarnPurchaseEntryDetailHeavySchema,
     YarnPurchaseEntryDetailHeavyListSchema,
+    YarnPurchaseEntryDetailHeavySchema,
 )
 
 

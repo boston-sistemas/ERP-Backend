@@ -36,6 +36,7 @@ async def read_yarn_purchase_entries(
 
     raise result.error
 
+
 @router.get("/search/items-groups-availability")
 async def read_yarn_purchase_entries_items_groups_availability(
     period: int | None = Query(
@@ -52,6 +53,7 @@ async def read_yarn_purchase_entries_items_groups_availability(
         return result.value
 
     raise result.error
+
 
 @router.get("/{yarn_purchase_entry_number}", response_model=YarnPurchaseEntrySchema)
 async def read_yarn_purchase_entry(
@@ -157,4 +159,3 @@ async def is_updated_permission(
         }
 
     return {"updatable": False, "message": result.error.detail}
-

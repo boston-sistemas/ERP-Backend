@@ -3,26 +3,23 @@ from typing import Any
 from pydantic import Field, computed_field, model_validator
 
 from src.core.schemas import CustomBaseModel
+from src.operations.constants import (
+    COLOR_ID_MAX_LENGTH,
+    FABRIC_ID_MAX_LENGTH,
+    FABRIC_TYPE_MAX_LENGTH,
+    SERVICE_ORDER_ID_MAX_LENGTH,
+    SUPPLIER_CODE_MAX_LENGTH,
+    SUPPLIER_COLOR_ID_MAX_LENGTH,
+)
 
 from .card_operation_schema import (
     CardOperationSchema,
-    CardOperationSimpleSchema,
     CardOperationUpdateSchema,
-    CardOperationCreateSchema,
 )
-
 from .fabric_schema import (
     FabricSchema,
 )
 
-from src.operations.constants import (
-    FABRIC_ID_MAX_LENGTH,
-    FABRIC_TYPE_MAX_LENGTH,
-    COLOR_ID_MAX_LENGTH,
-    SUPPLIER_COLOR_ID_MAX_LENGTH,
-    SUPPLIER_CODE_MAX_LENGTH,
-    SERVICE_ORDER_ID_MAX_LENGTH,
-)
 
 class WeavingServiceEntryDetailBase(CustomBaseModel):
     item_number: int | None
@@ -90,30 +87,21 @@ class WeavingServiceEntryDetailSchema(WeavingServiceEntrySimpleSchema):
             return self.detail_fabric.tint_supplier_color_id
         return None
 
+
 class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     item_number: int | None = Field(default=None, ge=1)
     guide_net_weight: float = Field(gt=0.0)
     roll_count: int = Field(gt=0)
-    service_order_id: str = Field(
-        max_length=SERVICE_ORDER_ID_MAX_LENGTH
-    )
+    service_order_id: str = Field(max_length=SERVICE_ORDER_ID_MAX_LENGTH)
     service_order_ids: list[str] | None = Field(default=[])
     fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
-    fabric_type: str = Field(
-        default="A",
-        max_length=FABRIC_TYPE_MAX_LENGTH
-    )
-    tint_color_id: str | None = Field(
-        default=None,
-        max_length=COLOR_ID_MAX_LENGTH
-    )
+    fabric_type: str = Field(default="A", max_length=FABRIC_TYPE_MAX_LENGTH)
+    tint_color_id: str | None = Field(default=None, max_length=COLOR_ID_MAX_LENGTH)
     tint_supplier_id: str | None = Field(
-        default=None,
-        max_length=SUPPLIER_CODE_MAX_LENGTH
+        default=None, max_length=SUPPLIER_CODE_MAX_LENGTH
     )
     tint_supplier_color_id: str | None = Field(
-        default=None,
-        max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
+        default=None, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
     )
     _fabric: FabricSchema | None = None
 
@@ -125,6 +113,7 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
                 "El código de proveedor y el código de color del proveedor deben ser mandados."
             )
         return self
+
 
 class WeavingServiceEntryDetailUpdateSchema(WeavingServiceEntryDetailCreateSchema):
     detail_card: list[CardOperationUpdateSchema] | None = []

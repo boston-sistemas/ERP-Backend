@@ -3,20 +3,19 @@ from datetime import date
 from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
-
-from .weaving_service_entry_detail_schema import (
-    WeavingServiceEntryDetailSchema,
-    WeavingServiceEntryDetailCreateSchema,
-    WeavingServiceEntryDetailUpdateSchema,
-)
-
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NROGF_MAX_LENGTH,
-    REFERENCE_NUMBER_MAX_LENGTH,
     SERGF_MAX_LENGTH,
     SUPPLIER_CODE_MAX_LENGTH,
 )
+
+from .weaving_service_entry_detail_schema import (
+    WeavingServiceEntryDetailCreateSchema,
+    WeavingServiceEntryDetailSchema,
+    WeavingServiceEntryDetailUpdateSchema,
+)
+
 
 class WeavingServiceEntryBase(CustomBaseModel):
     entry_number: str | None = Field(default=None, validation_alias="document_number")
@@ -85,6 +84,7 @@ class WeavingServiceEntryCreateSchema(CustomBaseModel):
                 m_idx += 1
 
         return self
+
 
 class WeavingServiceEntryUpdateSchema(WeavingServiceEntryCreateSchema):
     detail: list[WeavingServiceEntryDetailUpdateSchema] = Field(default=[])

@@ -52,6 +52,7 @@ from src.operations.schemas import (
     YarnWeavingDispatchUpdateSchema,
 )
 
+from .fabric_service import FabricService
 from .movement_service import MovementService
 from .series_service import (
     EntrySeries,
@@ -63,7 +64,6 @@ from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
-from .fabric_service import FabricService
 
 
 class YarnWeavingDispatchService(MovementService):
@@ -255,21 +255,38 @@ class YarnWeavingDispatchService(MovementService):
 
             if update:
                 for yarn_weaving_dispatch_detail_value in yarn_weaving_dispatch_detail:
-                    if (yarn_weaving_dispatch_detail_value.reference_number == detail.entry_number) and (
-                        yarn_weaving_dispatch_detail_value.entry_item_number == detail.entry_item_number) and (
-                        yarn_weaving_dispatch_detail_value.entry_group_number == detail.entry_group_number
+                    if (
+                        (
+                            yarn_weaving_dispatch_detail_value.reference_number
+                            == detail.entry_number
+                        )
+                        and (
+                            yarn_weaving_dispatch_detail_value.entry_item_number
+                            == detail.entry_item_number
+                        )
+                        and (
+                            yarn_weaving_dispatch_detail_value.entry_group_number
+                            == detail.entry_group_number
+                        )
                     ):
                         print(yarn_weaving_dispatch_detail_value.detail_aux)
                         validate_package = (
-                                yarn_purchase_entry_detail_heavy.packages_left + yarn_weaving_dispatch_detail_value.detail_aux.guide_package_count - detail.package_count
+                            yarn_purchase_entry_detail_heavy.packages_left
+                            + yarn_weaving_dispatch_detail_value.detail_aux.guide_package_count
+                            - detail.package_count
                         )
-                        validate_cones = yarn_purchase_entry_detail_heavy.cones_left + yarn_weaving_dispatch_detail_value.detail_aux.guide_cone_count - detail.cone_count
+                        validate_cones = (
+                            yarn_purchase_entry_detail_heavy.cones_left
+                            + yarn_weaving_dispatch_detail_value.detail_aux.guide_cone_count
+                            - detail.cone_count
+                        )
 
                         break
 
             else:
                 validate_package = (
-                    yarn_purchase_entry_detail_heavy.packages_left - detail.package_count
+                    yarn_purchase_entry_detail_heavy.packages_left
+                    - detail.package_count
                 )
                 validate_cones = (
                     yarn_purchase_entry_detail_heavy.cones_left - detail.cone_count

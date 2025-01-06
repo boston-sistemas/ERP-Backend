@@ -40,8 +40,10 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
             return self.movement_detail.product_code
         return None
 
+
 class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
     yarn_purchase_entries_detail_heavy: list[YarnPurchaseEntryDetailHeavySchema]
+
 
 class YarnPurchaseEntryDetailHeavyCreateSchema(CustomBaseModel):
     group_number: int | None = Field(default=0, ge=1)

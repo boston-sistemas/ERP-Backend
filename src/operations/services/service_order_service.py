@@ -6,19 +6,19 @@ from src.core.repository import BaseRepository
 from src.core.result import Result, Success
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
-    SERVICE_CODE_SUPPLIER_WEAVING,
-    UNSTARTED_SERVICE_ORDER_ID,
-    STARTED_SERVICE_ORDER_ID,
-    FINISHED_SERVICE_ORDER_ID,
     CANCELLED_SERVICE_ORDER_ID,
     CATEGORY_SERVICE_ORDER_ID,
+    FINISHED_SERVICE_ORDER_ID,
+    SERVICE_CODE_SUPPLIER_WEAVING,
+    STARTED_SERVICE_ORDER_ID,
+    UNSTARTED_SERVICE_ORDER_ID,
 )
 from src.operations.failures import (
     SERVICE_ORDER_ALREADY_ANULLED_FAILURE,
     SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE,
     SERVICE_ORDER_NOT_FOUND_FAILURE,
-    SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE,
     SERVICE_ORDER_STATUS_NOT_VALID_FAILURE,
+    SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE,
 )
 from src.operations.models import (
     ServiceOrder,
@@ -34,8 +34,9 @@ from src.operations.schemas import (
 )
 from src.security.services import ParameterService
 
-from .supplier_service import SupplierService
 from .fabric_service import FabricService
+from .supplier_service import SupplierService
+
 
 class ServiceOrderService:
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -172,7 +173,6 @@ class ServiceOrderService:
         self,
         data: ServiceOrderUpdateSchema,
     ) -> Result[None, CustomException]:
-
         status = await self.parameter_service.read_parameter(
             parameter_id=data.status_param_id
         )
@@ -364,9 +364,7 @@ class ServiceOrderService:
         if validation_result.is_failure:
             return validation_result
 
-        validation_result = await self._validate_service_order_data_update(
-            data=form
-        )
+        validation_result = await self._validate_service_order_data_update(data=form)
         if validation_result.is_failure:
             return validation_result
 
@@ -417,7 +415,10 @@ class ServiceOrderService:
                 count_unsupplied += 1
                 break
 
-            if detail.status_param_id != FINISHED_SERVICE_ORDER_ID or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID:
+            if (
+                detail.status_param_id != FINISHED_SERVICE_ORDER_ID
+                or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID
+            ):
                 count_unsupplied += 1
 
         if count_unsupplied > 0:
@@ -514,7 +515,10 @@ class ServiceOrderService:
                 if detail.quantity_supplied >= detail.quantity_ordered:
                     detail.status_param_id = FINISHED_SERVICE_ORDER_ID
 
-            if detail.status_param_id == FINISHED_SERVICE_ORDER_ID or detail.status_param_id == CANCELLED_SERVICE_ORDER_ID:
+            if (
+                detail.status_param_id == FINISHED_SERVICE_ORDER_ID
+                or detail.status_param_id == CANCELLED_SERVICE_ORDER_ID
+            ):
                 count_unsupplied += 1
 
         if count_unsupplied == detail_amount:
@@ -551,7 +555,10 @@ class ServiceOrderService:
                 if detail.quantity_supplied < detail.quantity_ordered:
                     detail.status_param_id = STARTED_SERVICE_ORDER_ID
 
-            if detail.status_param_id != FINISHED_SERVICE_ORDER_ID or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID:
+            if (
+                detail.status_param_id != FINISHED_SERVICE_ORDER_ID
+                or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID
+            ):
                 count_unsupplied += 1
 
         if count_unsupplied > 0:

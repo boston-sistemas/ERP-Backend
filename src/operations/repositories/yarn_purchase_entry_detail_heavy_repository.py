@@ -88,9 +88,8 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
         if include_detail_entry:
             joins.append(MovementYarnOCHeavy.movement_detail)
 
-        base_filter = (
-            (MovementYarnOCHeavy.company_code == MECSA_COMPANY_CODE)
-            & (MovementYarnOCHeavy.dispatch_status == False)
+        base_filter = (MovementYarnOCHeavy.company_code == MECSA_COMPANY_CODE) & (
+            MovementYarnOCHeavy.dispatch_status == False
         )
 
         options.append(load_only(*self.get_yarn_purchase_entry_detail_heavy_fields()))

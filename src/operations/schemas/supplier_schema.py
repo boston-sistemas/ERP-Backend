@@ -4,8 +4,9 @@ from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 
-from .supplier_service_schema import SupplierServiceSchema
 from .supplier_color_schema import SupplierColorSchema
+from .supplier_service_schema import SupplierServiceSchema
+
 
 class SupplierBase(CustomBaseModel):
     code: str | None

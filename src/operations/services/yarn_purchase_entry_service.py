@@ -41,7 +41,6 @@ from src.operations.schemas import (
     YarnPurchaseEntryDetailUpdateSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
-    YarnPurchaseEntryDetailHeavyListSchema
 )
 from src.operations.sequences import mecsa_batch_sq
 
@@ -49,8 +48,10 @@ from .movement_service import MovementService
 from .orden_compra_service import OrdenCompraService
 from .series_service import YarnPurchaseEntrySeries
 from .supplier_service import SupplierService
+from .yarn_purchase_entry_detail_heavy_service import (
+    YarnPurchaseEntryDetailHeavyService,
+)
 from .yarn_service import YarnService
-from .yarn_purchase_entry_detail_heavy_service import YarnPurchaseEntryDetailHeavyService
 
 
 class YarnPurchaseEntryService(MovementService):
@@ -77,8 +78,8 @@ class YarnPurchaseEntryService(MovementService):
         self.yarn_purchase_entry_detail_heavy_repository = BaseRepository(
             model=MovementYarnOCHeavy, db=promec_db
         )
-        self.yarn_purchase_entry_detail_heavy_service = YarnPurchaseEntryDetailHeavyService(
-            promec_db=promec_db
+        self.yarn_purchase_entry_detail_heavy_service = (
+            YarnPurchaseEntryDetailHeavyService(promec_db=promec_db)
         )
 
     async def _read_yarn_purchase_entry(
@@ -945,11 +946,8 @@ class YarnPurchaseEntryService(MovementService):
         self,
         period: int,
     ) -> Result[None, CustomException]:
-
-        yarn_purchase_entries_item_group_availability = (
-            await self.yarn_purchase_entry_detail_heavy_service.find_yarn_purchase_entries_item_group_availability(
-                period=period,
-            )
+        yarn_purchase_entries_item_group_availability = await self.yarn_purchase_entry_detail_heavy_service.find_yarn_purchase_entries_item_group_availability(
+            period=period,
         )
 
         if yarn_purchase_entries_item_group_availability.is_failure:

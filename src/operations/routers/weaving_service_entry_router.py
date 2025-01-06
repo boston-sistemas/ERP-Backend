@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_promec_db, get_db
+from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     WeavingServiceEntriesSimpleListSchema,
-    WeavingServiceEntrySchema,
     WeavingServiceEntryCreateSchema,
-    WeavingServiceEntryUpdateSchema,
+    WeavingServiceEntrySchema,
 )
 from src.operations.services import (
     WeavingServiceEntryService,
@@ -57,6 +56,7 @@ async def read_weaving_service_entry(
         return result.value
 
     raise result.error
+
 
 @router.post("/", response_model=WeavingServiceEntrySchema)
 async def create_weaving_service_entry(

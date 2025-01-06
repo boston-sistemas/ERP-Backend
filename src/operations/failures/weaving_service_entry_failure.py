@@ -1,6 +1,6 @@
 from src.core.exceptions import (
-    NotFoundException,
     ForbiddenException,
+    NotFoundException,
 )
 from src.core.result import Failure
 
@@ -17,9 +17,7 @@ WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_FAILURE = Failure(
 )
 
 WEAVING_SERVICE_ENTRY_SUPPLIER_WITHOUT_STORAGE_FAILURE = Failure(
-    ForbiddenException(
-        detail="El proveedor especificado no tiene almacen asociado."
-    )
+    ForbiddenException(detail="El proveedor especificado no tiene almacen asociado.")
 )
 
 WEAVING_SERVICE_ENTRY_FABRIC_NOT_FOUND_FAILURE = Failure(
@@ -29,9 +27,7 @@ WEAVING_SERVICE_ENTRY_FABRIC_NOT_FOUND_FAILURE = Failure(
 )
 
 WEAVING_SERVICE_ENTRY_FABRIC_RATE_MISSING_FAILURE = Failure(
-    ForbiddenException(
-        detail="El tejido especificado no tiene una tarifa asociada."
-    )
+    ForbiddenException(detail="El tejido especificado no tiene una tarifa asociada.")
 )
 
 WEAVING_SERVICE_ENTRY_FABRIC_TINTORERIA_RATE_MISSING_FAILURE = Failure(
@@ -41,9 +37,7 @@ WEAVING_SERVICE_ENTRY_FABRIC_TINTORERIA_RATE_MISSING_FAILURE = Failure(
 )
 
 WEAVING_SERVICE_ENTRY_SUPPLIER_COLOR_NOT_FOUND_FAILURE = Failure(
-    NotFoundException(
-        detail="El proveedor no tiene el color especificado."
-    )
+    NotFoundException(detail="El proveedor no tiene el color especificado.")
 )
 
 WEAVING_SERVICE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE = Failure(
