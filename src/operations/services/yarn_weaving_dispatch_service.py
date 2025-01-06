@@ -702,7 +702,7 @@ class YarnWeavingDispatchService(MovementService):
                 yarn_weaving_dispatch_detail_aux_value
             )
             yarn_purchase_entry = MovementYarnOCHeavy(
-                **detail._yarn_purchase_entry_heavy.dict()
+                **detail._yarn_purchase_entry_heavy.dict(exclude={"period"})
             )
             yarn_entry_detail = detail._yarn_purchase_entry_heavy.movement_detail
             yarn_purchase_entry.movement_detail = yarn_entry_detail
