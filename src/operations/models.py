@@ -112,6 +112,10 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
+    EMPQNRO2_MAX_LENGTH,
+    DISPATCH_MOVEMENT_TYPE,
+    DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
+    WEAVING_STORAGE_CODE
 )
 from src.security.models import Parameter
 
@@ -739,6 +743,7 @@ class Movement(PromecBase):
     flgtras: Mapped[bool] = mapped_column(
         "flgtras", default=False
     )  # //! Definir nombre representativo
+    empqnro2: Mapped[str] = mapped_column("empqnro2", String(length=EMPQNRO2_MAX_LENGTH))
     flgreclamo: Mapped[str] = mapped_column(
         "flgreclamo", String(length=FLGRECLAMO_MAX_LENGTH)
     )
@@ -833,6 +838,21 @@ class Movement(PromecBase):
             MovementDetail.document_code,
             MovementDetail.document_number,
             MovementDetail.period,
+        ],
+    )
+
+    detail_dyeing = relationship(
+        "FabricWarehouse",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Movement.company_code == FabricWarehouse.company_code,
+            Movement.document_number == FabricWarehouse.document_number,
+        ),
+        single_parent=True,
+        viewonly=True,
+        foreign_keys=lambda: [
+            FabricWarehouse.company_code,
+            FabricWarehouse.document_number,
         ],
     )
 
@@ -1346,6 +1366,29 @@ class FabricWarehouse(PromecBase):
     )
 
     idavctint: Mapped[str] = mapped_column(default="")
+
+    detail_card = relationship(
+        "MovementDetail",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            MovementDetail.company_code == FabricWarehouse.company_code,
+            MovementDetail.document_code == FabricWarehouse.document_code,
+            MovementDetail.document_number == FabricWarehouse.document_number,
+            MovementDetail.movement_type == DISPATCH_MOVEMENT_TYPE,
+            MovementDetail.movement_code == DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
+            MovementDetail.storage_code == WEAVING_STORAGE_CODE,
+        ),
+        single_parent=True,
+        viewonly=True,
+        foreign_keys=lambda: [
+            MovementDetail.company_code,
+            MovementDetail.document_code,
+            MovementDetail.document_number,
+            MovementDetail.movement_type,
+            MovementDetail.movement_code,
+            MovementDetail.storage_code,
+        ],
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "coddoc", "codprod", "nrodoc"),

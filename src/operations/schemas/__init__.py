@@ -138,6 +138,13 @@ from .yarn_weaving_dispatch_schema import (
     YarnWeavingDispatchUpdateSchema,
 )
 
+from .dyeing_service_dispatch_schema import (
+    DyeingServiceDispatchSchema,
+    DyeingServiceDispatchesListSchema,
+    DyeingServiceDispatchCreateSchema,
+    DyeingServiceDispatchUpdateSchema,
+)
+
 __all__ = [
     "FabricCreateSchema",
     "FabricListSchema",
@@ -232,4 +239,8 @@ __all__ = [
     "WeavingServiceEntryDetailCreateSchema",
     "WeavingServiceEntryDetailUpdateSchema",
     "YarnPurchaseEntryDetailHeavyListSchema",
+    "DyeingServiceDispatchSchema",
+    "DyeingServiceDispatchesListSchema",
+    "DyeingServiceDispatchCreateSchema",
+    "DyeingServiceDispatchUpdateSchema",
 ]

@@ -81,7 +81,7 @@ class WeavingServiceEntryRepository(MovementRepository):
 
     async def find_weaving_service_entry_by_entry_number(
         self,
-        entry_number: int,
+        entry_number: str,
         period: int,
         filter: BinaryExpression = None,
         include_detail_card: bool = True,

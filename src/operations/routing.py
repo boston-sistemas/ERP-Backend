@@ -15,6 +15,7 @@ from .routers import (
     yarn_purchase_entry_router,
     yarn_router,
     yarn_weaving_dispatch_router,
+    dyeing_service_dispatch_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]
@@ -71,4 +72,9 @@ router.include_router(
     router=fabric_router.router,
     prefix="/fabrics",
     tags=["[AREA OPERACIONES] GESTION DE TEJIDOS"],
+)
+router.include_router(
+    router=dyeing_service_dispatch_router.router,
+    prefix="/dyeing-service-dispatches",
+    tags=["[AREA OPERACIONES] GESTION DE SALIDA DE TINTORERIA"],
 )
