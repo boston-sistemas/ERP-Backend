@@ -1652,7 +1652,7 @@ class InventoryItem(PromecBase):
     )
     id: Mapped[str] = mapped_column("CodProd", primary_key=True)
     family_id: Mapped[str] = mapped_column("CodFam")
-    subfamily_id: Mapped[str] = mapped_column("SubFam")
+    subfamily_id: Mapped[str] = mapped_column("SubFam", default="")
     base_unit_code: Mapped[str] = mapped_column("UndMed")
     inventory_unit_code: Mapped[str] = mapped_column("CodUnd")
     purchase_unit_code: Mapped[str] = mapped_column("UndCmp")
@@ -1710,6 +1710,7 @@ class InventoryItem(PromecBase):
             FabricYarn.company_code,
             FabricYarn.fabric_id,
         ],
+        viewonly=True, # This is required when assigning old recipes.
     )
 
     __table_args__ = ({"schema": "PUB"},)
@@ -1802,6 +1803,7 @@ class FabricYarn(PromecBase):
     )
     fabric_id: Mapped[str] = mapped_column("CodTej", primary_key=True)
     yarn_id: Mapped[str] = mapped_column("CodProd", primary_key=True)
+    color_id: Mapped[str] = mapped_column("CodCol", primary_key=True, default="")
     proportion: Mapped[float] = mapped_column("PorHil")
 
     num_plies: Mapped[int] = mapped_column("nro_cabos", default=1)

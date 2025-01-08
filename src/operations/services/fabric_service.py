@@ -1,3 +1,4 @@
+from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
@@ -466,7 +467,7 @@ class FabricService:
             recipe_items = [item for item in fabric.fabric_recipe]
             fabric.fabric_recipe = []  # Ensures delete operations are executed before saving the new recipe
 
-            await self.recipe_repository.delete_all(recipe_items, flush=False)
+            await self.recipe_repository.delete_all(recipe_items, flush=True)
             await self.recipe_repository.save_all(
                 FabricYarn(fabric_id=fabric.id, **item.model_dump())
                 for item in form.recipe
@@ -537,3 +538,41 @@ class FabricService:
         ).value.fabrics
 
         return Success({fabric.id: fabric for fabric in fabrics})
+
+    async def _assign_old_recipe_to_fabrics(
+        self, fabrics: list[InventoryItem], include_yarn_instance: bool = False
+    ) -> None:
+        if not fabrics:
+            return None
+
+        ids = {
+            (fabric.subfamily_id + fabric.field1, fabric.field3)
+            for fabric in fabrics
+            if fabric.subfamily_id
+            and fabric.field1
+            and not fabric.id.isdigit()
+        }
+        if not ids:
+            return None
+
+        items = await self.recipe_repository.find_all(
+            filter=or_(
+                and_(FabricYarn.fabric_id == fabric_id, FabricYarn.color_id == color_id)
+                for fabric_id, color_id in ids
+            )
+        )
+        recipe_mapping = {id: [] for id in ids}
+        for item in items:
+            key = (item.fabric_id, item.color_id)
+            if key in recipe_mapping:
+                recipe_mapping[key].append(item)
+
+        for fabric in fabrics:
+            if fabric.subfamily_id and fabric.field1 and not fabric.id.isdigit():
+                key = (fabric.subfamily_id + fabric.field1, fabric.field3)
+                fabric.fabric_recipe = recipe_mapping.get(key, [])
+
+        if include_yarn_instance:
+            await self._include_yarn_instance_to_recipes(fabrics=fabrics)
+
+        return None
