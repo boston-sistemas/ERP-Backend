@@ -309,13 +309,22 @@ class FabricService:
             include_simple_recipe=_include_recipe,
             exclude_legacy=exclude_legacy,
         )
+        purchase_description_mapping = {
+            fabric.id: fabric.purchase_description for fabric in fabrics
+        }
+
         if include_fabric_type:
             await self._assign_fabric_type_to_fabrics(fabrics)
 
-        if include_recipe:
+        if exclude_legacy and include_recipe:
             await self._assign_recipe_to_fabrics(
                 fabrics=fabrics, include_yarn_instance=include_yarn_instance_to_recipe
             )
+        elif not exclude_legacy and include_recipe:
+            await self._include_yarn_instance_to_recipes(fabrics=fabrics)
+
+        for fabric in fabrics:
+            fabric.purchase_description = purchase_description_mapping[fabric.id]
 
         return Success(FabricListSchema(fabrics=fabrics))
 
@@ -494,12 +503,18 @@ class FabricService:
             include_color=include_color,
             include_simple_recipe=include_recipe,
         )
+        purchase_description_mapping = {
+            fabric.id: fabric.purchase_description for fabric in fabrics
+        }
 
         if include_fabric_type:
             await self._assign_fabric_type_to_fabrics(fabrics)
 
         if include_yarn_instance_to_recipe:
             await self._include_yarn_instance_to_recipes(fabrics=fabrics)
+
+        for fabric in fabrics:
+            fabric.purchase_description = purchase_description_mapping[fabric.id]
 
         return Success(FabricListSchema(fabrics=fabrics))
 

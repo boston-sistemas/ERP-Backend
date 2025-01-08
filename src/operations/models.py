@@ -51,6 +51,7 @@ from src.operations.constants import (
     HASHCODE_MAX_LENGTH,
     INGRESS_NUMBER_MAX_LENGTH,
     INITIALS_MAX_LENGTH,
+    INVENTORY_ITEM_PURCHASE_DESCRIPTION_MAX_LENGTH,
     MAX_LENGTH_COLOR_DESCRIPCION,
     MAX_LENGTH_COLOR_NOMBRE,
     MAX_LENGTH_CRUDO_ID,
@@ -1655,11 +1656,19 @@ class InventoryItem(PromecBase):
     base_unit_code: Mapped[str] = mapped_column("UndMed")
     inventory_unit_code: Mapped[str] = mapped_column("CodUnd")
     purchase_unit_code: Mapped[str] = mapped_column("UndCmp")
-    description: Mapped[str] = mapped_column("DesProd")
-    purchase_description: Mapped[str] = mapped_column("DesCompra")
     is_active: Mapped[str] = mapped_column("Condicion", default=ACTIVE_STATUS_PROMEC)
     barcode: Mapped[int] = mapped_column("CodBarras", default=0)
     order_: Mapped[str] = mapped_column("Orden", default="A")
+
+    description: Mapped[str] = mapped_column("DesProd")
+    purchase_description_: Mapped[str] = mapped_column("DesCompra")
+    purchase_description: Mapped[str] = column_property(
+        func.substr(
+            purchase_description_,
+            literal_column("1"),
+            literal_column(str(INVENTORY_ITEM_PURCHASE_DESCRIPTION_MAX_LENGTH)),
+        )
+    )
 
     field1: Mapped[str] = mapped_column("Estruct1", default="", nullable=True)
     field2: Mapped[str] = mapped_column("Estruct2", default="", nullable=True)
