@@ -4,10 +4,14 @@ from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 
-from .dyeing_service_dispatch_detail_card_schema import (
-    DyeingServiceDispatchDetailCardCreateSchema,
-    DyeingServiceDispatchDetailCardSchema,
-    DyeingServiceDispatchDetailCardUpdateSchema,
+from .card_operation_schema import (
+    CardOperationSchema,
+)
+
+from src.operations.models import CardOperation
+
+from src.operations.constants import (
+    CARD_ID_MAX_LENGTH,
 )
 
 class DyeingServiceDispatchDetailBase(CustomBaseModel):
@@ -25,13 +29,18 @@ class DyeingServiceDispatchDetailBase(CustomBaseModel):
         from_attributes = True
 
 class DyeingServiceDispatchDetailSchema(DyeingServiceDispatchDetailBase):
-    detail_card: list[DyeingServiceDispatchDetailCardSchema] | None = []
+    tint_color_id: str | None = Field(exclude=True)
+    meters_count: float | None = None
+    detail_card: list[CardOperationSchema] | None = []
 
 class DyeingServiceDispatchDetailsListSchema(CustomBaseModel):
     pass
 
 class DyeingServiceDispatchDetailCreateSchema(CustomBaseModel):
-    pass
+    card_id: str = Field(max_length=CARD_ID_MAX_LENGTH)
+    _card_operation: CardOperation
 
-class DyeingServiceDispatchDetailUpdateSchema(CustomBaseModel):
+class DyeingServiceDispatchDetailUpdateSchema(
+    DyeingServiceDispatchDetailCreateSchema
+):
     pass

@@ -1145,6 +1145,7 @@ class MovementDetail(PromecBase):
             f"    ctomn2={self.ctomn2},\n"
             f"    status_flag={self.status_flag},\n"
             f"    is_weighted={self.is_weighted}\n"
+            f"    nrotarj={self.nrotarj},\n"
             f")>"
         )
 
@@ -1368,25 +1369,19 @@ class FabricWarehouse(PromecBase):
     idavctint: Mapped[str] = mapped_column(default="")
 
     detail_card = relationship(
-        "MovementDetail",
+        "CardOperation",
         lazy="noload",
         primaryjoin=lambda: and_(
-            MovementDetail.company_code == FabricWarehouse.company_code,
-            MovementDetail.document_code == FabricWarehouse.document_code,
-            MovementDetail.document_number == FabricWarehouse.document_number,
-            MovementDetail.movement_type == DISPATCH_MOVEMENT_TYPE,
-            MovementDetail.movement_code == DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
-            MovementDetail.storage_code == WEAVING_STORAGE_CODE,
+            FabricWarehouse.company_code == CardOperation.company_code,
+            func.concat(
+                FabricWarehouse.document_code, FabricWarehouse.document_number
+            ) == CardOperation.exit_number,
         ),
         single_parent=True,
         viewonly=True,
         foreign_keys=lambda: [
-            MovementDetail.company_code,
-            MovementDetail.document_code,
-            MovementDetail.document_number,
-            MovementDetail.movement_type,
-            MovementDetail.movement_code,
-            MovementDetail.storage_code,
+            CardOperation.company_code,
+            CardOperation.document_number,
         ],
     )
 

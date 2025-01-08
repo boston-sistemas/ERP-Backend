@@ -22,6 +22,7 @@ from src.operations.constants import (
     WEAVING_SERVICE_ENTRY_MOVEMENT_CODE,
     WEAVING_STORAGE_CODE,
     YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
+    SERVICE_CODE_SUPPLIER_DYEING,
 )
 from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_ALREADY_ACCOUNTED_FAILURE,
@@ -37,6 +38,7 @@ from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_SUPPLIER_COLOR_NOT_FOUND_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_WITHOUT_STORAGE_FAILURE,
+    WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE,
 )
 from src.operations.models import (
     CardOperation,
@@ -382,6 +384,12 @@ class WeavingServiceEntryService(MovementService):
                     if validation_result.is_failure:
                         return validation_result
 
+                    services_tint = [
+                        service.service_code for service in validation_result.value.services
+                    ]
+
+                    if SERVICE_CODE_SUPPLIER_DYEING not in services_tint:
+                        return WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE
                     supplier_colors_ids = [
                         color.id for color in validation_result.value.colors
                     ]
@@ -1054,7 +1062,6 @@ class WeavingServiceEntryService(MovementService):
                 fabric_id = detail.fabric_id
                 if detail._fabric.color:
                     color = detail._fabric.color.id
-                    fabric_id = fabric_id[0:3] + str(round(detail._fabric.density))
 
                 meters_count = (
                     guide_net_weight
@@ -1212,7 +1219,6 @@ class WeavingServiceEntryService(MovementService):
                 fabric_id = detail.fabric_id
                 if detail._fabric.color:
                     color = detail._fabric.color.id
-                    fabric_id = fabric_id[0:3] + str(round(detail._fabric.density))
 
                 meters_count = (
                     detail.guide_net_weight

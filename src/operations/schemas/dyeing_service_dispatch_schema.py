@@ -10,6 +10,13 @@ from .dyeing_service_dispatch_detail_schema import (
     DyeingServiceDispatchDetailUpdateSchema,
 )
 
+from src.operations.constants import (
+    SUPPLIER_CODE_MAX_LENGTH,
+    NRODIR_MAX_LENGTH,
+    SUPPLIER_COLOR_ID_MAX_LENGTH,
+    DOCUMENT_NOTE_MAX_LENGTH,
+)
+
 class DyeingServiceDispatchBase(CustomBaseModel):
 
     dispatch_number: str | None = Field(default=None, validation_alias="document_number")
@@ -36,7 +43,18 @@ class DyeingServiceDispatchesListSchema(CustomBaseModel):
     dyeing_service_dispatches: list[DyeingServiceDispatchSchema] = []
 
 class DyeingServiceDispatchCreateSchema(CustomBaseModel):
-    pass
+    supplier_id: str = Field(max_length=SUPPLIER_CODE_MAX_LENGTH)
+    nrodir: str | None = Field(default="000", max_length=NRODIR_MAX_LENGTH)
+    period: int
+    tint_supplier_color_id: str = Field(max_length=SUPPLIER_COLOR_ID_MAX_LENGTH)
+    document_note: str | None = Field(default=None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
+
+    detail: list[DyeingServiceDispatchDetailCreateSchema] = []
 
 class DyeingServiceDispatchUpdateSchema(CustomBaseModel):
-    pass
+    supplier_id: str = Field(max_length=SUPPLIER_CODE_MAX_LENGTH)
+    nrodir: str | None = Field(default="000", max_length=NRODIR_MAX_LENGTH)
+    tint_supplier_color_id: str = Field(max_length=SUPPLIER_COLOR_ID_MAX_LENGTH)
+    document_note: str | None = Field(default=None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
+
+    detail: list[DyeingServiceDispatchDetailUpdateSchema] = []

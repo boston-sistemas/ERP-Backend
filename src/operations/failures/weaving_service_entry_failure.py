@@ -93,3 +93,9 @@ WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_SUPPLIED_FABRIC_YARNS_FAILURE = Failure(
         detail="La orden de servicio de tejeduría asciada no tiene hilados asociados para el tejido indicado."
     )
 )
+
+WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE = Failure(
+    ForbiddenException(
+        detail="El proveedor especificado no es del servicio de tintorería."
+    )
+)

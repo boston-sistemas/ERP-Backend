@@ -17,7 +17,8 @@ class CardOperationBase(CustomBaseModel):
     tint_color_id: str | None
     yarn_supplier_id: str | None
     card_type: str | None
-    status_flag: str | None
+    product_id: str | None
+    status_flag: str | None = None
 
     class Config:
         from_attributes = True
@@ -28,7 +29,8 @@ class CardOperationSimpleSchema(CardOperationBase):
 
 
 class CardOperationSchema(CardOperationSimpleSchema):
-    pass
+    document_number: str | None = None
+    exit_number: str | None = None
 
 
 class CardOperationCreateSchema(CustomBaseModel):

@@ -1,6 +1,6 @@
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, load_only
+from sqlalchemy.orm import joinedload, load_only, with_loader_criteria
 from sqlalchemy.orm.strategy_options import Load
 
 from src.operations.constants import (
@@ -38,6 +38,9 @@ class DyeingServiceDispatchRepository(MovementRepository):
             Movement.empqnro2,
             Movement.nrodir2,
             Movement.status_flag,
+            Movement.flgcbd,
+            Movement.reference_number1,
+            Movement.reference_number2,
         )
 
     @staticmethod
@@ -51,6 +54,8 @@ class DyeingServiceDispatchRepository(MovementRepository):
                 FabricWarehouse.roll_count,
                 FabricWarehouse.product_id,
                 FabricWarehouse.mecsa_weight,
+                FabricWarehouse.tint_color_id,
+                FabricWarehouse.meters_count,
             )
         )
 
@@ -58,6 +63,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
 
     def get_load_options(
         self,
+        period: int,
         include_detail: bool = False,
         include_detail_card: bool = False,
     ) -> list[Load]:
@@ -73,6 +79,11 @@ class DyeingServiceDispatchRepository(MovementRepository):
                 options.append(
                     joinedload(Movement.detail_dyeing).joinedload(FabricWarehouse.detail_card)
                 )
+                # options.append(
+                #     with_loader_criteria(
+                #         MovementDetail, MovementDetail.period == period
+                #     )
+                # )
 
         return options
 
@@ -101,7 +112,8 @@ class DyeingServiceDispatchRepository(MovementRepository):
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options(
             include_detail=include_detail,
-            include_detail_card=include_detail_card
+            include_detail_card=include_detail_card,
+            period=period
         )
 
         dyeing_service_dispatches = await self.find_movements(
@@ -133,7 +145,8 @@ class DyeingServiceDispatchRepository(MovementRepository):
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options(
             include_detail=include_detail,
-            include_detail_card=include_detail_card
+            include_detail_card=include_detail_card,
+            period=period
         )
 
         dyeing_service_dispatch = await self.find_movement_by_document_number(
@@ -143,3 +156,32 @@ class DyeingServiceDispatchRepository(MovementRepository):
         )
 
         return dyeing_service_dispatch if dyeing_service_dispatch is not None else None
+
+    async def find_dyeing_service_dispatch_details_by_dispatch_number(
+        self,
+        dispatch_number: str,
+        period: int,
+        filter: BinaryExpression = None,
+        limit: int = None,
+        offset: int = None,
+    ) -> list[MovementDetail]:
+        base_filter = (
+            (MovementDetail.storage_code == WEAVING_STORAGE_CODE)
+            & (MovementDetail.movement_type == DISPATCH_MOVEMENT_TYPE)
+            & (MovementDetail.movement_code == DYEING_SERVICE_DISPATCH_MOVEMENT_CODE)
+            & (MovementDetail.document_code == DYEING_SERVICE_DISPATCH_DOCUMENT_CODE)
+            & (MovementDetail.period == period)
+            & (MovementDetail.document_number == dispatch_number)
+        )
+
+        filter = base_filter & filter if filter is not None else base_filter
+
+        dyeing_service_dispatch_details = await self.find_movements_detail(
+            filter=filter,
+            limit=limit,
+            offset=offset,
+            order_by=[MovementDetail.item_number.asc()],
+            apply_unique=True
+        )
+
+        return dyeing_service_dispatch_details

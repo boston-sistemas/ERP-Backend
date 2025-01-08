@@ -57,3 +57,91 @@ async def read_dyeing_service_dispatch(
         return result.value
 
     raise result.error
+
+@router.post("/", response_model=DyeingServiceDispatchSchema)
+async def create_dyeing_service_dispatch(
+    form: DyeingServiceDispatchCreateSchema,
+    promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
+):
+    service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
+    result = await service.create_dyeing_service_dispatch(
+        form=form
+    )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+@router.patch(
+    "/{dyeing_service_dispatch_number}", response_model=DyeingServiceDispatchSchema
+)
+async def update_dyeing_service_dispatch(
+    dyeing_service_dispatch_number: str,
+    form: DyeingServiceDispatchUpdateSchema,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
+):
+    service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
+    result = await service.update_dyeing_service_dispatch(
+        dyeing_service_dispatch_number=dyeing_service_dispatch_number,
+        period=period,
+        form=form
+    )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+@router.put("/{dyeing_service_dispatch_number}/anulate")
+async def anulate_dyeing_service_dispatch(
+    dyeing_service_dispatch_number: str,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
+):
+    service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
+    result = await service.anulate_dyeing_service_dispatch(
+        dyeing_service_dispatch_number=dyeing_service_dispatch_number,
+        period=period
+    )
+
+    if result.is_success:
+        return {
+            "message": "La salida al servicio de tintorería ha sido anulada exitosamente."
+        }
+
+    raise result.error
+
+@router.get("/{dyeing_service_dispatch_number}/is-updatable")
+async def check_dyeing_service_dispatch_is_updatable(
+    dyeing_service_dispatch_number: str,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
+):
+    service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
+    result = await service.is_updated_permission(
+        dyeing_service_dispatch_number=dyeing_service_dispatch_number,
+        period=period
+    )
+
+    if result.is_success:
+        return {
+            "updatable": True,
+            "message": "La salida al servicio de tintorería puede ser actualizada."
+        }
+
+    return {
+        "updatable": False,
+        "message": result.error.detail
+    }

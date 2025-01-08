@@ -1,6 +1,7 @@
 from .card_operation_schema import (
     CardOperationCreateSchema,
     CardOperationUpdateSchema,
+    CardOperationSchema,
 )
 from .fabric_schema import (
     FabricCreateSchema,
@@ -145,6 +146,11 @@ from .dyeing_service_dispatch_schema import (
     DyeingServiceDispatchUpdateSchema,
 )
 
+from .dyeing_service_dispatch_detail_schema import (
+    DyeingServiceDispatchDetailCreateSchema,
+)
+
+
 __all__ = [
     "FabricCreateSchema",
     "FabricListSchema",
@@ -243,4 +249,6 @@ __all__ = [
     "DyeingServiceDispatchesListSchema",
     "DyeingServiceDispatchCreateSchema",
     "DyeingServiceDispatchUpdateSchema",
+    "DyeingServiceDispatchDetailCreateSchema",
+    "CardOperationSchema",
 ]

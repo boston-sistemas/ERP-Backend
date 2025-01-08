@@ -32,6 +32,7 @@ from .yarn_recipe_repository import YarnRecipeRepository
 from .yarn_repository import YarnRepository
 from .yarn_weaving_dispatch_repository import YarnWeavingDispatchRepository
 from .dyeing_service_dispatch_repository import DyeingServiceDispatchRepository
+from .card_operation_repository import CardOperationRepository
 
 __all__ = [
     "FabricRepository",
@@ -62,4 +63,5 @@ __all__ = [
     "ServiceOrderRepository",
     "WeavingServiceEntryRepository",
     "DyeingServiceDispatchRepository",
+    "CardOperationRepository",
 ]

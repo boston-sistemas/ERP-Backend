@@ -90,16 +90,15 @@ class MovementSeries(SeriesHelper, document_code="", service_number=0):
 
 class EntrySeries(
     MovementSeries,
-    name="Ingreso hilado a almacén proveedor",
+    name="Ingreso a almacén proveedor",
     document_code="P/I",
     service_number=1,
 ):
     pass
 
-
 class DispatchSeries(
     MovementSeries,
-    name="Salida de hilado a tejeduría",
+    name="Salida a tejeduría",
     document_code="P/S",
     service_number=1,
 ):
@@ -126,6 +125,16 @@ class YarnWeavingDispatchSeries(
 
         return "T" + result
 
+class DyeingServiceDispatchSeries(
+    MovementSeries,
+    name="Salida de tejido a tintorería",
+    document_code="G/R",
+    service_number=104,
+):
+    async def next_number(self) -> str:
+        result = await super().next_number()
+
+        return "T" + result
 
 class WeavingServiceEntrySeries(
     MovementSeries,

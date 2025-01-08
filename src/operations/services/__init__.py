@@ -28,6 +28,7 @@ from .yarn_purchase_entry_service import YarnPurchaseEntryService
 from .yarn_service import YarnService
 from .yarn_weaving_dispatch_service import YarnWeavingDispatchService
 from .dyeing_service_dispatch_service import DyeingServiceDispatchService
+from .card_operation_service import CardOperationService
 
 __all__ = [
     "FabricService",
@@ -56,4 +57,5 @@ __all__ = [
     "ServiceOrderService",
     "WeavingServiceEntryService",
     "DyeingServiceDispatchService",
+    "CardOperationService",
 ]
