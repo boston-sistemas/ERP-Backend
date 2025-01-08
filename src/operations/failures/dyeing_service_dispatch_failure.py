@@ -17,15 +17,11 @@ DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_FAILURE = Failure(
 )
 
 DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_STORAGE_FAILURE = Failure(
-    ForbiddenException(
-        detail="El proveedor especificado no tiene almacen asociado."
-    )
+    ForbiddenException(detail="El proveedor especificado no tiene almacen asociado.")
 )
 
 DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_ADDRESS_FAILURE = Failure(
-    ForbiddenException(
-        detail="El proveedor especificado no tiene dirección asociada."
-    )
+    ForbiddenException(detail="El proveedor especificado no tiene dirección asociada.")
 )
 
 DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_COLOR_ID_FAILURE = Failure(
@@ -41,9 +37,7 @@ DYEING_SERVICE_DISPATCH_CARD_OPERATION_ALREADY_ASSOCIATED_FAILURE = Failure(
 )
 
 DYEING_SERVICE_DISPATCH_CARD_OPERATION_ANULLED_FAILURE = Failure(
-    ForbiddenException(
-        detail="La tarjeta especificada ha sido anulada."
-    )
+    ForbiddenException(detail="La tarjeta especificada ha sido anulada.")
 )
 
 DYEING_SERVICE_DISPATCH_CARD_OPERATION_NOT_ASSOCIATED_SUPPLIER_FAILURE = Failure(

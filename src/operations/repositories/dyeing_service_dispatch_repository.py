@@ -1,13 +1,13 @@
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, load_only, with_loader_criteria
+from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
 
 from src.operations.constants import (
-    WEAVING_STORAGE_CODE,
     DISPATCH_MOVEMENT_TYPE,
-    DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
     DYEING_SERVICE_DISPATCH_DOCUMENT_CODE,
+    DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
+    WEAVING_STORAGE_CODE,
 )
 from src.operations.models import (
     FabricWarehouse,
@@ -16,6 +16,7 @@ from src.operations.models import (
 )
 
 from .movement_repository import MovementRepository
+
 
 class DyeingServiceDispatchRepository(MovementRepository):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
@@ -48,8 +49,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
         base_options = []
 
         base_options.append(
-            joinedload(Movement.detail_dyeing)
-            .load_only(
+            joinedload(Movement.detail_dyeing).load_only(
                 FabricWarehouse.guide_net_weight,
                 FabricWarehouse.roll_count,
                 FabricWarehouse.product_id,
@@ -71,13 +71,13 @@ class DyeingServiceDispatchRepository(MovementRepository):
         options.append(load_only(*self.get_dyeing_service_dispatch_fields()))
 
         if include_detail:
-            options.extend(self.include_detail(
-                include_detail_card=include_detail_card
-            ))
+            options.extend(self.include_detail(include_detail_card=include_detail_card))
 
             if include_detail_card:
                 options.append(
-                    joinedload(Movement.detail_dyeing).joinedload(FabricWarehouse.detail_card)
+                    joinedload(Movement.detail_dyeing).joinedload(
+                        FabricWarehouse.detail_card
+                    )
                 )
                 # options.append(
                 #     with_loader_criteria(
@@ -97,7 +97,6 @@ class DyeingServiceDispatchRepository(MovementRepository):
         offset: int = None,
         filter: BinaryExpression = None,
     ) -> Movement:
-
         base_filter = (
             (Movement.storage_code == WEAVING_STORAGE_CODE)
             & (Movement.movement_type == DISPATCH_MOVEMENT_TYPE)
@@ -113,7 +112,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
         options = self.get_load_options(
             include_detail=include_detail,
             include_detail_card=include_detail_card,
-            period=period
+            period=period,
         )
 
         dyeing_service_dispatches = await self.find_movements(
@@ -121,7 +120,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
             options=options,
             limit=limit,
             offset=offset,
-            order_by=[Movement.document_number.desc()]
+            order_by=[Movement.document_number.desc()],
         )
 
         return dyeing_service_dispatches
@@ -146,7 +145,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
         options = self.get_load_options(
             include_detail=include_detail,
             include_detail_card=include_detail_card,
-            period=period
+            period=period,
         )
 
         dyeing_service_dispatch = await self.find_movement_by_document_number(
@@ -181,7 +180,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
             limit=limit,
             offset=offset,
             order_by=[MovementDetail.item_number.asc()],
-            apply_unique=True
+            apply_unique=True,
         )
 
         return dyeing_service_dispatch_details

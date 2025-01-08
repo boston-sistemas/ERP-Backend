@@ -11,6 +11,7 @@ from src.operations.constants import (
     SUPPLIER_CODE_MAX_LENGTH,
     SUPPLIER_COLOR_ID_MAX_LENGTH,
 )
+from src.operations.models import ServiceOrderStock
 
 from .card_operation_schema import (
     CardOperationSchema,
@@ -19,7 +20,6 @@ from .card_operation_schema import (
 from .fabric_schema import (
     FabricSchema,
 )
-from src.operations.models import ServiceOrderStock
 
 
 class WeavingServiceEntryDetailBase(CustomBaseModel):

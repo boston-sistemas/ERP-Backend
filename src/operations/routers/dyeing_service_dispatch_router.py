@@ -3,17 +3,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
-
 from src.operations.schemas import (
-    DyeingServiceDispatchSchema,
-    DyeingServiceDispatchesListSchema,
     DyeingServiceDispatchCreateSchema,
+    DyeingServiceDispatchesListSchema,
+    DyeingServiceDispatchSchema,
     DyeingServiceDispatchUpdateSchema,
 )
-
 from src.operations.services import DyeingServiceDispatchService
 
 router = APIRouter()
+
 
 @router.get("/", response_model=DyeingServiceDispatchesListSchema)
 async def read_dyeing_service_dispatches(
@@ -36,7 +35,10 @@ async def read_dyeing_service_dispatches(
 
     raise result.error
 
-@router.get("/{dyeing_service_dispatch_number}", response_model=DyeingServiceDispatchSchema)
+
+@router.get(
+    "/{dyeing_service_dispatch_number}", response_model=DyeingServiceDispatchSchema
+)
 async def read_dyeing_service_dispatch(
     dyeing_service_dispatch_number: str,
     period: int | None = Query(
@@ -58,6 +60,7 @@ async def read_dyeing_service_dispatch(
 
     raise result.error
 
+
 @router.post("/", response_model=DyeingServiceDispatchSchema)
 async def create_dyeing_service_dispatch(
     form: DyeingServiceDispatchCreateSchema,
@@ -65,14 +68,13 @@ async def create_dyeing_service_dispatch(
     db: AsyncSession = Depends(get_db),
 ):
     service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
-    result = await service.create_dyeing_service_dispatch(
-        form=form
-    )
+    result = await service.create_dyeing_service_dispatch(form=form)
 
     if result.is_success:
         return result.value
 
     raise result.error
+
 
 @router.patch(
     "/{dyeing_service_dispatch_number}", response_model=DyeingServiceDispatchSchema
@@ -90,13 +92,14 @@ async def update_dyeing_service_dispatch(
     result = await service.update_dyeing_service_dispatch(
         dyeing_service_dispatch_number=dyeing_service_dispatch_number,
         period=period,
-        form=form
+        form=form,
     )
 
     if result.is_success:
         return result.value
 
     raise result.error
+
 
 @router.put("/{dyeing_service_dispatch_number}/anulate")
 async def anulate_dyeing_service_dispatch(
@@ -109,8 +112,7 @@ async def anulate_dyeing_service_dispatch(
 ):
     service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
     result = await service.anulate_dyeing_service_dispatch(
-        dyeing_service_dispatch_number=dyeing_service_dispatch_number,
-        period=period
+        dyeing_service_dispatch_number=dyeing_service_dispatch_number, period=period
     )
 
     if result.is_success:
@@ -119,6 +121,7 @@ async def anulate_dyeing_service_dispatch(
         }
 
     raise result.error
+
 
 @router.get("/{dyeing_service_dispatch_number}/is-updatable")
 async def check_dyeing_service_dispatch_is_updatable(
@@ -131,17 +134,13 @@ async def check_dyeing_service_dispatch_is_updatable(
 ):
     service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
     result = await service.is_updated_permission(
-        dyeing_service_dispatch_number=dyeing_service_dispatch_number,
-        period=period
+        dyeing_service_dispatch_number=dyeing_service_dispatch_number, period=period
     )
 
     if result.is_success:
         return {
             "updatable": True,
-            "message": "La salida al servicio de tintorería puede ser actualizada."
+            "message": "La salida al servicio de tintorería puede ser actualizada.",
         }
 
-    return {
-        "updatable": False,
-        "message": result.error.detail
-    }
+    return {"updatable": False, "message": result.error.detail}

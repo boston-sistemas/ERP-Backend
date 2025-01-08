@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from .routers import (
+    dyeing_service_dispatch_router,
     fabric_router,
     fiber_router,
     mecsa_color_router,
@@ -15,7 +16,6 @@ from .routers import (
     yarn_purchase_entry_router,
     yarn_router,
     yarn_weaving_dispatch_router,
-    dyeing_service_dispatch_router,
 )
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]

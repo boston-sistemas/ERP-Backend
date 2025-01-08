@@ -1,72 +1,61 @@
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from sqlalchemy.orm import joinedload
+
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.exceptions import CustomException
-from src.core.repositories import SequenceRepository
-from src.core.repository import (
-    BaseRepository,
-)
 from src.core.result import Result, Success
 from src.core.utils import PERU_TIMEZONE, calculate_time
-from .movement_service import MovementService
-
-from src.operations.repositories import (
-    DyeingServiceDispatchRepository,
+from src.operations.constants import (
+    DISPATCH_MOVEMENT_TYPE,
+    DYEING_SERVICE_DISPATCH_DOCUMENT_CODE,
+    DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
+    ENTRY_DOCUMENT_CODE,
+    ENTRY_MOVEMENT_TYPE,
+    SERVICE_CODE_SUPPLIER_DYEING,
+    WEAVING_STORAGE_CODE,
 )
-
 from src.operations.failures import (
-    DYEING_SERVICE_DISPATCH_NOT_FOUND_FAILURE,
-    DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_FAILURE,
-    DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_STORAGE_FAILURE,
-    DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_ADDRESS_FAILURE,
-    DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_COLOR_ID_FAILURE,
+    DYEING_SERVICE_DISPATCH_ALREADY_ACCOUNTED_FAILURE,
+    DYEING_SERVICE_DISPATCH_ANULLED_FAILURE,
     DYEING_SERVICE_DISPATCH_CARD_OPERATION_ALREADY_ASSOCIATED_FAILURE,
     DYEING_SERVICE_DISPATCH_CARD_OPERATION_ANULLED_FAILURE,
     DYEING_SERVICE_DISPATCH_CARD_OPERATION_NOT_ASSOCIATED_SUPPLIER_FAILURE,
-    DYEING_SERVICE_DISPATCH_ALREADY_ACCOUNTED_FAILURE,
-    DYEING_SERVICE_DISPATCH_ANULLED_FAILURE,
+    DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_FAILURE,
+    DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_STORAGE_FAILURE,
+    DYEING_SERVICE_DISPATCH_NOT_FOUND_FAILURE,
+    DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_ADDRESS_FAILURE,
+    DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_COLOR_ID_FAILURE,
 )
-
+from src.operations.models import (
+    CardOperation,
+    FabricWarehouse,
+    Movement,
+    MovementDetail,
+)
+from src.operations.repositories import (
+    DyeingServiceDispatchRepository,
+)
 from src.operations.schemas import (
-    DyeingServiceDispatchSchema,
-    DyeingServiceDispatchesListSchema,
-    DyeingServiceDispatchUpdateSchema,
     DyeingServiceDispatchCreateSchema,
     DyeingServiceDispatchDetailCreateSchema,
-)
-
-from src.operations.models import (
-    Movement,
-    FabricWarehouse,
-    MovementDetail,
-    CardOperation,
-)
-
-from src.operations.schemas import (
+    DyeingServiceDispatchesListSchema,
+    DyeingServiceDispatchSchema,
+    DyeingServiceDispatchUpdateSchema,
     SupplierSchema,
 )
 
-from src.operations.constants import (
-    SERVICE_CODE_SUPPLIER_DYEING,
-    WEAVING_STORAGE_CODE,
-    DISPATCH_MOVEMENT_TYPE,
-    DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
-    DYEING_SERVICE_DISPATCH_DOCUMENT_CODE,
-    ENTRY_MOVEMENT_TYPE,
-    ENTRY_DOCUMENT_CODE,
-)
-
-from .supplier_service import SupplierService
 from .card_operation_service import CardOperationService
+from .fabric_service import FabricService
+from .movement_service import MovementService
+from .product_inventory_service import ProductInventoryService
 from .series_service import (
     DyeingServiceDispatchSeries,
     EntrySeries,
 )
-from .fabric_service import FabricService
-from .product_inventory_service import ProductInventoryService
+from .supplier_service import SupplierService
+
 
 class DyeingServiceDispatchService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -99,11 +88,13 @@ class DyeingServiceDispatchService(MovementService):
         offset: int = None,
         include_inactive: bool = False,
     ) -> Result[DyeingServiceDispatchesListSchema, CustomException]:
-        dyeing_service_dispatches = await self.repository.find_dyeing_service_dispatches(
-            period=period,
-            limit=limit,
-            offset=offset,
-            include_inactive=include_inactive,
+        dyeing_service_dispatches = (
+            await self.repository.find_dyeing_service_dispatches(
+                period=period,
+                limit=limit,
+                offset=offset,
+                include_inactive=include_inactive,
+            )
         )
 
         return Success(
@@ -158,7 +149,6 @@ class DyeingServiceDispatchService(MovementService):
         self,
         data: DyeingServiceDispatchCreateSchema,
     ) -> Result[None, CustomException]:
-
         validation_result = await self.supplier_service.read_supplier(
             supplier_code=data.supplier_id,
             include_service=True,
@@ -312,10 +302,8 @@ class DyeingServiceDispatchService(MovementService):
         return Success(entry_number)
 
     def _assign_fabric_id_detail(
-        self,
-        data: list[DyeingServiceDispatchDetailCreateSchema]
+        self, data: list[DyeingServiceDispatchDetailCreateSchema]
     ) -> Result[dict, CustomException]:
-
         fabric_id_detail = {}
 
         for detail in data:
@@ -325,12 +313,16 @@ class DyeingServiceDispatchService(MovementService):
                 fabric_id_detail[card_operation.product_id] = {
                     "net_weight": card_operation.net_weight,
                     "roll_count": 1,
-                    "cards": [card_operation]
+                    "cards": [card_operation],
                 }
             else:
-                fabric_id_detail[card_operation.product_id]["net_weight"] += card_operation.net_weight
+                fabric_id_detail[card_operation.product_id]["net_weight"] += (
+                    card_operation.net_weight
+                )
                 fabric_id_detail[card_operation.product_id]["roll_count"] += 1
-                fabric_id_detail[card_operation.product_id]["cards"].append(card_operation)
+                fabric_id_detail[card_operation.product_id]["cards"].append(
+                    card_operation
+                )
 
         return Success(fabric_id_detail)
 
@@ -338,7 +330,6 @@ class DyeingServiceDispatchService(MovementService):
         self,
         form: DyeingServiceDispatchCreateSchema,
     ) -> Result[DyeingServiceDispatchSchema, CustomException]:
-
         validation_result = await self._validate_dyeing_service_dispatch_data(
             data=form,
         )
@@ -450,14 +441,13 @@ class DyeingServiceDispatchService(MovementService):
                 return fabric_result
 
             fabric = fabric_result.value
-            codcol = 'CRUD'
+            codcol = "CRUD"
             if fabric.color:
                 codcol = fabric.color.id
 
-            meters_count = round((
-                net_weight * 1000
-                / (fabric.density * fabric.width * 2 / 100)
-            ), 2)
+            meters_count = round(
+                (net_weight * 1000 / (fabric.density * fabric.width * 2 / 100)), 2
+            )
             dyeing_service_dispatch_detail_value = FabricWarehouse(
                 company_code=MECSA_COMPANY_CODE,
                 fabric_id=fabric_id,
@@ -501,7 +491,9 @@ class DyeingServiceDispatchService(MovementService):
                     status_flag="P",
                 )
 
-                dyeing_service_dispatch_detail_card.append(dyeing_service_dispatch_detail_card_value)
+                dyeing_service_dispatch_detail_card.append(
+                    dyeing_service_dispatch_detail_card_value
+                )
                 item_number += 1
 
                 await self.product_inventory_service.update_current_stock(
@@ -512,7 +504,9 @@ class DyeingServiceDispatchService(MovementService):
                 )
 
             for card in detail_cards:
-                card.exit_number = DYEING_SERVICE_DISPATCH_DOCUMENT_CODE + dispatch_number
+                card.exit_number = (
+                    DYEING_SERVICE_DISPATCH_DOCUMENT_CODE + dispatch_number
+                )
                 card.status_flag = "C"
 
             dyeing_service_dispatch_detail_value.detail_card = detail_cards
@@ -525,7 +519,7 @@ class DyeingServiceDispatchService(MovementService):
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch_detail,
-            movement_detail_card=cards
+            movement_detail_card=cards,
         )
 
         return Success(
@@ -565,7 +559,6 @@ class DyeingServiceDispatchService(MovementService):
         for warehouse in fabric_warehouses:
             remaining_cards = []
             for card in warehouse.detail_card:
-
                 if card.id not in form_card_ids:
                     delete_result = await self._delete_card_operation_and_update_list(
                         target_card=card,
@@ -582,7 +575,9 @@ class DyeingServiceDispatchService(MovementService):
 
         filtered_warehouses = []
         for warehouse in fabric_warehouses:
-            if warehouse.product_id in {detail.product_code for detail in updated_movements}:
+            if warehouse.product_id in {
+                detail.product_code for detail in updated_movements
+            }:
                 filtered_warehouses.append(warehouse)
             else:
                 await self.fabric_warehouse_repository.delete(warehouse)
@@ -594,7 +589,6 @@ class DyeingServiceDispatchService(MovementService):
         period: int,
         dyeing_service_dispatch: Movement,
     ) -> Result[None, CustomException]:
-
         supplier_result = await self.supplier_service.read_supplier(
             supplier_code=dyeing_service_dispatch.auxiliary_code,
         )
@@ -629,11 +623,9 @@ class DyeingServiceDispatchService(MovementService):
         dyeing_service_dispatch_number: str,
         period: int,
     ) -> Result[list[MovementDetail], CustomException]:
-        dyeing_service_dispatch_detail = (
-            await self.repository.find_dyeing_service_dispatch_details_by_dispatch_number(
-                dispatch_number=dyeing_service_dispatch_number,
-                period=period,
-            )
+        dyeing_service_dispatch_detail = await self.repository.find_dyeing_service_dispatch_details_by_dispatch_number(
+            dispatch_number=dyeing_service_dispatch_number,
+            period=period,
         )
 
         return Success(dyeing_service_dispatch_detail)
@@ -715,14 +707,18 @@ class DyeingServiceDispatchService(MovementService):
 
         dyeing_service_dispatch: Movement = dyeing_service_dispatch_result.value
 
-        dyeing_service_dispatch_detail_result = await self._reads_dyeing_service_dispatch_detail(
-            dyeing_service_dispatch_number=dyeing_service_dispatch_number,
-            period=period,
+        dyeing_service_dispatch_detail_result = (
+            await self._reads_dyeing_service_dispatch_detail(
+                dyeing_service_dispatch_number=dyeing_service_dispatch_number,
+                period=period,
+            )
         )
         if dyeing_service_dispatch_detail_result.is_failure:
             return dyeing_service_dispatch_detail_result
 
-        dyeing_service_dispatch_detail_card = dyeing_service_dispatch_detail_result.value
+        dyeing_service_dispatch_detail_card = (
+            dyeing_service_dispatch_detail_result.value
+        )
 
         validation_result = await self._validate_update_dyeing_service_dispatch(
             dyeing_service_dispatch=dyeing_service_dispatch,
@@ -798,9 +794,15 @@ class DyeingServiceDispatchService(MovementService):
 
         item_number = 1
         if dyeing_service_dispatch_detail_card_before:
-            item_number = max(
-                [detail.item_number for detail in dyeing_service_dispatch_detail_card_before]
-            ) + 1
+            item_number = (
+                max(
+                    [
+                        detail.item_number
+                        for detail in dyeing_service_dispatch_detail_card_before
+                    ]
+                )
+                + 1
+            )
 
         dyeing_service_dispatch_detail = []
         dyeing_service_dispatch_detail_card = []
@@ -817,7 +819,9 @@ class DyeingServiceDispatchService(MovementService):
             )
             if dyeing_service_dispatch_detail_result.is_failure:
                 return dyeing_service_dispatch_detail_result
-            dyeing_service_dispatch_detail_value = dyeing_service_dispatch_detail_result.value
+            dyeing_service_dispatch_detail_value = (
+                dyeing_service_dispatch_detail_result.value
+            )
 
             fabric_id = detail
             net_weight = fabric_id_detail[detail]["net_weight"]
@@ -831,14 +835,13 @@ class DyeingServiceDispatchService(MovementService):
                 return fabric_result
 
             fabric = fabric_result.value
-            codcol = 'CRUD'
+            codcol = "CRUD"
             if fabric.color:
                 codcol = fabric.color.id
 
-            meters_count = round((
-                net_weight * 1000
-                / (fabric.density * fabric.width * 2 / 100)
-            ), 2)
+            meters_count = round(
+                (net_weight * 1000 / (fabric.density * fabric.width * 2 / 100)), 2
+            )
 
             if dyeing_service_dispatch_detail_value:
                 dyeing_service_dispatch_detail_value.guide_net_weight = net_weight
@@ -855,7 +858,9 @@ class DyeingServiceDispatchService(MovementService):
                     )
                     if dyeing_service_dispatch_detail_card_result.is_failure:
                         return dyeing_service_dispatch_detail_card_result
-                    dyeing_service_dispatch_detail_card_value = dyeing_service_dispatch_detail_card_result.value
+                    dyeing_service_dispatch_detail_card_value = (
+                        dyeing_service_dispatch_detail_card_result.value
+                    )
 
                     if dyeing_service_dispatch_detail_card_value:
                         continue
@@ -885,7 +890,9 @@ class DyeingServiceDispatchService(MovementService):
                             status_flag="P",
                         )
 
-                        dyeing_service_dispatch_detail_card.append(dyeing_service_dispatch_detail_card_value)
+                        dyeing_service_dispatch_detail_card.append(
+                            dyeing_service_dispatch_detail_card_value
+                        )
                         item_number += 1
 
                         await self.product_inventory_service.update_current_stock(
@@ -896,12 +903,17 @@ class DyeingServiceDispatchService(MovementService):
                         )
 
                 for card in detail_cards:
-                    card.exit_number = DYEING_SERVICE_DISPATCH_DOCUMENT_CODE + dyeing_service_dispatch_number
+                    card.exit_number = (
+                        DYEING_SERVICE_DISPATCH_DOCUMENT_CODE
+                        + dyeing_service_dispatch_number
+                    )
                     card.status_flag = "C"
 
                 dyeing_service_dispatch_detail_value.detail_card = detail_cards
                 cards.extend(detail_cards)
-                dyeing_service_dispatch_detail.append(dyeing_service_dispatch_detail_value)
+                dyeing_service_dispatch_detail.append(
+                    dyeing_service_dispatch_detail_value
+                )
             else:
                 dyeing_service_dispatch_detail_value = FabricWarehouse(
                     company_code=MECSA_COMPANY_CODE,
@@ -959,12 +971,17 @@ class DyeingServiceDispatchService(MovementService):
                     )
 
                 for card in detail_cards:
-                    card.exit_number = DYEING_SERVICE_DISPATCH_DOCUMENT_CODE + dyeing_service_dispatch_number
+                    card.exit_number = (
+                        DYEING_SERVICE_DISPATCH_DOCUMENT_CODE
+                        + dyeing_service_dispatch_number
+                    )
                     card.status_flag = "C"
 
                 dyeing_service_dispatch_detail_value.detail_card = detail_cards
                 cards.extend(detail_cards)
-                dyeing_service_dispatch_detail.append(dyeing_service_dispatch_detail_value)
+                dyeing_service_dispatch_detail.append(
+                    dyeing_service_dispatch_detail_value
+                )
 
         dyeing_service_dispatch.detail_dyeing = dyeing_service_dispatch_detail
 
@@ -972,7 +989,7 @@ class DyeingServiceDispatchService(MovementService):
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch_detail,
-            movement_detail_card=cards
+            movement_detail_card=cards,
         )
         if creation_result.is_failure:
             return creation_result
@@ -1003,14 +1020,18 @@ class DyeingServiceDispatchService(MovementService):
         if validation_result.is_failure:
             return validation_result
 
-        dyeing_service_dispatch_detail_result = await self._reads_dyeing_service_dispatch_detail(
-            dyeing_service_dispatch_number=dyeing_service_dispatch_number,
-            period=period,
+        dyeing_service_dispatch_detail_result = (
+            await self._reads_dyeing_service_dispatch_detail(
+                dyeing_service_dispatch_number=dyeing_service_dispatch_number,
+                period=period,
+            )
         )
         if dyeing_service_dispatch_detail_result.is_failure:
             return dyeing_service_dispatch_detail_result
 
-        dyeing_service_dispatch_detail_card = dyeing_service_dispatch_detail_result.value
+        dyeing_service_dispatch_detail_card = (
+            dyeing_service_dispatch_detail_result.value
+        )
 
         rollback_result = await self.rollback_dyeing_service_dispatch(
             period=period,
@@ -1028,7 +1049,11 @@ class DyeingServiceDispatchService(MovementService):
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch.detail_dyeing,
-            movement_detail_card=[detail_card for detail in dyeing_service_dispatch.detail_dyeing for detail_card in detail.detail_card],
+            movement_detail_card=[
+                detail_card
+                for detail in dyeing_service_dispatch.detail_dyeing
+                for detail_card in detail.detail_card
+            ],
         )
         if update_result.is_failure:
             return update_result

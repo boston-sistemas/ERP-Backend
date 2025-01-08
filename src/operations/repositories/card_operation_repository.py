@@ -1,13 +1,13 @@
 from typing import Sequence
 
-from sqlalchemy import BinaryExpression, Integer, cast
+from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager, load_only
 from sqlalchemy.orm.strategy_options import Load
 
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
 from src.operations.models import CardOperation
+
 
 class CardOperationRepository(BaseRepository[CardOperation]):
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
@@ -38,9 +38,8 @@ class CardOperationRepository(BaseRepository[CardOperation]):
     ) -> CardOperation | None:
         options: list[Load] = []
 
-        base_filter = (
-            (CardOperation.company_code == MECSA_COMPANY_CODE)
-            & (CardOperation.id == id)
+        base_filter = (CardOperation.company_code == MECSA_COMPANY_CODE) & (
+            CardOperation.id == id
         )
 
         filter = filter if filter is not None else base_filter

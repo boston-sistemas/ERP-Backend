@@ -17,12 +17,12 @@ from src.operations.constants import (
     ENTRY_DOCUMENT_CODE,
     ENTRY_MOVEMENT_TYPE,
     FINISHED_SERVICE_ORDER_ID,
+    SERVICE_CODE_SUPPLIER_DYEING,
     SERVICE_CODE_SUPPLIER_WEAVING,
     UNSTARTED_SERVICE_ORDER_ID,
     WEAVING_SERVICE_ENTRY_MOVEMENT_CODE,
     WEAVING_STORAGE_CODE,
     YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
-    SERVICE_CODE_SUPPLIER_DYEING,
 )
 from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_ALREADY_ACCOUNTED_FAILURE,
@@ -37,8 +37,8 @@ from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_SUPPLIED_YARNS_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_COLOR_NOT_FOUND_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_FAILURE,
-    WEAVING_SERVICE_ENTRY_SUPPLIER_WITHOUT_STORAGE_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE,
+    WEAVING_SERVICE_ENTRY_SUPPLIER_WITHOUT_STORAGE_FAILURE,
 )
 from src.operations.models import (
     CardOperation,
@@ -324,7 +324,8 @@ class WeavingServiceEntryService(MovementService):
                 fabric = fabric.value
 
                 fabric_recipe_yarns_ids = {
-                    service_order_stock.product_code: service_order_stock.supplier_yarn_id for service_order_stock in service_orders_stock
+                    service_order_stock.product_code: service_order_stock.supplier_yarn_id
+                    for service_order_stock in service_orders_stock
                 }
 
                 fabric_ids = {
@@ -385,7 +386,8 @@ class WeavingServiceEntryService(MovementService):
                         return validation_result
 
                     services_tint = [
-                        service.service_code for service in validation_result.value.services
+                        service.service_code
+                        for service in validation_result.value.services
                     ]
 
                     if SERVICE_CODE_SUPPLIER_DYEING not in services_tint:

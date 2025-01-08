@@ -96,6 +96,7 @@ class EntrySeries(
 ):
     pass
 
+
 class DispatchSeries(
     MovementSeries,
     name="Salida a tejeduría",
@@ -125,6 +126,7 @@ class YarnWeavingDispatchSeries(
 
         return "T" + result
 
+
 class DyeingServiceDispatchSeries(
     MovementSeries,
     name="Salida de tejido a tintorería",
@@ -135,6 +137,7 @@ class DyeingServiceDispatchSeries(
         result = await super().next_number()
 
         return "T" + result
+
 
 class WeavingServiceEntrySeries(
     MovementSeries,

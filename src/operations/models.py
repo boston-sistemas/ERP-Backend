@@ -35,6 +35,7 @@ from src.operations.constants import (
     DRIVER_CODE_MAX_LENGTH,
     DRIVER_LICENSE_MAX_LENGTH,
     EMAIL_MAX_LENGTH,
+    EMPQNRO2_MAX_LENGTH,
     EXIT_NUMBER_MAX_LENGTH,
     FABRIC_ID_MAX_LENGTH,
     FABRIC_TYPE_MAX_LENGTH,
@@ -112,10 +113,6 @@ from src.operations.constants import (
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_TYPE,
     YARN_PURCHASE_ENTRY_STORAGE_CODE,
-    EMPQNRO2_MAX_LENGTH,
-    DISPATCH_MOVEMENT_TYPE,
-    DYEING_SERVICE_DISPATCH_MOVEMENT_CODE,
-    WEAVING_STORAGE_CODE
 )
 from src.security.models import Parameter
 
@@ -743,7 +740,9 @@ class Movement(PromecBase):
     flgtras: Mapped[bool] = mapped_column(
         "flgtras", default=False
     )  # //! Definir nombre representativo
-    empqnro2: Mapped[str] = mapped_column("empqnro2", String(length=EMPQNRO2_MAX_LENGTH))
+    empqnro2: Mapped[str] = mapped_column(
+        "empqnro2", String(length=EMPQNRO2_MAX_LENGTH)
+    )
     flgreclamo: Mapped[str] = mapped_column(
         "flgreclamo", String(length=FLGRECLAMO_MAX_LENGTH)
     )
@@ -1373,9 +1372,8 @@ class FabricWarehouse(PromecBase):
         lazy="noload",
         primaryjoin=lambda: and_(
             FabricWarehouse.company_code == CardOperation.company_code,
-            func.concat(
-                FabricWarehouse.document_code, FabricWarehouse.document_number
-            ) == CardOperation.exit_number,
+            func.concat(FabricWarehouse.document_code, FabricWarehouse.document_number)
+            == CardOperation.exit_number,
         ),
         single_parent=True,
         viewonly=True,
