@@ -1,6 +1,6 @@
 from copy import copy
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
@@ -38,11 +38,13 @@ async def read_fabric(
 
 @router.get("/", response_model=FabricListSchema)
 async def read_fabrics(
+    include_inactives: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FabricService(db=db, promec_db=promec_db)
     result = await service.read_fabrics(
+        include_inactives=include_inactives,
         include_fabric_type=True,
         include_color=True,
         include_recipe=True,

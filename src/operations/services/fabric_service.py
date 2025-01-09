@@ -1,6 +1,7 @@
 from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.repository import BaseRepository
@@ -298,6 +299,7 @@ class FabricService:
 
     async def read_fabrics(
         self,
+        include_inactives: bool = False,
         include_fabric_type: bool = False,
         include_color: bool = False,
         include_recipe: bool = False,
@@ -306,6 +308,9 @@ class FabricService:
     ) -> Result[FabricListSchema, CustomException]:
         _include_recipe = (not exclude_legacy) and include_recipe
         fabrics = await self.repository.find_fabrics(
+            filter=InventoryItem.is_active == ACTIVE_STATUS_PROMEC
+            if not include_inactives
+            else None,
             include_color=include_color,
             include_simple_recipe=_include_recipe,
             exclude_legacy=exclude_legacy,
