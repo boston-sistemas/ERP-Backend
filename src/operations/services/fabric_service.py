@@ -548,9 +548,7 @@ class FabricService:
         ids = {
             (fabric.subfamily_id + fabric.field1, fabric.field3)
             for fabric in fabrics
-            if fabric.subfamily_id
-            and fabric.field1
-            and not fabric.id.isdigit()
+            if fabric.subfamily_id and fabric.field1 and not fabric.id.isdigit()
         }
         if not ids:
             return None
