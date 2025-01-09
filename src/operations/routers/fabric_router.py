@@ -39,6 +39,7 @@ async def read_fabric(
 @router.get("/", response_model=FabricListSchema)
 async def read_fabrics(
     include_inactives: bool = Query(default=False),
+    yarn_ids: list[str] = Query(default=None, min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -51,6 +52,23 @@ async def read_fabrics(
         include_yarn_instance_to_recipe=True,
         exclude_legacy=True,
     )
+    result = None
+    if yarn_ids:
+        result = await service.find_fabrics_by_recipe(
+            yarn_ids=yarn_ids,
+            include_fabric_type=True,
+            include_color=True,
+            include_recipe=True,
+            include_yarn_instance_to_recipe=True,
+        )
+    else:
+        result = await service.read_fabrics(
+            include_fabric_type=True,
+            include_color=True,
+            include_recipe=True,
+            include_yarn_instance_to_recipe=True,
+            exclude_legacy=True,
+        )
     if result.is_success:
         return result.value
 

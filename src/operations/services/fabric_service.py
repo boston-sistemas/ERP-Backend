@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
-from src.core.repository import BaseRepository
 from src.core.result import Result, Success
 from src.core.utils import is_active_status, map_active_status
 from src.operations.constants import FABRIC_FAMILY_ID
@@ -22,7 +21,7 @@ from src.operations.failures import (
     YARN_NOT_FOUND_IN_FABRIC_RECIPE_FAILURE,
 )
 from src.operations.models import FabricYarn, InventoryItem
-from src.operations.repositories import FabricRepository
+from src.operations.repositories import FabricRecipeRepository, FabricRepository
 from src.operations.schemas import (
     FabricCreateSchema,
     FabricListSchema,
@@ -42,9 +41,7 @@ from .yarn_service import YarnService
 class FabricService:
     def __init__(self, db: AsyncSession, promec_db: AsyncSession):
         self.repository = FabricRepository(db=promec_db)
-        self.recipe_repository = BaseRepository[FabricYarn](
-            model=FabricYarn, db=promec_db
-        )
+        self.recipe_repository = FabricRecipeRepository(db=promec_db)
         self.mecsa_color_service = MecsaColorService(promec_db=promec_db)
         self.product_sequence = SequenceRepository(
             sequence=product_id_seq, db=promec_db
@@ -579,3 +576,22 @@ class FabricService:
             await self._include_yarn_instance_to_recipes(fabrics=fabrics)
 
         return None
+
+    async def find_fabrics_by_recipe(
+        self,
+        yarn_ids: list[str],
+        include_fabric_type: bool = False,
+        include_color: bool = False,
+        include_recipe: bool = False,
+        include_yarn_instance_to_recipe: bool = False,
+    ) -> Result[FabricListSchema, CustomException]:
+        fabric_ids = await self.recipe_repository.find_fabrics_by_recipe(
+            yarn_ids=yarn_ids
+        )
+        return await self.find_fabrics_by_ids(
+            fabric_ids=fabric_ids,
+            include_fabric_type=include_fabric_type,
+            include_color=include_color,
+            include_recipe=include_recipe,
+            include_yarn_instance_to_recipe=include_yarn_instance_to_recipe,
+        )

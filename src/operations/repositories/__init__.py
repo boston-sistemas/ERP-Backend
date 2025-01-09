@@ -3,6 +3,7 @@ from .card_operation_repository import CardOperationRepository
 from .color_repository import ColorRepository
 from .dyeing_service_dispatch_repository import DyeingServiceDispatchRepository
 from .especialidad_empresa_repository import EspecialidadEmpresaRepository
+from .fabric_recipe_repository import FabricRecipeRepository
 from .fabric_repository import FabricRepository
 from .fiber_repository import FiberRepository
 from .inventory_item_repository import InventoryItemRepository
@@ -64,4 +65,5 @@ __all__ = [
     "WeavingServiceEntryRepository",
     "DyeingServiceDispatchRepository",
     "CardOperationRepository",
+    "FabricRecipeRepository",
 ]
