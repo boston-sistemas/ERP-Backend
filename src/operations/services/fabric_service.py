@@ -374,7 +374,7 @@ class FabricService:
             inventory_unit_code="KG",
             purchase_unit_code="KG",
             description=form.description,
-            purchase_description=form.description,
+            purchase_description_=form.description,
             barcode=barcode,
             field1=str(form.density),
             field2=form.width_,
@@ -411,7 +411,7 @@ class FabricService:
         fabric.field4 = str(fabric_data.get("fabric_type_id", fabric.field4))
         fabric.field5 = fabric_data.get("structure_pattern", fabric.field5)
         fabric.description = fabric_data.get("description", fabric.description)
-        fabric.purchase_description = fabric.description
+        fabric.purchase_description_ = fabric.description
 
         try:
             fabric_validation = self._validate_fabric(

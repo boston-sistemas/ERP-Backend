@@ -320,7 +320,7 @@ class YarnService:
             inventory_unit_code="KG",
             purchase_unit_code="KG",
             description=form.description,
-            purchase_description=form.description,
+            purchase_description_=form.description,
             barcode=barcode,
             field1=form.yarn_count,
             field2=form.numbering_system,
@@ -366,7 +366,7 @@ class YarnService:
         )
         yarn.field4 = yarn_data.get("color_id", yarn.field4)
         yarn.description = yarn_data.get("description", yarn.description)
-        yarn.purchase_description = yarn.description
+        yarn.purchase_description_ = yarn.description
 
         if form.recipe is not None:
             recipe_validation_result = await self._validate_yarn_recipe(
