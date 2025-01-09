@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
@@ -265,13 +266,18 @@ class YarnService:
 
     async def read_yarns(
         self,
+        include_inactives: bool = False,
         include_color: bool = False,
         include_spinning_method: bool = False,
         include_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         yarns = await self.repository.find_yarns(
-            include_color=include_color, exclude_legacy=exclude_legacy
+            filter=InventoryItem.is_active == ACTIVE_STATUS_PROMEC
+            if not include_inactives
+            else None,
+            include_color=include_color,
+            exclude_legacy=exclude_legacy,
         )
 
         if include_spinning_method:
