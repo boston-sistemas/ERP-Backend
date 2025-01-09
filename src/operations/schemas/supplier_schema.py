@@ -59,5 +59,6 @@ class SupplierSchema(SupplierSimpleSchema):
     services: list[SupplierServiceSchema] | None = []
     colors: list[SupplierColorSchema] | None = []
 
+
 class SupplierListSchema(CustomBaseModel):
     suppliers: list[SupplierSchema] = []

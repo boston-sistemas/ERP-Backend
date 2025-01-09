@@ -7,7 +7,7 @@ from src.core.result import Failure
 
 YARN_WEAVING_DISPATCH_NOT_FOUND_FAILURE = Failure(
     NotFoundException(
-        detail="El movimiento de salida de hilado a tejeduria especificado no existe."
+        detail="El movimiento de salida de hilado por O/S de Tejeduria especificado no existe."
     )
 )
 
@@ -19,9 +19,9 @@ YARN_WEAVING_DISPATCH_SUPPLIER_WITHOUT_STORAGE_FAILURE = Failure(
 
 YARN_WEAVING_DISPATCH_SUPPLIER_NOT_ASSOCIATED_FAILURE = Failure(
     ForbiddenException(
-        detail="El proveedor especificado no es del servicio de tejeduria."
+        detail="El proveedor especificado no ofrece el servicio de tejeduria."
     )
-)
+)  # TODO: This failure is repetead
 
 YARN_WEAVING_DISPATCH_CONE_COUNT_MISMATCH_FAILURE = Failure(
     UnprocessableEntityException(
@@ -45,13 +45,13 @@ YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE = Failure(
 
 YARN_WEAVING_DISPATCH_ALREADY_ANULLED_FAILURE = Failure(
     ForbiddenException(
-        detail="El movimiento de salida de hilado a tejeduria especificado fue anulado."
+        detail="El movimiento de salida de hilado por O/S de Tejeduria especificado fue anulado."
     )
 )
 
 YARN_WEAVING_DISPATCH_ALREADY_ACCOUNTED_FAILURE = Failure(
     ForbiddenException(
-        detail="El movimiento de salida de hilado a tejeduria especificado ya ha sido contabilizado."
+        detail="El movimiento de salida de hilado por O/S de Tejeduria especificado ya ha sido contabilizado."
     )
 )
 

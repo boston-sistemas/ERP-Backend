@@ -1,5 +1,6 @@
 import io
 
+
 def generate_pdf():
     path = "src/operations/utils/movements/yarn_weaving_dispatch/prueba.pdf"
 

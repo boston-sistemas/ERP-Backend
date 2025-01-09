@@ -38,6 +38,7 @@ from .fabric_service import FabricService
 from .supplier_service import SupplierService
 
 
+# TODO: Refactor this service
 class ServiceOrderService:
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
         self.promec_db = promec_db

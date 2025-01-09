@@ -46,12 +46,12 @@ router.include_router(
 router.include_router(
     router=yarn_purchase_entry_router.router,
     prefix="/yarn-purchase-entries",
-    tags=["[AREA OPERACIONES] GESTION DE INGRESO DE HILADOS POR O/C"],
+    tags=["[AREA OPERACIONES] GESTION DE MOV. INGRESO DE HILADOS POR O/C"],
 )
 router.include_router(
     router=yarn_weaving_dispatch_router.router,
     prefix="/yarn-weaving-dispatches",
-    tags=["[AREA OPERACIONES] GESTION DE SALIDA DE HILADOS A TEJEDURIA"],
+    tags=["[AREA OPERACIONES] GESTION DE MOV. SALIDA DE HILADOS A TEJEDURIA"],
 )
 router.include_router(
     router=supplier_router.router,
@@ -66,7 +66,7 @@ router.include_router(
 router.include_router(
     router=weaving_service_entry_router.router,
     prefix="/weaving-service-entries",
-    tags=["[AREA OPERACIONES] GESTION DE INGRESO POR SERVICIO DE TEJEDURIA"],
+    tags=["[AREA OPERACIONES] GESTION DE MOV. INGRESO DE TEJIDOS POR O/S DE TEJEDURIA"],
 )
 router.include_router(
     router=fabric_router.router,
@@ -76,5 +76,5 @@ router.include_router(
 router.include_router(
     router=dyeing_service_dispatch_router.router,
     prefix="/dyeing-service-dispatches",
-    tags=["[AREA OPERACIONES] GESTION DE SALIDA DE TINTORERIA"],
+    tags=["[AREA OPERACIONES] GESTION DE MOV. SALIDA DE TEJIDOS POR O/S DE TINTORERIA"],
 )

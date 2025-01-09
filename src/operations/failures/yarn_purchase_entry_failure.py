@@ -8,7 +8,7 @@ from src.core.result import Failure
 
 YARN_PURCHASE_ENTRY_NOT_FOUND_FAILURE = Failure(
     NotFoundException(
-        detail="El movimiento de ingreso de compra de hilado especificado no existe."
+        detail="El movimiento de ingreso de hilado por O/C especificado no existe."
     )
 )
 
@@ -26,7 +26,7 @@ YARN_PURCHASE_ENTRY_PACKAGE_COUNT_MISMATCH_FAILURE = Failure(
 
 YARN_PURCHASE_ENTRY_UPDATE_INVENTORY_FAILURE = Failure(
     CustomException(detail="No se pudo actualizar el inventario de los hilados.")
-)
+)  # TODO: Review this failure.
 
 
 YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE = Failure(
@@ -35,19 +35,19 @@ YARN_PURCHASE_ENTRY_YARN_NOT_FOUND_FAILURE = Failure(
 
 YARN_PURCHASE_ENTRY_ALREADY_ACCOUNTED_FAILURE = Failure(
     ForbiddenException(
-        detail="El movimiento de ingreso de compra de hilado ya ha sido contabilizado."
+        detail="El movimiento de ingreso de hilado por O/C especificado ya ha sido contabilizado."
     )
 )
 
 YARN_PURCHASE_ENTRY_ALREADY_ANULLED_FAILURE = Failure(
     ForbiddenException(
-        detail="El movimiento de ingreso de compra de hilado ya ha sido anulado."
+        detail="El movimiento de ingreso de hilado por O/C especificado ya ha sido anulado."
     )
 )
 
 YARN_PURCHASE_ENTRY_HAS_MOVEMENT_FAILURE = Failure(
     ForbiddenException(
-        detail="El movimiento de ingreso de compra de hilado ya tiene un movimiento asociado."
+        detail="El movimiento de ingreso de hilado por O/C especificado ya tiene un movimiento asociado."
     )
 )
 

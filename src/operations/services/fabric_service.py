@@ -1,7 +1,7 @@
 from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.constants import ACTIVE_STATUS_PROMEC
+from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.repository import BaseRepository

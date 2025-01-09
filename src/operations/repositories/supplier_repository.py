@@ -7,6 +7,7 @@ from src.core.repository import BaseRepository
 from src.operations.models import Supplier, SupplierService
 
 
+# TODO: Review this repository
 class SupplierRepository(BaseRepository[Supplier]):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
         super().__init__(Supplier, db, flush)

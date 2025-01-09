@@ -8,6 +8,7 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.orm.strategy_options import Load
 
+from src.core.constants import MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
 from src.operations.constants import (
     SUPPLY_FAMILY_ID,
@@ -45,7 +46,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         end_of_year = datetime(current_year, 12, 31).date()
 
         filter_conditions = [
-            OrdenCompra.company_code == "001",
+            OrdenCompra.company_code == MECSA_COMPANY_CODE,
             OrdenCompra.purchase_order_number == purchase_order_number,
             func.locate("TITULO GRATUITO", OrdenCompra.payment_method) == 0,
             InventoryItem.family_id == SUPPLY_FAMILY_ID,
@@ -88,7 +89,7 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         end_of_year = datetime(current_year, 12, 31).date()
 
         filter = and_(
-            OrdenCompra.company_code == "001",
+            OrdenCompra.company_code == MECSA_COMPANY_CODE,
             OrdenCompra.status_flag == "P",
             func.locate("TITULO GRATUITO", OrdenCompra.payment_method) == 0,
             InventoryItem.family_id == SUPPLY_FAMILY_ID,

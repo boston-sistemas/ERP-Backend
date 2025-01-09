@@ -12,12 +12,12 @@ DYEING_SERVICE_DISPATCH_NOT_FOUND_FAILURE = Failure(
 
 DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_FAILURE = Failure(
     ForbiddenException(
-        detail="El proveedor especificado no es del servicio de tintorería."
+        detail="El proveedor especificado no ofrece el servicio de tintorería."
     )
 )
 
 DYEING_SERVICE_DISPATCH_NOT_ASSOCIATED_SUPPLIER_STORAGE_FAILURE = Failure(
-    ForbiddenException(detail="El proveedor especificado no tiene almacen asociado.")
+    ForbiddenException(detail="El proveedor especificado no tiene almacén asociado.")
 )
 
 DYEING_SERVICE_DISPATCH_SUPPLIER_NOT_ASSOCIATED_ADDRESS_FAILURE = Failure(

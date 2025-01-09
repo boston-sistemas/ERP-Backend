@@ -93,7 +93,7 @@ async def update_fiber_status(
     result = await service.update_status(fiber_id=fiber_id, is_active=is_active)
 
     if result.is_success:
-        msg = f"La fibra ha sido {''if is_active else 'des'}activada con éxito"
+        msg = f"La fibra ha sido {'' if is_active else 'des'}activada con éxito"
         return {"message": msg}
 
     raise result.error

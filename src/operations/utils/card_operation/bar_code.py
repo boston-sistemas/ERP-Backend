@@ -1,6 +1,8 @@
+import uuid
+
 import barcode
 from barcode.writer import ImageWriter
-import uuid
+
 
 def generate_barcode(data: str, path: str = "src/operations/utils/card_operation/"):
     Code128 = barcode.get_barcode_class("code128")
@@ -16,8 +18,8 @@ def generate_barcode(data: str, path: str = "src/operations/utils/card_operation
             "module_height": 10,
             "dpi": 300,
             "quiet_zone": 0.5,
-            "text_distance": 0
-        }
+            "text_distance": 0,
+        },
     )
 
     return filename

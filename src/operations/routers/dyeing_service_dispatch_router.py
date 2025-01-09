@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi.responses import StreamingResponse
 from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
@@ -146,6 +146,7 @@ async def check_dyeing_service_dispatch_is_updatable(
 
     return {"updatable": False, "message": result.error.detail}
 
+
 @router.post("/print/movement")
 async def print_dyeing_service_dispatch(
     # form: WeavingServiceEntryPrintListSchema,
@@ -162,7 +163,7 @@ async def print_dyeing_service_dispatch(
 
     if result.is_success:
         response = StreamingResponse(result.value, media_type="application/pdf")
-        response.headers['Content-Disposition'] = 'attachment; filename=tarjetas.pdf'
+        response.headers["Content-Disposition"] = "attachment; filename=tarjetas.pdf"
         return response
 
     raise result.error

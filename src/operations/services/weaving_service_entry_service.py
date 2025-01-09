@@ -55,12 +55,14 @@ from src.operations.schemas import (
     WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
     WeavingServiceEntryDetailCreateSchema,
+    WeavingServiceEntryPrintListSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntryUpdateSchema,
-    WeavingServiceEntryPrintListSchema,
 )
 from src.operations.sequences import card_id_seq
+from src.operations.utils.card_operation.pdf import generate_pdf_cards
 
+from .card_operation_service import CardOperationService
 from .fabric_service import FabricService
 from .mecsa_color_service import MecsaColorService
 from .movement_service import MovementService
@@ -71,11 +73,7 @@ from .series_service import (
 from .service_order_service import ServiceOrderService
 from .service_order_stock_service import ServiceOrderStockService
 from .supplier_service import SupplierService
-from .card_operation_service import CardOperationService
 
-from src.operations.utils.card_operation.pdf import (
-    generate_pdf_cards
-)
 
 class WeavingServiceEntryService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession = None) -> None:
@@ -1396,11 +1394,12 @@ class WeavingServiceEntryService(MovementService):
         self,
         form: WeavingServiceEntryPrintListSchema,
     ):
-
         card_ids = [card.card_id for card in form.card_ids]
 
-        card_operations_value = await self.card_operation_service.reads_card_operation_by_id(
-            ids=card_ids,
+        card_operations_value = (
+            await self.card_operation_service.reads_card_operation_by_id(
+                ids=card_ids,
+            )
         )
 
         if card_operations_value.is_failure:

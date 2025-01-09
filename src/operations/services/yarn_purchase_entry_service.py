@@ -43,6 +43,7 @@ from src.operations.schemas import (
     YarnPurchaseEntryUpdateSchema,
 )
 from src.operations.sequences import mecsa_batch_sq
+from src.operations.utils.movements.yarn_purchase_entry.pdf import generate_pdf
 
 from .movement_service import MovementService
 from .orden_compra_service import OrdenCompraService
@@ -53,9 +54,6 @@ from .yarn_purchase_entry_detail_heavy_service import (
 )
 from .yarn_service import YarnService
 
-from src.operations.utils.movements.yarn_purchase_entry.pdf import (
-    generate_pdf
-)
 
 class YarnPurchaseEntryService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession = None) -> None:

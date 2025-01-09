@@ -10,7 +10,7 @@ SERVICE_ORDER_NOT_FOUND_FAILURE = Failure(
 
 SERVICE_ORDER_SUPPLIER_NOT_ASSOCIATED_WITH_WEAVING_FAILURE = Failure(
     ForbiddenException(
-        detail="El proveedor especificado no está asociado al servicio de tejeduría."
+        detail="El proveedor especificado no ofrece el servicio de tejeduría."
     )
 )
 
@@ -25,5 +25,5 @@ SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE = Failure(
 )
 
 SERVICE_ORDER_STATUS_NOT_VALID_FAILURE = Failure(
-    ForbiddenException(detail="El estado de indicado no es válido.")
+    ForbiddenException(detail="El estado de la O/S indicado no es válido.")
 )

@@ -101,7 +101,7 @@ async def update_fabric_status(
     result = await service.update_status(fabric_id=fabric_id, is_active=is_active)
 
     if result.is_success:
-        msg = f"El tejido ha sido {''if is_active else 'des'}activado con éxito"
+        msg = f"El tejido ha sido {'' if is_active else 'des'}activado con éxito"
         return {"message": msg}
 
     raise result.error

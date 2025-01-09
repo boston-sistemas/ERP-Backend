@@ -11,9 +11,9 @@ from src.operations.models import Supplier
 from src.operations.models import SupplierService as SupplierServiceModel
 from src.operations.repositories import SupplierRepository
 from src.operations.schemas import (
+    SupplierListSchema,
     SupplierSchema,
     SupplierSimpleListSchema,
-    SupplierListSchema,
 )
 
 
@@ -42,9 +42,6 @@ class SupplierService:
 
         if supplier is None:
             return SUPPLIER_NOT_FOUND_FAILURE
-
-        # if not is_active_status(supplier.is_active) and not include_inactive:
-        #     return SUPPLIER_INACTIVE_FAILURE
 
         return Success(supplier)
 

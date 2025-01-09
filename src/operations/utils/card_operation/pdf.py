@@ -1,18 +1,14 @@
+import io
+import os
+import uuid
+
+from pylatex import Command, Document, NoEscape
+
 from src.operations.schemas import (
     CardOperationListSchema,
 )
-
-import os
-import io
-
-from pylatex import (
-    Document,
-    Command,
-    NoEscape
-)
-
-import uuid
 from src.operations.utils.card_operation.bar_code import generate_barcode
+
 
 def read_and_delete_files(
     filenames: list[str],
@@ -31,13 +27,14 @@ def read_and_delete_files(
 
     return pdf
 
+
 def generate_pdf_cards(
     cards: CardOperationListSchema,
 ):
     doc = Document(documentclass="article")
-    doc.preamble.append(Command('input', 'card.tex'))
+    doc.preamble.append(Command("input", "card.tex"))
 
-    doc.append(Command('thispagestyle', 'empty'))
+    doc.append(Command("thispagestyle", "empty"))
 
     card_pdf_filename = str(uuid.uuid4())
     card_pdf_filename_path = f"src/operations/utils/card_operation/{card_pdf_filename}"
@@ -69,7 +66,7 @@ def generate_pdf_cards(
         \\GenerateBarcodeCard{{{image}}}{{{id}}}{{{product_id}}}{{{net_weight}}}{{{service_order}}}{{{tint_supplier_id}}}{{{weaving_supplier_id}}}{{{yarn_supplier_id}}}{{{card_type}}}
         """
         doc.append(NoEscape(command))
-        doc.append(Command('newpage'))
+        doc.append(Command("newpage"))
         card_images_filenames.append(image)
 
     doc.generate_pdf(card_pdf_filename_path, clean_tex=True)

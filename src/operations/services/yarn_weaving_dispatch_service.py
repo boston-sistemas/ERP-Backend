@@ -51,6 +51,7 @@ from src.operations.schemas import (
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchUpdateSchema,
 )
+from src.operations.utils.movements.yarn_weaving_dispatch.pdf import generate_pdf
 
 from .fabric_service import FabricService
 from .movement_service import MovementService
@@ -65,9 +66,6 @@ from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
 
-from src.operations.utils.movements.yarn_weaving_dispatch.pdf import (
-    generate_pdf
-)
 
 class YarnWeavingDispatchService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -1241,8 +1239,6 @@ class YarnWeavingDispatchService(MovementService):
     async def print_yarn_weaving_dispatch(
         self,
     ) -> Result[None, CustomException]:
-
         pdf = generate_pdf()
 
         return Success(pdf)
-

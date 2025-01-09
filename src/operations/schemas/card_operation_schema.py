@@ -51,8 +51,10 @@ class CardOperationSchema(CardOperationSimpleSchema):
         self.service_orders = self.service_order_id.split(",")
         return self
 
+
 class CardOperationListSchema(CustomBaseModel):
     card_operations: list[CardOperationSchema]
+
 
 class CardOperationCreateSchema(CustomBaseModel):
     fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
