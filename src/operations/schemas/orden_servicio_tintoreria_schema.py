@@ -24,9 +24,9 @@ class OrdenServicioTintoreriaSchema(
 
 
 class OrdenServicioTintoreriaCreateSchemaWithDetalle(OrdenServicioTintoreriaBase):
-    detalle: list[OrdenServicioTintoreriaDetalleCreateSchemaByOrder]
+    detail: list[OrdenServicioTintoreriaDetalleCreateSchemaByOrder]
 
 
 class OrdenServicioTintoreriaCreateSchemaWithDetalleByProgramacion(BaseModel):
     color_id: int
-    detalle: list[OrdenServicioTintoreriaDetalleCreateSchemaByOrder]
+    detail: list[OrdenServicioTintoreriaDetalleCreateSchemaByOrder]

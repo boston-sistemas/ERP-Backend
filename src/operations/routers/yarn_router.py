@@ -37,11 +37,19 @@ async def read_yarn(
 
 @router.get("/", response_model=YarnListSchema)
 async def read_yarns(
+    include_inactives: bool = Query(default=False),
     fiber_ids: list[str] = Query(default=None, min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
+    result = await service.read_yarns(
+        include_inactives=include_inactives,
+        include_color=True,
+        include_spinning_method=True,
+        include_recipe=True,
+        exclude_legacy=True,
+    )
     result = None
     if fiber_ids:
         result = await service.find_yarns_by_recipe(
@@ -107,7 +115,7 @@ async def update_fiber_status(
     result = await service.update_status(yarn_id=yarn_id, is_active=is_active)
 
     if result.is_success:
-        msg = f"El hilado ha sido {''if is_active else 'des'}activado con éxito"
+        msg = f"El hilado ha sido {'' if is_active else 'des'}activado con éxito"
         return {"message": msg}
 
     raise result.error

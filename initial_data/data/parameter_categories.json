@@ -14,5 +14,9 @@
     {
         "id": 104,
         "name": "TIPOS DE TEJIDOS"
+    },
+    {
+        "id": 105,
+        "name": "ESTADOS DE LA ORDEN DE SERVICIO"
     }
 ]

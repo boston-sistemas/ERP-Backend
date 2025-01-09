@@ -168,8 +168,8 @@ def on_later_pages_programacion(canvas, doc, comment, partidas_size, comment_pag
 def add_dyeing_schedule_to_elements(
     elements: list, tejeduria: Proveedor, tintoreria: Proveedor, pagesize: tuple, styles
 ):
-    fecha = calculate_time(timezone=PERU_TIMEZONE).strftime("%d/%m/%Y")
-    semana = calculate_time(timezone=PERU_TIMEZONE).isocalendar()[1]
+    fecha = calculate_time(tz=PERU_TIMEZONE).strftime("%d/%m/%Y")
+    semana = calculate_time(tz=PERU_TIMEZONE).isocalendar()[1]
 
     elements.append(Paragraph("Fecha:", styles["Roboto"]))
     elements.append(Paragraph(fecha, styles["Roboto"]))

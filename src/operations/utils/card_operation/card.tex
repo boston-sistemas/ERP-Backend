@@ -1,0 +1,87 @@
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{
+    paperwidth=7.6cm,
+    paperheight=5.1cm,
+    top=0.5cm,
+    bottom=0.5cm,
+    left=0.5cm,
+    right=0.5cm
+}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{changepage}
+\usepackage{pst-barcode}
+
+% ----------------------------------------------------------------
+\newcommand{\Row}[3]{%
+    {\fontsize{#1}{#2}\selectfont #3}%
+}
+
+\newcommand{\GenerateBarcodeCard}[9]{%
+    \begin{tikzpicture}[overlay, remember picture]
+    
+        \node[
+            anchor=north west,
+            % draw,
+            minimum width=\paperwidth,
+            minimum height=0.33\paperheight,
+            inner sep=0pt
+        ] at (current page.north west) {
+            \begin{minipage}[c][\dimexpr0.33\paperheight\relax][c]{\dimexpr\paperwidth-10pt\relax}
+                \vspace*{3mm}
+                \vspace*{\fill}
+                \centering
+                \includegraphics[width=0.715\paperwidth, height=0.3\paperheight]{#1}
+                \vspace*{\fill}
+            \end{minipage}
+        };
+    
+        \node[
+            anchor=north west,
+            % draw,
+            minimum width=0.67\paperwidth,
+            minimum height=0.67\paperheight,
+            inner sep=5pt
+        ] at ([yshift=-0.33\paperheight]current page.north west) {
+            \fontfamily{phv}\selectfont
+            \begin{minipage}[t][\dimexpr0.67\paperheight-10pt\relax][t]{\dimexpr0.67\paperwidth-10pt\relax}
+                \vspace*{\fill}
+                \centering
+                \Row{10pt}{12pt}{\textbf{#2}} \\[4pt]
+
+                \raggedright
+                \begin{adjustwidth}{7pt}{0pt}
+                    \begin{tabularx}{\dimexpr0.67\paperwidth-20pt\relax}{@{}p{0.22\dimexpr0.67\paperwidth\relax} X@{}}
+                        \Row{9pt}{11pt}{Tejido:} & \Row{9pt}{11pt}{\textbf{#3}} \\[0.5pt]
+                        \Row{8pt}{10pt}{\makebox[0pt][l]{Peso (Kg):}} & \Row{8pt}{10pt}{\textbf{#4}} \\[0.5pt]
+                        \Row{8pt}{10pt}{O/S:}    & \Row{8pt}{10pt}{\textbf{#5}} \\[0.5pt]
+                    \end{tabularx}
+                    \begin{tabularx}{\dimexpr0.67\paperwidth-20pt\relax}{@{}p{0.22\dimexpr0.67\paperwidth\relax} X p{0.22\dimexpr0.67\paperwidth\relax} X@{}}
+                        \Row{8pt}{10pt}{Tinto:} & \Row{8pt}{10pt}{\textbf{#6}} &
+                        \Row{8pt}{10pt}{Tejed:} & \Row{8pt}{10pt}{\textbf{#7}} \\[0.5pt]
+                    \end{tabularx}
+                    \begin{tabularx}{\dimexpr0.67\paperwidth-20pt\relax}{@{}p{0.22\dimexpr0.67\paperwidth\relax} X@{}}
+                        \Row{8pt}{10pt}{Hilan:} & \Row{8pt}{10pt}{\textbf{#8}} \\[0.5pt]
+                    \end{tabularx}
+                \end{adjustwidth}
+                \vspace*{\fill}
+            \end{minipage}
+        };
+
+
+    
+        \node[
+            anchor=north west,
+            % draw,
+            minimum width=0.33\paperwidth,
+            minimum height=0.67\paperheight,
+            inner sep=5pt
+        ] at ([xshift=0.67\paperwidth, yshift=-0.33\paperheight]current page.north west) {
+            \resizebox{!}{\dimexpr0.6\dimexpr0.67\paperheight-10pt\relax\relax}{\fontfamily{phv}\bfseries #9}
+        };
+
+    \end{tikzpicture}
+}

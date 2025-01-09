@@ -38,11 +38,20 @@ async def read_fabric(
 
 @router.get("/", response_model=FabricListSchema)
 async def read_fabrics(
+    include_inactives: bool = Query(default=False),
     yarn_ids: list[str] = Query(default=None, min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FabricService(db=db, promec_db=promec_db)
+    result = await service.read_fabrics(
+        include_inactives=include_inactives,
+        include_fabric_type=True,
+        include_color=True,
+        include_recipe=True,
+        include_yarn_instance_to_recipe=True,
+        exclude_legacy=True,
+    )
     result = None
     if yarn_ids:
         result = await service.find_fabrics_by_recipe(
@@ -110,7 +119,7 @@ async def update_fabric_status(
     result = await service.update_status(fabric_id=fabric_id, is_active=is_active)
 
     if result.is_success:
-        msg = f"El tejido ha sido {''if is_active else 'des'}activado con éxito"
+        msg = f"El tejido ha sido {'' if is_active else 'des'}activado con éxito"
         return {"message": msg}
 
     raise result.error

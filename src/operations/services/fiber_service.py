@@ -103,9 +103,15 @@ class FiberService:
         return Success(fiber)
 
     async def read_fibers(
-        self, include_category: bool = False, include_color: bool = False
+        self,
+        include_inactives: bool = False,
+        include_category: bool = False,
+        include_color: bool = False,
     ) -> Result[list[Fiber], CustomException]:
-        fibers = await self.repository.find_fibers(include_category=include_category)
+        fibers = await self.repository.find_fibers(
+            filter=Fiber.is_active.is_(True) if not include_inactives else None,
+            include_category=include_category,
+        )
 
         if include_color:
             await self._assign_color_to_fibers(fibers=fibers)

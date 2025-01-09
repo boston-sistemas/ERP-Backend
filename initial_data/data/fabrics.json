@@ -2,7 +2,7 @@
     {
         "id": "100100100119",
         "family_id": "02",
-        "subfamily_id": null,
+        "subfamily_id": "JLL",
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
@@ -17,7 +17,7 @@
     {
         "id": "100100100120",
         "family_id": "02",
-        "subfamily_id": null,
+        "subfamily_id": "JLL",
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
@@ -32,7 +32,7 @@
     {
         "id": "100100100121",
         "family_id": "02",
-        "subfamily_id": null,
+        "subfamily_id": "JLL",
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
@@ -47,7 +47,7 @@
     {
         "id": "100100100122",
         "family_id": "02",
-        "subfamily_id": null,
+        "subfamily_id": "JLL",
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
@@ -62,7 +62,7 @@
     {
         "id": "100100100123",
         "family_id": "02",
-        "subfamily_id": null,
+        "subfamily_id": "JLK",
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
@@ -77,7 +77,7 @@
     {
         "id": "100100100124",
         "family_id": "02",
-        "subfamily_id": null,
+        "subfamily_id": "JLK",
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",

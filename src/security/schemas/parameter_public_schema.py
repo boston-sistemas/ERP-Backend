@@ -78,6 +78,10 @@ class FabricTypesSchema(CustomBaseModel):
     fabric_types: list["ParameterValueSchema"]
 
 
+class ServiceOrderStatusSchema(CustomBaseModel):
+    service_order_status: list["ParameterValueSchema"]
+
+
 from .parameter_schema import ParameterValueSchema  # noqa: E402
 
 FiberCategoriesSchema.model_rebuild()
