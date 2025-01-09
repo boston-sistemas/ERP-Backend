@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
@@ -265,13 +266,18 @@ class YarnService:
 
     async def read_yarns(
         self,
+        include_inactives: bool = False,
         include_color: bool = False,
         include_spinning_method: bool = False,
         include_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         yarns = await self.repository.find_yarns(
-            include_color=include_color, exclude_legacy=exclude_legacy
+            filter=InventoryItem.is_active == ACTIVE_STATUS_PROMEC
+            if not include_inactives
+            else None,
+            include_color=include_color,
+            exclude_legacy=exclude_legacy,
         )
 
         if include_spinning_method:
@@ -314,7 +320,7 @@ class YarnService:
             inventory_unit_code="KG",
             purchase_unit_code="KG",
             description=form.description,
-            purchase_description=form.description,
+            purchase_description_=form.description,
             barcode=barcode,
             field1=form.yarn_count,
             field2=form.numbering_system,
@@ -360,7 +366,7 @@ class YarnService:
         )
         yarn.field4 = yarn_data.get("color_id", yarn.field4)
         yarn.description = yarn_data.get("description", yarn.description)
-        yarn.purchase_description = yarn.description
+        yarn.purchase_description_ = yarn.description
 
         if form.recipe is not None:
             recipe_validation_result = await self._validate_yarn_recipe(

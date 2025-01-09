@@ -1,6 +1,6 @@
 from copy import copy
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
@@ -34,11 +34,14 @@ async def read_fiber(
 
 @router.get("/", response_model=FiberCompleteListSchema)
 async def read_fibers(
+    include_inactives: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FiberService(db=db, promec_db=promec_db)
-    result = await service.read_fibers(include_category=True, include_color=True)
+    result = await service.read_fibers(
+        include_inactives=include_inactives, include_category=True, include_color=True
+    )
 
     if result.is_success:
         return FiberCompleteListSchema(fibers=result.value)

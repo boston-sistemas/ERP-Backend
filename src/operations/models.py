@@ -1710,7 +1710,7 @@ class InventoryItem(PromecBase):
             FabricYarn.company_code,
             FabricYarn.fabric_id,
         ],
-        viewonly=True, # This is required when assigning old recipes.
+        viewonly=True,  # This is required when assigning old recipes.
     )
 
     __table_args__ = ({"schema": "PUB"},)

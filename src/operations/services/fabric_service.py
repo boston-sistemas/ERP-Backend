@@ -1,6 +1,7 @@
 from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.repository import BaseRepository
@@ -298,6 +299,7 @@ class FabricService:
 
     async def read_fabrics(
         self,
+        include_inactives: bool = False,
         include_fabric_type: bool = False,
         include_color: bool = False,
         include_recipe: bool = False,
@@ -306,6 +308,9 @@ class FabricService:
     ) -> Result[FabricListSchema, CustomException]:
         _include_recipe = (not exclude_legacy) and include_recipe
         fabrics = await self.repository.find_fabrics(
+            filter=InventoryItem.is_active == ACTIVE_STATUS_PROMEC
+            if not include_inactives
+            else None,
             include_color=include_color,
             include_simple_recipe=_include_recipe,
             exclude_legacy=exclude_legacy,
@@ -369,7 +374,7 @@ class FabricService:
             inventory_unit_code="KG",
             purchase_unit_code="KG",
             description=form.description,
-            purchase_description=form.description,
+            purchase_description_=form.description,
             barcode=barcode,
             field1=str(form.density),
             field2=form.width_,
@@ -406,7 +411,7 @@ class FabricService:
         fabric.field4 = str(fabric_data.get("fabric_type_id", fabric.field4))
         fabric.field5 = fabric_data.get("structure_pattern", fabric.field5)
         fabric.description = fabric_data.get("description", fabric.description)
-        fabric.purchase_description = fabric.description
+        fabric.purchase_description_ = fabric.description
 
         try:
             fabric_validation = self._validate_fabric(
@@ -548,9 +553,7 @@ class FabricService:
         ids = {
             (fabric.subfamily_id + fabric.field1, fabric.field3)
             for fabric in fabrics
-            if fabric.subfamily_id
-            and fabric.field1
-            and not fabric.id.isdigit()
+            if fabric.subfamily_id and fabric.field1 and not fabric.id.isdigit()
         }
         if not ids:
             return None
