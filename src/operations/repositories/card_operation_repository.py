@@ -27,6 +27,8 @@ class CardOperationRepository(BaseRepository[CardOperation]):
             CardOperation.exit_number,
             CardOperation.document_number,
             CardOperation.product_id,
+            CardOperation.service_order_id,
+            CardOperation.supplier_weaving_tej,
         )
 
     async def find_card_operation_by_id(

@@ -88,7 +88,6 @@ class WeavingServiceEntryDetailSchema(WeavingServiceEntrySimpleSchema):
             return self.detail_fabric.tint_supplier_color_id
         return None
 
-
 class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     item_number: int | None = Field(default=None, ge=1)
     guide_net_weight: float = Field(gt=0.0)

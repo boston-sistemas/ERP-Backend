@@ -8,10 +8,13 @@ from src.operations.schemas import (
     WeavingServiceEntryCreateSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntryUpdateSchema,
+    WeavingServiceEntryPrintListSchema,
 )
 from src.operations.services import (
     WeavingServiceEntryService,
 )
+
+from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
@@ -144,3 +147,20 @@ async def check_weaving_service_entry_is_updatable(
         "updatable": False,
         "message": result.error.detail,
     }
+
+@router.post("/print/cards")
+async def print_weaving_service_entry(
+    form: WeavingServiceEntryPrintListSchema,
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = WeavingServiceEntryService(promec_db=promec_db)
+    result = await service.print_weaving_service_entry(
+        form=form
+    )
+
+    if result.is_success:
+        response = StreamingResponse(result.value, media_type="application/pdf")
+        response.headers['Content-Disposition'] = 'attachment; filename=tarjetas.pdf'
+        return response
+
+    raise result.error

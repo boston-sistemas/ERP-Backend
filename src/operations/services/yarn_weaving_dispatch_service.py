@@ -65,6 +65,9 @@ from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
 
+from src.operations.utils.movements.yarn_weaving_dispatch.pdf import (
+    generate_pdf
+)
 
 class YarnWeavingDispatchService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -1234,3 +1237,12 @@ class YarnWeavingDispatchService(MovementService):
             return validation_result
 
         return Success(None)
+
+    async def print_yarn_weaving_dispatch(
+        self,
+    ) -> Result[None, CustomException]:
+
+        pdf = generate_pdf()
+
+        return Success(pdf)
+

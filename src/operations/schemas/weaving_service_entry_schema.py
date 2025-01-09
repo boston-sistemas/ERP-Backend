@@ -8,6 +8,7 @@ from src.operations.constants import (
     NROGF_MAX_LENGTH,
     SERGF_MAX_LENGTH,
     SUPPLIER_CODE_MAX_LENGTH,
+    CARD_ID_MAX_LENGTH,
 )
 
 from .weaving_service_entry_detail_schema import (
@@ -85,6 +86,11 @@ class WeavingServiceEntryCreateSchema(CustomBaseModel):
 
         return self
 
+class WeavingServiceEntryPrintSchema(CustomBaseModel):
+    card_id: str = Field(max_length=CARD_ID_MAX_LENGTH)
+
+class WeavingServiceEntryPrintListSchema(CustomBaseModel):
+    card_ids: list[WeavingServiceEntryPrintSchema] = []
 
 class WeavingServiceEntryUpdateSchema(CustomBaseModel):
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)

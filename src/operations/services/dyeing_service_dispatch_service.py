@@ -56,6 +56,9 @@ from .series_service import (
 )
 from .supplier_service import SupplierService
 
+from src.operations.utils.movements.dyeing_service_dispatch.pdf import (
+    generate_pdf
+)
 
 class DyeingServiceDispatchService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession) -> None:
@@ -1083,3 +1086,12 @@ class DyeingServiceDispatchService(MovementService):
             return validation_result
 
         return Success(None)
+
+    async def print_dyeing_service_dispatch(
+        self,
+    ) -> Result[None, CustomException]:
+        pass
+
+        pdf = generate_pdf()
+
+        return Success(pdf)

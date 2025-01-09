@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
@@ -31,7 +31,28 @@ class CardOperationSimpleSchema(CardOperationBase):
 class CardOperationSchema(CardOperationSimpleSchema):
     document_number: str | None = None
     exit_number: str | None = None
+    service_order_id: str | None = None
+    supplier_weaving_tej: str | None = None
 
+    _supplier_weaving_tej_initials: str | None = None
+    _supplier_tint_initials: str | None = None
+    _supplier_yarn_initials: list[str] | None = []
+
+    suppliers_yarn: list[str] | None = []
+    service_orders: list[str] | None = []
+
+    @model_validator(mode="after")
+    def set_suppliers_yarn(self):
+        self.suppliers_yarn = self.yarn_supplier_id.split(",")
+        return self
+
+    @model_validator(mode="after")
+    def set_service_orders(self):
+        self.service_orders = self.service_order_id.split(",")
+        return self
+
+class CardOperationListSchema(CustomBaseModel):
+    card_operations: list[CardOperationSchema]
 
 class CardOperationCreateSchema(CustomBaseModel):
     fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)

@@ -1363,7 +1363,7 @@ class FabricWarehouse(PromecBase):
         "colpro", String(length=COLOR_ID_MAX_LENGTH)
     )
     tint_supplier_color_id: Mapped[str] = mapped_column(
-        "tint_supplier_color_id", String(length=COLOR_ID_MAX_LENGTH)
+        "protincol", String(length=COLOR_ID_MAX_LENGTH)
     )
 
     idavctint: Mapped[str] = mapped_column(default="")

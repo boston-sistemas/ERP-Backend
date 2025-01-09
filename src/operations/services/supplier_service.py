@@ -10,7 +10,11 @@ from src.operations.failures import (
 from src.operations.models import Supplier
 from src.operations.models import SupplierService as SupplierServiceModel
 from src.operations.repositories import SupplierRepository
-from src.operations.schemas import SupplierSchema, SupplierSimpleListSchema
+from src.operations.schemas import (
+    SupplierSchema,
+    SupplierSimpleListSchema,
+    SupplierListSchema,
+)
 
 
 class SupplierService:
@@ -102,3 +106,16 @@ class SupplierService:
         )
 
         return Success(SupplierSimpleListSchema(suppliers=suppliers))
+
+    async def reads_supplier_initials_by_id(
+        self,
+        ids: dict[str, str],
+    ) -> Result[SupplierListSchema, CustomException]:
+        for supplier_code in ids:
+            supplier = await self.read_supplier(supplier_code=supplier_code)
+            if supplier.is_failure:
+                continue
+
+            ids[supplier_code] = supplier.value.initials
+
+        return Success(ids)

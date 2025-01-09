@@ -53,6 +53,9 @@ from .yarn_purchase_entry_detail_heavy_service import (
 )
 from .yarn_service import YarnService
 
+from src.operations.utils.movements.yarn_purchase_entry.pdf import (
+    generate_pdf
+)
 
 class YarnPurchaseEntryService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession = None) -> None:
@@ -956,3 +959,12 @@ class YarnPurchaseEntryService(MovementService):
             return yarn_purchase_entries_item_group_availability
 
         return Success(yarn_purchase_entries_item_group_availability.value)
+
+    async def print_yarn_purchase_entry(
+        self,
+    ) -> Result[None, CustomException]:
+        pass
+
+        pdf = generate_pdf()
+
+        return Success(pdf)

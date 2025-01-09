@@ -13,6 +13,7 @@ from src.operations.services import (
     YarnPurchaseEntryService,
 )
 
+from fastapi.responses import StreamingResponse
 router = APIRouter()
 
 
@@ -159,3 +160,24 @@ async def is_updated_permission(
         }
 
     return {"updatable": False, "message": result.error.detail}
+
+@router.post("/print/movement")
+async def print_yarn_purchase_entry(
+    # form: WeavingServiceEntryPrintListSchema,
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    db: AsyncSession = Depends(get_db),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = YarnPurchaseEntryService(db=db, promec_db=promec_db)
+    result = await service.print_yarn_purchase_entry(
+        # form=form
+    )
+
+    if result.is_success:
+        response = StreamingResponse(result.value, media_type="application/pdf")
+        response.headers['Content-Disposition'] = 'attachment; filename=tarjetas.pdf'
+        return response
+
+    raise result.error

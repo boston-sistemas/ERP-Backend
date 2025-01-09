@@ -57,6 +57,7 @@ from src.operations.schemas import (
     WeavingServiceEntryDetailCreateSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntryUpdateSchema,
+    WeavingServiceEntryPrintListSchema,
 )
 from src.operations.sequences import card_id_seq
 
@@ -70,7 +71,11 @@ from .series_service import (
 from .service_order_service import ServiceOrderService
 from .service_order_stock_service import ServiceOrderStockService
 from .supplier_service import SupplierService
+from .card_operation_service import CardOperationService
 
+from src.operations.utils.card_operation.pdf import (
+    generate_pdf_cards
+)
 
 class WeavingServiceEntryService(MovementService):
     def __init__(self, promec_db: AsyncSession, db: AsyncSession = None) -> None:
@@ -103,6 +108,7 @@ class WeavingServiceEntryService(MovementService):
         self.card_operation_repository = BaseRepository(
             model=CardOperation, db=promec_db
         )
+        self.card_operation_service = CardOperationService(promec_db=promec_db)
 
     async def read_weaving_service_entries(
         self,
@@ -1385,3 +1391,22 @@ class WeavingServiceEntryService(MovementService):
             return validation_result
 
         return Success(None)
+
+    async def print_weaving_service_entry(
+        self,
+        form: WeavingServiceEntryPrintListSchema,
+    ):
+
+        card_ids = [card.card_id for card in form.card_ids]
+
+        card_operations_value = await self.card_operation_service.reads_card_operation_by_id(
+            ids=card_ids,
+        )
+
+        if card_operations_value.is_failure:
+            return card_operations_value
+        card_operations = card_operations_value.value
+
+        pdf = generate_pdf_cards(cards=card_operations)
+
+        return Success(pdf)
