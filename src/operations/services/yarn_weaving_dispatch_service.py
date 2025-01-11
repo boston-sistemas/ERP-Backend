@@ -102,13 +102,13 @@ class YarnWeavingDispatchService(MovementService):
         limit: int = None,
         offset: int = None,
         period: int = None,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
     ) -> Result[YarnWeavingDispatchSimpleListSchema, CustomException]:
         yarn_weaving_dispatches = await self.repository.find_yarn_weaving_dispatches(
             limit=limit,
             offset=offset,
             period=period,
-            include_inactive=include_inactive,
+            include_annulled=include_annulled,
         )
 
         return Success(

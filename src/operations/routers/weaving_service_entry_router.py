@@ -25,12 +25,12 @@ async def read_weaving_service_entries(
     ),
     limit: int | None = Query(default=10, ge=1, le=100),
     offset: int | None = Query(default=0, ge=0),
-    include_inactive: bool | None = Query(default=False),
+    include_annulled: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = WeavingServiceEntryService(promec_db=promec_db)
     result = await service.read_weaving_service_entries(
-        limit=limit, offset=offset, period=period, include_inactive=include_inactive
+        limit=limit, offset=offset, period=period, include_annulled=include_annulled
     )
 
     if result.is_success:

@@ -31,13 +31,11 @@ class OrdenCompraService:
     async def _read_purchase_yarn_order(
         self,
         purchase_order_number: str,
-        period: int,
         include_detalle: bool = False,
         include_annulled: bool = False,
     ) -> Result[OrdenCompra, CustomException]:
         orden = await self.repository.find_yarn_order_by_purchase_order_number(
             purchase_order_number=purchase_order_number,
-            period=period,
             include_detalle=include_detalle,
         )
 
@@ -52,12 +50,10 @@ class OrdenCompraService:
     async def read_purchase_yarn_order(
         self,
         purchase_order_number: str,
-        period: int,
         include_detalle: bool = False,
         include_annulled: bool = False,
     ) -> OrdenCompra | None:
         purchase_yarn_order_result = await self._read_purchase_yarn_order(
-            period=period,
             purchase_order_number=purchase_order_number,
             include_detalle=include_detalle,
             include_annulled=include_annulled,
@@ -75,11 +71,9 @@ class OrdenCompraService:
         purchase_order_number: str,
         product_code: str,
         quantity_supplied: int,
-        period: int,
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_result = await self._read_purchase_yarn_order(
             purchase_order_number=purchase_order_number,
-            period=period,
             include_detalle=True,
             include_annulled=True,
         )
@@ -114,10 +108,8 @@ class OrdenCompraService:
         purchase_order_number: str,
         product_code: str,
         quantity_supplied: int,
-        period: int,
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_result = await self._read_purchase_yarn_order(
-            period=period,
             purchase_order_number=purchase_order_number,
             include_detalle=True,
         )

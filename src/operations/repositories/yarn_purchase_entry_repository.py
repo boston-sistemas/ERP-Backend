@@ -130,7 +130,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
     async def find_yarn_purchase_entries(
         self,
         period: int,
-        include_inactive: bool,
+        include_annulled: bool,
         limit: int = None,
         offset: int = None,
         filter: BinaryExpression = None,
@@ -142,7 +142,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             & (Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE)
             & (Movement.period == period)
         )
-        if not include_inactive:
+        if not include_annulled:
             base_filter = base_filter & (Movement.status_flag == "P")
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options()

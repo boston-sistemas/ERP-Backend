@@ -29,7 +29,7 @@ class ServiceOrderRepository(BaseRepository[ServiceOrder]):
         self,
         order_type: str,
         include_detail: bool = False,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
         filter: BinaryExpression = None,
         limit: int = None,
         offset: int = None,
@@ -41,7 +41,7 @@ class ServiceOrderRepository(BaseRepository[ServiceOrder]):
             ServiceOrder._type == order_type
         )
 
-        if not include_inactive:
+        if not include_annulled:
             base_filter = base_filter & (ServiceOrder.status_flag == "P")
 
         filter = base_filter & filter if filter is not None else base_filter

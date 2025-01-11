@@ -14,7 +14,9 @@ from src.operations.models import (
     FabricWarehouse,
     Movement,
     MovementDetail,
+    MovementDetailAux,
     ProductInventory,
+    MovementYarnOCHeavy,
 )
 from src.operations.repositories import MovementRepository
 
@@ -27,6 +29,12 @@ class MovementService:
         self.repository = MovementRepository(promec_db=promec_db)
         self.movement_detail_repository = BaseRepository(
             model=MovementDetail, db=promec_db
+        )
+        self.movement_detail_aux_repository = BaseRepository(
+            model=MovementDetailAux, db=promec_db
+        )
+        self.movement_detail_heavy_repository = BaseRepository(
+            model=MovementYarnOCHeavy, db=promec_db
         )
         self.fabric_warehouse_repository = BaseRepository(
             model=FabricWarehouse, db=promec_db
@@ -73,6 +81,8 @@ class MovementService:
         self,
         movement: Movement,
         movement_detail: list[MovementDetail] = [],
+        movememt_detail_aux: list[MovementDetailAux] = [],
+        movement_detail_heavy: list[MovementYarnOCHeavy] = [],
         movement_detail_fabric: list[FabricWarehouse] = [],
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
@@ -80,6 +90,12 @@ class MovementService:
 
         for detail in movement_detail:
             await self.movement_detail_repository.save(detail)
+
+        for detail in movememt_detail_aux:
+            await self.movement_detail_aux_repository.save(detail)
+
+        for detail in movement_detail_heavy:
+            await self.movement_detail_heavy_repository.save(detail)
 
         for detail in movement_detail_fabric:
             await self.fabric_warehouse_repository.save(detail)

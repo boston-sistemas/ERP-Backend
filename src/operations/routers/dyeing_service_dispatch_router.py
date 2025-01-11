@@ -22,13 +22,13 @@ async def read_dyeing_service_dispatches(
     ),
     limit: int | None = Query(default=10, ge=1, le=100),
     offset: int | None = Query(default=0, ge=0),
-    include_inactive: bool | None = Query(default=False),
+    include_annulled: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
 ):
     service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
     result = await service.read_dyeing_service_dispatches(
-        limit=limit, offset=offset, period=period, include_inactive=include_inactive
+        limit=limit, offset=offset, period=period, include_annulled=include_annulled
     )
 
     if result.is_success:

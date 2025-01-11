@@ -18,7 +18,7 @@ async def read_service_orders(
     limit: int | None = Query(default=10, ge=1, le=100),
     offset: int | None = Query(default=0, ge=0),
     include_detail: bool | None = Query(default=False),
-    include_inactive: bool | None = Query(default=False),
+    include_annulled: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
 ):
@@ -27,7 +27,7 @@ async def read_service_orders(
         order_type="TJ",
         limit=limit,
         offset=offset,
-        include_inactive=include_inactive,
+        include_annulled=include_annulled,
         include_detail=include_detail,
         include_status=True,
     )

@@ -113,13 +113,13 @@ class WeavingServiceEntryService(MovementService):
         period: int,
         limit: int = None,
         offset: int = None,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
     ) -> Result[WeavingServiceEntriesSimpleListSchema, CustomException]:
         weaving_service_entries = await self.repository.find_weaving_service_entries(
             limit=limit,
             offset=offset,
             period=period,
-            include_inactive=include_inactive,
+            include_annulled=include_annulled,
         )
 
         return Success(
@@ -385,6 +385,7 @@ class WeavingServiceEntryService(MovementService):
                     validation_result = await self.supplier_service.read_supplier(
                         supplier_code=detail.tint_supplier_id,
                         include_colors=True,
+                        include_service=True,
                     )
                     if validation_result.is_failure:
                         return validation_result

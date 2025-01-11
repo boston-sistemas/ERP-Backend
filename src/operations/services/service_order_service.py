@@ -56,7 +56,7 @@ class ServiceOrderService:
         limit: int,
         offset: int,
         include_detail: bool = False,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
         include_status: bool = False,
     ) -> Result[ServiceOrderListSchema, CustomException]:
         service_orders = await self.repository.find_service_orders_by_order_type(
@@ -64,7 +64,7 @@ class ServiceOrderService:
             limit=limit,
             offset=offset,
             include_detail=include_detail,
-            include_inactive=include_inactive,
+            include_annulled=include_annulled,
             order_by=ServiceOrder.issue_date.desc(),
         )
 

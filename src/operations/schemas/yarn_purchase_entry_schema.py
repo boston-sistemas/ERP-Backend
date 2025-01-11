@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import AliasChoices, Field, model_validator
+from pydantic import AliasChoices, Field, model_validator, field_serializer
 
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
@@ -43,6 +43,12 @@ class YarnPurchaseEntryBase(CustomBaseModel):
     mecsa_batch: str | None
 
     document_note: str | None
+
+    @field_serializer("creation_date", when_used="json")
+    def serialize_creation_date(value: date | None) -> str | None:
+        if value is None:
+            return None
+        return value.strftime("%d-%m-%Y")
 
     class Config:
         from_attributes = True
@@ -87,12 +93,12 @@ class YarnPurchaseEntrySchema(YarnPurchaseEntrySimpleSchema):
 
 
 class YarnPurchaseEntryCreateSchema(CustomBaseModel):
-    period: int
+    # period: int
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     fecgf: date
     purchase_order_number: str = Field(max_length=REFERENCE_NUMBER_MAX_LENGTH)
-    document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
+    document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
     supplier_batch: str = Field(max_length=SUPPLIER_BATCH_MAX_LENGTH)
 
     detail: list[YarnPurchaseEntryDetailCreateSchema] = Field(default=[])
@@ -127,31 +133,7 @@ class YarnPurchaseEntryUpdateSchema(CustomBaseModel):
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     fecgf: date
-    document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
+    document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
     supplier_batch: str = Field(max_length=SUPPLIER_BATCH_MAX_LENGTH)
     detail: list[YarnPurchaseEntryDetailUpdateSchema] = Field(default=[])
 
-    @model_validator(mode="after")
-    def align_item_numbers(self):
-        total = len(self.detail)
-        assigned_nums = [
-            d.item_number for d in self.detail if d.item_number is not None
-        ]
-
-        if len(assigned_nums) != len(set(assigned_nums)) or any(
-            num < 1 or num > total for num in assigned_nums
-        ):
-            for i, d in enumerate(self.detail, start=1):
-                d.item_number = i
-            return self
-
-        used = set(assigned_nums)
-        missing = [i for i in range(1, total + 1) if i not in used]
-
-        m_idx = 0
-        for d in self.detail:
-            if d.item_number is None:
-                d.item_number = missing[m_idx]
-                m_idx += 1
-
-        return self

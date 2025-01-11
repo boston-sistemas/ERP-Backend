@@ -87,14 +87,14 @@ class DyeingServiceDispatchService(MovementService):
         period: int,
         limit: int = None,
         offset: int = None,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
     ) -> Result[DyeingServiceDispatchesListSchema, CustomException]:
         dyeing_service_dispatches = (
             await self.repository.find_dyeing_service_dispatches(
                 period=period,
                 limit=limit,
                 offset=offset,
-                include_inactive=include_inactive,
+                include_annulled=include_annulled,
             )
         )
 
@@ -532,7 +532,7 @@ class DyeingServiceDispatchService(MovementService):
         target_card: CardOperation,
         existing_movements: list[MovementDetail],
     ) -> Result[list[MovementDetail], CustomException]:
-        await self.card_operation_repository.save(target_card)
+        # await self.card_operation_repository.save(target_card)
 
         remaining_movements = []
         for movement in existing_movements:
