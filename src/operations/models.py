@@ -1202,6 +1202,7 @@ class MovementDetailAux(PromecBase):
             MovementDetail.document_number == MovementDetailAux.document_number,
             MovementDetail.item_number == MovementDetailAux.item_number,
         ),
+        viewonly=True,
         back_populates="detail_aux",
         foreign_keys=lambda: [
             MovementDetailAux.company_code,

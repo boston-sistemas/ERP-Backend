@@ -41,6 +41,7 @@ from src.operations.schemas import (
     YarnPurchaseEntryDetailUpdateSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
+    YarnPurchaseEntryFilterParams,
 )
 from src.operations.sequences import mecsa_batch_sq
 from src.operations.utils.movements.yarn_purchase_entry.pdf import generate_pdf
@@ -125,16 +126,19 @@ class YarnPurchaseEntryService(MovementService):
 
     async def read_yarn_purchase_entries(
         self,
-        period: int,
-        limit: int = None,
-        offset: int = None,
-        include_annulled: bool = False,
+        filter_params: YarnPurchaseEntryFilterParams,
     ) -> Result[YarnPurchaseEntriesSimpleListSchema, CustomException]:
         yarn_purchase_entries = await self.repository.find_yarn_purchase_entries(
-            limit=limit,
-            offset=offset,
-            period=period,
-            include_annulled=include_annulled,
+            limit=filter_params.limit,
+            offset=filter_params.offset,
+            period=filter_params.period,
+            include_annulled=filter_params.include_annulled,
+            supplier_ids=filter_params.supplier_ids,
+            purchase_order_number=filter_params.purchase_order_number,
+            supplier_batch=filter_params.supplier_batch,
+            mecsa_batch=filter_params.mecsa_batch,
+            start_date=filter_params.start_date,
+            end_date=filter_params.end_date,
         )
 
         return Success(

@@ -131,6 +131,7 @@ from .yarn_purchase_entry_schema import (
     YarnPurchaseEntrySchema,
     YarnPurchaseEntrySearchSchema,
     YarnPurchaseEntryUpdateSchema,
+    YarnPurchaseEntryFilterParams,
 )
 from .yarn_schema import (
     YarnCreateSchema,

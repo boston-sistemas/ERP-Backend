@@ -18,6 +18,9 @@ from .yarn_purchase_entry_detail_schema import (
     YarnPurchaseEntryDetailUpdateSchema,
 )
 
+from .promec_status_schema import PromecStatusSchema
+
+from src.core.utils import PERU_TIMEZONE, calculate_time
 
 class YarnPurchaseEntryBase(CustomBaseModel):
     # storage_code: str
@@ -33,7 +36,6 @@ class YarnPurchaseEntryBase(CustomBaseModel):
     supplier_code: str | None = Field(
         default=None, validation_alias=AliasChoices("auxiliary_code", "supplier_code")
     )
-    status_flag: str | None
     purchase_order_number: str | None = Field(
         default=None,
         validation_alias=AliasChoices("reference_number2", "purchase_order_number"),
@@ -55,8 +57,32 @@ class YarnPurchaseEntryBase(CustomBaseModel):
 
 
 class YarnPurchaseEntrySimpleSchema(YarnPurchaseEntryBase):
-    pass
 
+    status_flag: str | None = Field(exclude=True)
+
+    promec_status: PromecStatusSchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_status(self):
+        if self.status_flag is not None:
+            self.promec_status = PromecStatusSchema(
+                status_id=self.status_flag
+            )
+        return self
+
+class YarnPurchaseEntryFilterParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    supplier_ids: list[str] | None = Field(default=None)
+    purchase_order_number: str | None = Field(default=None)
+    supplier_batch: str | None = Field(default=None)
+    mecsa_batch: str | None = Field(default=None)
+    start_date: date | None = Field(default=None)
+    end_date: date | None = Field(default=None)
+    limit: int | None = Field(default=10, ge=1, le=100)
+    offset: int | None = Field(default=0, ge=0)
+    include_annulled: bool | None = Field(default=False)
 
 class YarnPurchaseEntriesSimpleListSchema(CustomBaseModel):
     yarn_purchase_entries: list[YarnPurchaseEntrySimpleSchema] = []
