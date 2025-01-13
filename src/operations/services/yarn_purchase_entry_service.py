@@ -71,15 +71,6 @@ class YarnPurchaseEntryService(MovementService):
             model=CurrencyExchange, db=promec_db
         )
         self.supplier_service = SupplierService(promec_db=promec_db)
-        self.yarn_purchase_entry_detail_repository = BaseRepository(
-            model=MovementDetail, db=promec_db
-        )
-        self.yarn_purchase_entry_detail_aux_repository = BaseRepository(
-            model=MovementDetailAux, db=promec_db
-        )
-        self.yarn_purchase_entry_detail_heavy_repository = BaseRepository(
-            model=MovementYarnOCHeavy, db=promec_db
-        )
         self.yarn_purchase_entry_detail_heavy_service = (
             YarnPurchaseEntryDetailHeavyService(promec_db=promec_db)
         )
@@ -433,7 +424,7 @@ class YarnPurchaseEntryService(MovementService):
 
         yarn_purchase_entry.detail = yarn_purchase_entry_detail
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=yarn_purchase_entry,
             movement_detail=yarn_purchase_entry_detail,
             movememt_detail_aux=yarn_purchase_entry_detail_aux,
@@ -450,15 +441,17 @@ class YarnPurchaseEntryService(MovementService):
         yarn_purchase_entry_detail: MovementDetail,
     ) -> Result[None, CustomException]:
 
-        await self.yarn_purchase_entry_detail_heavy_repository.delete_all(
-            yarn_purchase_entry_detail.detail_heavy
+        movement_detail = [yarn_purchase_entry_detail]
+        movement_detail_aux = [yarn_purchase_entry_detail.detail_aux]
+        movement_detail_heavy = yarn_purchase_entry_detail.detail_heavy
+        delete_result = await self.delete_movement(
+            movement_detail=movement_detail,
+            movememt_detail_aux=movement_detail_aux,
+            movement_detail_heavy=movement_detail_heavy,
         )
-        await self.yarn_purchase_entry_detail_aux_repository.delete(
-            yarn_purchase_entry_detail.detail_aux
-        )
-        await self.yarn_purchase_entry_detail_repository.delete(
-            yarn_purchase_entry_detail
-        )
+
+        if delete_result.is_failure:
+            return delete_result
 
         return Success(None)
 
@@ -466,9 +459,12 @@ class YarnPurchaseEntryService(MovementService):
         self,
         yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy,
     ) -> Result[None, CustomException]:
-        await self.yarn_purchase_entry_detail_heavy_repository.delete(
-            yarn_purchase_entry_detail_heavy
+        delete_result = await self.delete_movement(
+            movement_detail_heavy=[yarn_purchase_entry_detail_heavy]
         )
+
+        if delete_result.is_failure:
+            return delete_result
 
         return Success(None)
 
@@ -942,7 +938,7 @@ class YarnPurchaseEntryService(MovementService):
                 yarn_purchase_entry_detail_aux_result
             )
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=yarn_purchase_entry,
             movement_detail=yarn_purchase_entry_detail,
             movememt_detail_aux=yarn_purchase_entry_detail_aux,
@@ -1001,7 +997,7 @@ class YarnPurchaseEntryService(MovementService):
 
         yarn_purchase_entry.status_flag = "A"
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=yarn_purchase_entry,
             movement_detail=yarn_purchase_entry_detail,
             movement_detail_heavy=yarn_purchase_entry_detail_heavy,

@@ -295,7 +295,7 @@ class DyeingServiceDispatchService(MovementService):
                 new_stock=fabric_id_detail[fabric]["net_weight"],
             )
 
-        await self.create_movement(
+        await self.save_movement(
             movement=dyeing_service_entry,
             movement_detail=dyeing_service_entry_detail,
         )
@@ -516,7 +516,7 @@ class DyeingServiceDispatchService(MovementService):
 
         dyeing_service_dispatch.detail_dyeing = dyeing_service_dispatch_detail
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch_detail,
@@ -986,7 +986,7 @@ class DyeingServiceDispatchService(MovementService):
 
         dyeing_service_dispatch.detail_dyeing = dyeing_service_dispatch_detail
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch_detail,
@@ -1046,7 +1046,7 @@ class DyeingServiceDispatchService(MovementService):
         for detail in dyeing_service_dispatch.detail_dyeing:
             detail.status_flag = "A"
 
-        update_result = await self.create_movement(
+        update_result = await self.save_movement(
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch.detail_dyeing,

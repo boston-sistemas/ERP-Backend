@@ -77,9 +77,39 @@ class MovementService:
 
         return Success(product_inventory.value)
 
-    async def create_movement(
+    async def delete_movement(
         self,
-        movement: Movement,
+        movement: Movement = None,
+        movement_detail: list[MovementDetail] = [],
+        movememt_detail_aux: list[MovementDetailAux] = [],
+        movement_detail_heavy: list[MovementYarnOCHeavy] = [],
+        movement_detail_fabric: list[FabricWarehouse] = [],
+        movement_detail_card: list[CardOperation] = [],
+    ) -> Result[None, CustomException]:
+
+        if movement:
+            await self.repository.delete(movement)
+
+        for detail in movement_detail:
+            await self.movement_detail_repository.delete(detail)
+
+        for detail in movememt_detail_aux:
+            await self.movement_detail_aux_repository.delete(detail)
+
+        for detail in movement_detail_heavy:
+            await self.movement_detail_heavy_repository.delete(detail)
+
+        for detail in movement_detail_fabric:
+            await self.fabric_warehouse_repository.delete(detail)
+
+        for detail in movement_detail_card:
+            await self.card_operation_repository.delete(detail)
+
+        return Success(None)
+
+    async def save_movement(
+        self,
+        movement: Movement = None,
         movement_detail: list[MovementDetail] = [],
         movememt_detail_aux: list[MovementDetailAux] = [],
         movement_detail_heavy: list[MovementYarnOCHeavy] = [],

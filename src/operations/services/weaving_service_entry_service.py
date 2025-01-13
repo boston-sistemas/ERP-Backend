@@ -573,7 +573,7 @@ class WeavingServiceEntryService(MovementService):
 
                 yarn_weaving_dispatch_detail.append(yarn_weaving_dispatch_detail_value)
 
-        await self.create_movement(
+        await self.save_movement(
             movement=yarn_weaving_dispatch,
             movement_detail=yarn_weaving_dispatch_detail,
         )
@@ -803,7 +803,7 @@ class WeavingServiceEntryService(MovementService):
 
         weaving_service_entry.detail = weaving_service_entry_detail
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=weaving_service_entry,
             movement_detail=weaving_service_entry_detail,
             movement_detail_fabric=weaving_service_entry_detail_fabric,
@@ -1286,7 +1286,7 @@ class WeavingServiceEntryService(MovementService):
                     )
                 weaving_service_entry.detail.append(weaving_service_entry_detail_value)
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=weaving_service_entry,
             movement_detail=weaving_service_entry.detail,
             movement_detail_fabric=[
@@ -1350,7 +1350,7 @@ class WeavingServiceEntryService(MovementService):
 
         weaving_service_entry.status_flag = "A"
 
-        await self.create_movement(
+        await self.save_movement(
             movement=weaving_service_entry,
             movement_detail=weaving_service_entry.detail,
             movement_detail_fabric=[
