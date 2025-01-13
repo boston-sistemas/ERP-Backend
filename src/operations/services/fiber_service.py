@@ -111,6 +111,7 @@ class FiberService:
         fibers = await self.repository.find_fibers(
             filter=Fiber.is_active.is_(True) if not include_inactives else None,
             include_category=include_category,
+            order_by=Fiber.id.asc(),
         )
 
         if include_color:

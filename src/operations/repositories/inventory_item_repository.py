@@ -1,6 +1,6 @@
-from typing import Sequence
+from typing import Sequence, Union
 
-from sqlalchemy import BinaryExpression
+from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
 
@@ -38,6 +38,9 @@ class InventoryItemRepository(BaseRepository[InventoryItem]):
         self,
         filter: BinaryExpression = None,
         exclude_legacy: bool = False,
+        order_by: Union[
+            Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
+        ] = None,
         options: Sequence[Load] = None,
         apply_unique: bool = False,
     ) -> list[InventoryItem]:
@@ -45,7 +48,7 @@ class InventoryItemRepository(BaseRepository[InventoryItem]):
         filter = base_filter & filter if filter is not None else base_filter
 
         inventory_items = await self.find_all(
-            filter=filter, options=options, apply_unique=apply_unique
+            filter=filter, order_by=order_by, options=options, apply_unique=apply_unique
         )
 
         return (

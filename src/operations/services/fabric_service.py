@@ -1,7 +1,6 @@
 from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
@@ -88,16 +87,18 @@ class FabricService:
         if not fabrics:
             return None
 
-        fabric_recipe_mapping = {fabric.id: [] for fabric in fabrics}
-        items = await self.recipe_repository.find_all(
-            filter=FabricYarn.fabric_id.in_(fabric_recipe_mapping.keys())
-        )
+        fabric_recipe_mapping = {
+            fabric.id: [] for fabric in fabrics if not fabric.fabric_recipe
+        }
+        if fabric_recipe_mapping:
+            items = await self.recipe_repository.find_all(
+                filter=FabricYarn.fabric_id.in_(fabric_recipe_mapping.keys())
+            )
+            for item in items:
+                fabric_recipe_mapping[item.fabric_id].append(item)
 
-        for item in items:
-            fabric_recipe_mapping[item.fabric_id].append(item)
-
-        for fabric in fabrics:
-            fabric.fabric_recipe = fabric_recipe_mapping[fabric.id]
+            for fabric in fabrics:
+                fabric.fabric_recipe = fabric_recipe_mapping[fabric.id]
 
         if include_yarn_instance:
             await self._include_yarn_instance_to_recipes(fabrics=fabrics)
@@ -120,6 +121,38 @@ class FabricService:
         for fabric in fabrics:
             for item in fabric.fabric_recipe:
                 item.yarn = yarn_mapping.get(item.yarn_id, None)
+
+    async def _load_related_data_for_fabrics(
+        self,
+        fabrics: list[InventoryItem],
+        include_fabric_type: bool = False,
+        include_recipe: bool = False,
+        include_yarn_instance_to_recipe: bool = False,
+    ) -> None:
+        purchase_description_mapping = {
+            fabric.id: fabric.purchase_description for fabric in fabrics
+        }
+
+        if include_fabric_type:
+            await self._assign_fabric_type_to_fabrics(fabrics=fabrics)
+
+        old_fabrics = [fabric for fabric in fabrics if not fabric.id.isdigit()]
+        new_fabrics = [fabric for fabric in fabrics if fabric.id.isdigit()]
+
+        if new_fabrics and include_recipe:
+            await self._assign_recipe_to_fabrics(
+                fabrics=new_fabrics,
+                include_yarn_instance=include_yarn_instance_to_recipe,
+            )
+
+        if old_fabrics and include_recipe:
+            await self._assign_old_recipe_to_fabrics(
+                fabrics=old_fabrics,
+                include_yarn_instance=include_yarn_instance_to_recipe,
+            )
+
+        for fabric in fabrics:
+            fabric.purchase_description = purchase_description_mapping[fabric.id]
 
     async def _validate_fabric_data(
         self,
@@ -265,11 +298,12 @@ class FabricService:
         if fabric is None:
             return FABRIC_NOT_FOUND_FAILURE
 
-        if include_fabric_type:
-            await self._assign_fabric_type_to_fabrics([fabric])
-
-        if include_yarn_instance_to_recipe:
-            await self._include_yarn_instance_to_recipes([fabric])
+        await self._load_related_data_for_fabrics(
+            fabrics=[fabric],
+            include_fabric_type=include_fabric_type,
+            include_recipe=include_recipe,
+            include_yarn_instance_to_recipe=include_yarn_instance_to_recipe,
+        )
 
         return Success(fabric)
 
@@ -296,7 +330,7 @@ class FabricService:
 
     async def read_fabrics(
         self,
-        include_inactives: bool = False,
+        include_inactives: bool = True,
         include_fabric_type: bool = False,
         include_color: bool = False,
         include_recipe: bool = False,
@@ -305,29 +339,19 @@ class FabricService:
     ) -> Result[FabricListSchema, CustomException]:
         _include_recipe = (not exclude_legacy) and include_recipe
         fabrics = await self.repository.find_fabrics(
-            filter=InventoryItem.is_active == ACTIVE_STATUS_PROMEC
-            if not include_inactives
-            else None,
+            include_inactives=include_inactives,
+            order_by=InventoryItem.id.asc(),
             include_color=include_color,
             include_simple_recipe=_include_recipe,
             exclude_legacy=exclude_legacy,
         )
-        purchase_description_mapping = {
-            fabric.id: fabric.purchase_description for fabric in fabrics
-        }
 
-        if include_fabric_type:
-            await self._assign_fabric_type_to_fabrics(fabrics)
-
-        if exclude_legacy and include_recipe:
-            await self._assign_recipe_to_fabrics(
-                fabrics=fabrics, include_yarn_instance=include_yarn_instance_to_recipe
-            )
-        elif not exclude_legacy and include_recipe:
-            await self._include_yarn_instance_to_recipes(fabrics=fabrics)
-
-        for fabric in fabrics:
-            fabric.purchase_description = purchase_description_mapping[fabric.id]
+        await self._load_related_data_for_fabrics(
+            fabrics=fabrics,
+            include_fabric_type=include_fabric_type,
+            include_recipe=include_recipe,
+            include_yarn_instance_to_recipe=include_yarn_instance_to_recipe,
+        )
 
         return Success(FabricListSchema(fabrics=fabrics))
 
@@ -493,31 +517,30 @@ class FabricService:
     async def find_fabrics_by_ids(
         self,
         fabric_ids: list[str],
+        include_inactives: bool = True,
         include_fabric_type: bool = False,
         include_color: bool = False,
         include_recipe: bool = False,
         include_yarn_instance_to_recipe: bool = False,
+        exclude_legacy: bool = False,
     ) -> Result[FabricListSchema, CustomException]:
         if not fabric_ids:
-            return Success([])
+            return Success(FabricListSchema(fabrics=[]))
 
         fabrics = await self.repository.find_fabrics(
             filter=InventoryItem.id.in_(fabric_ids),
+            include_inactives=include_inactives,
             include_color=include_color,
             include_simple_recipe=include_recipe,
+            exclude_legacy=exclude_legacy,
         )
-        purchase_description_mapping = {
-            fabric.id: fabric.purchase_description for fabric in fabrics
-        }
 
-        if include_fabric_type:
-            await self._assign_fabric_type_to_fabrics(fabrics)
-
-        if include_yarn_instance_to_recipe:
-            await self._include_yarn_instance_to_recipes(fabrics=fabrics)
-
-        for fabric in fabrics:
-            fabric.purchase_description = purchase_description_mapping[fabric.id]
+        await self._load_related_data_for_fabrics(
+            fabrics=fabrics,
+            include_fabric_type=include_fabric_type,
+            include_recipe=include_recipe,
+            include_yarn_instance_to_recipe=include_yarn_instance_to_recipe,
+        )
 
         return Success(FabricListSchema(fabrics=fabrics))
 
@@ -547,10 +570,14 @@ class FabricService:
         if not fabrics:
             return None
 
-        ids = {
-            (fabric.subfamily_id + fabric.field1, fabric.field3)
+        fabrics_ = [
+            fabric
             for fabric in fabrics
             if fabric.subfamily_id and fabric.field1 and not fabric.id.isdigit()
+        ]
+
+        ids = {
+            (fabric.subfamily_id + fabric.field1, fabric.field3) for fabric in fabrics_
         }
         if not ids:
             return None
@@ -567,31 +594,34 @@ class FabricService:
             if key in recipe_mapping:
                 recipe_mapping[key].append(item)
 
-        for fabric in fabrics:
-            if fabric.subfamily_id and fabric.field1 and not fabric.id.isdigit():
-                key = (fabric.subfamily_id + fabric.field1, fabric.field3)
-                fabric.fabric_recipe = recipe_mapping.get(key, [])
+        for fabric in fabrics_:
+            key = (fabric.subfamily_id + fabric.field1, fabric.field3)
+            fabric.fabric_recipe = recipe_mapping.get(key, [])
 
         if include_yarn_instance:
-            await self._include_yarn_instance_to_recipes(fabrics=fabrics)
+            await self._include_yarn_instance_to_recipes(fabrics=fabrics_)
 
         return None
 
     async def find_fabrics_by_recipe(
         self,
         yarn_ids: list[str],
+        include_inactives: bool = True,
         include_fabric_type: bool = False,
         include_color: bool = False,
         include_recipe: bool = False,
         include_yarn_instance_to_recipe: bool = False,
+        exclude_legacy: bool = False,
     ) -> Result[FabricListSchema, CustomException]:
         fabric_ids = await self.recipe_repository.find_fabrics_by_recipe(
             yarn_ids=yarn_ids
         )
         return await self.find_fabrics_by_ids(
             fabric_ids=fabric_ids,
+            include_inactives=include_inactives,
             include_fabric_type=include_fabric_type,
             include_color=include_color,
             include_recipe=include_recipe,
             include_yarn_instance_to_recipe=include_yarn_instance_to_recipe,
+            exclude_legacy=exclude_legacy,
         )

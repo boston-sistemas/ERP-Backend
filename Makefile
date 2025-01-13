@@ -5,7 +5,11 @@ run: start_server
 
 stop: stop_db stop_mailhog
 
-setup: start_dependencies install_requirements display_odbc_message install_unixodbc
+setup: start_dependencies install_requirements install_precommit display_odbc_message install_unixodbc
+
+install_precommit:
+	pip install pre-commit
+	pre-commit install
 
 init-db:
 	python3 scripts/cli.py init-db
