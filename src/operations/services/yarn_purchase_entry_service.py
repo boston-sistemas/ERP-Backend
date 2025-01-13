@@ -39,9 +39,9 @@ from src.operations.schemas import (
     YarnPurchaseEntryCreateSchema,
     YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntryDetailUpdateSchema,
+    YarnPurchaseEntryFilterParams,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
-    YarnPurchaseEntryFilterParams,
 )
 from src.operations.sequences import mecsa_batch_sq
 from src.operations.utils.movements.yarn_purchase_entry.pdf import generate_pdf
@@ -67,7 +67,7 @@ class YarnPurchaseEntryService(MovementService):
             sequence=mecsa_batch_sq, db=promec_db
         )
         self.yarn_purchase_entry_series = YarnPurchaseEntrySeries(promec_db=promec_db)
-        self.currency_exchange_repository = BaseRepository(
+        self.currency_exchange_repository = BaseRepository[CurrencyExchange](
             model=CurrencyExchange, db=promec_db
         )
         self.supplier_service = SupplierService(promec_db=promec_db)
@@ -117,19 +117,10 @@ class YarnPurchaseEntryService(MovementService):
 
     async def read_yarn_purchase_entries(
         self,
-        filter_params: YarnPurchaseEntryFilterParams,
+        filter_params: YarnPurchaseEntryFilterParams = YarnPurchaseEntryFilterParams(),
     ) -> Result[YarnPurchaseEntriesSimpleListSchema, CustomException]:
         yarn_purchase_entries = await self.repository.find_yarn_purchase_entries(
-            limit=filter_params.limit,
-            offset=filter_params.offset,
-            period=filter_params.period,
-            include_annulled=filter_params.include_annulled,
-            supplier_ids=filter_params.supplier_ids,
-            purchase_order_number=filter_params.purchase_order_number,
-            supplier_batch=filter_params.supplier_batch,
-            mecsa_batch=filter_params.mecsa_batch,
-            start_date=filter_params.start_date,
-            end_date=filter_params.end_date,
+            **filter_params.model_dump()
         )
 
         return Success(
@@ -190,7 +181,6 @@ class YarnPurchaseEntryService(MovementService):
         self,
         form: YarnPurchaseEntryCreateSchema,
     ) -> Result[None, CustomException]:
-
         current_time = calculate_time(tz=PERU_TIMEZONE)
 
         validation_result = await self._validate_yarn_purchase_entry_data(
@@ -440,7 +430,6 @@ class YarnPurchaseEntryService(MovementService):
         self,
         yarn_purchase_entry_detail: MovementDetail,
     ) -> Result[None, CustomException]:
-
         movement_detail = [yarn_purchase_entry_detail]
         movement_detail_aux = [yarn_purchase_entry_detail.detail_aux]
         movement_detail_heavy = yarn_purchase_entry_detail.detail_heavy
@@ -477,7 +466,9 @@ class YarnPurchaseEntryService(MovementService):
         yarn_purchase_entry_detail_result = []
         for detail in yarn_purchase_entry_detail:
             if detail.item_number not in item_numbers:
-                delete_result = await self._delete_detail(yarn_purchase_entry_detail=detail)
+                delete_result = await self._delete_detail(
+                    yarn_purchase_entry_detail=detail
+                )
 
                 if delete_result.is_failure:
                     return delete_result
@@ -536,13 +527,14 @@ class YarnPurchaseEntryService(MovementService):
         self,
         yarn_purchase_entry: Movement,
     ) -> Result[None, CustomException]:
-
         for detail in yarn_purchase_entry.detail:
-            rollback_result = await self.product_inventory_service.rollback_currents_stock(
-                product_code=detail.product_code,
-                period=yarn_purchase_entry.period,
-                storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
-                quantity=detail.mecsa_weight,
+            rollback_result = (
+                await self.product_inventory_service.rollback_currents_stock(
+                    product_code=detail.product_code,
+                    period=yarn_purchase_entry.period,
+                    storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
+                    quantity=detail.mecsa_weight,
+                )
             )
             if rollback_result.is_failure:
                 return rollback_result
@@ -664,9 +656,7 @@ class YarnPurchaseEntryService(MovementService):
                 if delete_result.is_failure:
                     return delete_result
 
-                yarn_purchase_entry_detail_result.detail_heavy = (
-                    delete_result.value
-                )
+                yarn_purchase_entry_detail_result.detail_heavy = delete_result.value
                 for heavy in detail.detail_heavy:
                     yarn_purchase_entry_detail_heavy_result = await self._find_yarn_purchase_entry_detail_heavy(
                         yarn_purchase_entry_detail_heavy=yarn_purchase_entry_detail_result.detail_heavy,
@@ -771,9 +761,7 @@ class YarnPurchaseEntryService(MovementService):
                 yarn_purchase_entry_detail_aux_result.guide_net_weight = (
                     detail.guide_net_weight
                 )
-                yarn_purchase_entry_detail_aux_result.mecsa_weight = (
-                    detail.mecsa_weight
-                )
+                yarn_purchase_entry_detail_aux_result.mecsa_weight = detail.mecsa_weight
                 yarn_purchase_entry_detail_aux_result.guide_cone_count = (
                     detail.guide_cone_count
                 )
@@ -931,12 +919,8 @@ class YarnPurchaseEntryService(MovementService):
                     quantity_supplied=detail.mecsa_weight,
                 )
 
-            yarn_purchase_entry_detail.append(
-                yarn_purchase_entry_detail_result
-            )
-            yarn_purchase_entry_detail_aux.append(
-                yarn_purchase_entry_detail_aux_result
-            )
+            yarn_purchase_entry_detail.append(yarn_purchase_entry_detail_result)
+            yarn_purchase_entry_detail_aux.append(yarn_purchase_entry_detail_aux_result)
 
         creation_result = await self.save_movement(
             movement=yarn_purchase_entry,
@@ -948,9 +932,7 @@ class YarnPurchaseEntryService(MovementService):
         if creation_result.is_failure:
             return creation_result
 
-        return Success(
-            YarnPurchaseEntrySchema.model_validate(yarn_purchase_entry)
-        )
+        return Success(YarnPurchaseEntrySchema.model_validate(yarn_purchase_entry))
 
     async def anulate_yarn_purchase_entry(
         self,
@@ -986,7 +968,6 @@ class YarnPurchaseEntryService(MovementService):
         yarn_purchase_entry_detail_heavy = []
 
         for detail in yarn_purchase_entry.detail:
-
             detail.status_flag = "A"
 
             for heavy in detail.detail_heavy:

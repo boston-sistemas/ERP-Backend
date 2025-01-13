@@ -86,7 +86,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
     detail_heavy: list[YarnPurchaseEntryDetailHeavyCreateSchema] = Field(default=[])
 
-    is_weighted: bool = Field(default=False, exclude=True)
+    is_weighted: bool = Field(default=False)
 
     @computed_field
     @property
@@ -95,8 +95,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
     @model_validator(mode="after")
     def initialize_detail_heavy(self):
-        if not self.detail_heavy:
-            self.is_weighted = False
+        if not self.detail_heavy and not self.is_weighted:
             self.detail_heavy = [
                 YarnPurchaseEntryDetailHeavyCreateSchema(
                     group_number=1,
@@ -106,7 +105,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
                     package_count=self.guide_package_count,
                 )
             ]
-        else:
+        elif self.detail_heavy:
             self.is_weighted = True
         return self
 

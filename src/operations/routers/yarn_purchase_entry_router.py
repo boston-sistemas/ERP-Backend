@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
+
 from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
+    YarnPurchaseEntryFilterParams,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
-    YarnPurchaseEntryFilterParams,
 )
 from src.operations.services import (
     YarnPurchaseEntryService,
@@ -20,7 +20,9 @@ router = APIRouter()
 
 @router.get("/", response_model=YarnPurchaseEntriesSimpleListSchema)
 async def read_yarn_purchase_entries(
-    filter_params: Annotated[YarnPurchaseEntryFilterParams, Query()],
+    filter_params: YarnPurchaseEntryFilterParams = Query(
+        YarnPurchaseEntryFilterParams()
+    ),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnPurchaseEntryService(promec_db=promec_db)
