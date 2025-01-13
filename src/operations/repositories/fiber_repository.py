@@ -1,4 +1,6 @@
-from sqlalchemy import BinaryExpression
+from typing import Sequence, Union
+
+from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.strategy_options import Load
@@ -35,10 +37,15 @@ class FiberRepository(BaseRepository[Fiber]):
         return fiber
 
     async def find_fibers(
-        self, filter: BinaryExpression = None, include_category: bool = False
+        self,
+        filter: BinaryExpression = None,
+        order_by: Union[
+            Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
+        ] = None,
+        include_category: bool = False,
     ) -> list[Fiber]:
         options = self.get_load_options(include_category=include_category)
 
-        fibers = await self.find_all(filter=filter, options=options)
+        fibers = await self.find_all(filter=filter, options=options, order_by=order_by)
 
         return fibers
