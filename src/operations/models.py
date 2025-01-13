@@ -633,7 +633,7 @@ class ServiceOrderStock(PromecBase):
     )
     item_number: Mapped[int] = mapped_column("nroitm")
     stkact: Mapped[float] = mapped_column("stkact")
-    provided_quantity: Mapped[float] = mapped_column("provided_quantity")
+    provided_quantity: Mapped[float] = mapped_column("cantidad_dada")
     supplier_yarn_id: Mapped[str] = mapped_column(
         "proveedor_hilado_id", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )

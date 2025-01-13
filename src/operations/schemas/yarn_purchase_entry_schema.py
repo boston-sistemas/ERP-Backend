@@ -46,11 +46,11 @@ class YarnPurchaseEntryBase(CustomBaseModel):
 
     document_note: str | None
 
-    @field_serializer("creation_date", when_used="json")
-    def serialize_creation_date(value: date | None) -> str | None:
-        if value is None:
-            return None
-        return value.strftime("%d-%m-%Y")
+    # @field_serializer("creation_date", when_used="json")
+    # def serialize_creation_date(value: date | None) -> str | None:
+    #     if value is None:
+    #         return None
+    #     return value.strftime("%d-%m-%Y")
 
     class Config:
         from_attributes = True
