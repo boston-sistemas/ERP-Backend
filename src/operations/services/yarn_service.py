@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
@@ -118,6 +117,18 @@ class YarnService:
 
         for yarn in yarns:
             yarn.recipe = yarn_recipe_mapping[yarn.id]
+
+    async def _load_related_data_for_yarns(
+        self,
+        yarns: list[InventoryItem],
+        include_spinning_method: bool = False,
+        include_recipe: bool = False,
+    ) -> None:
+        if include_spinning_method:
+            await self._assign_spinning_method_to_yarns(yarns=yarns)
+
+        if include_recipe:
+            await self._assign_recipe_to_yarns(yarns=yarns, include_fiber_instance=True)
 
     async def _validate_yarn_data(
         self,
@@ -237,11 +248,11 @@ class YarnService:
         if yarn is None:
             return YARN_NOT_FOUND_FAILURE
 
-        if include_spinning_method:
-            await self._assign_spinning_method_to_yarns([yarn])
-
-        if include_recipe:
-            await self._assign_recipe_to_yarns([yarn], include_fiber_instance=True)
+        await self._load_related_data_for_yarns(
+            yarns=[yarn],
+            include_spinning_method=include_spinning_method,
+            include_recipe=include_recipe,
+        )
 
         return Success(yarn)
 
@@ -266,25 +277,24 @@ class YarnService:
 
     async def read_yarns(
         self,
-        include_inactives: bool = False,
+        include_inactives: bool = True,
         include_color: bool = False,
         include_spinning_method: bool = False,
         include_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         yarns = await self.repository.find_yarns(
-            filter=InventoryItem.is_active == ACTIVE_STATUS_PROMEC
-            if not include_inactives
-            else None,
+            include_inactives=include_inactives,
+            order_by=InventoryItem.id.asc(),
             include_color=include_color,
             exclude_legacy=exclude_legacy,
         )
 
-        if include_spinning_method:
-            await self._assign_spinning_method_to_yarns(yarns)
-
-        if include_recipe:
-            await self._assign_recipe_to_yarns(yarns=yarns, include_fiber_instance=True)
+        await self._load_related_data_for_yarns(
+            yarns=yarns,
+            include_spinning_method=include_spinning_method,
+            include_recipe=include_recipe,
+        )
 
         return Success(YarnListSchema(yarns=yarns))
 
@@ -423,22 +433,27 @@ class YarnService:
     async def find_yarns_by_ids(
         self,
         yarn_ids: list[str],
+        include_inactives: bool = True,
         include_color: bool = False,
         include_spinning_method: bool = False,
         include_recipe: bool = False,
+        exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         if not yarn_ids:
-            return Success([])
+            return Success(YarnListSchema(yarns=[]))
 
         yarns = await self.repository.find_yarns(
-            filter=InventoryItem.id.in_(yarn_ids), include_color=include_color
+            filter=InventoryItem.id.in_(yarn_ids),
+            include_inactives=include_inactives,
+            include_color=include_color,
+            exclude_legacy=exclude_legacy,
         )
 
-        if include_spinning_method:
-            await self._assign_spinning_method_to_yarns(yarns)
-
-        if include_recipe:
-            await self._assign_recipe_to_yarns(yarns, include_fiber_instance=True)
+        await self._load_related_data_for_yarns(
+            yarns=yarns,
+            include_spinning_method=include_spinning_method,
+            include_recipe=include_recipe,
+        )
 
         return Success(YarnListSchema(yarns=yarns))
 
@@ -463,16 +478,21 @@ class YarnService:
     async def find_yarns_by_recipe(
         self,
         fiber_ids: list[str],
+        include_inactives: bool = True,
+        exclude_legacy: bool = False,
         include_color: bool = False,
         include_spinning_method: bool = False,
         include_recipe: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
-        yarn_ids = await self.recipe_repository.find_yarns_by_recipe(
-            fiber_ids=fiber_ids
+        yarn_ids = await self.recipe_repository.find_yarn_ids_by_recipe(
+            fiber_ids=fiber_ids,
         )
+
         return await self.find_yarns_by_ids(
             yarn_ids=yarn_ids,
+            include_inactives=include_inactives,
             include_color=include_color,
             include_spinning_method=include_spinning_method,
             include_recipe=include_recipe,
+            exclude_legacy=exclude_legacy,
         )

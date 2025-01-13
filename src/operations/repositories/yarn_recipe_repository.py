@@ -23,7 +23,7 @@ class YarnRecipeRepository(BaseRepository[YarnFiber]):
 
         return result
 
-    async def find_yarns_by_recipe(self, fiber_ids: list[str]) -> list[str]:
+    async def find_yarn_ids_by_recipe(self, fiber_ids: list[str]) -> list[str]:
         stmt = (
             select(YarnFiber.yarn_id)
             .where(YarnFiber.fiber_id.in_(fiber_ids))
