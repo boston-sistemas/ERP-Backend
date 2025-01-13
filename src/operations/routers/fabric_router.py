@@ -44,14 +44,6 @@ async def read_fabrics(
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FabricService(db=db, promec_db=promec_db)
-    result = await service.read_fabrics(
-        include_inactives=include_inactives,
-        include_fabric_type=True,
-        include_color=True,
-        include_recipe=True,
-        include_yarn_instance_to_recipe=True,
-        exclude_legacy=True,
-    )
     result = None
     if yarn_ids:
         result = await service.find_fabrics_by_recipe(
@@ -60,9 +52,12 @@ async def read_fabrics(
             include_color=True,
             include_recipe=True,
             include_yarn_instance_to_recipe=True,
+            exclude_legacy=True,
         )
+        result.value.fabrics.sort(key=lambda fabric: fabric.id)
     else:
         result = await service.read_fabrics(
+            include_inactives=include_inactives,
             include_fabric_type=True,
             include_color=True,
             include_recipe=True,

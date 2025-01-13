@@ -1,8 +1,11 @@
-from sqlalchemy import BinaryExpression
+from typing import Sequence, Union
+
+from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
 
+from src.core.constants import ACTIVE_STATUS_PROMEC
 from src.operations.constants import FABRIC_FAMILY_ID
 from src.operations.models import InventoryItem
 
@@ -65,12 +68,20 @@ class FabricRepository(InventoryItemRepository):
     async def find_fabrics(
         self,
         filter: BinaryExpression = None,
+        order_by: Union[
+            Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
+        ] = None,
+        include_inactives: bool = True,
         include_color: bool = False,
         include_simple_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> list[InventoryItem]:
         base_filter = InventoryItem.family_id == FABRIC_FAMILY_ID
         filter = base_filter & filter if filter is not None else base_filter
+
+        if not include_inactives:
+            filter = filter & (InventoryItem.is_active == ACTIVE_STATUS_PROMEC)
+
         options = self.get_load_options(
             include_color=include_color, include_simple_recipe=include_simple_recipe
         )
@@ -78,6 +89,7 @@ class FabricRepository(InventoryItemRepository):
         yarns = await self.find_items(
             filter=filter,
             exclude_legacy=exclude_legacy,
+            order_by=order_by,
             options=options,
             apply_unique=include_simple_recipe,
         )
