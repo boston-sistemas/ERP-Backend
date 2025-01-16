@@ -132,7 +132,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
     async def find_yarn_purchase_entries(
         self,
         period: int,
-        include_inactives: bool = False,
+        include_annulled: bool = False,
         supplier_ids: list[str] = None,
         purchase_order_number: str = None,
         supplier_batch: str = None,
