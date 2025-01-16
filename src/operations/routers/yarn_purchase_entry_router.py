@@ -8,6 +8,7 @@ from src.operations.schemas import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
     YarnPurchaseEntryFilterParams,
+    YarnPurchaseEntryPrintListSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
 )
@@ -160,7 +161,7 @@ async def is_updated_permission(
 
 @router.post("/print/movement")
 async def print_yarn_purchase_entry(
-    # form: WeavingServiceEntryPrintListSchema,
+    form: YarnPurchaseEntryPrintListSchema,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),

@@ -128,10 +128,11 @@ from .yarn_purchase_entry_schema import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
     YarnPurchaseEntryDetailCreateSchema,
+    YarnPurchaseEntryFilterParams,
+    YarnPurchaseEntryPrintListSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntrySearchSchema,
     YarnPurchaseEntryUpdateSchema,
-    YarnPurchaseEntryFilterParams,
 )
 from .yarn_schema import (
     YarnCreateSchema,
@@ -253,4 +254,5 @@ __all__ = [
     "DyeingServiceDispatchDetailCreateSchema",
     "CardOperationSchema",
     "SupplierListSchema",
+    "YarnPurchaseEntryPrintListSchema",
 ]

@@ -1,8 +1,9 @@
 from datetime import date, datetime
 
-from pydantic import AliasChoices, Field, model_validator, field_serializer
+from pydantic import AliasChoices, Field, field_serializer, model_validator
 
 from src.core.schemas import CustomBaseModel
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NROGF_MAX_LENGTH,
@@ -12,15 +13,13 @@ from src.operations.constants import (
 )
 
 from .orden_compra_schema import OrdenCompraWithDetailSchema
+from .promec_status_schema import PromecStatusSchema
 from .yarn_purchase_entry_detail_schema import (
     YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntryDetailSimpleSchema,
     YarnPurchaseEntryDetailUpdateSchema,
 )
 
-from .promec_status_schema import PromecStatusSchema
-
-from src.core.utils import PERU_TIMEZONE, calculate_time
 
 class YarnPurchaseEntryBase(CustomBaseModel):
     # storage_code: str
@@ -57,7 +56,6 @@ class YarnPurchaseEntryBase(CustomBaseModel):
 
 
 class YarnPurchaseEntrySimpleSchema(YarnPurchaseEntryBase):
-
     status_flag: str | None = Field(exclude=True)
 
     promec_status: PromecStatusSchema | None = Field(default=None)
@@ -65,10 +63,9 @@ class YarnPurchaseEntrySimpleSchema(YarnPurchaseEntryBase):
     @model_validator(mode="after")
     def set_promec_status(self):
         if self.status_flag is not None:
-            self.promec_status = PromecStatusSchema(
-                status_id=self.status_flag
-            )
+            self.promec_status = PromecStatusSchema(status_id=self.status_flag)
         return self
+
 
 class YarnPurchaseEntryFilterParams(CustomBaseModel):
     period: int | None = Field(
@@ -83,6 +80,7 @@ class YarnPurchaseEntryFilterParams(CustomBaseModel):
     limit: int | None = Field(default=10, ge=1, le=100)
     offset: int | None = Field(default=0, ge=0)
     include_annulled: bool | None = Field(default=False)
+
 
 class YarnPurchaseEntriesSimpleListSchema(CustomBaseModel):
     yarn_purchase_entries: list[YarnPurchaseEntrySimpleSchema] = []
@@ -116,6 +114,15 @@ class YarnPurchaseEntrySchema(YarnPurchaseEntrySimpleSchema):
     purcharse_order: OrdenCompraWithDetailSchema | None = Field(
         default=None, exclude=True
     )
+
+
+class YarnPurchaseEntryPrintSchema(CustomBaseModel):
+    entry_number: str
+    include_heave: bool | None = Field(default=False)
+
+
+class YarnPurchaseEntryPrintListSchema(CustomBaseModel):
+    entry_numbers: list[YarnPurchaseEntryPrintSchema] = []
 
 
 class YarnPurchaseEntryCreateSchema(CustomBaseModel):
@@ -162,4 +169,3 @@ class YarnPurchaseEntryUpdateSchema(CustomBaseModel):
     document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
     supplier_batch: str = Field(max_length=SUPPLIER_BATCH_MAX_LENGTH)
     detail: list[YarnPurchaseEntryDetailUpdateSchema] = Field(default=[])
-

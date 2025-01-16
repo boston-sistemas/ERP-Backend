@@ -28,7 +28,7 @@ class SupplierService:
     async def _read_supplier(
         self,
         supplier_code: str,
-        include_annulled: bool = False,
+        include_inactives: bool = False,
         include_service: bool = False,
         include_colors: bool = False,
         include_other_addresses: bool = False,
@@ -48,14 +48,14 @@ class SupplierService:
     async def read_supplier(
         self,
         supplier_code: str,
-        include_annulled: bool = False,
+        include_inactives: bool = False,
         include_service: bool = False,
         include_colors: bool = False,
         include_other_addresses: bool = False,
     ) -> Result[SupplierSchema, CustomException]:
         supplier = await self._read_supplier(
             supplier_code=supplier_code,
-            include_annulled=include_annulled,
+            include_inactives=include_inactives,
             include_service=include_service,
             include_colors=include_colors,
             include_other_addresses=include_other_addresses,
@@ -91,14 +91,14 @@ class SupplierService:
         service_code: str,
         limit: int,
         offset: int,
-        include_annulled: bool = False,
+        include_inactives: bool = False,
         include_other_addresses: bool = False,
     ) -> Result[list[SupplierSchema], CustomException]:
         suppliers = await self.repository.find_suppliers_by_service(
             service_code=service_code,
             limit=limit,
             offset=offset,
-            include_annulled=include_annulled,
+            include_inactives=include_inactives,
             include_other_addresses=include_other_addresses,
         )
 

@@ -1,8 +1,10 @@
+from datetime import date
+
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
-from datetime import date
+
 from src.operations.constants import (
     YARN_PURCHASE_ENTRY_DOCUMENT_CODE,
     YARN_PURCHASE_ENTRY_MOVEMENT_CODE,
@@ -130,7 +132,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
     async def find_yarn_purchase_entries(
         self,
         period: int,
-        include_annulled: bool = False,
+        include_inactives: bool = False,
         supplier_ids: list[str] = None,
         purchase_order_number: str = None,
         supplier_batch: str = None,
@@ -155,10 +157,14 @@ class YarnPurchaseEntryRepository(MovementRepository):
             base_filter = base_filter & Movement.supplier_id.in_(supplier_ids)
 
         if purchase_order_number:
-            base_filter = base_filter & (Movement.reference_number2.like(f"%{purchase_order_number}%"))
+            base_filter = base_filter & (
+                Movement.reference_number2.like(f"%{purchase_order_number}%")
+            )
 
         if supplier_batch:
-            base_filter = base_filter & (Movement.supplier_batch.like(f"%{supplier_batch}%"))
+            base_filter = base_filter & (
+                Movement.supplier_batch.like(f"%{supplier_batch}%")
+            )
 
         if mecsa_batch:
             base_filter = base_filter & (Movement.mecsa_batch.like(f"%{mecsa_batch}%"))
