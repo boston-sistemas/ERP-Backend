@@ -136,6 +136,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
 
 class YarnPurchaseEntryDetailUpdateSchema(YarnPurchaseEntryDetailCreateSchema):
+    item_number: int = Field(ge=1)
     detail_heavy: list[YarnPurchaseEntryDetailHeavyUpdateSchema] = Field(default=[])
     is_weighted: bool = Field(default=False, exclude=True)
 

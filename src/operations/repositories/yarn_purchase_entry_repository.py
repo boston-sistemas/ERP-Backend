@@ -132,6 +132,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
     async def find_yarn_purchase_entries(
         self,
         period: int,
+        entry_number: str = None,
         include_annulled: bool = False,
         supplier_ids: list[str] = None,
         purchase_order_number: str = None,
@@ -153,8 +154,13 @@ class YarnPurchaseEntryRepository(MovementRepository):
         if not include_annulled:
             base_filter = base_filter & (Movement.status_flag == "P")
 
+        if entry_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{entry_number}%")
+            )
+
         if supplier_ids:
-            base_filter = base_filter & Movement.supplier_id.in_(supplier_ids)
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
 
         if purchase_order_number:
             base_filter = base_filter & (

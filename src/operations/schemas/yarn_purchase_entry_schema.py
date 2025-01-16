@@ -45,11 +45,11 @@ class YarnPurchaseEntryBase(CustomBaseModel):
 
     document_note: str | None
 
-    # @field_serializer("creation_date", when_used="json")
-    # def serialize_creation_date(value: date | None) -> str | None:
-    #     if value is None:
-    #         return None
-    #     return value.strftime("%d-%m-%Y")
+    @field_serializer("creation_date", when_used="json")
+    def serialize_creation_date(value: date | None) -> str | None:
+        if value is None:
+            return None
+        return value.strftime("%d-%m-%Y")
 
     class Config:
         from_attributes = True
@@ -71,6 +71,7 @@ class YarnPurchaseEntryFilterParams(CustomBaseModel):
     period: int | None = Field(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     )
+    entry_number: str | None = Field(default=None)
     supplier_ids: list[str] | None = Field(default=None)
     purchase_order_number: str | None = Field(default=None)
     supplier_batch: str | None = Field(default=None)

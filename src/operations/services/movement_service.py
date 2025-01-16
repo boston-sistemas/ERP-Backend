@@ -15,8 +15,8 @@ from src.operations.models import (
     Movement,
     MovementDetail,
     MovementDetailAux,
-    ProductInventory,
     MovementYarnOCHeavy,
+    ProductInventory,
 )
 from src.operations.repositories import MovementRepository
 
@@ -43,6 +43,32 @@ class MovementService:
             model=CardOperation, db=promec_db
         )
         self.product_inventory_service = ProductInventoryService(promec_db=promec_db)
+
+    async def read_movement(
+        self,
+        document_number: str,
+        storage_code: str,
+        movement_type: str,
+        movement_code: str,
+        document_code: str,
+        period: int,
+        include_detail: bool = False,
+    ) -> Result[Movement, CustomException]:
+        base_filter = (
+            (Movement.storage_code == storage_code)
+            & (Movement.movement_type == movement_type)
+            & (Movement.movement_code == movement_code)
+            & (Movement.document_code == document_code)
+            & (Movement.period == period)
+        )
+
+        movement = await self.repository.find_movement_by_document_number(
+            document_number=document_number,
+            filter=base_filter,
+            include_detail=include_detail,
+        )
+
+        return Success(movement)
 
     async def _read_or_create_product_inventory(
         self,
@@ -86,7 +112,6 @@ class MovementService:
         movement_detail_fabric: list[FabricWarehouse] = [],
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
-
         if movement:
             await self.repository.delete(movement)
 
@@ -116,7 +141,8 @@ class MovementService:
         movement_detail_fabric: list[FabricWarehouse] = [],
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
-        await self.repository.save(movement)
+        if movement:
+            await self.repository.save(movement)
 
         for detail in movement_detail:
             await self.movement_detail_repository.save(detail)

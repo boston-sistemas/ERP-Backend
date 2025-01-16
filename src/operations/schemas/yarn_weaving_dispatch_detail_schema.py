@@ -19,6 +19,7 @@ class YarnWeavingDispatchDetailBase(CustomBaseModel):
     )
     entry_group_number: int | None = None
     entry_item_number: int | None = None
+    entry_period: int | None = None
     creation_date: date | None
     creation_time: str | None
 
@@ -75,10 +76,7 @@ class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(
         if self.yarn_purchase_entry and hasattr(
             self.yarn_purchase_entry, "movement_detail"
         ):
-            if self.yarn_purchase_entry.movement_detail and hasattr(
-                self.yarn_purchase_entry.movement_detail, "product_code"
-            ):
-                return self.yarn_purchase_entry.movement_detail.product_code
+            return self.yarn_purchase_entry.yarn_id
         return None
 
 
@@ -87,7 +85,7 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     entry_number: str
     entry_group_number: int
     entry_item_number: int
-    entry_period: int | None = Field(default=calculate_time(tz=PERU_TIMEZONE).year)
+    entry_period: int = Field(ge=0)
     cone_count: int = Field(..., ge=1)
     package_count: int = Field(..., ge=0)
     net_weight: float = Field(..., gt=0)
@@ -97,4 +95,4 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
 
 
 class YarnWeavingDispatchDetailUpdateSchema(YarnWeavingDispatchDetailCreateSchema):
-    pass
+    item_number: int = Field(ge=1)

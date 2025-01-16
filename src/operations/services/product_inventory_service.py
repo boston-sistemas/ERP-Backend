@@ -61,6 +61,7 @@ class ProductInventoryService:
             return result
 
         product_inventory: ProductInventory = result.value
+
         product_inventory.current_stock -= quantity
 
         await self.repository.save(product_inventory)

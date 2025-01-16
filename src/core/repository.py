@@ -60,7 +60,12 @@ class BaseRepository(Generic[ModelType]):
             stmt = stmt.options(*options)
             return (await self.db.execute(stmt)).scalars().unique().one_or_none()
 
-        return (await self.db.execute(stmt)).scalar_one_or_none()
+        result = (await self.db.execute(stmt)).scalars().unique().one_or_none()
+
+        if result is not None:
+            await self.db.refresh(result)
+
+        return result
 
     async def find_by_id(
         self, id: Any, options: Sequence[Load] = None, **kwargs
@@ -110,9 +115,22 @@ class BaseRepository(Generic[ModelType]):
             stmt = stmt.limit(limit)
 
         if apply_unique:
-            return (await self.db.scalars(stmt)).unique().all()
+            results = (await self.db.execute(stmt)).scalars().unique().all()
+        else:
+            results = (await self.db.execute(stmt)).scalars().all()
 
-        return (await self.db.scalars(stmt)).all()
+        for obj in results:
+            await self.db.refresh(obj)
+
+        return results
+
+    async def refresh_object(self, obj: ModelType) -> None:
+        """
+        Fuerza la recarga de un objeto en la sesión actual,
+        asegurando que se obtengan los datos más recientes de la BD.
+        """
+        if obj is not None:
+            await self.db.refresh(obj)
 
     async def count(self, filter: BinaryExpression = None) -> int:
         stmt = select(func.count()).select_from(self.model)
@@ -142,3 +160,6 @@ class BaseRepository(Generic[ModelType]):
 
         if flush:
             await self.db.flush()
+
+    def expunge_all(self) -> None:
+        self.db.expunge_all()

@@ -28,6 +28,7 @@ class ServiceOrderRepository(BaseRepository[ServiceOrder]):
     async def find_service_orders_by_order_type(
         self,
         order_type: str,
+        supplier_ids: list[str] = None,
         include_detail: bool = False,
         include_annulled: bool = False,
         filter: BinaryExpression = None,
@@ -43,6 +44,9 @@ class ServiceOrderRepository(BaseRepository[ServiceOrder]):
 
         if not include_annulled:
             base_filter = base_filter & (ServiceOrder.status_flag == "P")
+
+        if supplier_ids:
+            base_filter = base_filter & (ServiceOrder.supplier_id.in_(supplier_ids))
 
         filter = base_filter & filter if filter is not None else base_filter
 

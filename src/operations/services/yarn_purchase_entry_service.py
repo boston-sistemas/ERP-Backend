@@ -38,6 +38,7 @@ from src.operations.schemas import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
     YarnPurchaseEntryDetailCreateSchema,
+    YarnPurchaseEntryDetailHeavyListSchema,
     YarnPurchaseEntryDetailUpdateSchema,
     YarnPurchaseEntryFilterParams,
     YarnPurchaseEntrySchema,
@@ -46,9 +47,11 @@ from src.operations.schemas import (
 from src.operations.sequences import mecsa_batch_sq
 from src.operations.utils.movements.yarn_purchase_entry.pdf import generate_pdf
 
+from .fabric_service import FabricService
 from .movement_service import MovementService
 from .orden_compra_service import OrdenCompraService
 from .series_service import YarnPurchaseEntrySeries
+from .service_order_service import ServiceOrderService
 from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
@@ -74,6 +77,8 @@ class YarnPurchaseEntryService(MovementService):
         self.yarn_purchase_entry_detail_heavy_service = (
             YarnPurchaseEntryDetailHeavyService(promec_db=promec_db)
         )
+        self.service_order_service = ServiceOrderService(promec_db=promec_db, db=db)
+        self.fabric_service = FabricService(promec_db=promec_db, db=db)
 
     async def _read_yarn_purchase_entry(
         self,
@@ -193,7 +198,7 @@ class YarnPurchaseEntryService(MovementService):
         purchase_yarn_order = validation_result.value
 
         validation_result = await self._validate_yarn_purchase_entry_detalle_data(
-            data=form.detail, purchase_yarn_order=validation_result.value
+            data=form.detail, purchase_yarn_order=purchase_yarn_order
         )
 
         if validation_result.is_failure:
@@ -373,6 +378,7 @@ class YarnPurchaseEntryService(MovementService):
                     MovementYarnOCHeavy(
                         company_code=MECSA_COMPANY_CODE,
                         yarn_id=detail.yarn_id,
+                        period=current_period,
                         group_number=heavy.group_number,
                         ingress_number=entry_number,
                         item_number=detail.item_number,
@@ -679,10 +685,17 @@ class YarnPurchaseEntryService(MovementService):
                         yarn_purchase_entry_detail_heavy_result.supplier_batch = (
                             form.supplier_batch
                         )
+                        yarn_purchase_entry_detail_heavy_result.packages_left = (
+                            heavy.package_count
+                        )
+                        yarn_purchase_entry_detail_heavy_result.cones_left = (
+                            heavy.cone_count
+                        )
                     else:
                         yarn_purchase_entry_detail_heavy_result = MovementYarnOCHeavy(
                             company_code=MECSA_COMPANY_CODE,
                             yarn_id=detail.yarn_id,
+                            period=period,
                             group_number=str(heavy.group_number),
                             ingress_number=yarn_purchase_entry_number,
                             item_number=detail.item_number,
@@ -877,6 +890,7 @@ class YarnPurchaseEntryService(MovementService):
                     yarn_purchase_entry_detail_heavy_result = MovementYarnOCHeavy(
                         company_code=MECSA_COMPANY_CODE,
                         yarn_id=detail.yarn_id,
+                        period=period,
                         group_number=heavy.group_number,
                         ingress_number=yarn_purchase_entry_number,
                         item_number=detail.item_number,
@@ -950,19 +964,18 @@ class YarnPurchaseEntryService(MovementService):
 
         yarn_purchase_entry: Movement = yarn_purchase_entry_result.value
 
+        validation_result = await self._validate_update_yarn_purchase_entry(
+            yarn_purchase_entry=yarn_purchase_entry,
+        )
+
+        if validation_result.is_failure:
+            return validation_result
+
         rollback_result = await self.rollback_yarn_purchase_entry(
             yarn_purchase_entry=yarn_purchase_entry
         )
         if rollback_result.is_failure:
             return rollback_result
-
-        validation_result = await self._validate_update_yarn_purchase_entry(
-            yarn_purchase_entry=yarn_purchase_entry,
-            for_annulment=True,
-        )
-
-        if validation_result.is_failure:
-            return validation_result
 
         yarn_purchase_entry_detail = []
         yarn_purchase_entry_detail_heavy = []
@@ -1017,15 +1030,55 @@ class YarnPurchaseEntryService(MovementService):
     async def read_yarn_purchase_entry_item_group_availability(
         self,
         period: int,
-    ) -> Result[None, CustomException]:
-        yarn_purchase_entries_item_group_availability = await self.yarn_purchase_entry_detail_heavy_service.find_yarn_purchase_entries_item_group_availability(
+        service_order_id: str = None,
+    ) -> Result[YarnPurchaseEntryDetailHeavyListSchema, CustomException]:
+        yarn_purchase_entries_item_group_availability_result = await self.yarn_purchase_entry_detail_heavy_service.read_yarn_purchase_entries_item_group_availability(
             period=period,
         )
 
-        if yarn_purchase_entries_item_group_availability.is_failure:
-            return yarn_purchase_entries_item_group_availability
+        if yarn_purchase_entries_item_group_availability_result.is_failure:
+            return yarn_purchase_entries_item_group_availability_result
 
-        return Success(yarn_purchase_entries_item_group_availability.value)
+        yarn_purchase_entries_item_group_availability = []
+
+        if service_order_id:
+            service_order_result = await self.service_order_service.read_service_order(
+                order_id=service_order_id,
+                order_type="TJ",
+                include_detail=True,
+            )
+
+            if service_order_result.is_failure:
+                return service_order_result
+
+            service_order = service_order_result.value
+
+            fabric_ids = [detail.fabric_id for detail in service_order.detail]
+
+            fabrics_result = await self.fabric_service.find_fabrics_by_ids(
+                fabric_ids=fabric_ids,
+                include_recipe=True,
+            )
+
+            if fabrics_result.is_failure:
+                return fabrics_result
+
+            fabrics = fabrics_result.value.fabrics
+
+            yarn_ids = [item.yarn_id for fabric in fabrics for item in fabric.recipe]
+
+            for detail_heavy in yarn_purchase_entries_item_group_availability_result.value.yarn_purchase_entries_detail_heavy:
+                if detail_heavy.yarn_id in yarn_ids:
+                    yarn_purchase_entries_item_group_availability.append(detail_heavy)
+
+        else:
+            yarn_purchase_entries_item_group_availability = yarn_purchase_entries_item_group_availability_result.value.yarn_purchase_entries_detail_heavy
+
+        return Success(
+            YarnPurchaseEntryDetailHeavyListSchema(
+                yarn_purchase_entries_detail_heavy=yarn_purchase_entries_item_group_availability
+            )
+        )
 
     async def print_yarn_purchase_entry(
         self,

@@ -26,14 +26,18 @@ class YarnPurchaseEntryDetailHeavyService:
         item_number: int,
         group_number: int,
         period: int,
-        include_detail_entry: bool = False,
+        include_entry_movement: bool = False,
+        include_entry_movement_detail: bool = False,
+        include_entry_movement_detail_heavy: bool = False,
     ) -> Result[MovementYarnOCHeavy, CustomException]:
-        yarn_purchase_entry_detail_heavy = await self.repository.find_yarn_purchase_entry_detail_heavy_by_ingress_number_and_item_and_group_(
+        yarn_purchase_entry_detail_heavy = await self.repository.find_yarn_purchase_entry_detail_heavy_by_ingress_number_and_item_and_group(
             ingress_number=ingress_number,
             item_number=item_number,
             group_number=group_number,
             period=period,
-            include_detail_entry=include_detail_entry,
+            include_entry_movement=include_entry_movement,
+            include_entry_movement_detail=include_entry_movement_detail,
+            include_entry_movement_detail_heavy=include_entry_movement_detail_heavy,
         )
 
         if yarn_purchase_entry_detail_heavy is None:
@@ -47,7 +51,6 @@ class YarnPurchaseEntryDetailHeavyService:
         item_number: int,
         group_number: int,
         period: int,
-        include_detail_entry: bool = False,
     ) -> Result[MovementYarnOCHeavy, CustomException]:
         yarn_purchase_entry_detail_heavy_result = (
             await self._read_yarn_purchase_entry_detail_heavy(
@@ -55,7 +58,6 @@ class YarnPurchaseEntryDetailHeavyService:
                 item_number=item_number,
                 group_number=group_number,
                 period=period,
-                include_detail_entry=include_detail_entry,
             )
         )
 
@@ -83,9 +85,11 @@ class YarnPurchaseEntryDetailHeavyService:
                 item_number=item_number,
                 group_number=group_number,
                 period=period,
+                include_entry_movement=True,
+                include_entry_movement_detail=True,
+                include_entry_movement_detail_heavy=True,
             )
         )
-
         if yarn_purchase_entry_detail_heavy_result.is_failure:
             return yarn_purchase_entry_detail_heavy_result
 
@@ -103,6 +107,7 @@ class YarnPurchaseEntryDetailHeavyService:
             yarn_purchase_entry_detail_heavy.packages_left > 0
             or yarn_purchase_entry_detail_heavy.cones_left > 0
         ):
+            yarn_purchase_entry_detail_heavy.status_flag = "P"
             yarn_purchase_entry_detail_heavy.dispatch_status = False
 
         if (
@@ -114,6 +119,31 @@ class YarnPurchaseEntryDetailHeavyService:
         ):
             yarn_purchase_entry_detail_heavy.exit_number = None
             yarn_purchase_entry_detail_heavy.exit_user_id = None
+
+        movement = yarn_purchase_entry_detail_heavy.movement
+
+        count_detail_supplied = 0
+        for detail in movement.detail:
+            count_heavy_supplied = 0
+            count_package_supplied = 0
+            for heavy in detail.detail_heavy:
+                if heavy.status_flag == "C":
+                    count_heavy_supplied += 1
+
+                if heavy.dispatch_status:
+                    count_package_supplied += heavy.package_count
+
+            if (
+                count_heavy_supplied != len(detail.detail_heavy)
+                or count_package_supplied != detail.detail_aux.guide_package_count
+            ):
+                detail.status_flag = "P"
+
+            if detail.status_flag == "P":
+                count_detail_supplied += 1
+
+        if count_detail_supplied != len(movement.detail):
+            movement.status_flag = "P"
 
         await self.repository.save(yarn_purchase_entry_detail_heavy)
         return Success(None)
@@ -128,12 +158,16 @@ class YarnPurchaseEntryDetailHeavyService:
         entry_number: int,
         period: int,
     ) -> Result[None, CustomException]:
+        self.repository.expunge_all()
         yarn_purchase_entry_detail_heavy_result = (
             await self._read_yarn_purchase_entry_detail_heavy(
                 ingress_number=entry_number,
                 item_number=item_number,
                 group_number=group_number,
                 period=period,
+                include_entry_movement=True,
+                include_entry_movement_detail=True,
+                include_entry_movement_detail_heavy=True,
             )
         )
 
@@ -154,15 +188,41 @@ class YarnPurchaseEntryDetailHeavyService:
             yarn_purchase_entry_detail_heavy.packages_left == 0
             and yarn_purchase_entry_detail_heavy.cones_left == 0
         ):
+            yarn_purchase_entry_detail_heavy.status_flag = "C"
             yarn_purchase_entry_detail_heavy.dispatch_status = True
 
         yarn_purchase_entry_detail_heavy.exit_number = dispatch_number
         yarn_purchase_entry_detail_heavy.exit_user_id = "DESA01"
 
+        movement = yarn_purchase_entry_detail_heavy.movement
+
+        count_detail_supplied = 0
+        for detail in movement.detail:
+            count_heavy_supplied = 0
+            count_package_supplied = 0
+            for heavy in detail.detail_heavy:
+                if heavy.status_flag == "C":
+                    count_heavy_supplied += 1
+
+                if heavy.dispatch_status:
+                    count_package_supplied += heavy.package_count
+
+            if (
+                count_heavy_supplied == len(detail.detail_heavy)
+                and count_package_supplied == detail.detail_aux.guide_package_count
+            ):
+                detail.status_flag = "C"
+
+            if detail.status_flag == "C":
+                count_detail_supplied += 1
+
+        if count_detail_supplied == len(movement.detail):
+            movement.status_flag = "C"
+
         await self.repository.save(yarn_purchase_entry_detail_heavy)
         return Success(None)
 
-    async def find_yarn_purchase_entries_item_group_availability(
+    async def read_yarn_purchase_entries_item_group_availability(
         self,
         period: int,
     ) -> Result[YarnPurchaseEntryDetailHeavyListSchema, CustomException]:

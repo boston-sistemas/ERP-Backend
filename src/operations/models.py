@@ -814,10 +814,9 @@ class Movement(PromecBase):
         ],
     )
 
-    detail = relationship(
+    detail: Mapped[list["MovementDetail"]] = relationship(
         "MovementDetail",
         lazy="noload",
-        cascade="",
         primaryjoin=lambda: and_(
             Movement.company_code == MovementDetail.company_code,
             Movement.storage_code == MovementDetail.storage_code,
@@ -827,8 +826,8 @@ class Movement(PromecBase):
             Movement.document_number == MovementDetail.document_number,
             Movement.period == MovementDetail.period,
         ),
-        back_populates="movement",
         single_parent=True,
+        uselist=True,
         viewonly=True,
         foreign_keys=lambda: [
             MovementDetail.company_code,
@@ -962,6 +961,7 @@ class MovementDetail(PromecBase):
     is_weighted: Mapped[bool] = mapped_column("flgpesaje")
     entry_group_number: Mapped[int] = mapped_column("nrogrupoingr")
     entry_item_number: Mapped[int] = mapped_column("nroitemingr")
+    entry_period: Mapped[int] = mapped_column("periodoingr")
     reference_code: Mapped[str] = mapped_column(
         "codref", String(length=REFERENCE_CODE_MAX_LENGTH)
     )
@@ -991,7 +991,6 @@ class MovementDetail(PromecBase):
             Movement.document_number == MovementDetail.document_number,
             Movement.period == MovementDetail.period,
         ),
-        back_populates="detail",
         foreign_keys=lambda: [
             MovementDetail.company_code,
             MovementDetail.storage_code,
@@ -1012,6 +1011,7 @@ class MovementDetail(PromecBase):
             MovementDetail.reference_number == MovementYarnOCHeavy.ingress_number,
             MovementDetail.entry_group_number == MovementYarnOCHeavy.group_number,
             MovementDetail.entry_item_number == MovementYarnOCHeavy.item_number,
+            MovementDetail.entry_period == MovementYarnOCHeavy.period,
         ),
         uselist=False,
         foreign_keys=lambda: [
@@ -1019,6 +1019,7 @@ class MovementDetail(PromecBase):
             MovementYarnOCHeavy.ingress_number,
             MovementYarnOCHeavy.group_number,
             MovementYarnOCHeavy.item_number,
+            MovementYarnOCHeavy.period,
         ],
     )
 
@@ -1233,6 +1234,7 @@ class MovementYarnOCHeavy(PromecBase):
     ingress_number: Mapped[str] = mapped_column(
         "nroing", String(length=INGRESS_NUMBER_MAX_LENGTH)
     )
+    period: Mapped[int] = mapped_column("periodo")
     item_number: Mapped[int] = mapped_column("nroitm")
     exit_number: Mapped[str] = mapped_column(
         "nrosal", String(length=EXIT_NUMBER_MAX_LENGTH), default=""
@@ -1263,6 +1265,30 @@ class MovementYarnOCHeavy(PromecBase):
 
     supplier_batch: Mapped[str] = mapped_column(
         "loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH)
+    )
+    movement: Mapped["Movement"] = relationship(
+        "Movement",
+        lazy="noload",
+        viewonly=True,
+        primaryjoin=lambda: and_(
+            MovementYarnOCHeavy.company_code == Movement.company_code,
+            YARN_PURCHASE_ENTRY_STORAGE_CODE == Movement.storage_code,
+            YARN_PURCHASE_ENTRY_MOVEMENT_TYPE == Movement.movement_type,
+            YARN_PURCHASE_ENTRY_MOVEMENT_CODE == Movement.movement_code,
+            YARN_PURCHASE_ENTRY_DOCUMENT_CODE == Movement.document_code,
+            MovementYarnOCHeavy.ingress_number == Movement.document_number,
+            MovementYarnOCHeavy.period == Movement.period,
+        ),
+        uselist=False,
+        foreign_keys=lambda: [
+            Movement.company_code,
+            Movement.document_number,
+            Movement.storage_code,
+            Movement.movement_type,
+            Movement.movement_code,
+            Movement.document_code,
+            Movement.period,
+        ],
     )
     movement_detail = relationship(
         "MovementDetail",
@@ -1301,6 +1327,7 @@ class MovementYarnOCHeavy(PromecBase):
             f"    codprod={self.yarn_id},\n"
             f"    grupo={self.group_number},\n"
             f"    nroing={self.ingress_number},\n"
+            # f"    periodo={self.period},\n"
             f"    nroitm={self.item_number},\n"
             f"    nrosal={self.exit_number},\n"
             f"    flgest={self.status_flag},\n"

@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db, get_promec_db
 from src.operations.schemas import (
     ServiceOrderCreateSchema,
+    ServiceOrderFilterParams,
     ServiceOrderListSchema,
     ServiceOrderSchema,
     ServiceOrderUpdateSchema,
@@ -15,20 +16,14 @@ router = APIRouter()
 
 @router.get("/", response_model=ServiceOrderListSchema)
 async def read_service_orders(
-    limit: int | None = Query(default=10, ge=1, le=100),
-    offset: int | None = Query(default=0, ge=0),
-    include_detail: bool | None = Query(default=False),
-    include_annulled: bool | None = Query(default=False),
+    filter_params: ServiceOrderFilterParams = Query(ServiceOrderFilterParams()),
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
 ):
     service = ServiceOrderService(promec_db=promec_db, db=db)
     result = await service.read_service_orders(
         order_type="TJ",
-        limit=limit,
-        offset=offset,
-        include_annulled=include_annulled,
-        include_detail=include_detail,
+        filter_params=filter_params,
         include_status=True,
     )
 

@@ -28,6 +28,7 @@ from src.operations.repositories import ServiceOrderRepository
 from src.operations.schemas import (
     ServiceOrderCreateSchema,
     ServiceOrderDetailSchema,
+    ServiceOrderFilterParams,
     ServiceOrderListSchema,
     ServiceOrderSchema,
     ServiceOrderUpdateSchema,
@@ -53,18 +54,12 @@ class ServiceOrderService:
     async def read_service_orders(
         self,
         order_type: str,
-        limit: int,
-        offset: int,
-        include_detail: bool = False,
-        include_annulled: bool = False,
+        filter_params: ServiceOrderFilterParams = ServiceOrderFilterParams(),
         include_status: bool = False,
     ) -> Result[ServiceOrderListSchema, CustomException]:
         service_orders = await self.repository.find_service_orders_by_order_type(
             order_type=order_type,
-            limit=limit,
-            offset=offset,
-            include_detail=include_detail,
-            include_annulled=include_annulled,
+            **filter_params.model_dump(),
             order_by=ServiceOrder.issue_date.desc(),
         )
 
@@ -79,7 +74,7 @@ class ServiceOrderService:
                 else:
                     service_order.status = status.value
 
-                if include_detail:
+                if filter_params.include_detail:
                     for detail in service_order.detail:
                         status = await self.parameter_service.read_parameter(
                             parameter_id=detail.status_param_id

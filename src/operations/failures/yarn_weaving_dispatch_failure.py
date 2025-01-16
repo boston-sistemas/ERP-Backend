@@ -66,3 +66,11 @@ YARN_WEAVING_DISPATCH_YARN_NOT_ASSOCIATED_FABRIC_FAILURE = Failure(
         detail="El hilado especificado no pertenece a ningun tejido de la orden de servicio."
     )
 )
+
+YARN_WEAVING_DISPATCH_SERVICE_ORDER_ALREADY_CANCELLED_FAILURE = Failure(
+    ForbiddenException(detail="La orden de servicio especificada ha sido cancelada.")
+)
+
+YARN_WEAVING_DISPATCH_SERVICE_ORDER_ALREADY_FINISHED_FAILURE = Failure(
+    ForbiddenException(detail="La orden de servicio especificada ha sido finalizada.")
+)

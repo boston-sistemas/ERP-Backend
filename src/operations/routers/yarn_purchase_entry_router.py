@@ -42,11 +42,14 @@ async def read_yarn_purchase_entries_items_groups_availability(
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
+    service_order_id: str | None = Query(default=None, alias="serviceOrderId"),
+    db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
-    service = YarnPurchaseEntryService(promec_db=promec_db)
+    service = YarnPurchaseEntryService(promec_db=promec_db, db=db)
     result = await service.read_yarn_purchase_entry_item_group_availability(
         period=period,
+        service_order_id=service_order_id,
     )
 
     if result.is_success:

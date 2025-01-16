@@ -34,10 +34,11 @@ from .mecsa_color_schema import (
     MecsaColorSchema,
 )
 from .orden_compra_schema import (
-    # OrdenCompraBase,
     OrdenCompraSimpleSchema,
     OrdenCompraWithDetailSchema,
     OrdenCompraWithDetallesListSchema,
+    # OrdenCompraBase,
+    YarnPurchaseOrderSchema,
 )
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
@@ -86,6 +87,7 @@ from .service_order_detail_schema import (
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
 from .service_order_schema import (
     ServiceOrderCreateSchema,
+    ServiceOrderFilterParams,
     ServiceOrderListSchema,
     ServiceOrderSchema,
     ServiceOrderSimpleListSchema,
@@ -147,6 +149,9 @@ from .yarn_weaving_dispatch_detail_schema import (
 )
 from .yarn_weaving_dispatch_schema import (
     YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchFilterParams,
+    YarnWeavingDispatchListSchema,
+    YarnWeavingDispatchPrintListSchema,
     YarnWeavingDispatchSchema,
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchSimpleSchema,
@@ -255,4 +260,8 @@ __all__ = [
     "CardOperationSchema",
     "SupplierListSchema",
     "YarnPurchaseEntryPrintListSchema",
+    "YarnPurchaseOrderSchema",
+    "YarnWeavingDispatchListSchema",
+    "YarnWeavingDispatchFilterParams",
+    "ServiceOrderFilterParams",
 ]
