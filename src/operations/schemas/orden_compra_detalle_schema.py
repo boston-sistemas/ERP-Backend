@@ -23,5 +23,9 @@ class OrdenCompraDetalleBase(CustomBaseModel):
         from_attributes = True
 
 
+class YarnPurchaseOrderDetailSchema(OrdenCompraDetalleBase):
+    pass
+
+
 # class OrdenCompraDetalleCreateSchema(OrdenCompraDetalleBase):
 #     pass

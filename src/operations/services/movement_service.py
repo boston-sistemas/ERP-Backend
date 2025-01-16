@@ -15,8 +15,8 @@ from src.operations.models import (
     Movement,
     MovementDetail,
     MovementDetailAux,
-    ProductInventory,
     MovementYarnOCHeavy,
+    ProductInventory,
 )
 from src.operations.repositories import MovementRepository
 
@@ -86,7 +86,6 @@ class MovementService:
         movement_detail_fabric: list[FabricWarehouse] = [],
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
-
         if movement:
             await self.repository.delete(movement)
 

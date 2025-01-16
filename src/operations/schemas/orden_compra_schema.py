@@ -4,7 +4,10 @@ from pydantic import Field
 
 from src.core.schemas import CustomBaseModel
 
-from .orden_compra_detalle_schema import OrdenCompraDetalleBase
+from .orden_compra_detalle_schema import (
+    OrdenCompraDetalleBase,
+    YarnPurchaseOrderDetailSchema,
+)
 
 # from pydantic import field_serializer
 
@@ -32,6 +35,10 @@ class OrdenCompraBase(CustomBaseModel):
 
 class OrdenCompraSimpleSchema(OrdenCompraBase):
     pass
+
+
+class YarnPurchaseOrderSchema(OrdenCompraBase):
+    detail: list[YarnPurchaseOrderDetailSchema] | None = Field([])
 
 
 class OrdenCompraWithDetailSchema(OrdenCompraBase):

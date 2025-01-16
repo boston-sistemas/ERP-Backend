@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import AliasChoices, Field, field_serializer, model_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 from src.core.utils import PERU_TIMEZONE, calculate_time

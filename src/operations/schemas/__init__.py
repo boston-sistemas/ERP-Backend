@@ -34,10 +34,11 @@ from .mecsa_color_schema import (
     MecsaColorSchema,
 )
 from .orden_compra_schema import (
-    # OrdenCompraBase,
     OrdenCompraSimpleSchema,
     OrdenCompraWithDetailSchema,
     OrdenCompraWithDetallesListSchema,
+    # OrdenCompraBase,
+    YarnPurchaseOrderSchema,
 )
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
@@ -255,4 +256,5 @@ __all__ = [
     "CardOperationSchema",
     "SupplierListSchema",
     "YarnPurchaseEntryPrintListSchema",
+    "YarnPurchaseOrderSchema",
 ]
