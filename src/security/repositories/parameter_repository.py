@@ -1,4 +1,6 @@
-from sqlalchemy import BinaryExpression
+from typing import Sequence, Union
+
+from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
@@ -17,7 +19,9 @@ class ParameterRepository(BaseRepository[Parameter]):
 
     @staticmethod
     def load_only_value() -> Load:
-        return load_only(Parameter.value, Parameter.is_active, raiseload=True)
+        return load_only(
+            Parameter.value, Parameter.category_id, Parameter.is_active, raiseload=True
+        )
 
     def get_load_options(
         self, include_category: bool = False, load_only_value: bool = False
@@ -49,12 +53,24 @@ class ParameterRepository(BaseRepository[Parameter]):
     async def find_parameters(
         self,
         filter: BinaryExpression = None,
+        order_by: Union[
+            Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
+        ] = None,
+        include_inactives: bool = True,
         include_category: bool = False,
         load_only_value: bool = False,
     ) -> list[Parameter]:
+        if not include_inactives:
+            filter = (
+                filter & (Parameter.is_active == bool(True))
+                if filter is not None
+                else Parameter.is_active == bool(True)
+            )
         options = self.get_load_options(
             include_category=include_category, load_only_value=load_only_value
         )
-        parameters = await self.find_all(filter=filter, options=options)
+        parameters = await self.find_all(
+            filter=filter, options=options, order_by=order_by
+        )
 
         return parameters

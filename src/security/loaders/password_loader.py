@@ -62,7 +62,7 @@ class UserPasswordPolicy(
     async def get_schema(
         self,
     ):
-        mapping = await self.get_and_mapping(actives_only=True)
+        mapping = await self.get_and_mapping()
         return UserPasswordPolicySchema(
             min_length=mapping.get(MinUserPasswordLength.id).value
             if mapping.get(MinUserPasswordLength.id, None)

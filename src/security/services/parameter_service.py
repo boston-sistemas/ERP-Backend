@@ -102,7 +102,9 @@ class ParameterService:
         self, include_category: bool = False, load_only_value: bool = False
     ) -> Result[list[Parameter], CustomException]:
         parameters = await self.repository.find_parameters(
-            include_category=include_category, load_only_value=load_only_value
+            order_by=Parameter.id.asc(),
+            include_category=include_category,
+            load_only_value=load_only_value,
         )
 
         return Success(parameters)
@@ -127,26 +129,24 @@ class ParameterService:
         parameter_category_id: int,
         include_category: bool = False,
         load_only_value: bool = False,
-        actives_only: bool = False,
+        include_inactives: bool = False,
     ) -> Result[list[Parameter], CustomException]:
-        filter = Parameter.category_id == parameter_category_id
-        if actives_only:
-            filter &= Parameter.is_active
-
         parameters = await self.repository.find_parameters(
-            filter=filter,
+            filter=Parameter.category_id == parameter_category_id,
+            order_by=Parameter.id.asc(),
+            include_inactives=include_inactives,
             include_category=include_category,
             load_only_value=load_only_value,
         )
 
         return Success(parameters)
 
-    async def find_parameters_by_ids(
+    async def read_parameters_by_ids(
         self,
         parameter_ids: list[int],
         include_category: bool = False,
         load_only_value: bool = False,
-        actives_only: bool = False,
+        include_inactives: bool = False,
     ) -> Result[list[Parameter], CustomException]:
         if not parameter_ids:
             return Success([])
@@ -158,17 +158,14 @@ class ParameterService:
                 include_category=include_category,
                 load_only_value=load_only_value,
             )
-            if result.is_success and (not actives_only or result.value.is_active):
+            if result.is_success and (include_inactives or result.value.is_active):
                 return Success([result.value])
 
             return Success([])
 
-        filter = Parameter.id.in_(parameter_ids)
-        if actives_only:
-            filter &= Parameter.is_active
-
         parameters = await self.repository.find_parameters(
-            filter=filter,
+            filter=Parameter.id.in_(parameter_ids),
+            include_inactives=include_inactives,
             include_category=include_category,
             load_only_value=load_only_value,
         )
@@ -181,7 +178,7 @@ class ParameterService:
         load_only_value: bool = False,
     ) -> Result[dict[int, Parameter], CustomException]:
         parameters = (
-            await self.find_parameters_by_ids(
+            await self.read_parameters_by_ids(
                 parameter_ids=parameter_ids,
                 include_category=include_category,
                 load_only_value=load_only_value,

@@ -1,8 +1,16 @@
-from src.core.exceptions import NotFoundException, UnprocessableEntityException
+from src.core.exceptions import (
+    BadRequestException,
+    NotFoundException,
+    UnprocessableEntityException,
+)
 from src.core.result import Failure
 
 PARAMETER_NOT_FOUND_FAILURE = Failure(
     NotFoundException(detail="Parametro no encontrado")
+)
+
+PARAMETER_DISABLED_FAILURE = Failure(
+    BadRequestException(detail="El parámetro especificado está inactivo.")
 )
 
 PARAMETER_CATEGORY_NOT_FOUND_WHEN_CREATING_FAILURE = Failure(

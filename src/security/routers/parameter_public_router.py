@@ -30,9 +30,7 @@ async def read_datatypes():
 
 @router.get("/fiber-categories", response_model=FiberCategoriesSchema)
 async def read_fiber_categories(db: AsyncSession = Depends(get_db)):
-    return FiberCategoriesSchema(
-        fiber_categories=await FiberCategories(db=db).get(actives_only=True)
-    )
+    return FiberCategoriesSchema(fiber_categories=await FiberCategories(db=db).get())
 
 
 @router.get("/password-rules", response_model=UserPasswordPolicySchema)
@@ -42,27 +40,23 @@ async def password_restrictions(db: AsyncSession = Depends(get_db)):
 
 @router.get("/spinning-methods", response_model=SpinningMethodsSchema)
 async def read_spinning_methods(db: AsyncSession = Depends(get_db)):
-    return SpinningMethodsSchema(
-        spinning_methods=await SpinningMethods(db=db).get(actives_only=True)
-    )
+    return SpinningMethodsSchema(spinning_methods=await SpinningMethods(db=db).get())
 
 
 @router.get("/fabric-types", response_model=FabricTypesSchema)
 async def read_fabric_types(db: AsyncSession = Depends(get_db)):
-    return FabricTypesSchema(
-        fabric_types=await FabricTypes(db=db).get(actives_only=True)
-    )
+    return FabricTypesSchema(fabric_types=await FabricTypes(db=db).get())
 
 
 @router.get("/service-order-status", response_model=ServiceOrderStatusSchema)
 async def read_service_order_status(db: AsyncSession = Depends(get_db)):
     return ServiceOrderStatusSchema(
-        service_order_status=await ServiceOrderStatus(db=db).get(actives_only=True)
+        service_order_status=await ServiceOrderStatus(db=db).get()
     )
 
 
 @router.get("/fiber-denominations", response_model=FiberDenominationsSchema)
 async def read_fiber_denominations(db: AsyncSession = Depends(get_db)):
     return FiberDenominationsSchema(
-        fiber_denominations=await FiberDenominations(db=db).get(actives_only=True)
+        fiber_denominations=await FiberDenominations(db=db).get()
     )

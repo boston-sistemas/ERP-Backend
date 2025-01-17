@@ -1,12 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.security.failures import PARAMETER_NOT_FOUND_FAILURE
 from src.security.models import Parameter
-from src.security.services import ParameterService
+
+from .abstract_loader import AbstractParameterLoader
 
 
-class MultiParameterLoaderByCategory:
+class MultiParameterLoaderByCategory(AbstractParameterLoader):
     param_category_id: int
 
     def __init_subclass__(cls, param_category_id: int = None, **kwargs):
@@ -17,28 +16,39 @@ class MultiParameterLoaderByCategory:
         cls.param_category_id = param_category_id
         super().__init_subclass__(**kwargs)
 
-    def __init__(self, db: AsyncSession):
-        self.service = ParameterService(db=db)
-
-    async def get(self, actives_only: bool = False) -> list[Parameter]:
-        result = await self.service.read_parameters_by_category(
-            parameter_category_id=self.param_category_id,
+    async def get(self, include_inactives: bool = False) -> list[Parameter]:
+        parameters = await self.repository.find_parameters(
+            filter=Parameter.category_id == self.param_category_id,
             load_only_value=True,
-            actives_only=actives_only,
+            include_inactives=include_inactives,
         )
-        return result.value
+        return parameters
 
-    async def get_and_mapping(self, actives_only: bool = False) -> dict[int, Parameter]:
-        values = await self.get(actives_only=actives_only)
+    async def get_and_mapping(
+        self, include_inactives: bool = False
+    ) -> dict[int, Parameter]:
+        values = await self.get(include_inactives=include_inactives)
         return {value.id: value for value in values}
 
-    async def validate(self, id: int) -> Result[Parameter, None]:
-        parameter_result = await self.service.read_parameter(parameter_id=id)
+    async def validate(self, id: int) -> Result[Parameter, CustomException]:
+        parameter_result = await self.repository.find_parameter_by_id(
+            parameter_id=id, load_only_value=True
+        )
         if parameter_result.is_failure:
-            return PARAMETER_NOT_FOUND_FAILURE
+            return self.not_found_failure
 
-        parameter: Parameter = parameter_result.value
+        return self.validate_instance(parameter_result.value)
+
+    def validate_instance(
+        self, parameter: Parameter
+    ) -> Result[Parameter, CustomException]:
+        if not parameter:
+            return self.not_found_failure
+
         if parameter.category_id != self.param_category_id:
-            return PARAMETER_NOT_FOUND_FAILURE
+            return self.not_found_failure
+
+        if not parameter.is_active:
+            return self.disabled_failure
 
         return Success(parameter)
