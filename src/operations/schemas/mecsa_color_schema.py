@@ -25,6 +25,10 @@ class MecsaColorSchema(MecsaColorBase):
     def convert_is_active(cls, value):
         return is_active_status(value)
 
+    @field_validator("name", mode="after")
+    def capitalize_name(cls, name: str):
+        return name.capitalize()
+
 
 class MecsaColorListSchema(CustomBaseModel):
     mecsa_colors: list[MecsaColorSchema]
@@ -38,3 +42,7 @@ class MecsaColorCreateSchema(CustomBaseModel):
     hexadecimal: str | None = Field(
         default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_HEXADECIMAL
     )
+
+    @field_validator("name", "sku", mode="after")
+    def to_uppercase(cls, value: str | None):
+        return value.upper() if value else value
