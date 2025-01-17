@@ -22,10 +22,10 @@ from .fabric_schema import (
     FabricUpdateSchema,
 )
 from .fiber_schema import (
-    FiberCompleteListSchema,
-    FiberCompleteSchema,
     FiberCreateSchema,
+    FiberListSchema,
     FiberSchema,
+    FiberSimpleSchema,
     FiberUpdateSchema,
 )
 from .mecsa_color_schema import (
@@ -168,11 +168,11 @@ __all__ = [
     "UnitListSchema",
     "DerivedUnitSchema",
     "DerivedUnitListSchema",
-    "FiberSchema",
+    "FiberSimpleSchema",
     "FiberUpdateSchema",
     "FiberCreateSchema",
-    "FiberCompleteListSchema",
-    "FiberCompleteSchema",
+    "FiberListSchema",
+    "FiberSchema",
     "MecsaColorCreateSchema",
     "MecsaColorSchema",
     "MecsaColorListSchema",

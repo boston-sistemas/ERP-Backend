@@ -18,7 +18,7 @@ from src.operations.constants import (
 )
 from src.security.schemas import ParameterValueSchema
 
-from .fiber_schema import FiberCompleteSchema
+from .fiber_schema import FiberSchema
 from .inventory_item_schema import InventoryItemBase
 from .mecsa_color_schema import MecsaColorSchema
 
@@ -64,7 +64,7 @@ class YarnRecipeItemSimpleSchema(CustomBaseModel):
 
 class YarnRecipeItemSchema(YarnRecipeItemSimpleSchema):
     fiber_id: str = Field(exclude=True)
-    fiber: FiberCompleteSchema | None = None
+    fiber: FiberSchema | None = None
 
 
 class YarnCreateSchema(CustomBaseModel):

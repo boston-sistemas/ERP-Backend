@@ -2,63 +2,63 @@
     {
         "id": "100100100101",
         "category_id": 1008,
-        "denomination": "TANGÜIS",
+        "denomination_id": 1032,
         "origin": "PER",
         "color_id": null
     },
     {
         "id": "100100100102",
         "category_id": 1008,
-        "denomination": "PIMA",
+        "denomination_id": 1033,
         "origin": "PER",
         "color_id": null
     },
     {
         "id": "100100100103",
         "category_id": 1008,
-        "denomination": "UPLAND",
+        "denomination_id": 1034,
         "origin": "USA",
         "color_id": null
     },
     {
         "id": "100100100104",
         "category_id": 1009,
-        "denomination": "CREORA",
+        "denomination_id": 1035,
         "origin": null,
         "color_id": null
     },
     {
         "id": "100100100105",
         "category_id": 1009,
-        "denomination": "LYCRA",
+        "denomination_id": 1036,
         "origin": null,
         "color_id": null
     },
     {
         "id": "100100100106",
         "category_id": 1010,
-        "denomination": null,
+        "denomination_id": null,
         "origin": null,
         "color_id": "100102"
     },
     {
         "id": "100100100107",
         "category_id": 1010,
-        "denomination": null,
+        "denomination_id": null,
         "origin": null,
         "color_id": "100101"
     },
     {
         "id": "100100100108",
         "category_id": 1012,
-        "denomination": null,
+        "denomination_id": null,
         "origin": null,
         "color_id": null
     },
     {
         "id": "100100100109",
         "category_id": 1018,
-        "denomination": null,
+        "denomination_id": null,
         "origin": null,
         "color_id": null
     }
