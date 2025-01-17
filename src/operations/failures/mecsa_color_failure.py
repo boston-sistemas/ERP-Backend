@@ -12,14 +12,20 @@ MECSA_COLOR_NOT_FOUND_FAILURE = Failure(
 
 def MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE(name: str):
     return Failure(
-        DuplicateValueException(f"El nombre del color '{name}' ya está en uso.")
+        DuplicateValueException(
+            f"El nombre '{name}' ya está en uso por otro color. Por favor, ingrese un nombre diferente."
+        )
     )
 
 
 def MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE(sku: str):
-    return Failure(DuplicateValueException(f"El SKU del color '{sku}' ya está en uso."))
+    return Failure(
+        DuplicateValueException(
+            f"El SKU '{sku}' ya está en uso por otro color. Por favor, ingrese un SKU diferente."
+        )
+    )
 
 
 MECSA_COLOR_DISABLED_FAILURE = Failure(
-    UnprocessableEntityException(detail="El color especificado está deshabilitado")
+    UnprocessableEntityException(detail="El color especificado está inactivo.")
 )

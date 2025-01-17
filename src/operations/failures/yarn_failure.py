@@ -15,7 +15,7 @@ SPINNING_METHOD_NOT_FOUND_YARN_VALIDATION_FAILURE = Failure(
 
 SPINNING_METHOD_DISABLED_YARN_VALIDATION_FAILURE = Failure(
     UnprocessableEntityException(
-        detail="El acabado de hilado especificado está deshabilitado."
+        detail="El acabado de hilado especificado está inactivo."
     )
 )
 
@@ -39,7 +39,7 @@ FIBER_NOT_FOUND_IN_YARN_RECIPE_FAILURE = Failure(
 
 FIBER_DISABLED_IN_YARN_RECIPE_FAILURE = Failure(
     UnprocessableEntityException(
-        detail="Receta inválida: una o más fibras especificadas están deshabilitadas."
+        detail="Receta inválida: una o más fibras especificadas están inactivas."
     )
 )
 

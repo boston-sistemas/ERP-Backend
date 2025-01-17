@@ -15,9 +15,7 @@ FABRIC_TYPE_NOT_FOUND_FABRIC_VALIDATION_FAILURE = Failure(
 )
 
 FABRIC_TYPE_DISABLED_FABRIC_VALIDATION_FAILURE = Failure(
-    UnprocessableEntityException(
-        detail="El tipo de tejido especificado está deshabilitado."
-    )
+    UnprocessableEntityException(detail="El tipo de tejido especificado está inactivo.")
 )
 
 INVALID_FABRIC_RECIPE_FAILURE = Failure(
@@ -40,7 +38,7 @@ YARN_NOT_FOUND_IN_FABRIC_RECIPE_FAILURE = Failure(
 
 YARN_DISABLED_IN_FABRIC_RECIPE_FAILURE = Failure(
     UnprocessableEntityException(
-        detail="Receta inválida: uno o más hilados especificados están deshabilitados."
+        detail="Receta inválida: uno o más hilados especificados están inactivos."
     )
 )
 
