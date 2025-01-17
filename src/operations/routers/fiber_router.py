@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
-from src.core.schemas import ItemIsUpdatableSchema
+from src.operations.docs import FiberRouterDocumentation
 from src.operations.schemas import (
     FiberCreateSchema,
     FiberListSchema,
@@ -106,7 +106,9 @@ async def update_fiber_status(
     raise result.error
 
 
-@router.get("/{fiber_id}/is-updatable", response_model=ItemIsUpdatableSchema)
+@router.get(
+    "/{fiber_id}/is-updatable", **FiberRouterDocumentation.check_is_fiber_updatable()
+)
 async def check_is_fiber_updatable(
     fiber_id: str,
     db: AsyncSession = Depends(get_db),
