@@ -64,9 +64,9 @@ class FiberRepository(BaseRepository[Fiber]):
     ) -> list[Fiber]:
         if not include_inactives:
             filter = (
-                filter & Fiber.is_active.is_(True)
+                filter & Fiber.is_active == bool(True)
                 if filter
-                else Fiber.is_active.is_(True)
+                else Fiber.is_active == bool(True)
             )
 
         options = self.get_load_options(
