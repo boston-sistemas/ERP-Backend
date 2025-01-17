@@ -16,6 +16,7 @@ from .parameter_public_schema import (
     DataTypeListSchema,
     FabricTypesSchema,
     FiberCategoriesSchema,
+    FiberDenominationsSchema,
     ServiceOrderStatusSchema,
     SpinningMethodsSchema,
     UserPasswordPolicySchema,
@@ -48,6 +49,7 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "FiberDenominationsSchema",
     "FabricTypesSchema",
     "SpinningMethodsSchema",
     "UserPasswordPolicySchema",
