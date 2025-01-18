@@ -10,6 +10,18 @@ from src.security.schemas import ParameterValueSchema
 from .mecsa_color_schema import MecsaColorSchema
 
 
+class FiberOptions(CustomBaseModel):
+    include_category: bool = False
+    include_denomination: bool = False
+    include_color: bool = False
+
+    @staticmethod
+    def all() -> "FiberOptions":
+        return FiberOptions(
+            include_category=True, include_denomination=True, include_color=True
+        )
+
+
 class FiberBase(CustomBaseModel):
     id: str
     origin: str | None

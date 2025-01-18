@@ -15,6 +15,7 @@ from src.security.failures import (
     PARAMETER_VALUE_CONVERSION_TO_FLOAT_FAILURE,
     PARAMETER_VALUE_CONVERSION_TO_INT_FAILURE,
 )
+from src.security.loaders import MultiParameterLoaderByCategory
 from src.security.models import Parameter
 from src.security.repositories import ParameterRepository
 from src.security.schemas import DataType, ParameterCreateSchema
@@ -129,7 +130,7 @@ class ParameterService:
         parameter_category_id: int,
         include_category: bool = False,
         load_only_value: bool = False,
-        include_inactives: bool = False,
+        include_inactives: bool = True,
     ) -> Result[list[Parameter], CustomException]:
         parameters = await self.repository.find_parameters(
             filter=Parameter.category_id == parameter_category_id,
@@ -146,7 +147,7 @@ class ParameterService:
         parameter_ids: list[int],
         include_category: bool = False,
         load_only_value: bool = False,
-        include_inactives: bool = False,
+        include_inactives: bool = True,
     ) -> Result[list[Parameter], CustomException]:
         if not parameter_ids:
             return Success([])
@@ -186,3 +187,26 @@ class ParameterService:
         ).value
 
         return Success({parameter.id: parameter for parameter in parameters})
+
+    async def validate_parameters(
+        self,
+        parameter_id_validator_pairs: list[
+            tuple[int | None, MultiParameterLoaderByCategory]
+        ],
+    ) -> Result[None, CustomException]:
+        validator_mapping = {
+            parameter_id: validator
+            for parameter_id, validator in parameter_id_validator_pairs
+            if parameter_id is not None
+        }
+        mapping = (
+            await self.map_parameters_by_ids(
+                parameter_ids=list(validator_mapping.keys()), load_only_value=True
+            )
+        ).value
+        for parameter_id, validator in validator_mapping.items():
+            validation = validator.validate_instance(mapping.get(parameter_id))
+            if validation.is_failure:
+                return validation
+
+        return Success(None)

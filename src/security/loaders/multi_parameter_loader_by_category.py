@@ -19,6 +19,7 @@ class MultiParameterLoaderByCategory(AbstractParameterLoader):
     async def get(self, include_inactives: bool = False) -> list[Parameter]:
         parameters = await self.repository.find_parameters(
             filter=Parameter.category_id == self.param_category_id,
+            order_by=Parameter.id.asc(),
             load_only_value=True,
             include_inactives=include_inactives,
         )
