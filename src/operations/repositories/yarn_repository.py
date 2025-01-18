@@ -23,6 +23,7 @@ class YarnRepository(InventoryItemRepository):
             InventoryItem.field2,
             InventoryItem.field3,
             InventoryItem.field4,
+            InventoryItem.field5,
         )
 
     @staticmethod

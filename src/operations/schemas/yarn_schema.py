@@ -1,19 +1,14 @@
-from enum import Enum
-from typing import Self
-
 from pydantic import (
     AliasChoices,
     Field,
     computed_field,
     field_validator,
-    model_validator,
 )
 
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
     FIBER_ID_MAX_LENGTH,
     INVENTORY_ITEM_DESCRIPTION_MAX_LENGTH,
-    INVENTORY_ITEM_FIELD1_MAX_LENGTH,
     MECSA_COLOR_ID_MAX_LENGTH,
 )
 from src.security.schemas import ParameterValueSchema
@@ -23,27 +18,43 @@ from .inventory_item_schema import InventoryItemBase
 from .mecsa_color_schema import MecsaColorSchema
 
 
-class YarnNumbering(str, Enum):
-    ne = "Ne"
-    dn = "Dn"
+class YarnOptions(CustomBaseModel):
+    include_yarn_count: bool = False
+    include_spinning_method: bool = False
+    include_color: bool = False
+    include_manufactured_in: bool = False
+    include_distinction: bool = False
+    include_recipe: bool = False
+
+    @staticmethod
+    def all() -> "YarnOptions":
+        return YarnOptions(
+            include_yarn_count=True,
+            include_spinning_method=True,
+            include_color=True,
+            include_manufactured_in=True,
+            include_distinction=True,
+            include_recipe=True,
+        )
 
 
 class YarnBase(InventoryItemBase):
-    yarn_count: str | None = Field(
-        default=None, validation_alias=AliasChoices("field1")
-    )
-    numbering_system: str | None = Field(
-        default=None, validation_alias=AliasChoices("field2")
-    )
-    # field3: str = Field(alias="spinningMethodId")
-    # field4: str = Field(alias="colorId")
+    # field1: str = Field(alias="yarnCount")
+    # field2: str = Field(alias="spinningMethodId")
+    # field3: str = Field(alias="colorId")
+    # field4: str = Field(alias="manufacturedInId")
+    # field5: str = Field(alias="distincion")
+    pass
+
+
+class YarnSchema(YarnBase):
+    yarn_count: ParameterValueSchema | None = None
     spinning_method: ParameterValueSchema | None = None
     color: MecsaColorSchema | None = Field(
         default=None, validation_alias=AliasChoices("yarn_color")
     )
-
-
-class YarnSchema(YarnBase):
+    manufactured_in: ParameterValueSchema | None = None
+    distinction: ParameterValueSchema | None = None
     recipe: list["YarnRecipeItemSchema"] = []
 
     class Config:
@@ -68,14 +79,11 @@ class YarnRecipeItemSchema(YarnRecipeItemSimpleSchema):
 
 
 class YarnCreateSchema(CustomBaseModel):
-    yarn_count: str = Field(
-        pattern=r"^\d+(/\d+)?$",
-        max_length=INVENTORY_ITEM_FIELD1_MAX_LENGTH,
-        examples=["30/1", "28/1", "20"],
-    )
-    numbering_system: YarnNumbering = YarnNumbering.ne
+    yarn_count_id: int
     spinning_method_id: int | None = None
     color_id: str | None = Field(default=None, max_length=MECSA_COLOR_ID_MAX_LENGTH)
+    manufactured_in_id: int | None = None
+    distinction_id: int | None = None
     description: str = Field(max_length=INVENTORY_ITEM_DESCRIPTION_MAX_LENGTH)
 
     recipe: list[YarnRecipeItemSimpleSchema]
@@ -93,31 +101,11 @@ class YarnCreateSchema(CustomBaseModel):
         )
 
 
-class YarnUpdateSchema(CustomBaseModel):
-    yarn_count: str = Field(
-        default=None,
-        pattern=r"^\d+(/\d+)?$",
-        max_length=INVENTORY_ITEM_FIELD1_MAX_LENGTH,
-        examples=["30/1", "28/1", "20"],
-    )
-    numbering_system: YarnNumbering = None
-    spinning_method_id: int | None = None
+class YarnUpdateSchema(YarnCreateSchema):
+    yarn_count_id: str = None
     color_id: str | None = Field(default=None, max_length=MECSA_COLOR_ID_MAX_LENGTH)
     description: str = Field(
         default=None, max_length=INVENTORY_ITEM_DESCRIPTION_MAX_LENGTH
     )
 
     recipe: list[YarnRecipeItemSimpleSchema] = None
-
-    # spinning_method_id_: str | None = Field(default=None, exclude=True)
-
-    @model_validator(mode="after")
-    def validation(self) -> Self:
-        if "color_id" in self.model_fields_set:
-            self.color_id = "" if self.color_id is None else self.color_id
-
-        self.__dict__["spinning_method_id_"] = (
-            "" if self.spinning_method_id is None else str(self.spinning_method_id)
-        )
-
-        return self

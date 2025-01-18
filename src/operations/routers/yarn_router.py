@@ -7,6 +7,7 @@ from src.core.database import get_db, get_promec_db
 from src.operations.schemas import (
     YarnCreateSchema,
     YarnListSchema,
+    YarnOptions,
     YarnSchema,
     YarnUpdateSchema,
 )
@@ -22,12 +23,7 @@ async def read_yarn(
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
-    result = await service.read_yarn(
-        yarn_id=yarn_id,
-        include_color=True,
-        include_spinning_method=True,
-        include_recipe=True,
-    )
+    result = await service.read_yarn(yarn_id=yarn_id, options=YarnOptions.all())
 
     if result.is_success:
         return result.value
@@ -44,6 +40,7 @@ async def read_yarns(
 ):
     service = YarnService(db=db, promec_db=promec_db)
     result = None
+    options = YarnOptions.all()
     if fiber_ids:
         result = await service.find_yarns_by_recipe(
             fiber_ids=fiber_ids,
@@ -57,10 +54,8 @@ async def read_yarns(
     else:
         result = await service.read_yarns(
             include_inactives=include_inactives,
-            include_color=True,
-            include_spinning_method=True,
-            include_recipe=True,
-            exclude_legacy=True,
+            options=options,
+            exclude_legacy=False,
         )
     if result.is_success:
         return result.value

@@ -11,8 +11,6 @@ from src.operations.failures import (
     FIBER_NOT_FOUND_IN_YARN_RECIPE_FAILURE,
     INVALID_YARN_RECIPE_FAILURE,
     MECSA_COLOR_DISABLED_FAILURE,
-    SPINNING_METHOD_DISABLED_YARN_VALIDATION_FAILURE,
-    SPINNING_METHOD_NOT_FOUND_YARN_VALIDATION_FAILURE,
     YARN_ALREADY_EXISTS_FAILURE,
     YARN_COUNT_NULL_VALIDATION_FAILURE,
     YARN_NOT_FOUND_FAILURE,
@@ -31,6 +29,7 @@ from src.operations.repositories import (
 from src.operations.schemas import (
     YarnCreateSchema,
     YarnListSchema,
+    YarnOptions,
     YarnRecipeItemSimpleSchema,
     YarnSchema,
     YarnUpdateSchema,
@@ -58,32 +57,11 @@ class YarnService:
         self.barcode_series = BarcodeSeries(promec_db=promec_db)
         """
         field1 = yarn_count
-        field2 = numbering_system
-        field3 = spinning_method_id
-        field4 = color_id
+        field2 = spinning_method_id
+        field3 = color_id
+        field4 = manufactured_in_id
+        field5 = distinction
         """
-
-    async def _assign_spinning_method_to_yarns(
-        self, yarns: list[InventoryItem]
-    ) -> None:
-        spinnig_method_id_mapping = {
-            yarn.field3: int(yarn.field3)
-            for yarn in yarns
-            if yarn.field3 and yarn.field3.isdigit()
-        }
-        if not spinnig_method_id_mapping:
-            return None
-
-        spinning_method_mapping = (
-            await self.parameter_service.map_parameters_by_ids(
-                parameter_ids=list(spinnig_method_id_mapping.values()),
-                load_only_value=True,
-            )
-        ).value
-        for yarn in yarns:
-            yarn.spinning_method = spinning_method_mapping.get(
-                spinnig_method_id_mapping.get(yarn.field3, None), None
-            )
 
     async def _assign_recipe_to_yarns(
         self, yarns: list[InventoryItem], include_fiber_instance: bool = False
@@ -121,27 +99,67 @@ class YarnService:
     async def _load_related_data_for_yarns(
         self,
         yarns: list[InventoryItem],
+        include_yarn_count: bool = False,
         include_spinning_method: bool = False,
+        include_manufactured_in: bool = False,
+        include_distinction: bool = False,
         include_recipe: bool = False,
+        **kwargs,
     ) -> None:
-        if include_spinning_method:
-            await self._assign_spinning_method_to_yarns(yarns=yarns)
-
         if include_recipe:
             await self._assign_recipe_to_yarns(yarns=yarns, include_fiber_instance=True)
 
+        mapping = {
+            "yarn_count": ("field1", include_yarn_count),
+            "spinning_method": ("field2", include_spinning_method),
+            "manufactured_in": ("field4", include_manufactured_in),
+            "distinction": ("field5", include_distinction),
+        }
+
+        field_id_mapping = {
+            value: int(value)
+            for _, (yarn_field, include_flag) in mapping.items()
+            if include_flag
+            for yarn in yarns
+            if (value := getattr(yarn, yarn_field, "")) and value.isdigit()
+        }
+        if not field_id_mapping:
+            return None
+
+        field_mapping = (
+            await self.parameter_service.map_parameters_by_ids(
+                parameter_ids=list(field_id_mapping.values()),
+                load_only_value=True,
+            )
+        ).value
+        for field_name, (yarn_field, include_flag) in mapping.items():
+            if not include_flag:
+                continue
+            for yarn in yarns:
+                value = field_mapping.get(
+                    field_id_mapping.get(getattr(yarn, yarn_field))
+                )
+                setattr(yarn, field_name, value)
+
     async def _validate_yarn_data(
         self,
+        yarn_count_id: int | None = None,
         spinning_method_id: int | None = None,
+        manufactured_in_id: int | None = None,
+        distinction_id: int | None = None,
         color_id: str | None = None,
         **kwargs,
     ) -> Result[None, CustomException]:
-        if spinning_method_id is not None:
-            result = await self.spinning_methods.validate(id=spinning_method_id)
-            if result.is_failure:
-                return SPINNING_METHOD_NOT_FOUND_YARN_VALIDATION_FAILURE
-            if not result.value.is_active:
-                return SPINNING_METHOD_DISABLED_YARN_VALIDATION_FAILURE
+        validation = await self.parameter_service.validate_parameters(
+            [
+                (yarn_count_id, self.yarn_counts),
+                (spinning_method_id, self.spinning_methods),
+                (manufactured_in_id, self.manufactured_locations),
+                (distinction_id, self.distinctions),
+            ]
+        )
+        if validation.is_failure:
+            return validation
 
         if color_id:
             color_result = await self.mecsa_color_service.read_mecsa_color(color_id)
@@ -237,37 +255,27 @@ class YarnService:
     async def _read_yarn(
         self,
         yarn_id: str,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
+        options: YarnOptions = YarnOptions(),
     ) -> Result[InventoryItem, CustomException]:
         yarn = await self.repository.find_yarn_by_id(
-            yarn_id=yarn_id, include_color=include_color
+            yarn_id=yarn_id, include_color=options.include_color
         )
 
         if yarn is None:
             return YARN_NOT_FOUND_FAILURE
 
-        await self._load_related_data_for_yarns(
-            yarns=[yarn],
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
-        )
+        await self._load_related_data_for_yarns(yarns=[yarn], **options.model_dump())
 
         return Success(yarn)
 
     async def read_yarn(
         self,
         yarn_id: str,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
+        options: YarnOptions = YarnOptions(),
     ) -> Result[YarnSchema, CustomException]:
         yarn_result = await self._read_yarn(
             yarn_id=yarn_id,
-            include_color=include_color,
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
+            options=options,
         )
 
         if yarn_result.is_failure:
@@ -278,22 +286,19 @@ class YarnService:
     async def read_yarns(
         self,
         include_inactives: bool = True,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
+        options: YarnOptions = YarnOptions(),
         exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         yarns = await self.repository.find_yarns(
             include_inactives=include_inactives,
             order_by=InventoryItem.id.asc(),
-            include_color=include_color,
+            include_color=options.include_color,
             exclude_legacy=exclude_legacy,
         )
 
         await self._load_related_data_for_yarns(
             yarns=yarns,
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
+            **options.model_dump(),
         )
 
         return Success(YarnListSchema(yarns=yarns))
