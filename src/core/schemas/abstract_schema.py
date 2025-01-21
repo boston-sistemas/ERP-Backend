@@ -40,3 +40,7 @@ class ItemStatusUpdateSchema(CustomBaseModel):
     is_active: bool = Field(
         description="Establezca en `True` para activar, `False` para desactivar."
     )
+
+
+class CreationResponse(CustomBaseModel):
+    message: str = Field(description="El objeto ha sido creado con éxito.")

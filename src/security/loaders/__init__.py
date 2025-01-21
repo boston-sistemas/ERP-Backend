@@ -14,8 +14,14 @@ from .password_loader import (
 )
 from .service_order_status_loader import ServiceOrderStatus
 from .spinning_methods_loader import SpinningMethods
+from .yarn_counts_loader import YarnCounts
+from .yarn_distinctions_loader import YarnDistinctions
+from .yarn_manufacturing_sites_loader import YarnManufacturingSites
 
 __all__ = [
+    "YarnDistinctions",
+    "YarnManufacturingSites",
+    "YarnCounts",
     "MultiParameterLoaderByCategory",
     "FiberDenominations",
     "RibBvdFabric",

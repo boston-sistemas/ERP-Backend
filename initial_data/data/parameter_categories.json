@@ -22,5 +22,17 @@
     {
         "id": 106,
         "name": "FIBRA - VARIEDAD(es) / MARCA(s)"
+    },
+    {
+        "id": 107,
+        "name": "HILADO - TITULOS"
+    },
+    {
+        "id": 108,
+        "name": "HILADO - LUGARES DE PRODUCCION"
+    },
+    {
+        "id": 109,
+        "name": "HILADO - DISTINCIONES"
     }
 ]

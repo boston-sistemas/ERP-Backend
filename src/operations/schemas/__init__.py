@@ -136,6 +136,7 @@ from .yarn_purchase_entry_schema import (
 from .yarn_schema import (
     YarnCreateSchema,
     YarnListSchema,
+    YarnOptions,
     YarnRecipeItemSchema,
     YarnRecipeItemSimpleSchema,
     YarnSchema,
@@ -153,6 +154,7 @@ from .yarn_weaving_dispatch_schema import (
 )
 
 __all__ = [
+    "YarnOptions",
     "FiberOptions",
     "FabricCreateSchema",
     "FabricListSchema",

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
+from src.security.docs import ParameterPublicRouterDocumentation
 from src.security.loaders import (
     FabricTypes,
     FiberCategories,
@@ -9,6 +10,9 @@ from src.security.loaders import (
     ServiceOrderStatus,
     SpinningMethods,
     UserPasswordPolicy,
+    YarnCounts,
+    YarnDistinctions,
+    YarnManufacturingSites,
 )
 from src.security.schemas import (
     DataTypeListSchema,
@@ -18,6 +22,9 @@ from src.security.schemas import (
     ServiceOrderStatusSchema,
     SpinningMethodsSchema,
     UserPasswordPolicySchema,
+    YarnCountsSchema,
+    YarnDistinctionsSchema,
+    YarnManufacturingSitesSchema,
 )
 
 router = APIRouter()
@@ -38,7 +45,9 @@ async def password_restrictions(db: AsyncSession = Depends(get_db)):
     return await UserPasswordPolicy(db=db).get_schema()
 
 
-@router.get("/spinning-methods", response_model=SpinningMethodsSchema)
+@router.get(
+    "/spinning-methods", **ParameterPublicRouterDocumentation.read_spinning_methods()
+)
 async def read_spinning_methods(db: AsyncSession = Depends(get_db)):
     return SpinningMethodsSchema(spinning_methods=await SpinningMethods(db=db).get())
 
@@ -60,3 +69,26 @@ async def read_fiber_denominations(db: AsyncSession = Depends(get_db)):
     return FiberDenominationsSchema(
         fiber_denominations=await FiberDenominations(db=db).get()
     )
+
+
+@router.get("/yarn-counts", **ParameterPublicRouterDocumentation.read_yarn_counts())
+async def read_yarn_counts(db: AsyncSession = Depends(get_db)):
+    return YarnCountsSchema(yarn_counts=await YarnCounts(db=db).get())
+
+
+@router.get(
+    "/yarn-manufacturing-sites",
+    **ParameterPublicRouterDocumentation.read_yarn_manufacturing_sites(),
+)
+async def read_yarn_manufacturing_sites(db: AsyncSession = Depends(get_db)):
+    return YarnManufacturingSitesSchema(
+        yarn_manufacturing_sites=await YarnManufacturingSites(db=db).get()
+    )
+
+
+@router.get(
+    "/yarn-distinctions",
+    **ParameterPublicRouterDocumentation.read_yarn_distinctions(),
+)
+async def read_yarn_distinctions(db: AsyncSession = Depends(get_db)):
+    return YarnDistinctionsSchema(yarn_distinctions=await YarnDistinctions(db=db).get())
