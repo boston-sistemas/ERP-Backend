@@ -1,10 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.security.models import Parameter
-from src.security.services import ParameterService
+
+from .abstract_loader import AbstractParameterLoader
 
 
-class SingleParameterLoader:
+class SingleParameterLoader(AbstractParameterLoader):
     id: int
 
     def __init_subclass__(cls, id: int = None, **kwargs):
@@ -13,16 +12,13 @@ class SingleParameterLoader:
         cls.id = id
         super().__init_subclass__(**kwargs)
 
-    def __init__(self, db: AsyncSession):
-        self.service = ParameterService(db=db)
-
     async def get(
         self,
     ) -> Parameter:
-        result = await self.service.read_parameter(
+        parameter = await self.repository.find_parameter_by_id(
             parameter_id=self.id, load_only_value=True
         )
-        if result.success:
-            return result.value
+        if parameter:
+            return parameter
 
-        raise result.error
+        raise self.not_found_failure

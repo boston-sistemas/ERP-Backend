@@ -86,6 +86,18 @@ class FiberDenominationsSchema(CustomBaseModel):
     fiber_denominations: list["ParameterValueSchema"]
 
 
+class YarnCountsSchema(CustomBaseModel):
+    yarn_counts: list["ParameterValueSchema"]
+
+
+class YarnManufacturingSitesSchema(CustomBaseModel):
+    yarn_manufacturing_sites: list["ParameterValueSchema"]
+
+
+class YarnDistinctionsSchema(CustomBaseModel):
+    yarn_distinctions: list["ParameterValueSchema"]
+
+
 from .parameter_schema import ParameterValueSchema  # noqa: E402
 
 FiberCategoriesSchema.model_rebuild()

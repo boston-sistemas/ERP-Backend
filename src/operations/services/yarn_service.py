@@ -1,8 +1,12 @@
+from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.constants import MECSA_COMPANY_CODE
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
+from src.core.repository import BaseRepository
 from src.core.result import Result, Success
+from src.core.schemas import ItemIsUpdatableSchema
 from src.core.utils import is_active_status, map_active_status
 from src.operations.constants import SUPPLY_FAMILY_ID, YARN_SUBFAMILY_ID
 from src.operations.failures import (
@@ -11,32 +15,44 @@ from src.operations.failures import (
     FIBER_NOT_FOUND_IN_YARN_RECIPE_FAILURE,
     INVALID_YARN_RECIPE_FAILURE,
     MECSA_COLOR_DISABLED_FAILURE,
-    SPINNING_METHOD_DISABLED_YARN_VALIDATION_FAILURE,
-    SPINNING_METHOD_NOT_FOUND_YARN_VALIDATION_FAILURE,
     YARN_ALREADY_EXISTS_FAILURE,
-    YARN_COUNT_NULL_VALIDATION_FAILURE,
+    YARN_DISABLED_FAILURE,
     YARN_NOT_FOUND_FAILURE,
-    YARN_NUMBERING_NULL_VALIDATION_FAILURE,
-    YARN_RECIPE_NULL_VALIDATION_FAILURE,
+    YARN_PARTIAL_UPDATE_FAILURE,
+    YARN_UPDATE_FAILURE_DUE_TO_FABRIC_RECIPE_IN_USE,
+    YARN_UPDATE_FAILURE_DUE_TO_PURCHASE_ORDER_IN_USE,
 )
 from src.operations.models import (
+    FabricYarn,
     Fiber,
     InventoryItem,
+    MovementDetail,
+    OrdenCompraDetalle,
+    YarnDistinction,
     YarnFiber,
 )
 from src.operations.repositories import (
+    FabricRecipeRepository,
     YarnRecipeRepository,
     YarnRepository,
 )
 from src.operations.schemas import (
+    FiberOptions,
     YarnCreateSchema,
     YarnListSchema,
+    YarnOptions,
     YarnRecipeItemSimpleSchema,
     YarnSchema,
     YarnUpdateSchema,
 )
 from src.operations.sequences import product_id_seq
-from src.security.loaders import SpinningMethods
+from src.security.loaders import (
+    SpinningMethods,
+    YarnCounts,
+    YarnDistinctions,
+    YarnManufacturingSites,
+)
+from src.security.models import Parameter
 from src.security.services import ParameterService
 
 from .fiber_service import FiberService
@@ -56,34 +72,25 @@ class YarnService:
         self.fiber_service = FiberService(db=db, promec_db=promec_db)
         self.recipe_repository = YarnRecipeRepository(db=db)
         self.barcode_series = BarcodeSeries(promec_db=promec_db)
+        self.yarn_counts = YarnCounts(db=db)
+        self.manufacturing_sites = YarnManufacturingSites(db=db)
+        self.distinctions = YarnDistinctions(db=db)
+        self.fabric_recipe_repository = FabricRecipeRepository(db=promec_db)
+        self.distinction_repository = BaseRepository[YarnDistinction](
+            model=YarnDistinction, db=db
+        )
+        self.purcharse_order_detail_repository = BaseRepository[OrdenCompraDetalle](
+            model=OrdenCompraDetalle, db=promec_db
+        )
+        self.movement_detail_repository = BaseRepository[MovementDetail](
+            model=MovementDetail, db=promec_db
+        )
         """
         field1 = yarn_count
-        field2 = numbering_system
-        field3 = spinning_method_id
-        field4 = color_id
+        field2 = spinning_method_id
+        field3 = color_id
+        field4 = manufactured_in_id
         """
-
-    async def _assign_spinning_method_to_yarns(
-        self, yarns: list[InventoryItem]
-    ) -> None:
-        spinnig_method_id_mapping = {
-            yarn.field3: int(yarn.field3)
-            for yarn in yarns
-            if yarn.field3 and yarn.field3.isdigit()
-        }
-        if not spinnig_method_id_mapping:
-            return None
-
-        spinning_method_mapping = (
-            await self.parameter_service.map_parameters_by_ids(
-                parameter_ids=list(spinnig_method_id_mapping.values()),
-                load_only_value=True,
-            )
-        ).value
-        for yarn in yarns:
-            yarn.spinning_method = spinning_method_mapping.get(
-                spinnig_method_id_mapping.get(yarn.field3, None), None
-            )
 
     async def _assign_recipe_to_yarns(
         self, yarns: list[InventoryItem], include_fiber_instance: bool = False
@@ -101,9 +108,7 @@ class YarnService:
             fiber_ids = list(set(item.fiber_id for item in items))
             fiber_mapping = (
                 await self.fiber_service.map_fibers_by_ids(
-                    fiber_ids=fiber_ids,
-                    include_category=include_fiber_instance,
-                    include_color=include_fiber_instance,
+                    fiber_ids=fiber_ids, options=FiberOptions.all()
                 )
             ).value
 
@@ -118,30 +123,135 @@ class YarnService:
         for yarn in yarns:
             yarn.recipe = yarn_recipe_mapping[yarn.id]
 
+    async def _assign_distinctions_to_yarns(
+        self, yarns: list[InventoryItem], include_distinction_instances: bool = False
+    ) -> list[int]:
+        yarn_mapping = {yarn.id: yarn for yarn in yarns if yarn.id.isdigit()}
+        for yarn in yarns:
+            setattr(yarn, "distinction_items", [])
+            setattr(yarn, "distinction_ids", [])
+            setattr(yarn, "distinctions", [])
+
+        items = await self.distinction_repository.find_all(
+            filter=YarnDistinction.yarn_id.in_(list(yarn_mapping.keys()))
+        )
+        distinction_ids = list({item.distinction_id for item in items})
+        for item in items:
+            if yarn := yarn_mapping.get(item.yarn_id):
+                yarn.distinction_ids.append(item.distinction_id)
+                yarn.distinction_items.append(item)
+
+        if include_distinction_instances:
+            mapping = (
+                await self.parameter_service.map_parameters_by_ids(
+                    parameter_ids=distinction_ids,
+                    load_only_value=True,
+                )
+            ).value
+            self._assign_distinction_instances_to_yarns(
+                yarns=yarns,
+                distinction_mapping=mapping,
+            )
+
+        return distinction_ids
+
+    def _assign_distinction_instances_to_yarns(
+        self,
+        yarns: list[InventoryItem],
+        distinction_mapping: dict[int, Parameter],
+    ):
+        for yarn in yarns:
+            yarn.distinctions = [
+                distinction_mapping[distinction_id]
+                for distinction_id in yarn.distinction_ids
+                if distinction_id in distinction_mapping
+            ]
+
     async def _load_related_data_for_yarns(
         self,
         yarns: list[InventoryItem],
+        include_yarn_count: bool = False,
         include_spinning_method: bool = False,
+        include_manufactured_in: bool = False,
         include_recipe: bool = False,
+        include_fiber_instance: bool = False,
+        include_distinctions: bool = False,
+        include_distinction_instances: bool = False,
+        **kwargs,
     ) -> None:
-        if include_spinning_method:
-            await self._assign_spinning_method_to_yarns(yarns=yarns)
-
         if include_recipe:
-            await self._assign_recipe_to_yarns(yarns=yarns, include_fiber_instance=True)
+            await self._assign_recipe_to_yarns(
+                yarns=yarns, include_fiber_instance=include_fiber_instance
+            )
+
+        distinction_ids = []
+        if include_distinctions:
+            distinction_ids = await self._assign_distinctions_to_yarns(yarns=yarns)
+
+        mapping = {
+            "yarn_count": ("field1", include_yarn_count),
+            "spinning_method": ("field2", include_spinning_method),
+            "manufactured_in": ("field4", include_manufactured_in),
+        }
+
+        field_id_mapping = {
+            value: int(value)
+            for _, (yarn_field, include_flag) in mapping.items()
+            if include_flag
+            for yarn in yarns
+            if (value := getattr(yarn, yarn_field, "")) and value.isdigit()
+        }
+        ids = (
+            list(field_id_mapping.values()) + distinction_ids
+            if include_distinction_instances
+            else list(field_id_mapping.values())
+        )
+        if not ids:
+            return None
+
+        field_mapping = (
+            await self.parameter_service.map_parameters_by_ids(
+                parameter_ids=ids,
+                load_only_value=True,
+            )
+        ).value
+        for field_name, (yarn_field, include_flag) in mapping.items():
+            if not include_flag:
+                continue
+            for yarn in yarns:
+                value = field_mapping.get(
+                    field_id_mapping.get(getattr(yarn, yarn_field))
+                )
+                setattr(yarn, field_name, value)
+
+        if include_distinction_instances:
+            self._assign_distinction_instances_to_yarns(
+                yarns=yarns,
+                distinction_mapping=field_mapping,
+            )
 
     async def _validate_yarn_data(
         self,
+        yarn_count_id: int | None = None,
         spinning_method_id: int | None = None,
+        manufactured_in_id: int | None = None,
         color_id: str | None = None,
+        distinction_ids: list[int] = [],
         **kwargs,
     ) -> Result[None, CustomException]:
-        if spinning_method_id is not None:
-            result = await self.spinning_methods.validate(id=spinning_method_id)
-            if result.is_failure:
-                return SPINNING_METHOD_NOT_FOUND_YARN_VALIDATION_FAILURE
-            if not result.value.is_active:
-                return SPINNING_METHOD_DISABLED_YARN_VALIDATION_FAILURE
+        validation = await self.parameter_service.validate_parameters(
+            parameter_id_validator_pairs=[
+                (yarn_count_id, self.yarn_counts),
+                (spinning_method_id, self.spinning_methods),
+                (manufactured_in_id, self.manufacturing_sites),
+                *[
+                    (distinction_id, self.distinctions)
+                    for distinction_id in distinction_ids
+                ],
+            ]
+        )
+        if validation.is_failure:
+            return validation
 
         if color_id:
             color_result = await self.mecsa_color_service.read_mecsa_color(color_id)
@@ -164,7 +274,7 @@ class YarnService:
             return DUPLICATE_FIBER_IN_YARN_RECIPE_FAILURE
 
         fibers = (
-            await self.fiber_service.find_fibers_by_ids(fiber_ids=list(fiber_ids))
+            await self.fiber_service.read_fibers_by_ids(fiber_ids=list(fiber_ids))
         ).value
 
         if len(yarn_recipe) != len(fibers):
@@ -202,19 +312,20 @@ class YarnService:
 
     async def _is_yarn_unique(
         self,
-        yarn_count: str,
-        numbering_system: str,
+        yarn_count_id_: str,
         spinning_method_id_: str,
         color_id: str,
+        manufactured_in_id_: str,
+        distinction_ids: list[int],
         current_yarn: InventoryItem | None = None,
         current_recipe: list[YarnRecipeItemSimpleSchema] | None = None,
         **kwargs,
     ) -> bool:
         filter = (
-            (InventoryItem.field1 == yarn_count)
-            & (InventoryItem.field2 == numbering_system)
-            & (InventoryItem.field3 == spinning_method_id_)
-            & (InventoryItem.field4 == color_id)
+            (InventoryItem.field1 == yarn_count_id_)
+            & (InventoryItem.field2 == spinning_method_id_)
+            & (InventoryItem.field3 == color_id)
+            & (InventoryItem.field4 == manufactured_in_id_)
         )
         _yarns = await self.repository.find_yarns(filter=filter)
         yarns = (
@@ -223,6 +334,11 @@ class YarnService:
             else [yarn for yarn in _yarns if yarn != current_yarn]
         )
         if len(yarns) == 0:  # yarn has unique attributes
+            return True
+
+        await self._assign_distinctions_to_yarns(yarns=yarns)
+        distinction_ids_ = set(distinction_ids)
+        if all(distinction_ids_ != set(yarn.distinction_ids) for yarn in yarns):
             return True
 
         await self._assign_recipe_to_yarns(yarns=_yarns)
@@ -237,37 +353,27 @@ class YarnService:
     async def _read_yarn(
         self,
         yarn_id: str,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
+        options: YarnOptions = YarnOptions(),
     ) -> Result[InventoryItem, CustomException]:
         yarn = await self.repository.find_yarn_by_id(
-            yarn_id=yarn_id, include_color=include_color
+            yarn_id=yarn_id, include_color=options.include_color
         )
 
         if yarn is None:
             return YARN_NOT_FOUND_FAILURE
 
-        await self._load_related_data_for_yarns(
-            yarns=[yarn],
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
-        )
+        await self._load_related_data_for_yarns(yarns=[yarn], **options.model_dump())
 
         return Success(yarn)
 
     async def read_yarn(
         self,
         yarn_id: str,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
+        options: YarnOptions = YarnOptions(),
     ) -> Result[YarnSchema, CustomException]:
         yarn_result = await self._read_yarn(
             yarn_id=yarn_id,
-            include_color=include_color,
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
+            options=options,
         )
 
         if yarn_result.is_failure:
@@ -277,23 +383,20 @@ class YarnService:
 
     async def read_yarns(
         self,
+        options: YarnOptions = YarnOptions(),
         include_inactives: bool = True,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         yarns = await self.repository.find_yarns(
             include_inactives=include_inactives,
             order_by=InventoryItem.id.asc(),
-            include_color=include_color,
+            include_color=options.include_color,
             exclude_legacy=exclude_legacy,
         )
 
         await self._load_related_data_for_yarns(
             yarns=yarns,
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
+            **options.model_dump(),
         )
 
         return Success(YarnListSchema(yarns=yarns))
@@ -301,9 +404,8 @@ class YarnService:
     async def create_yarn(
         self, form: YarnCreateSchema
     ) -> Result[None, CustomException]:
-        validation_result = await self._validate_yarn_data(
-            spinning_method_id=form.spinning_method_id, color_id=form.color_id
-        )
+        attributes = form.model_dump(exclude={"description", "recipe"})
+        validation_result = await self._validate_yarn_data(**attributes)
         if validation_result.is_failure:
             return validation_result
 
@@ -313,9 +415,7 @@ class YarnService:
         if recipe_validation_result.is_failure:
             return recipe_validation_result
 
-        if not (
-            await self._is_yarn_unique(**form.model_dump(), current_recipe=form.recipe)
-        ):
+        if not (await self._is_yarn_unique(**attributes, current_recipe=form.recipe)):
             return YARN_ALREADY_EXISTS_FAILURE
 
         yarn_id = str(await self.product_sequence.next_value())
@@ -332,15 +432,20 @@ class YarnService:
             description=form.description,
             purchase_description_=form.description,
             barcode=barcode,
-            field1=form.yarn_count,
-            field2=form.numbering_system,
-            field3=form.spinning_method_id_,
-            field4=form.color_id,
+            field1=form.yarn_count_id_,
+            field2=form.spinning_method_id_,
+            field3=form.color_id,
+            field4=form.manufactured_in_id_,
         )
         await self.repository.save(yarn)
         await self.recipe_repository.save_all(
             YarnFiber(yarn_id=yarn_id, **item.model_dump()) for item in form.recipe
         )
+        if form.distinction_ids:
+            await self.distinction_repository.save_all(
+                YarnDistinction(yarn_id=yarn_id, distinction_id=id)
+                for id in form.distinction_ids
+            )
 
         return Success(None)
 
@@ -356,27 +461,48 @@ class YarnService:
         if len(yarn_data) == 0:
             return Success(None)
 
-        if yarn_data.get("yarn_count", "") is None:
-            return YARN_COUNT_NULL_VALIDATION_FAILURE
-        if yarn_data.get("numbering_system", "") is None:
-            return YARN_NUMBERING_NULL_VALIDATION_FAILURE
-        if yarn_data.get("recipe", "") is None:
-            return YARN_RECIPE_NULL_VALIDATION_FAILURE
+        result = await self.validate_yarn_updatable(yarn=yarn, yarn_id=yarn.id)
+        if result.is_failure:
+            return result
+        elif not result.value.updatable:
+            return result.value.failure
+
+        form_has_yarn_attributes = any(
+            field in yarn_data
+            for field in (
+                "yarn_count_id",
+                "spinning_method_id",
+                "color_id",
+                "manufactured_in_id",
+                "distinction_ids",
+                "recipe",
+            )
+        )
+        if form_has_yarn_attributes and result.value.is_partial:
+            return YARN_PARTIAL_UPDATE_FAILURE()
 
         validation_result = await self._validate_yarn_data(**yarn_data)
         if validation_result.is_failure:
             return validation_result
 
-        yarn.field1 = yarn_data.get("yarn_count", yarn.field1)
-        yarn.field2 = yarn_data.get("numbering_system", yarn.field2)
-        yarn.field3 = (
+        yarn.field1 = (
+            form.yarn_count_id_ if "yarn_count_id" in yarn_data else yarn.field1
+        )
+        yarn.field2 = (
             form.spinning_method_id_
             if "spinning_method_id" in yarn_data
-            else yarn.field3
+            else yarn.field2
         )
-        yarn.field4 = yarn_data.get("color_id", yarn.field4)
-        yarn.description = yarn_data.get("description", yarn.description)
-        yarn.purchase_description_ = yarn.description
+        yarn.field3 = yarn_data.get("color_id", yarn.field3)
+        yarn.field4 = (
+            form.manufactured_in_id_
+            if "manufactured_in_id" in yarn_data
+            else yarn.field4
+        )
+        new_description = yarn_data.get("description", yarn.description)
+        if yarn.description != new_description:
+            yarn.description = new_description
+            yarn.purchase_description_ = new_description
 
         if form.recipe is not None:
             recipe_validation_result = await self._validate_yarn_recipe(
@@ -385,21 +511,16 @@ class YarnService:
             if recipe_validation_result.is_failure:
                 return recipe_validation_result
 
-        if any(
-            field in yarn_data
-            for field in (
-                "yarn_count",
-                "numbering_system",
-                "spinning_method_id",
-                "color_id",
-                "recipe",
-            )
-        ) and not (
+        await self._assign_distinctions_to_yarns(yarns=[yarn])
+        prev_distinction_ids = yarn.distinction_ids
+        yarn.distinction_ids = yarn_data.get("distinction_ids", yarn.distinction_ids)
+        if form_has_yarn_attributes and not (
             await self._is_yarn_unique(
-                yarn_count=yarn.field1,
-                numbering_system=yarn.field2,
-                spinning_method_id_=yarn.field3,
-                color_id=yarn.field4,
+                yarn_count_id_=yarn.field1,
+                spinning_method_id_=yarn.field2,
+                color_id=yarn.field3,
+                manufactured_in_id_=yarn.field4,
+                distinction_ids=yarn.distinction_ids,
                 current_yarn=yarn,
                 current_recipe=form.recipe,
             )
@@ -413,6 +534,12 @@ class YarnService:
             await self.recipe_repository.delete_all([item for item in yarn.recipe])
             await self.recipe_repository.save_all(
                 YarnFiber(yarn_id=yarn_id, **item.model_dump()) for item in form.recipe
+            )
+        if set(prev_distinction_ids) != set(yarn.distinction_ids):
+            await self.distinction_repository.delete_all(yarn.distinction_items)
+            await self.distinction_repository.save_all(
+                YarnDistinction(yarn_id=yarn_id, distinction_id=id)
+                for id in yarn.distinction_ids
             )
 
         return Success(None)
@@ -430,13 +557,11 @@ class YarnService:
 
         return Success(None)
 
-    async def find_yarns_by_ids(
+    async def read_yarns_by_ids(
         self,
         yarn_ids: list[str],
+        options: YarnOptions = YarnOptions(),
         include_inactives: bool = True,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
         exclude_legacy: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         if not yarn_ids:
@@ -445,14 +570,13 @@ class YarnService:
         yarns = await self.repository.find_yarns(
             filter=InventoryItem.id.in_(yarn_ids),
             include_inactives=include_inactives,
-            include_color=include_color,
+            include_color=options.include_color,
             exclude_legacy=exclude_legacy,
         )
 
         await self._load_related_data_for_yarns(
             yarns=yarns,
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
+            **options.model_dump(),
         )
 
         return Success(YarnListSchema(yarns=yarns))
@@ -460,39 +584,90 @@ class YarnService:
     async def map_yarns_by_ids(
         self,
         yarn_ids: list[str],
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
+        options: YarnOptions = YarnOptions(),
     ) -> Result[dict[str, YarnSchema], CustomException]:
         yarns = (
-            await self.find_yarns_by_ids(
+            await self.read_yarns_by_ids(
                 yarn_ids=yarn_ids,
-                include_color=include_color,
-                include_spinning_method=include_spinning_method,
-                include_recipe=include_recipe,
+                options=options,
             )
         ).value.yarns
 
         return Success({yarn.id: yarn for yarn in yarns})
 
-    async def find_yarns_by_recipe(
+    async def read_yarns_by_recipe(
         self,
         fiber_ids: list[str],
+        options: YarnOptions = YarnOptions(),
         include_inactives: bool = True,
         exclude_legacy: bool = False,
-        include_color: bool = False,
-        include_spinning_method: bool = False,
-        include_recipe: bool = False,
     ) -> Result[YarnListSchema, CustomException]:
         yarn_ids = await self.recipe_repository.find_yarn_ids_by_recipe(
             fiber_ids=fiber_ids,
         )
 
-        return await self.find_yarns_by_ids(
+        return await self.read_yarns_by_ids(
             yarn_ids=yarn_ids,
+            options=options,
             include_inactives=include_inactives,
-            include_color=include_color,
-            include_spinning_method=include_spinning_method,
-            include_recipe=include_recipe,
             exclude_legacy=exclude_legacy,
+        )
+
+    async def validate_yarn_updatable(
+        self, yarn_id: str, yarn: InventoryItem = None
+    ) -> Result[ItemIsUpdatableSchema, CustomException]:
+        update_message = (
+            "Es posible realizar una actualización completa del hilado especificado."
+        )
+        is_partial = False
+        failure = None
+        yarn_result = Success(yarn) if yarn else await self._read_yarn(yarn_id=yarn_id)
+        if yarn_result.is_failure:
+            return Success(ItemIsUpdatableSchema(failure=yarn_result))
+
+        yarn = yarn_result.value
+        if not is_active_status(yarn.is_active):
+            return Success(ItemIsUpdatableSchema(failure=YARN_DISABLED_FAILURE))
+
+        recipe_items = await self.fabric_recipe_repository.find_all(
+            filter=FabricYarn.yarn_id == yarn.id, limit=1
+        )
+        if recipe_items:
+            is_partial = True
+            failure = YARN_UPDATE_FAILURE_DUE_TO_FABRIC_RECIPE_IN_USE
+
+        order_detail_items = await self.purcharse_order_detail_repository.find_all(
+            filter=and_(
+                OrdenCompraDetalle.company_code == MECSA_COMPANY_CODE,
+                OrdenCompraDetalle.product_code == yarn.id,
+                OrdenCompraDetalle.status_flag != "A",
+            ),
+            limit=1,
+        )
+        if order_detail_items:
+            is_partial = True
+            failure = YARN_UPDATE_FAILURE_DUE_TO_PURCHASE_ORDER_IN_USE
+
+        # TODO: It's too slow. An index is needed on the MovementDetail table
+        # movement_detail_items = await self.movement_detail_repository.find_all(
+        #     filter=and_(
+        #         MovementDetail.company_code == MECSA_COMPANY_CODE,
+        #         MovementDetail.product_code == yarn.id,
+        #         MovementDetail.status_flag != "A",
+        #     ),
+        #     limit=1,
+        # )
+        # if movement_detail_items:
+        #     is_partial = True
+        #     failure = YARN_UPDATE_FAILURE_DUE_TO_MOVEMENT_IN_USE
+
+        failure = (
+            YARN_PARTIAL_UPDATE_FAILURE(failure.error.detail) if failure else failure
+        )
+        message = update_message if not is_partial else failure.error.detail
+        fields = [] if not is_partial else ["description"]
+        return Success(
+            ItemIsUpdatableSchema(
+                is_partial=is_partial, message=message, failure=failure, fields=fields
+            )
         )

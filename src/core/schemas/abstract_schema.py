@@ -28,7 +28,19 @@ class ItemIsUpdatableSchema(CustomBaseModel):
     @model_validator(mode="after")
     def set_fields(self):
         failure = self.failure
-        self.message = failure.error.detail if failure else self.message
-        self.updatable = True if not failure else False
+        self.updatable = True if self.is_partial or not failure else False
+        self.message = (
+            failure.error.detail if not self.updatable and failure else self.message
+        )
 
         return self
+
+
+class ItemStatusUpdateSchema(CustomBaseModel):
+    is_active: bool = Field(
+        description="Establezca en `True` para activar, `False` para desactivar."
+    )
+
+
+class CreationResponse(CustomBaseModel):
+    message: str = Field(description="El objeto ha sido creado con éxito.")

@@ -27,6 +27,7 @@ from src.operations.schemas import (
     FabricRecipeItemSimpleSchema,
     FabricSchema,
     FabricUpdateSchema,
+    YarnOptions,
 )
 from src.operations.sequences import product_id_seq
 from src.security.loaders import FabricTypes, JerseyFabric, RibBvdFabric
@@ -115,7 +116,7 @@ class FabricService:
 
         yarn_mapping = (
             await self.yarn_service.map_yarns_by_ids(
-                yarn_ids=list(yarn_ids), include_color=True, include_recipe=True
+                yarn_ids=list(yarn_ids), options=YarnOptions.all()
             )
         ).value
         for fabric in fabrics:
@@ -188,7 +189,7 @@ class FabricService:
             return DUPLICATE_YARN_IN_FABRIC_RECIPE_FAILURE
 
         yarns = (
-            await self.yarn_service.find_yarns_by_ids(yarn_ids=list(yarn_ids))
+            await self.yarn_service.read_yarns_by_ids(yarn_ids=list(yarn_ids))
         ).value.yarns
 
         if len(fabric_recipe) != len(yarns):

@@ -6,12 +6,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 30/1 Ne ALGODON TANGÜIS PEINADO",
-        "purchase_description_": "HILADO 30/1 Ne ALGODON TANGÜIS PEINADO",
-        "field1": "30/1",
-        "field2": "Ne",
-        "field3": "1021",
-        "field4": ""
+        "description": "H. 30/1 Ne Algodón Tangüis Peinado.",
+        "purchase_description_": "H. 30/1 Ne Algodón Tangüis Peinado.",
+        "field1": "1045",
+        "field2": "1021"
     },
     {
         "id": "100100100111",
@@ -20,12 +18,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 30/1 Ne ALGODON TANGÜIS CARDADO",
-        "purchase_description_": "HILADO 30/1 Ne ALGODON TANGÜIS CARDADO",
-        "field1": "30/1",
-        "field2": "Ne",
-        "field3": "1020",
-        "field4": ""
+        "description": "H. 30/1 Ne Algodón Tangüis Cardado",
+        "purchase_description_": "H. 30/1 Ne Algodón Tangüis Cardado",
+        "field1": "1045",
+        "field2": "1020"
     },
     {
         "id": "100100100112",
@@ -34,12 +30,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 30/1 Ne ALGODON UPLAND PEINADO",
-        "purchase_description_": "HILADO 30/1 Ne ALGODON UPLAND PEINADO",
-        "field1": "30/1",
-        "field2": "Ne",
-        "field3": "1021",
-        "field4": ""
+        "description": "H. 30/1 Ne Algodón Upland Peinado",
+        "purchase_description_": "H. 30/1 Ne Algodón Upland Peinado",
+        "field1": "1045",
+        "field2": "1021"
     },
     {
         "id": "100100100113",
@@ -48,12 +42,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 30/1 Ne ALGODON UPLAND CARDADO",
-        "purchase_description_": "HILADO 30/1 Ne ALGODON UPLAND CARDADO",
-        "field1": "30/1",
-        "field2": "Ne",
-        "field3": "1020",
-        "field4": ""
+        "description": "H. 30/1 Ne Algodón Upland Cardado",
+        "purchase_description_": "H. 30/1 Ne Algodón Upland Cardado",
+        "field1": "1045",
+        "field2": "1020"
     },
     {
         "id": "100100100114",
@@ -62,12 +54,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 30/1 Ne POLYCOTTON 70/30 TANGÜIS CARDADO",
-        "purchase_description_": "HILADO 30/1 Ne POLYCOTTON 70/30 TANGÜIS CARDADO",
-        "field1": "30/1",
-        "field2": "Ne",
-        "field3": "1020",
-        "field4": ""
+        "description": "H. 30/1 Ne Polycotton 70/30 Tangüis Cardado",
+        "purchase_description_": "H. 30/1 Ne Polycotton 70/30 Tangüis Cardado",
+        "field1": "1045",
+        "field2": "1020"
     },
     {
         "id": "100100100115",
@@ -76,12 +66,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 28/1 Ne POLYCOTTON 70/30 TANGÜIS CARDADO",
-        "purchase_description_": "HILADO 28/1 Ne POLYCOTTON 70/30 TANGÜIS CARDADO",
-        "field1": "28/1",
-        "field2": "Ne",
-        "field3": "1020",
-        "field4": ""
+        "description": "H. 28/1 Ne Polycotton 70/30 Tangüis Cardado",
+        "purchase_description_": "H. 28/1 Ne Polycotton 70/30 Tangüis Cardado",
+        "field1": "1044",
+        "field2": "1020"
     },
     {
         "id": "100100100116",
@@ -90,12 +78,10 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 30/1 Ne MELANGE 80/20 TANGÜIS CARDADO",
-        "purchase_description_": "HILADO 30/1 Ne MELANGE 80/20 TANGÜIS CARDADO",
-        "field1": "30/1",
-        "field2": "Ne",
-        "field3": "1020",
-        "field4": ""
+        "description": "H. 30/1 Ne Melange 80/20 Tangüis Cardado",
+        "purchase_description_": "H. 30/1 Ne Melange 80/20 Tangüis Cardado",
+        "field1": "1045",
+        "field2": "1020"
     },
     {
         "id": "100100100117",
@@ -104,12 +90,9 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 20 Dn ELASTANO, LYCRA",
-        "purchase_description_": "HILADO 20 Dn ELASTANO, LYCRA",
-        "field1": "20",
-        "field2": "Dn",
-        "field3": "",
-        "field4": ""
+        "description": "H. 20 Dn Elastano, Lycra",
+        "purchase_description_": "H. 20 Dn Elastano, Lycra",
+        "field1": "1037"
     },
     {
         "id": "100100100118",
@@ -118,11 +101,8 @@
         "base_unit_code": "KG",
         "inventory_unit_code": "KG",
         "purchase_unit_code": "KG",
-        "description": "HILADO 20 Dn ELASTANO, CREORA",
-        "purchase_description_": "HILADO 20 Dn ELASTANO, CREORA",
-        "field1": "20",
-        "field2": "Dn",
-        "field3": "",
-        "field4": ""
+        "description": "H. 20 Dn Elastano, Creora",
+        "purchase_description_": "H. 20 Dn Elastano, Creora",
+        "field1": "1037"
     }
 ]

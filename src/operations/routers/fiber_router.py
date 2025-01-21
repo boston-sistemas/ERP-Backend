@@ -1,13 +1,15 @@
 from copy import copy
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.schemas import ItemStatusUpdateSchema
 from src.operations.docs import FiberRouterDocumentation
 from src.operations.schemas import (
     FiberCreateSchema,
     FiberListSchema,
+    FiberOptions,
     FiberSchema,
     FiberUpdateSchema,
 )
@@ -23,12 +25,7 @@ async def read_fiber(
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FiberService(db=db, promec_db=promec_db)
-    result = await service.read_fiber(
-        fiber_id=fiber_id,
-        include_category=True,
-        include_denomination=True,
-        include_color=True,
-    )
+    result = await service.read_fiber(fiber_id=fiber_id, options=FiberOptions.all())
 
     if result.is_success:
         return FiberSchema.model_validate(result.value)
@@ -38,16 +35,13 @@ async def read_fiber(
 
 @router.get("/", response_model=FiberListSchema)
 async def read_fibers(
-    include_inactives: bool = Query(default=False),
+    include_inactives: bool = Query(default=False, alias="includeInactives"),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FiberService(db=db, promec_db=promec_db)
     result = await service.read_fibers(
-        include_inactives=include_inactives,
-        include_category=True,
-        include_denomination=True,
-        include_color=True,
+        include_inactives=include_inactives, options=FiberOptions.all()
     )
 
     if result.is_success:
@@ -92,11 +86,12 @@ async def update_fiber(
 @router.put("/{fiber_id}/status")
 async def update_fiber_status(
     fiber_id: str,
-    is_active: bool = Body(embed=True),
+    form: ItemStatusUpdateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FiberService(db=db, promec_db=promec_db)
+    is_active = form.is_active
     result = await service.update_status(fiber_id=fiber_id, is_active=is_active)
 
     if result.is_success:

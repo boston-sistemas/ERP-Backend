@@ -25,6 +25,9 @@ class ParameterSettings(ProjectBaseSettings):
     RIB_BVD_FABRIC_TYPE_ID: int
     SERVICE_ORDER_CATEGORY_STATUS_ID: int
     FIBER_DENOMINATION_PARAM_CATEGORY_ID: int
+    YARN_COUNT_PARAM_CATEGORY_ID: int
+    YARN_MANUFACTURING_SITE_PARAM_CATEGORY_ID: int
+    YARN_DISTINCTION_PARAM_CATEGORY_ID: int
 
 
 param_settings = ParameterSettings()

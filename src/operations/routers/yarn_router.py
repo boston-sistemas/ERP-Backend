@@ -1,12 +1,15 @@
 from copy import copy
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.schemas import ItemStatusUpdateSchema
+from src.operations.docs import YarnRouterDocumentation
 from src.operations.schemas import (
     YarnCreateSchema,
     YarnListSchema,
+    YarnOptions,
     YarnSchema,
     YarnUpdateSchema,
 )
@@ -22,12 +25,7 @@ async def read_yarn(
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
-    result = await service.read_yarn(
-        yarn_id=yarn_id,
-        include_color=True,
-        include_spinning_method=True,
-        include_recipe=True,
-    )
+    result = await service.read_yarn(yarn_id=yarn_id, options=YarnOptions.all())
 
     if result.is_success:
         return result.value
@@ -37,29 +35,26 @@ async def read_yarn(
 
 @router.get("/", response_model=YarnListSchema)
 async def read_yarns(
-    include_inactives: bool = Query(default=False),
-    fiber_ids: list[str] = Query(default=None, min_length=1),
+    include_inactives: bool = Query(default=False, alias="includeInactives"),
+    yarn_ids: list[str] = Query(default=None, alias="yarnIds", min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
     result = None
-    if fiber_ids:
-        result = await service.find_yarns_by_recipe(
-            fiber_ids=fiber_ids,
+    options = YarnOptions.all()
+    if yarn_ids:
+        result = await service.read_yarns_by_recipe(
+            yarn_ids=yarn_ids,
+            options=options,
             include_inactives=include_inactives,
-            include_color=True,
-            include_spinning_method=True,
-            include_recipe=True,
             exclude_legacy=True,
         )
         result.value.yarns.sort(key=lambda yarn: yarn.id)
     else:
         result = await service.read_yarns(
+            options=options,
             include_inactives=include_inactives,
-            include_color=True,
-            include_spinning_method=True,
-            include_recipe=True,
             exclude_legacy=True,
         )
     if result.is_success:
@@ -68,7 +63,7 @@ async def read_yarns(
     raise result.error
 
 
-@router.post("/")
+@router.post("/", **YarnRouterDocumentation.create_yarn())
 async def create_yarn(
     form: YarnCreateSchema,
     db: AsyncSession = Depends(get_db),
@@ -102,17 +97,35 @@ async def update_yarn(
 
 
 @router.put("/{yarn_id}/status")
-async def update_fiber_status(
+async def update_yarn_status(
     yarn_id: str,
-    is_active: bool = Body(embed=True),
+    form: ItemStatusUpdateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
+    is_active = form.is_active
     result = await service.update_status(yarn_id=yarn_id, is_active=is_active)
 
     if result.is_success:
         msg = f"El hilado ha sido {'' if is_active else 'des'}activado con éxito"
         return {"message": msg}
+
+    raise result.error
+
+
+@router.get(
+    "/{yarn_id}/is-updatable", **YarnRouterDocumentation.check_is_yarn_updatable()
+)
+async def check_is_yarn_updatable(
+    yarn_id: str,
+    db: AsyncSession = Depends(get_db),
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = YarnService(db=db, promec_db=promec_db)
+    result = await service.validate_yarn_updatable(yarn_id=yarn_id)
+
+    if result.is_success:
+        return result.value
 
     raise result.error

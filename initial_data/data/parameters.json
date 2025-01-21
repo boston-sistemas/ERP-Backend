@@ -286,5 +286,133 @@
         "value": "Lycra",
         "data_type": "string",
         "is_active": true
+    },
+    {
+        "id": 1037,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 20 Dn",
+        "value": "20 Dn",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1038,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 30 Dn",
+        "value": "30 Dn",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1039,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 40 Dn",
+        "value": "40 Dn",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1040,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 16/1 Ne",
+        "value": "16/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1041,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 20/1 Ne",
+        "value": "20/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1042,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 24/1 Ne",
+        "value": "24/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1043,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 26/1 Ne",
+        "value": "26/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1044,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 28/1 Ne",
+        "value": "28/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1045,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 30/1 Ne",
+        "value": "30/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1046,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 36/1 Ne",
+        "value": "36/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1047,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 40/1 Ne",
+        "value": "40/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1048,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 50/1 Ne",
+        "value": "50/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1049,
+        "category_id": 108,
+        "description": "HILADO PRODUCIDO EN: VIETNAM THIEN",
+        "value": "Vietnam - Thien Nam",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1050,
+        "category_id": 108,
+        "description": "HILADO PRODUCIDO EN: VIETNAM ALTERNATIVO",
+        "value": "Vietnam - Alternativo",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1051,
+        "category_id": 109,
+        "description": "DISTINCION DE HILADO: LIBRE DE CONTAMINACION",
+        "value": "Libre de contaminación",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1052,
+        "category_id": 109,
+        "description": "DISTINCION DE HILADO: CONTAMINACION CONTROLADA",
+        "value": "Contaminación controlada",
+        "data_type": "string",
+        "is_active": true
     }
 ]
