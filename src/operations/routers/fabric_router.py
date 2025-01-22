@@ -1,9 +1,10 @@
 from copy import copy
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.schemas import ItemStatusUpdateSchema
 from src.operations.schemas import (
     FabricCreateSchema,
     FabricListSchema,
@@ -38,8 +39,8 @@ async def read_fabric(
 
 @router.get("/", response_model=FabricListSchema)
 async def read_fabrics(
-    include_inactives: bool = Query(default=False),
-    yarn_ids: list[str] = Query(default=None, min_length=1),
+    include_inactives: bool = Query(default=False, alias="includeInactives"),
+    yarn_ids: list[str] = Query(default=None, alias="yarnIds", min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -106,11 +107,12 @@ async def update_fabric(
 @router.put("/{fabric_id}/status")
 async def update_fabric_status(
     fabric_id: str,
-    is_active: bool = Body(embed=True),
+    form: ItemStatusUpdateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = FabricService(db=db, promec_db=promec_db)
+    is_active = form.is_active
     result = await service.update_status(fabric_id=fabric_id, is_active=is_active)
 
     if result.is_success:

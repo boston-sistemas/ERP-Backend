@@ -36,16 +36,16 @@ async def read_yarn(
 @router.get("/", response_model=YarnListSchema)
 async def read_yarns(
     include_inactives: bool = Query(default=False, alias="includeInactives"),
-    yarn_ids: list[str] = Query(default=None, alias="yarnIds", min_length=1),
+    fiber_ids: list[str] = Query(default=None, alias="fiberIds", min_length=1),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnService(db=db, promec_db=promec_db)
     result = None
     options = YarnOptions.all()
-    if yarn_ids:
+    if fiber_ids:
         result = await service.read_yarns_by_recipe(
-            yarn_ids=yarn_ids,
+            fiber_ids=fiber_ids,
             options=options,
             include_inactives=include_inactives,
             exclude_legacy=True,
