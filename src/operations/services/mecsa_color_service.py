@@ -102,7 +102,7 @@ class MecsaColorService:
     async def update_mecsa_color(
         self, color_id: str, form: MecsaColorUpdateSchema
     ) -> Result[MecsaColor, CustomException]:
-        result = self.read_mecsa_color(color_id=color_id)
+        result = await self.read_mecsa_color(color_id=color_id)
         if result.is_failure:
             return result
 

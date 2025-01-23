@@ -11,10 +11,10 @@ MECSA_COLOR_NOT_FOUND_FAILURE = Failure(
 
 
 def MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE(name: str | None = None):
-    name = f" {name} " if name else " "
+    name = f" '{name}' " if name else " "
     return Failure(
         DuplicateValueException(
-            f"El nombre'{name}'ya está en uso por otro color. Por favor, ingrese un nombre diferente."
+            f"El nombre{name}ya está en uso por otro color. Por favor, ingrese un nombre diferente."
         )
     )
 
