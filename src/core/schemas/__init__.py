@@ -1,5 +1,5 @@
 from .abstract_schema import (
-    CreationResponse,
+    CreatedObjectResponse,
     ItemIsUpdatableSchema,
     ItemStatusUpdateSchema,
 )
@@ -7,7 +7,7 @@ from .custom_schema import CustomBaseModel
 from .email_schema import EmailAttachmentSchema, EmailSchema
 
 __all__ = [
-    "CreationResponse",
+    "CreatedObjectResponse",
     "ItemStatusUpdateSchema",
     "CustomBaseModel",
     "EmailAttachmentSchema",

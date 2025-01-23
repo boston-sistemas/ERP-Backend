@@ -1,4 +1,4 @@
-from src.core.schemas import CreationResponse, ItemIsUpdatableSchema
+from src.core.schemas import CreatedObjectResponse, ItemIsUpdatableSchema
 from src.core.utils import (
     generate_doc,
     generate_response_content,
@@ -22,12 +22,12 @@ Tener en cuenta los siguientes endpoints para la creación del nuevo hilado:
 """
         message = "El hilado ha sido creado con éxito."
         return generate_doc(
-            response_model=CreationResponse,
+            response_model=CreatedObjectResponse,
             description=description,
             responses=generate_response_doc(
                 status_code=200,
                 content=generate_response_content(
-                    examples=CreationResponse(message=message).model_dump()
+                    examples=CreatedObjectResponse(message=message).model_dump()
                 ),
             ),
         )

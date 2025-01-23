@@ -42,5 +42,5 @@ class ItemStatusUpdateSchema(CustomBaseModel):
     )
 
 
-class CreationResponse(CustomBaseModel):
+class CreatedObjectResponse(CustomBaseModel):
     message: str = Field(description="El objeto ha sido creado con éxito.")
