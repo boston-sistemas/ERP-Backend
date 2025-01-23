@@ -23,6 +23,8 @@ from .fabric_schema import (
 )
 from .fiber_schema import (
     FiberCreateSchema,
+    FiberExtendedListSchema,
+    FiberExtendedSchema,
     FiberListSchema,
     FiberOptions,
     FiberSchema,
@@ -155,6 +157,8 @@ from .yarn_weaving_dispatch_schema import (
 )
 
 __all__ = [
+    "FiberExtendedSchema",
+    "FiberExtendedListSchema",
     "YarnOptions",
     "FiberOptions",
     "FabricCreateSchema",

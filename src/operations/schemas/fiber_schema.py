@@ -1,7 +1,7 @@
 from pydantic import Field
 from pydantic_extra_types.country import CountryAlpha3
 
-from src.core.schemas import CustomBaseModel
+from src.core.schemas import CustomBaseModel, ItemIsUpdatableSchema
 from src.operations.constants import (
     MECSA_COLOR_ID_MAX_LENGTH,
 )
@@ -41,8 +41,16 @@ class FiberSchema(FiberSimpleSchema):
     color: MecsaColorSchema | None = None
 
 
+class FiberExtendedSchema(FiberSchema):
+    update_check: ItemIsUpdatableSchema = Field(default=None)
+
+
 class FiberListSchema(CustomBaseModel):
     fibers: list[FiberSchema]
+
+
+class FiberExtendedListSchema(CustomBaseModel):
+    fibers: list[FiberExtendedSchema]
 
 
 class FiberCreateSchema(CustomBaseModel):

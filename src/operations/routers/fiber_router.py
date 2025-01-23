@@ -8,9 +8,9 @@ from src.core.schemas import ItemStatusUpdateSchema
 from src.operations.docs import FiberRouterDocumentation
 from src.operations.schemas import (
     FiberCreateSchema,
-    FiberListSchema,
+    FiberExtendedListSchema,
+    FiberExtendedSchema,
     FiberOptions,
-    FiberSchema,
     FiberUpdateSchema,
 )
 from src.operations.services import FiberService
@@ -18,7 +18,7 @@ from src.operations.services import FiberService
 router = APIRouter()
 
 
-@router.get("/{fiber_id}", response_model=FiberSchema)
+@router.get("/{fiber_id}", responses={200: {"model": FiberExtendedSchema}})
 async def read_fiber(
     fiber_id: str,
     db: AsyncSession = Depends(get_db),
@@ -28,12 +28,19 @@ async def read_fiber(
     result = await service.read_fiber(fiber_id=fiber_id, options=FiberOptions.all())
 
     if result.is_success:
-        return FiberSchema.model_validate(result.value)
+        fiber = result.value
+        update_check_mapping = (
+            await service.validate_fibers_updatable(fibers=[fiber])
+        ).value
+
+        return FiberExtendedSchema.model_validate(result.value).model_copy(
+            update={"update_check": update_check_mapping[fiber.id]}
+        )
 
     raise result.error
 
 
-@router.get("/", response_model=FiberListSchema)
+@router.get("/", responses={200: {"model": FiberExtendedListSchema}})
 async def read_fibers(
     include_inactives: bool = Query(default=False, alias="includeInactives"),
     db: AsyncSession = Depends(get_db),
@@ -45,7 +52,19 @@ async def read_fibers(
     )
 
     if result.is_success:
-        return FiberListSchema(fibers=result.value)
+        fibers = result.value
+        update_check_mapping = (
+            await service.validate_fibers_updatable(fibers=fibers)
+        ).value
+
+        return FiberExtendedListSchema(
+            fibers=[
+                FiberExtendedSchema.model_validate(fiber).model_copy(
+                    update={"update_check": update_check_mapping[fiber.id]}
+                )
+                for fiber in fibers
+            ]
+        )
 
 
 @router.post("/")

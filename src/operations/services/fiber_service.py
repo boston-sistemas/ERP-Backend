@@ -241,7 +241,6 @@ class FiberService:
     async def validate_fiber_updatable(
         self, fiber_id: str, fiber: Fiber = None
     ) -> Result[ItemIsUpdatableSchema, CustomException]:
-        message = "Es posible realizar la actualización de la fibra especificada."
         fiber_result = (
             Success(fiber) if fiber else await self.read_fiber(fiber_id=fiber_id)
         )
@@ -249,18 +248,38 @@ class FiberService:
             return Success(ItemIsUpdatableSchema(failure=fiber_result))
 
         fiber = fiber_result.value
+        mapping = await self.validate_fibers_updatable(fibers=[fiber])
+        return Success(mapping[fiber.id])
 
-        if not fiber.is_active:
-            return Success(ItemIsUpdatableSchema(failure=FIBER_DISABLED_FAILURE))
+    async def validate_fibers_updatable(
+        self, fibers: list[Fiber]
+    ) -> Result[dict[str, ItemIsUpdatableSchema], CustomException]:
+        if not fibers:
+            return Success(dict())
+        message = "Es posible realizar la actualización de la fibra especificada."
+        fiber_ids = {fiber.id for fiber in fibers}
+        result = {
+            fiber.id: ItemIsUpdatableSchema(failure=FIBER_DISABLED_FAILURE)
+            for fiber in fibers
+            if not fiber.is_active
+        }
+
+        active_fiber_ids = [fiber.id for fiber in fibers if fiber.is_active]
+        if not active_fiber_ids:
+            return Success(result)
 
         recipe_items = await self.yarn_recipe_repository.find_all(
-            filter=YarnFiber.fiber_id == fiber.id, limit=1
+            filter=YarnFiber.fiber_id.in_(active_fiber_ids),
+            limit=1 if len(active_fiber_ids) == 1 else None,
         )
-        if recipe_items:
-            return Success(
-                ItemIsUpdatableSchema(
+        for item in recipe_items:
+            if item.fiber_id in fiber_ids:
+                result[item.fiber_id] = ItemIsUpdatableSchema(
                     failure=FIBER_UPDATE_FAILURE_DUE_TO_YARN_RECIPE_IN_USE
                 )
-            )
 
-        return Success(ItemIsUpdatableSchema(message=message))
+        for fiber_id in active_fiber_ids:
+            if fiber_id not in result:
+                result[fiber_id] = ItemIsUpdatableSchema(message=message)
+
+        return Success(result)
