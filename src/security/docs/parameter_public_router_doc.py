@@ -5,7 +5,9 @@ from src.core.utils import (
 )
 from src.security.schemas import (
     SpinningMethodsSchema,
+    YarnCountsSchema,
     YarnDistinctionsSchema,
+    YarnManufacturingSitesSchema,
 )
 
 
@@ -49,7 +51,7 @@ Devuelve una lista de **titulos de hilado** disponibles. Por ejemplo:
             field="yarnCounts", values=["20 Dn", "40 Dn", "28/1 Ne", "30/1 Ne"]
         )
         return generate_doc(
-            response_model=SpinningMethodsSchema,
+            response_model=YarnCountsSchema,
             description=description,
             responses=generate_response_doc(
                 status_code=200, content=generate_response_content(examples=example)
@@ -67,7 +69,7 @@ Devuelve una lista de **lugares de fabricación de hilado** disponibles. Por eje
             field="yarnManufacturingSites", values=["Vietnam - Thien Nam"]
         )
         return generate_doc(
-            response_model=SpinningMethodsSchema,
+            response_model=YarnManufacturingSitesSchema,
             description=description,
             responses=generate_response_doc(
                 status_code=200, content=generate_response_content(examples=example)
