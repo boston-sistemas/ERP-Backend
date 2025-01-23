@@ -248,7 +248,7 @@ class FiberService:
             return Success(ItemIsUpdatableSchema(failure=fiber_result))
 
         fiber = fiber_result.value
-        mapping = await self.validate_fibers_updatable(fibers=[fiber])
+        mapping = (await self.validate_fibers_updatable(fibers=[fiber])).value
         return Success(mapping[fiber.id])
 
     async def validate_fibers_updatable(
