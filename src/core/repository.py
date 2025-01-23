@@ -124,14 +124,6 @@ class BaseRepository(Generic[ModelType]):
 
         return results
 
-    async def refresh_object(self, obj: ModelType) -> None:
-        """
-        Fuerza la recarga de un objeto en la sesión actual,
-        asegurando que se obtengan los datos más recientes de la BD.
-        """
-        if obj is not None:
-            await self.db.refresh(obj)
-
     async def count(self, filter: BinaryExpression = None) -> int:
         stmt = select(func.count()).select_from(self.model)
 
