@@ -54,7 +54,9 @@ class AuditMixin:
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSession(bind=engine_async, expire_on_commit=False) as db:
+    async with AsyncSession(
+        bind=engine_async, expire_on_commit=False, autoflush=False
+    ) as db:
         try:
             yield db
             await db.commit()
@@ -64,7 +66,9 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_promec_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSession(bind=promec_async_engine, expire_on_commit=False) as db:
+    async with AsyncSession(
+        bind=promec_async_engine, expire_on_commit=False, autoflush=False
+    ) as db:
         try:
             yield db
             await db.commit()
