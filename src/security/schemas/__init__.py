@@ -16,9 +16,13 @@ from .parameter_public_schema import (
     DataTypeListSchema,
     FabricTypesSchema,
     FiberCategoriesSchema,
+    FiberDenominationsSchema,
     ServiceOrderStatusSchema,
     SpinningMethodsSchema,
     UserPasswordPolicySchema,
+    YarnCountsSchema,
+    YarnDistinctionsSchema,
+    YarnManufacturingSitesSchema,
 )
 from .parameter_schema import (
     ParameterCreateSchema,
@@ -48,6 +52,10 @@ from .user_rol_acceso_schema import (
 )
 
 __all__ = [
+    "YarnDistinctionsSchema",
+    "YarnManufacturingSitesSchema",
+    "YarnCountsSchema",
+    "FiberDenominationsSchema",
     "FabricTypesSchema",
     "SpinningMethodsSchema",
     "UserPasswordPolicySchema",

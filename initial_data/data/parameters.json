@@ -59,7 +59,7 @@
         "id": 1008,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: ALGODON",
-        "value": "ALGODON",
+        "value": "Algodón",
         "data_type": "string",
         "is_active": true
     },
@@ -67,7 +67,7 @@
         "id": 1009,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: ELASTANO",
-        "value": "ELASTANO / SPANDEX",
+        "value": "Elastano / Spandex",
         "data_type": "string",
         "is_active": true
     },
@@ -75,7 +75,7 @@
         "id": 1010,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: POLIESTER",
-        "value": "POLIESTER",
+        "value": "Poliester",
         "data_type": "string",
         "is_active": true
     },
@@ -83,7 +83,7 @@
         "id": 1011,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: LANA",
-        "value": "LANA",
+        "value": "Lana",
         "data_type": "string",
         "is_active": true
     },
@@ -91,7 +91,7 @@
         "id": 1012,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: VISCOSA",
-        "value": "VISCOSA",
+        "value": "Viscosa",
         "data_type": "string",
         "is_active": true
     },
@@ -99,7 +99,7 @@
         "id": 1013,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: LYOCELL",
-        "value": "LYOCELL",
+        "value": "Lyocell",
         "data_type": "string",
         "is_active": true
     },
@@ -107,7 +107,7 @@
         "id": 1014,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: SEDA",
-        "value": "SEDA",
+        "value": "Seda",
         "data_type": "string",
         "is_active": true
     },
@@ -115,7 +115,7 @@
         "id": 1015,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: ALPACA",
-        "value": "ALPACA",
+        "value": "Alpaca",
         "data_type": "string",
         "is_active": true
     },
@@ -123,7 +123,7 @@
         "id": 1016,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: MODAL",
-        "value": "MODAL",
+        "value": "Modal",
         "data_type": "string",
         "is_active": true
     },
@@ -131,7 +131,7 @@
         "id": 1017,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: POLIAMIDA",
-        "value": "POLIAMIDA",
+        "value": "Poliamida",
         "data_type": "string",
         "is_active": true
     },
@@ -139,7 +139,7 @@
         "id": 1018,
         "category_id": 102,
         "description": "CATEGORIA DE FIBRA: POLIESTER RECICLADO",
-        "value": "POLIESTER RECICLADO",
+        "value": "Poliester Reciclado",
         "data_type": "string",
         "is_active": true
     },
@@ -147,7 +147,7 @@
         "id": 1019,
         "category_id": 103,
         "description": "TIPO DE ACABADO: OPEN END",
-        "value": "OPEN END",
+        "value": "Open End",
         "data_type": "string",
         "is_active": true
     },
@@ -155,7 +155,7 @@
         "id": 1020,
         "category_id": 103,
         "description": "TIPO DE ACABADO: CARDADO",
-        "value": "CARDADO",
+        "value": "Cardado",
         "data_type": "string",
         "is_active": true
     },
@@ -163,7 +163,7 @@
         "id": 1021,
         "category_id": 103,
         "description": "TIPO DE ACABADO: PEINADO",
-        "value": "PEINADO",
+        "value": "Peinado",
         "data_type": "string",
         "is_active": true
     },
@@ -171,7 +171,7 @@
         "id": 1022,
         "category_id": 103,
         "description": "TIPO DE ACABADO: VORTEX",
-        "value": "VORTEX",
+        "value": "Vortex",
         "data_type": "string",
         "is_active": true
     },
@@ -179,7 +179,7 @@
         "id": 1023,
         "category_id": 104,
         "description": "TIPO DE TEJIDO: JERSEY",
-        "value": "JERSEY",
+        "value": "Jersey",
         "data_type": "string",
         "is_active": true
     },
@@ -187,7 +187,7 @@
         "id": 1024,
         "category_id": 104,
         "description": "TIPO DE TEJIDO: RIB",
-        "value": "RIB",
+        "value": "Rib",
         "data_type": "string",
         "is_active": true
     },
@@ -195,7 +195,7 @@
         "id": 1025,
         "category_id": 104,
         "description": "TIPO DE TEJIDO: RIB BIVIDI",
-        "value": "RIB BIVIDI",
+        "value": "Rib Bividi",
         "data_type": "string",
         "is_active": true
     },
@@ -203,7 +203,7 @@
         "id": 1026,
         "category_id": 104,
         "description": "TIPO DE TEJIDO: GAMUZA / INTERLOCK",
-        "value": "GAMUZA / INTERLOCK",
+        "value": "Gamuza / Interlock",
         "data_type": "string",
         "is_active": true
     },
@@ -211,15 +211,15 @@
         "id": 1027,
         "category_id": 104,
         "description": "TIPO DE TEJIDO: FRANELA",
-        "value": "FRANELA",
+        "value": "Franela",
         "data_type": "string",
         "is_active": true
-    }, 
+    },
     {
         "id": 1028,
         "category_id": 105,
         "description": "TIPO DE ESTADO: NO INICIADO",
-        "value": "NO INICIADO",
+        "value": "No Iniciado",
         "data_type": "string",
         "is_active": true
     },
@@ -227,7 +227,7 @@
         "id": 1029,
         "category_id": 105,
         "description": "TIPO DE ESTADO: EN PROCESO",
-        "value": "EN PROCESO",
+        "value": "En Proceso",
         "data_type": "string",
         "is_active": true
     },
@@ -235,7 +235,7 @@
         "id": 1030,
         "category_id": 105,
         "description": "TIPO DE ESTADO: FINALIZADO",
-        "value": "FINALIZADO",
+        "value": "Finalizado",
         "data_type": "string",
         "is_active": true
     },
@@ -244,6 +244,174 @@
         "category_id": 105,
         "description": "TIPO DE ESTADO: CANCELADO",
         "value": "CANCELADO",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1032,
+        "category_id": 106,
+        "description": "DENOMINACION DE FIBRA: TANGÜIS",
+        "value": "Tangüis",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1033,
+        "category_id": 106,
+        "description": "DENOMINACION DE FIBRA: PIMA",
+        "value": "Pima",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1034,
+        "category_id": 106,
+        "description": "DENOMINACION DE FIBRA: UPLAND",
+        "value": "Upland",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1035,
+        "category_id": 106,
+        "description": "DENOMINACION DE FIBRA: CREORA",
+        "value": "Creora",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1036,
+        "category_id": 106,
+        "description": "DENOMINACION DE FIBRA: LYCRA",
+        "value": "Lycra",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1037,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 20 Dn",
+        "value": "20 Dn",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1038,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 30 Dn",
+        "value": "30 Dn",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1039,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 40 Dn",
+        "value": "40 Dn",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1040,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 16/1 Ne",
+        "value": "16/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1041,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 20/1 Ne",
+        "value": "20/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1042,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 24/1 Ne",
+        "value": "24/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1043,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 26/1 Ne",
+        "value": "26/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1044,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 28/1 Ne",
+        "value": "28/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1045,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 30/1 Ne",
+        "value": "30/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1046,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 36/1 Ne",
+        "value": "36/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1047,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 40/1 Ne",
+        "value": "40/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1048,
+        "category_id": 107,
+        "description": "TITULO DE HILADO: 50/1 Ne",
+        "value": "50/1 Ne",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1049,
+        "category_id": 108,
+        "description": "HILADO PRODUCIDO EN: VIETNAM THIEN",
+        "value": "Vietnam - Thien Nam",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1050,
+        "category_id": 108,
+        "description": "HILADO PRODUCIDO EN: VIETNAM ALTERNATIVO",
+        "value": "Vietnam - Alternativo",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1051,
+        "category_id": 109,
+        "description": "DISTINCION DE HILADO: LIBRE DE CONTAMINACION",
+        "value": "Libre de contaminación",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1052,
+        "category_id": 109,
+        "description": "DISTINCION DE HILADO: CONTAMINACION CONTROLADA",
+        "value": "Contaminación controlada",
         "data_type": "string",
         "is_active": true
     }

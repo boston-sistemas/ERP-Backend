@@ -1,9 +1,8 @@
 from pydantic import Field
 from pydantic_extra_types.country import CountryAlpha3
 
-from src.core.schemas import CustomBaseModel
+from src.core.schemas import CustomBaseModel, ItemIsUpdatableSchema
 from src.operations.constants import (
-    FIBER_DENOMINATION_MAX_LENGTH,
     MECSA_COLOR_ID_MAX_LENGTH,
 )
 from src.security.schemas import ParameterValueSchema
@@ -11,9 +10,20 @@ from src.security.schemas import ParameterValueSchema
 from .mecsa_color_schema import MecsaColorSchema
 
 
+class FiberOptions(CustomBaseModel):
+    include_category: bool = False
+    include_denomination: bool = False
+    include_color: bool = False
+
+    @staticmethod
+    def all() -> "FiberOptions":
+        return FiberOptions(
+            include_category=True, include_denomination=True, include_color=True
+        )
+
+
 class FiberBase(CustomBaseModel):
     id: str
-    denomination: str | None
     origin: str | None
     is_active: bool
 
@@ -21,24 +31,31 @@ class FiberBase(CustomBaseModel):
         from_attributes = True
 
 
-class FiberSchema(FiberBase):
+class FiberSimpleSchema(FiberBase):
     pass
 
 
-class FiberCompleteSchema(FiberSchema):
+class FiberSchema(FiberSimpleSchema):
     category: ParameterValueSchema | None = None
+    denomination: ParameterValueSchema | None = None
     color: MecsaColorSchema | None = None
 
 
-class FiberCompleteListSchema(CustomBaseModel):
-    fibers: list[FiberCompleteSchema]
+class FiberExtendedSchema(FiberSchema):
+    update_check: ItemIsUpdatableSchema = Field(default=None)
+
+
+class FiberListSchema(CustomBaseModel):
+    fibers: list[FiberSchema]
+
+
+class FiberExtendedListSchema(CustomBaseModel):
+    fibers: list[FiberExtendedSchema]
 
 
 class FiberCreateSchema(CustomBaseModel):
     category_id: int
-    denomination: str | None = Field(
-        default=None, min_length=1, max_length=FIBER_DENOMINATION_MAX_LENGTH
-    )
+    denomination_id: int | None = Field(default=None)
     origin: CountryAlpha3 | None = Field(default=None)
     color_id: str | None = Field(
         default=None, min_length=1, max_length=MECSA_COLOR_ID_MAX_LENGTH
@@ -46,7 +63,4 @@ class FiberCreateSchema(CustomBaseModel):
 
 
 class FiberUpdateSchema(FiberCreateSchema):
-    category_id: int | None = None
-    denomination: str | None = Field(default=None, min_length=1)
-    origin: CountryAlpha3 | None = Field(default=None)
-    color_id: str | None = Field(default=None, min_length=1)
+    category_id: int = None

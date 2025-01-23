@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
+from src.core.utils import map_active_status
 from src.operations.failures import (
     MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE,
     MECSA_COLOR_NOT_FOUND_FAILURE,
@@ -10,7 +11,7 @@ from src.operations.failures import (
 )
 from src.operations.models import MecsaColor
 from src.operations.repositories import MecsaColorRepository
-from src.operations.schemas import MecsaColorCreateSchema
+from src.operations.schemas import MecsaColorCreateSchema, MecsaColorUpdateSchema
 from src.operations.sequences import color_id_seq
 
 
@@ -21,29 +22,24 @@ class MecsaColorService:
 
     async def _validate_mecsa_color_data(
         self,
-        name: str | None = None,
-        sku: str | None = None,
+        name: str = None,
+        slug: str = None,
+        sku: str = None,
         hexadecimal: str | None = None,
     ) -> Result[None, CustomException]:
-        name_exists = False
-        if name is not None:
+        if slug is not None:
             colors = await self.repository.find_mecsa_colors(
-                filter=MecsaColor.name == name, exclude_legacy=True
+                filter=MecsaColor.slug == slug, limit=1, exclude_legacy=True
             )
-            name_exists = any(color.name == name for color in colors)
+            if colors:
+                return MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE(name)
 
-        if name_exists:
-            return MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE(name)
-
-        sku_exists = False
         if sku is not None:
             colors = await self.repository.find_mecsa_colors(
-                filter=MecsaColor.sku == sku, exclude_legacy=True
+                filter=MecsaColor.sku == sku, limit=1, exclude_legacy=True
             )
-            sku_exists = any(color.sku == sku for color in colors)
-
-        if sku_exists:
-            return MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE(sku)
+            if colors:
+                return MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE(sku)
 
         # TODO: Validate the hexadecimal format
 
@@ -52,14 +48,13 @@ class MecsaColorService:
     async def create_mecsa_color(
         self, form: MecsaColorCreateSchema
     ) -> Result[MecsaColor, CustomException]:
-        validation_result = await self._validate_mecsa_color_data(
-            name=form.name, sku=form.sku, hexadecimal=form.hexadecimal
-        )
+        color_data = form.model_dump()
+        validation_result = await self._validate_mecsa_color_data(**color_data)
         if validation_result.is_failure:
             return validation_result
 
         mecsa_color_id = await self.color_sequence.next_value()
-        mecsa_color = MecsaColor(id=mecsa_color_id, **form.model_dump())
+        mecsa_color = MecsaColor(id=mecsa_color_id, **color_data)
 
         await self.repository.save(mecsa_color)
 
@@ -74,14 +69,16 @@ class MecsaColorService:
         return MECSA_COLOR_NOT_FOUND_FAILURE
 
     async def read_mecsa_colors(
-        self, exclude_legacy: bool = False
+        self, include_inactives: bool = True, exclude_legacy: bool = False
     ) -> Result[list[MecsaColor], CustomException]:
         mecsa_colors = await self.repository.find_mecsa_colors(
-            exclude_legacy=exclude_legacy
+            include_inactives=include_inactives,
+            exclude_legacy=exclude_legacy,
+            order_by=MecsaColor.slug.asc(),
         )
         return Success(mecsa_colors)
 
-    async def find_mecsa_colors_by_ids(
+    async def read_mecsa_colors_by_ids(
         self, mecsa_color_ids: list[str]
     ) -> Result[list[MecsaColor], CustomException]:
         if not mecsa_color_ids:
@@ -97,7 +94,40 @@ class MecsaColorService:
         self, color_ids: list[str]
     ) -> Result[dict[str, MecsaColor], CustomException]:
         mecsa_colors = (
-            await self.find_mecsa_colors_by_ids(mecsa_color_ids=color_ids)
+            await self.read_mecsa_colors_by_ids(mecsa_color_ids=color_ids)
         ).value
 
         return Success({mecsa_color.id: mecsa_color for mecsa_color in mecsa_colors})
+
+    async def update_mecsa_color(
+        self, color_id: str, form: MecsaColorUpdateSchema
+    ) -> Result[MecsaColor, CustomException]:
+        result = self.read_mecsa_color(color_id=color_id)
+        if result.is_failure:
+            return result
+
+        color = result.value
+        color_data = form.model_dump(exclude_unset=True)
+        validation_result = await self._validate_mecsa_color_data(**color_data)
+        if validation_result.is_failure:
+            return validation_result
+
+        for key, value in color_data.items():
+            setattr(color, key, value)
+
+        await self.repository.save(color)
+
+        return Success(color)
+
+    async def update_status(
+        self, color_id: str, is_active: bool = True
+    ) -> Result[None, CustomException]:
+        result = await self.read_mecsa_color(color_id=color_id)
+        if result.is_failure:
+            return result
+
+        color = result.value
+        color.is_active = map_active_status(is_active)
+        await self.repository.save(color)
+
+        return Success(None)

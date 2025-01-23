@@ -1,128 +1,79 @@
 [
     {
         "id": 100101,
-        "name": "NEGRO",
+        "name": "Negro",
         "sku": "NEGRO",
-        "hexadecimal": "#000000"
+        "hexadecimal": "#000000",
+        "slug": "negro"
     },
     {
         "id": 100102,
-        "name": "BLANCO",
+        "name": "Blanco",
         "sku": "BLAN",
-        "hexadecimal": "#FFFFFF"
+        "hexadecimal": "#FFFFFF",
+        "slug": "blanco"
     },
     {
         "id": 100103,
-        "name": "ROJO",
+        "name": "Rojo",
         "sku": "ROJO",
-        "hexadecimal": "#FF0000"
+        "hexadecimal": "#FF0000",
+        "slug": "rojo"
     },
     {
         "id": 100104,
-        "name": "VERDE",
+        "name": "Verde",
         "sku": "VERDE",
-        "hexadecimal": "#00FF00"
+        "hexadecimal": "#00FF00",
+        "slug": "verde"
     },
     {
         "id": 100105,
-        "name": "AZUL",
+        "name": "Azul",
         "sku": "AZUL",
-        "hexadecimal": "#0000FF"
+        "hexadecimal": "#0000FF",
+        "slug": "azul"
     },
     {
         "id": 100106,
-        "name": "AMARILLO",
+        "name": "Amarillo",
         "sku": "AMAR",
-        "hexadecimal": "#FFFF00"
+        "hexadecimal": "#FFFF00",
+        "slug": "amarillo"
     },
     {
         "id": 100107,
-        "name": "CIAN",
-        "sku": "CIAN",
-        "hexadecimal": "#00FFFF"
+        "name": "Gris",
+        "sku": "GRIS",
+        "hexadecimal": "#808080",
+        "slug": "gris"
     },
     {
         "id": 100108,
-        "name": "MAGENTA",
-        "sku": "MAG",
-        "hexadecimal": "#FF00FF"
+        "name": "Naranja",
+        "sku": "NARAN",
+        "hexadecimal": "#FFA500",
+        "slug": "naranja"
     },
     {
         "id": 100109,
-        "name": "GRIS",
-        "sku": "GRIS",
-        "hexadecimal": "#808080"
+        "name": "Rosa",
+        "sku": "ROSA",
+        "hexadecimal": "#FFC0CB",
+        "slug": "rosa"
     },
     {
         "id": 100110,
-        "name": "NARANJA",
-        "sku": "NARAN",
-        "hexadecimal": "#FFA500"
+        "name": "Marrón",
+        "sku": "MARR",
+        "hexadecimal": "#A52A2A",
+        "slug": "marron"
     },
     {
         "id": 100111,
-        "name": "ROSA",
-        "sku": "ROSA",
-        "hexadecimal": "#FFC0CB"
-    },
-    {
-        "id": 100112,
-        "name": "MARRON",
-        "sku": "MARR",
-        "hexadecimal": "#A52A2A"
-    },
-    {
-        "id": 100113,
-        "name": "PURPURA",
-        "sku": "PURPU",
-        "hexadecimal": "#800080"
-    },
-    {
-        "id": 100114,
-        "name": "VIOLETA",
-        "sku": "VIOL",
-        "hexadecimal": "#EE82EE"
-    },
-    {
-        "id": 100115,
-        "name": "TURQUESA",
+        "name": "Turquesa",
         "sku": "TURQ",
-        "hexadecimal": "#40E0D0"
-    },
-    {
-        "id": 100116,
-        "name": "DORADO",
-        "sku": "DOR",
-        "hexadecimal": "#FFD700"
-    },
-    {
-        "id": 100117,
-        "name": "PLATEADO",
-        "sku": "PLATA",
-        "hexadecimal": "#C0C0C0"
-    },
-    {
-        "id": 100118,
-        "name": "BEIGE",
-        "sku": "BEIGE",
-        "hexadecimal": "#F5F5DC"
-    },
-    {
-        "id": 100119,
-        "name": "LAVANDA",
-        "sku": "LAVAN",
-        "hexadecimal": "#E6E6FA"
-    },
-    {
-        "id": 100120,
-        "name": "DURAZNO",
-        "sku": "DUR",
-        "hexadecimal": "#FFDAB9"
-    },
-    {
-        "id": 100121,
-        "name": "CHOCOLATE",
-        "sku": "CHOCO",
-        "hexadecimal": "#D2691E"
+        "hexadecimal": "#40E0D0",
+        "slug": "turquesa"
     }
 ]

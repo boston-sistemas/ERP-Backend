@@ -4,7 +4,7 @@ from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
 
-from src.core.constants import MECSA_COMPANY_CODE
+from src.core.constants import ACTIVE_STATUS_PROMEC, MECSA_COMPANY_CODE
 from src.core.repository import BaseRepository
 from src.operations.models import InventoryItem
 
@@ -37,6 +37,7 @@ class InventoryItemRepository(BaseRepository[InventoryItem]):
     async def find_items(
         self,
         filter: BinaryExpression = None,
+        include_inactives: bool = True,
         exclude_legacy: bool = False,
         order_by: Union[
             Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
@@ -46,6 +47,9 @@ class InventoryItemRepository(BaseRepository[InventoryItem]):
     ) -> list[InventoryItem]:
         base_filter = InventoryItem.company_code == MECSA_COMPANY_CODE
         filter = base_filter & filter if filter is not None else base_filter
+
+        if not include_inactives:
+            filter = filter & (InventoryItem.is_active == ACTIVE_STATUS_PROMEC)
 
         inventory_items = await self.find_all(
             filter=filter, order_by=order_by, options=options, apply_unique=apply_unique

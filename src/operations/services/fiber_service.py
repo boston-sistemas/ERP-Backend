@@ -3,20 +3,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
+from src.core.schemas import ItemIsUpdatableSchema
 from src.core.utils import is_active_status
 from src.operations.failures import (
-    CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE,
-    CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE,
     CATEGORY_NULL_FIBER_VALIDATION_FAILURE,
     FIBER_ALREADY_EXISTS_FAILURE,
+    FIBER_DISABLED_FAILURE,
     FIBER_NOT_FOUND_FAILURE,
+    FIBER_UPDATE_FAILURE_DUE_TO_YARN_RECIPE_IN_USE,
     MECSA_COLOR_DISABLED_FAILURE,
 )
-from src.operations.models import Fiber
-from src.operations.repositories import FiberRepository
-from src.operations.schemas import FiberCreateSchema, FiberUpdateSchema
+from src.operations.models import Fiber, YarnFiber
+from src.operations.repositories import FiberRepository, YarnRecipeRepository
+from src.operations.schemas import FiberCreateSchema, FiberOptions, FiberUpdateSchema
 from src.operations.sequences import product_id_seq
-from src.security.loaders import FiberCategories
+from src.security.loaders import FiberCategories, FiberDenominations
+from src.security.services import ParameterService
 
 from .mecsa_color_service import MecsaColorService
 
@@ -29,6 +31,9 @@ class FiberService:
             sequence=product_id_seq, db=promec_db
         )
         self.fiber_categories = FiberCategories(db=db)
+        self.fiber_denominations = FiberDenominations(db=db)
+        self.yarn_recipe_repository = YarnRecipeRepository(db=db)
+        self.parameter_service = ParameterService(db=db)
 
     async def _assign_color_to_fibers(self, fibers: list[Fiber]) -> None:
         color_ids = {fiber.color_id for fiber in fibers if fiber.color_id is not None}
@@ -46,14 +51,14 @@ class FiberService:
     async def _is_fiber_unique(
         self,
         category_id: int,
-        denomination: str | None,
+        denomination_id: int | None,
         origin: str | None,
         color_id: str | None,
         current_fiber: Fiber | None = None,
     ) -> bool:
         _fibers = await self.repository.find_all(
             (Fiber.category_id == category_id)
-            & (Fiber.denomination == denomination)
+            & (Fiber.denomination_id == denomination_id)
             & (Fiber.origin == origin)
             & (Fiber.color_id == color_id)
         )
@@ -68,15 +73,18 @@ class FiberService:
     async def _validate_fiber_data(
         self,
         category_id: int | None = None,
+        denomination_id: int | None = None,
         color_id: str | None = None,
         **kwargs,
     ) -> Result[None, CustomException]:
-        if category_id is not None:
-            result = await self.fiber_categories.validate(id=category_id)
-            if result.is_failure:
-                return CATEGORY_NOT_FOUND_FIBER_VALIDATION_FAILURE
-            if not result.value.is_active:
-                return CATEGORY_DISABLED_FIBER_VALIDATION_FAILURE
+        validation = await self.parameter_service.validate_parameters(
+            parameter_id_validator_pairs=[
+                (category_id, self.fiber_categories),
+                (denomination_id, self.fiber_denominations),
+            ]
+        )
+        if validation.is_failure:
+            return validation
 
         if color_id is not None:
             color_result = await self.mecsa_color_service.read_mecsa_color(color_id)
@@ -88,33 +96,33 @@ class FiberService:
         return Success(None)
 
     async def read_fiber(
-        self, fiber_id: str, include_category: bool = False, include_color: bool = False
+        self, fiber_id: str, options: FiberOptions = FiberOptions()
     ) -> Result[Fiber, CustomException]:
         fiber = await self.repository.find_fiber_by_id(
-            fiber_id=fiber_id, include_category=include_category
+            fiber_id=fiber_id,
+            include_denomination=options.include_denomination,
+            include_category=options.include_category,
         )
 
         if fiber is None:
             return FIBER_NOT_FOUND_FAILURE
 
-        if include_color:
+        if options.include_color:
             await self._assign_color_to_fibers(fibers=[fiber])
 
         return Success(fiber)
 
     async def read_fibers(
-        self,
-        include_inactives: bool = False,
-        include_category: bool = False,
-        include_color: bool = False,
+        self, include_inactives: bool = False, options: FiberOptions = FiberOptions()
     ) -> Result[list[Fiber], CustomException]:
         fibers = await self.repository.find_fibers(
-            filter=Fiber.is_active.is_(True) if not include_inactives else None,
-            include_category=include_category,
             order_by=Fiber.id.asc(),
+            include_category=options.include_category,
+            include_denomination=options.include_denomination,
+            include_inactives=include_inactives,
         )
 
-        if include_color:
+        if options.include_color:
             await self._assign_color_to_fibers(fibers=fibers)
 
         return Success(fibers)
@@ -123,7 +131,9 @@ class FiberService:
         self, form: FiberCreateSchema
     ) -> Result[Fiber, CustomException]:
         validation_result = await self._validate_fiber_data(
-            category_id=form.category_id, color_id=form.color_id
+            category_id=form.category_id,
+            denomination_id=form.denomination_id,
+            color_id=form.color_id,
         )
         if validation_result.is_failure:
             return validation_result
@@ -147,6 +157,12 @@ class FiberService:
             return fiber_result
 
         fiber: Fiber = fiber_result.value
+        result = await self.validate_fiber_updatable(fiber=fiber, fiber_id=fiber.id)
+        if result.is_failure:
+            return result
+        elif not result.value.updatable:
+            return result.value.failure
+
         fiber_data = form.model_dump(exclude_unset=True)
         if len(fiber_data) == 0:
             return Success(fiber)
@@ -164,7 +180,7 @@ class FiberService:
         if not (
             await self._is_fiber_unique(
                 category_id=fiber.category_id,
-                denomination=fiber.denomination,
+                denomination_id=fiber.denomination_id,
                 origin=fiber.origin,
                 color_id=fiber.color_id,
                 current_fiber=fiber,
@@ -188,48 +204,82 @@ class FiberService:
 
         return Success(fiber)
 
-    async def find_fibers_by_ids(
-        self,
-        fiber_ids: list[str],
-        include_category: bool = False,
-        include_color: bool = False,
+    async def read_fibers_by_ids(
+        self, fiber_ids: list[str], options: FiberOptions = FiberOptions()
     ) -> Result[list[Fiber], CustomException]:
         if not fiber_ids:
             return Success([])
 
         if len(fiber_ids) == 1:
             id = fiber_ids[0]
-            result = await self.read_fiber(
-                fiber_id=id,
-                include_category=include_category,
-                include_color=include_color,
-            )
+            result = await self.read_fiber(fiber_id=id, options=options)
             if result.is_success:
                 return Success([result.value])
 
             return Success([])
 
         fibers = await self.repository.find_fibers(
-            filter=Fiber.id.in_(fiber_ids), include_category=include_category
+            filter=Fiber.id.in_(fiber_ids),
+            include_category=options.include_category,
+            include_denomination=options.include_denomination,
         )
 
-        if include_color:
+        if options.include_color:
             await self._assign_color_to_fibers(fibers)
 
         return Success(fibers)
 
     async def map_fibers_by_ids(
-        self,
-        fiber_ids: list[str],
-        include_category: bool = False,
-        include_color: bool = False,
+        self, fiber_ids: list[str], options: FiberOptions = FiberOptions()
     ) -> Result[dict[str, Fiber], CustomException]:
         fibers = (
-            await self.find_fibers_by_ids(
-                fiber_ids=fiber_ids,
-                include_category=include_category,
-                include_color=include_color,
-            )
+            await self.read_fibers_by_ids(fiber_ids=fiber_ids, options=options)
         ).value
 
         return Success({fiber.id: fiber for fiber in fibers})
+
+    async def validate_fiber_updatable(
+        self, fiber_id: str, fiber: Fiber = None
+    ) -> Result[ItemIsUpdatableSchema, CustomException]:
+        fiber_result = (
+            Success(fiber) if fiber else await self.read_fiber(fiber_id=fiber_id)
+        )
+        if fiber_result.is_failure:
+            return Success(ItemIsUpdatableSchema(failure=fiber_result))
+
+        fiber = fiber_result.value
+        mapping = await self.validate_fibers_updatable(fibers=[fiber])
+        return Success(mapping[fiber.id])
+
+    async def validate_fibers_updatable(
+        self, fibers: list[Fiber]
+    ) -> Result[dict[str, ItemIsUpdatableSchema], CustomException]:
+        if not fibers:
+            return Success(dict())
+        message = "Es posible realizar la actualización de la fibra especificada."
+        fiber_ids = {fiber.id for fiber in fibers}
+        result = {
+            fiber.id: ItemIsUpdatableSchema(failure=FIBER_DISABLED_FAILURE)
+            for fiber in fibers
+            if not fiber.is_active
+        }
+
+        active_fiber_ids = [fiber.id for fiber in fibers if fiber.is_active]
+        if not active_fiber_ids:
+            return Success(result)
+
+        recipe_items = await self.yarn_recipe_repository.find_all(
+            filter=YarnFiber.fiber_id.in_(active_fiber_ids),
+            limit=1 if len(active_fiber_ids) == 1 else None,
+        )
+        for item in recipe_items:
+            if item.fiber_id in fiber_ids:
+                result[item.fiber_id] = ItemIsUpdatableSchema(
+                    failure=FIBER_UPDATE_FAILURE_DUE_TO_YARN_RECIPE_IN_USE
+                )
+
+        for fiber_id in active_fiber_ids:
+            if fiber_id not in result:
+                result[fiber_id] = ItemIsUpdatableSchema(message=message)
+
+        return Success(result)

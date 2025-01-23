@@ -39,7 +39,6 @@ from src.operations.constants import (
     EXIT_NUMBER_MAX_LENGTH,
     FABRIC_ID_MAX_LENGTH,
     FABRIC_TYPE_MAX_LENGTH,
-    FIBER_DENOMINATION_MAX_LENGTH,
     FIBER_ID_MAX_LENGTH,
     FIBER_ORIGIN_MAX_LENGTH,
     FLGACT_MAX_LENGTH,
@@ -372,6 +371,7 @@ class AbstractTableModel(PromecBase):
 
 class MecsaColor(AbstractTableModel):
     name: Mapped[str] = mapped_column("nombre")
+    slug: Mapped[str] = mapped_column("slug")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
 
@@ -1617,9 +1617,7 @@ class Fiber(Base):
         String(length=FIBER_ID_MAX_LENGTH), primary_key=True
     )
     category_id: Mapped[int] = mapped_column("categoria_param_id")
-    denomination: Mapped[str] = mapped_column(
-        "denominacion", String(length=FIBER_DENOMINATION_MAX_LENGTH), nullable=True
-    )
+    denomination_id: Mapped[int] = mapped_column("denominacion_param_id", nullable=True)
     origin: Mapped[str] = mapped_column(
         "procedencia", String(length=FIBER_ORIGIN_MAX_LENGTH), nullable=True
     )
@@ -1631,14 +1629,20 @@ class Fiber(Base):
     category: Mapped[Parameter] = relationship(
         Parameter,
         lazy="noload",
-        primaryjoin="Fiber.category_id == Parameter.id",
-        foreign_keys="[Fiber.category_id]",
+        primaryjoin=lambda: Fiber.category_id == Parameter.id,
+        foreign_keys=lambda: [Fiber.category_id],
+    )
+    denomination: Mapped[Parameter] = relationship(
+        Parameter,
+        lazy="noload",
+        primaryjoin=lambda: Fiber.denomination_id == Parameter.id,
+        foreign_keys=lambda: [Fiber.denomination_id],
     )
 
     __table_args__ = (
         UniqueConstraint(
             "categoria_param_id",
-            "denominacion",
+            "denominacion_param_id",
             "procedencia",
             "color_id",
         ),
@@ -1708,7 +1712,7 @@ class InventoryItem(PromecBase):
         MecsaColor,
         lazy="noload",
         primaryjoin=lambda: and_(
-            InventoryItem.field4 == MecsaColor.id,
+            InventoryItem.field3 == MecsaColor.id,
         ),
         foreign_keys=lambda: [
             MecsaColor.id,
@@ -1795,6 +1799,15 @@ class YarnFiber(Base):
             ["fibras.id"],
         ),
     )
+
+
+class YarnDistinction(Base):
+    __tablename__ = "hilado_distinciones"
+
+    yarn_id: Mapped[str] = mapped_column(
+        "hilado_id", String(length=YARN_ID_MAX_LENGTH), primary_key=True
+    )
+    distinction_id: Mapped[int] = mapped_column("distincion_id", primary_key=True)
 
 
 class Series(PromecBase):

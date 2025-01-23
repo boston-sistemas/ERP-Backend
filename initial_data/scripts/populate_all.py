@@ -6,7 +6,7 @@ from populate_fibers import populate_fibers
 from populate_mecsa_colors import populate_mecsa_colors
 from populate_parameter_categories import populate_parameter_categories
 from populate_parameters import populate_parameters
-from populate_yarn import populate_yarns
+from populate_yarns import populate_yarns
 
 from src.core.database import engine_async, promec_async_engine
 

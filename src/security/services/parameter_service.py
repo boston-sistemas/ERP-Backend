@@ -15,6 +15,7 @@ from src.security.failures import (
     PARAMETER_VALUE_CONVERSION_TO_FLOAT_FAILURE,
     PARAMETER_VALUE_CONVERSION_TO_INT_FAILURE,
 )
+from src.security.loaders import MultiParameterLoaderByCategory
 from src.security.models import Parameter
 from src.security.repositories import ParameterRepository
 from src.security.schemas import DataType, ParameterCreateSchema
@@ -102,7 +103,9 @@ class ParameterService:
         self, include_category: bool = False, load_only_value: bool = False
     ) -> Result[list[Parameter], CustomException]:
         parameters = await self.repository.find_parameters(
-            include_category=include_category, load_only_value=load_only_value
+            order_by=Parameter.id.asc(),
+            include_category=include_category,
+            load_only_value=load_only_value,
         )
 
         return Success(parameters)
@@ -127,26 +130,24 @@ class ParameterService:
         parameter_category_id: int,
         include_category: bool = False,
         load_only_value: bool = False,
-        actives_only: bool = False,
+        include_inactives: bool = True,
     ) -> Result[list[Parameter], CustomException]:
-        filter = Parameter.category_id == parameter_category_id
-        if actives_only:
-            filter &= Parameter.is_active
-
         parameters = await self.repository.find_parameters(
-            filter=filter,
+            filter=Parameter.category_id == parameter_category_id,
+            order_by=Parameter.id.asc(),
+            include_inactives=include_inactives,
             include_category=include_category,
             load_only_value=load_only_value,
         )
 
         return Success(parameters)
 
-    async def find_parameters_by_ids(
+    async def read_parameters_by_ids(
         self,
         parameter_ids: list[int],
         include_category: bool = False,
         load_only_value: bool = False,
-        actives_only: bool = False,
+        include_inactives: bool = True,
     ) -> Result[list[Parameter], CustomException]:
         if not parameter_ids:
             return Success([])
@@ -158,17 +159,14 @@ class ParameterService:
                 include_category=include_category,
                 load_only_value=load_only_value,
             )
-            if result.is_success and (not actives_only or result.value.is_active):
+            if result.is_success and (include_inactives or result.value.is_active):
                 return Success([result.value])
 
             return Success([])
 
-        filter = Parameter.id.in_(parameter_ids)
-        if actives_only:
-            filter &= Parameter.is_active
-
         parameters = await self.repository.find_parameters(
-            filter=filter,
+            filter=Parameter.id.in_(parameter_ids),
+            include_inactives=include_inactives,
             include_category=include_category,
             load_only_value=load_only_value,
         )
@@ -181,7 +179,7 @@ class ParameterService:
         load_only_value: bool = False,
     ) -> Result[dict[int, Parameter], CustomException]:
         parameters = (
-            await self.find_parameters_by_ids(
+            await self.read_parameters_by_ids(
                 parameter_ids=parameter_ids,
                 include_category=include_category,
                 load_only_value=load_only_value,
@@ -189,3 +187,26 @@ class ParameterService:
         ).value
 
         return Success({parameter.id: parameter for parameter in parameters})
+
+    async def validate_parameters(
+        self,
+        parameter_id_validator_pairs: list[
+            tuple[int | None, MultiParameterLoaderByCategory]
+        ],
+    ) -> Result[None, CustomException]:
+        validator_mapping = {
+            parameter_id: validator
+            for parameter_id, validator in parameter_id_validator_pairs
+            if parameter_id is not None
+        }
+        mapping = (
+            await self.map_parameters_by_ids(
+                parameter_ids=list(validator_mapping.keys()), load_only_value=True
+            )
+        ).value
+        for parameter_id, validator in validator_mapping.items():
+            validation = validator.validate_instance(mapping.get(parameter_id))
+            if validation.is_failure:
+                return validation
+
+        return Success(None)
