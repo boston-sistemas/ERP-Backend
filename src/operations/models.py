@@ -371,6 +371,7 @@ class AbstractTableModel(PromecBase):
 
 class MecsaColor(AbstractTableModel):
     name: Mapped[str] = mapped_column("nombre")
+    slug: Mapped[str] = mapped_column("slug")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
 

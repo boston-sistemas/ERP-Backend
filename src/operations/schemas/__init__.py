@@ -33,6 +33,7 @@ from .mecsa_color_schema import (
     MecsaColorCreateSchema,
     MecsaColorListSchema,
     MecsaColorSchema,
+    MecsaColorUpdateSchema,
 )
 from .orden_compra_schema import (
     # OrdenCompraBase,

@@ -1,4 +1,5 @@
-from pydantic import Field, field_validator
+from pydantic import Field, computed_field, field_validator
+from slugify import slugify
 
 from src.core.schemas import CustomBaseModel
 from src.core.utils import is_active_status
@@ -13,6 +14,7 @@ class MecsaColorBase(CustomBaseModel):
     id: str
     name: str
     sku: str | None = None
+    slug: str | None = None
     hexadecimal: str | None = None
     is_active: bool
 
@@ -22,12 +24,8 @@ class MecsaColorBase(CustomBaseModel):
 
 class MecsaColorSchema(MecsaColorBase):
     @field_validator("is_active", mode="before")
-    def convert_is_active(cls, value):
+    def convert_is_active(cls, value: str):
         return is_active_status(value)
-
-    @field_validator("name", mode="after")
-    def capitalize_name(cls, name: str):
-        return name.capitalize()
 
 
 class MecsaColorListSchema(CustomBaseModel):
@@ -43,6 +41,13 @@ class MecsaColorCreateSchema(CustomBaseModel):
         default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_HEXADECIMAL
     )
 
-    @field_validator("name", "sku", mode="after")
-    def to_uppercase(cls, value: str | None):
-        return value.upper() if value else value
+    @computed_field
+    @property
+    def slug(self) -> str | None:
+        return slugify(self.name) if self.name else None
+
+
+class MecsaColorUpdateSchema(MecsaColorCreateSchema):
+    name: str = Field(
+        default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_NAME
+    )
