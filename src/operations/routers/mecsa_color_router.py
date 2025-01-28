@@ -56,7 +56,7 @@ async def create_mecsa_color(
     raise creation_result.error
 
 
-@router.post("/{color_id}", status_code=status.HTTP_201_CREATED)
+@router.patch("/{color_id}")
 async def update_mecsa_color(
     color_id: str,
     form: MecsaColorUpdateSchema,

@@ -46,6 +46,11 @@ class MecsaColorCreateSchema(CustomBaseModel):
     def slug(self) -> str | None:
         return slugify(self.name) if self.name else None
 
+    @field_validator("name", "sku", "hexadecimal", mode="after")
+    @classmethod
+    def clean(cls, value: str | None) -> str | None:
+        return value.strip() if value else value
+
 
 class MecsaColorUpdateSchema(MecsaColorCreateSchema):
     name: str = Field(

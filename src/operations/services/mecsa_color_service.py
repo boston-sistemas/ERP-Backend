@@ -102,13 +102,20 @@ class MecsaColorService:
     async def update_mecsa_color(
         self, color_id: str, form: MecsaColorUpdateSchema
     ) -> Result[MecsaColor, CustomException]:
-        result = self.read_mecsa_color(color_id=color_id)
+        result = await self.read_mecsa_color(color_id=color_id)
         if result.is_failure:
             return result
 
         color = result.value
         color_data = form.model_dump(exclude_unset=True)
-        validation_result = await self._validate_mecsa_color_data(**color_data)
+
+        new_slug = color_data.pop("slug", color.slug)
+        new_sku = color_data.pop("sku", color.sku)
+        validation_result = await self._validate_mecsa_color_data(
+            slug=new_slug if color.slug != new_slug else None,
+            sku=new_sku if color.sku != new_sku else None,
+            **color_data,
+        )
         if validation_result.is_failure:
             return validation_result
 
