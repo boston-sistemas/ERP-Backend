@@ -24,7 +24,7 @@ from .proveedor_repository import ProveedorRepository
 from .purchase_order_detail_repository import PurchaseOrderDetailRepository
 from .series_repository import SeriesRepository
 from .service_order_repository import ServiceOrderRepository
-from .service_order_stock_repository import ServiceOrderStockRepository
+from .service_order_supply_stock_repository import ServiceOrderSupplyDetailRepository
 from .supplier_repository import SupplierRepository
 from .weaving_service_entry_repository import WeavingServiceEntryRepository
 from .yarn_purchase_entry_detail_heavy_repository import (
@@ -60,7 +60,7 @@ __all__ = [
     "PurchaseOrderDetailRepository",
     "YarnWeavingDispatchRepository",
     "YarnPurchaseEntryDetailHeavyRepository",
-    "ServiceOrderStockRepository",
+    "ServiceOrderSupplyDetailRepository",
     "ServiceOrderRepository",
     "WeavingServiceEntryRepository",
     "DyeingServiceDispatchRepository",

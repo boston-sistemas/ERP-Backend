@@ -113,22 +113,32 @@ class MovementService:
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
         if movement:
-            await self.repository.delete(movement)
+            await self.repository.delete(movement, flush=True)
 
-        for detail in movement_detail:
-            await self.movement_detail_repository.delete(detail)
+        if movement_detail:
+            await self.movement_detail_repository.delete_all(
+                movement_detail, flush=True
+            )
 
-        for detail in movememt_detail_aux:
-            await self.movement_detail_aux_repository.delete(detail)
+        if movememt_detail_aux:
+            await self.movement_detail_aux_repository.delete_all(
+                movememt_detail_aux, flush=True
+            )
 
-        for detail in movement_detail_heavy:
-            await self.movement_detail_heavy_repository.delete(detail)
+        if movement_detail_heavy:
+            await self.movement_detail_heavy_repository.delete_all(
+                movement_detail_heavy, flush=True
+            )
 
-        for detail in movement_detail_fabric:
-            await self.fabric_warehouse_repository.delete(detail)
+        if movement_detail_fabric:
+            await self.fabric_warehouse_repository.delete_all(
+                movement_detail_fabric, flush=True
+            )
 
-        for detail in movement_detail_card:
-            await self.card_operation_repository.delete(detail)
+        if movement_detail_card:
+            await self.card_operation_repository.delete_all(
+                movement_detail_card, flush=True
+            )
 
         return Success(None)
 
@@ -142,21 +152,29 @@ class MovementService:
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
         if movement:
-            await self.repository.save(movement)
+            await self.repository.save(movement, flush=True)
 
-        for detail in movement_detail:
-            await self.movement_detail_repository.save(detail)
+        if movement_detail:
+            await self.movement_detail_repository.save_all(movement_detail, flush=True)
 
-        for detail in movememt_detail_aux:
-            await self.movement_detail_aux_repository.save(detail)
+        if movememt_detail_aux:
+            await self.movement_detail_aux_repository.save_all(
+                movememt_detail_aux, flush=True
+            )
 
-        for detail in movement_detail_heavy:
-            await self.movement_detail_heavy_repository.save(detail)
+        if movement_detail_heavy:
+            await self.movement_detail_heavy_repository.save_all(
+                movement_detail_heavy, flush=True
+            )
 
-        for detail in movement_detail_fabric:
-            await self.fabric_warehouse_repository.save(detail)
+        if movement_detail_fabric:
+            await self.fabric_warehouse_repository.save_all(
+                movement_detail_fabric, flush=True
+            )
 
-        for detail in movement_detail_card:
-            await self.card_operation_repository.save(detail)
+        if movement_detail_card:
+            await self.card_operation_repository.save_all(
+                movement_detail_card, flush=True
+            )
 
         return Success(None)

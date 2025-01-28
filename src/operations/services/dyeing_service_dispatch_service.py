@@ -537,7 +537,7 @@ class DyeingServiceDispatchService(MovementService):
         remaining_movements = []
         for movement in existing_movements:
             if movement.nrotarj == target_card.id:
-                await self.movement_detail_repository.delete(movement)
+                await self.movement_detail_repository.delete(movement, flush=True)
             else:
                 remaining_movements.append(movement)
 
@@ -581,7 +581,7 @@ class DyeingServiceDispatchService(MovementService):
             }:
                 filtered_warehouses.append(warehouse)
             else:
-                await self.fabric_warehouse_repository.delete(warehouse)
+                await self.fabric_warehouse_repository.delete(warehouse, flush=True)
 
         return Success((fabric_warehouses, updated_movements))
 
@@ -686,8 +686,10 @@ class DyeingServiceDispatchService(MovementService):
         )
 
         if entry_movement:
-            await self.movement_detail_repository.delete_all(entry_movement.detail)
-            await self.repository.delete(entry_movement)
+            await self.movement_detail_repository.delete_all(
+                entry_movement.detail, flush=True
+            )
+            await self.repository.delete(entry_movement, flush=True)
 
         return Success(None)
 

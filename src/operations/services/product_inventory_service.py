@@ -31,7 +31,7 @@ class ProductInventoryService:
         self,
         product_inventory: ProductInventory,
     ) -> Result[None, CustomException]:
-        await self.repository.save(product_inventory)
+        await self.repository.save(product_inventory, flush=True)
 
         return Success(None)
 
@@ -64,7 +64,7 @@ class ProductInventoryService:
 
         product_inventory.current_stock -= quantity
 
-        await self.repository.save(product_inventory)
+        await self.repository.save(product_inventory, flush=True)
 
         return Success(None)
 
@@ -81,6 +81,6 @@ class ProductInventoryService:
         product_inventory: ProductInventory = result.value
         product_inventory.current_stock += new_stock
 
-        await self.repository.save(product_inventory)
+        await self.repository.save(product_inventory, flush=True)
 
         return Success(None)

@@ -99,7 +99,7 @@ class OrdenCompraService:
             purchase_order.status_flag = "P"
 
         await self.purchase_order_detail_service.save_all(purchase_order.detail)
-        await self.repository.save(purchase_order)
+        await self.repository.save(purchase_order, flush=True)
 
         return Success(None)
 
@@ -137,6 +137,6 @@ class OrdenCompraService:
             purchase_order.status_flag = "C"
 
         await self.purchase_order_detail_service.save_all(purchase_order.detail)
-        await self.repository.save(purchase_order)
+        await self.repository.save(purchase_order, flush=True)
 
         return Success(None)

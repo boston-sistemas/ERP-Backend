@@ -20,18 +20,18 @@ class BaseRepository(Generic[ModelType]):
         self.db = db
         self.flush = flush
 
-    async def save(self, object: ModelType) -> ModelType:
+    async def save(self, object: ModelType, flush: bool = False) -> ModelType:
         self.db.add(object)
 
-        if self.flush:
+        if flush:
             await self.db.flush()
 
         return object
 
-    async def save_all(self, objects: Sequence[ModelType]) -> None:
+    async def save_all(self, objects: Sequence[ModelType], flush: bool = False) -> None:
         self.db.add_all(objects)
 
-        if self.flush:
+        if flush:
             await self.db.flush()
 
     async def find(
@@ -155,3 +155,6 @@ class BaseRepository(Generic[ModelType]):
 
     def expunge_all(self) -> None:
         self.db.expunge_all()
+
+    async def expunge(self, object: ModelType) -> None:
+        self.db.expunge(object)

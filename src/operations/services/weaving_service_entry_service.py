@@ -71,7 +71,7 @@ from .series_service import (
     WeavingServiceEntrySeries,
 )
 from .service_order_service import ServiceOrderService
-from .service_order_stock_service import ServiceOrderStockService
+from .service_order_supply_service import ServiceOrderSupplyDetailService
 from .supplier_service import SupplierService
 
 
@@ -93,7 +93,9 @@ class WeavingServiceEntryService(MovementService):
             sequence=card_id_seq, db=promec_db
         )
         self.dispatch_series = DispatchSeries(promec_db=promec_db)
-        self.service_order_stock_service = ServiceOrderStockService(promec_db=promec_db)
+        self.service_order_supply_service = ServiceOrderSupplyDetailService(
+            promec_db=promec_db
+        )
         self.yarn_weaving_dispatch_repository = BaseRepository(
             model=MovementDetail, db=promec_db
         )
@@ -284,12 +286,10 @@ class WeavingServiceEntryService(MovementService):
                     service_orders.append(service_order_result.value)
 
             for service_order in service_orders:
-                service_orders_stock = (
-                    await self.service_order_stock_service._reads_service_orders_stock(
-                        storage_code=supplier.storage_code,
-                        period=period,
-                        service_order_id=service_order.id,
-                    )
+                service_orders_stock = await self.service_order_supply_service._read_service_orders_supply_stock(
+                    storage_code=supplier.storage_code,
+                    period=period,
+                    service_order_id=service_order.id,
                 )
 
                 if service_orders_stock.is_failure:
@@ -328,8 +328,8 @@ class WeavingServiceEntryService(MovementService):
                 fabric = fabric.value
 
                 fabric_recipe_yarns_ids = {
-                    service_order_stock.product_code: service_order_stock.supplier_yarn_id
-                    for service_order_stock in service_orders_stock
+                    service_order_supply_stock.product_code: service_order_supply_stock.supplier_yarn_id
+                    for service_order_supply_stock in service_orders_stock
                 }
 
                 fabric_ids = {
@@ -785,7 +785,7 @@ class WeavingServiceEntryService(MovementService):
             )
 
             await (
-                self.service_order_stock_service.update_current_stock_by_fabric_recipe(
+                self.service_order_supply_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
                     service_orders_stock=detail._service_orders_stock,
@@ -868,12 +868,10 @@ class WeavingServiceEntryService(MovementService):
                 quantity_supplied=detail.mecsa_weight,
             )
 
-            service_orders_stock = (
-                await self.service_order_stock_service._reads_service_orders_stock(
-                    storage_code=supplier.storage_code,
-                    period=period,
-                    service_order_id=detail.reference_number,
-                )
+            service_orders_stock = await self.service_order_supply_service._read_service_orders_supply_stock(
+                storage_code=supplier.storage_code,
+                period=period,
+                service_order_id=detail.reference_number,
             )
             if service_orders_stock.is_failure:
                 return service_orders_stock
@@ -890,7 +888,7 @@ class WeavingServiceEntryService(MovementService):
 
             fabric = fabric_result.value
 
-            service_orders_stock_result = await self.service_order_stock_service.rollback_current_stock_by_fabric_recipe(
+            service_orders_stock_result = await self.service_order_supply_service.rollback_current_stock_by_fabric_recipe(
                 fabric=fabric,
                 quantity=detail.mecsa_weight,
                 service_orders_stock=service_orders_stock,
@@ -944,9 +942,11 @@ class WeavingServiceEntryService(MovementService):
             weaving_service_entry_detail.detail_card
         )
         await self.fabric_warehouse_repository.delete(
-            weaving_service_entry_detail.detail_fabric
+            weaving_service_entry_detail.detail_fabric, flush=True
         )
-        await self.movement_detail_repository.delete(weaving_service_entry_detail)
+        await self.movement_detail_repository.delete(
+            weaving_service_entry_detail, flush=True
+        )
 
     async def _delete_weaving_service_entry_detail(
         self,
@@ -1130,7 +1130,7 @@ class WeavingServiceEntryService(MovementService):
                     quantity_supplied=mecsa_weight,
                 )
 
-                await self.service_order_stock_service.update_current_stock_by_fabric_recipe(
+                await self.service_order_supply_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
                     service_orders_stock=detail._service_orders_stock,
@@ -1270,7 +1270,7 @@ class WeavingServiceEntryService(MovementService):
                     quantity_supplied=mecsa_weight,
                 )
 
-                await self.service_order_stock_service.update_current_stock_by_fabric_recipe(
+                await self.service_order_supply_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
                     service_orders_stock=detail._service_orders_stock,

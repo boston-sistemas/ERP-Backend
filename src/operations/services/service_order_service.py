@@ -282,7 +282,7 @@ class ServiceOrderService:
             )
             service_order_detail.append(service_order_detail_value)
 
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
 
         service_order.detail = service_order_detail
 
@@ -294,7 +294,9 @@ class ServiceOrderService:
         self,
         service_order_detail: ServiceOrderDetail,
     ) -> None:
-        await self.service_order_detail_repository.delete(service_order_detail)
+        await self.service_order_detail_repository.delete(
+            service_order_detail, flush=True
+        )
 
     async def _delete_service_order_detail(
         self,
@@ -455,7 +457,7 @@ class ServiceOrderService:
         for detail in service_order.detail:
             detail.status_flag = "A"
 
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
         await self.service_order_detail_repository.save_all(service_order.detail)
 
         return Success(None)
@@ -522,7 +524,7 @@ class ServiceOrderService:
             service_order.status_flag = "C"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
         return Success(None)
 
     async def rollback_quantity_supplied_by_fabric_id(
@@ -562,5 +564,5 @@ class ServiceOrderService:
             service_order.status_flag = "P"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
         return Success(None)

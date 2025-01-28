@@ -145,7 +145,7 @@ class YarnPurchaseEntryDetailHeavyService:
         if count_detail_supplied != len(movement.detail):
             movement.status_flag = "P"
 
-        await self.repository.save(yarn_purchase_entry_detail_heavy)
+        await self.repository.save(yarn_purchase_entry_detail_heavy, flush=True)
         return Success(None)
 
     async def update_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
@@ -219,7 +219,7 @@ class YarnPurchaseEntryDetailHeavyService:
         if count_detail_supplied == len(movement.detail):
             movement.status_flag = "C"
 
-        await self.repository.save(yarn_purchase_entry_detail_heavy)
+        await self.repository.save(yarn_purchase_entry_detail_heavy, flush=True)
         return Success(None)
 
     async def read_yarn_purchase_entries_item_group_availability(

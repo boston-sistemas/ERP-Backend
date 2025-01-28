@@ -615,13 +615,19 @@ class SupplierArrivalPort(PromecBase):
     )
 
 
-class ServiceOrderStock(PromecBase):
+class ServiceOrderSupplyDetail(PromecBase):
     __tablename__ = "almstkserv"
 
     company_code: Mapped[str] = mapped_column(
         "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     period: Mapped[int] = mapped_column("periodo")
+    supply_id: Mapped[str] = mapped_column(
+        "insumo_id", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    item_number: Mapped[str] = mapped_column(
+        "nroitm", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
     product_code: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
@@ -631,14 +637,10 @@ class ServiceOrderStock(PromecBase):
     storage_code: Mapped[str] = mapped_column(
         "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
     )
-    item_number: Mapped[int] = mapped_column("nroitm")
-    stkact: Mapped[float] = mapped_column("stkact")
+    current_stock: Mapped[float] = mapped_column("stkact")
     provided_quantity: Mapped[float] = mapped_column("cantidad_dada")
     supplier_yarn_id: Mapped[str] = mapped_column(
         "proveedor_hilado_id", String(length=SUPPLIER_CODE_MAX_LENGTH)
-    )
-    dispatch_id: Mapped[str] = mapped_column(
-        "numero_salida", String(length=EXIT_NUMBER_MAX_LENGTH)
     )
     is_complement: Mapped[bool] = mapped_column("es_complemento", default=False)
     status_flag: Mapped[str] = mapped_column(
@@ -653,7 +655,7 @@ class ServiceOrderStock(PromecBase):
     quantity_dispatched: Mapped[float] = mapped_column("cantsal")
 
     __table_args__ = (
-        PrimaryKeyConstraint("codcia", "codprod", "refnro", "nroitm"),
+        PrimaryKeyConstraint("codcia", "insumo_id", "refnro", "nroitm"),
         {"schema": "PUB"},
     )
 
@@ -978,6 +980,7 @@ class MovementDetail(PromecBase):
     supplier_batch: Mapped[str] = mapped_column(
         "loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH)
     )
+    item_number_supply: Mapped[int] = mapped_column("nroiteminsumoos")
     movement = relationship(
         "Movement",
         lazy="noload",

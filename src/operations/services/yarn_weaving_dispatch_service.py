@@ -24,6 +24,7 @@ from src.operations.failures import (
     YARN_WEAVING_DISPATCH_ALREADY_ACCOUNTED_FAILURE,
     YARN_WEAVING_DISPATCH_ALREADY_ANULLED_FAILURE,
     YARN_WEAVING_DISPATCH_CONE_COUNT_MISMATCH_FAILURE,
+    YARN_WEAVING_DISPATCH_FABRIC_NOT_ASSOCIATED_SERVICE_ORDER_FAILURE,
     YARN_WEAVING_DISPATCH_GROUP_ALREADY_DISPATCHED_FAILURE,
     YARN_WEAVING_DISPATCH_GROUP_ANULLED_FAILURE,
     YARN_WEAVING_DISPATCH_NOT_ADDRESS_ASSOCIATED_FAILURE,
@@ -41,7 +42,7 @@ from src.operations.models import (
     MovementDetailAux,
     MovementYarnOCHeavy,
     ServiceOrder,
-    ServiceOrderStock,
+    ServiceOrderSupplyDetail,
 )
 from src.operations.repositories import (
     YarnWeavingDispatchRepository,
@@ -65,7 +66,7 @@ from .series_service import (
     YarnWeavingDispatchSeries,
 )
 from .service_order_service import ServiceOrderService
-from .service_order_stock_service import ServiceOrderStockService
+from .service_order_supply_service import ServiceOrderSupplyDetailService
 from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
@@ -88,10 +89,12 @@ class YarnWeavingDispatchService(MovementService):
             model=MovementDetail, db=promec_db
         )
         self.service_order_repository = BaseRepository(model=ServiceOrder, db=promec_db)
-        self.service_order_stock_repository = BaseRepository(
-            model=ServiceOrderStock, db=promec_db
+        self.service_order_supply_stock_repository = BaseRepository(
+            model=ServiceOrderSupplyDetail, db=promec_db
         )
-        self.service_order_stock_service = ServiceOrderStockService(promec_db=promec_db)
+        self.service_order_supply_service = ServiceOrderSupplyDetailService(
+            promec_db=promec_db
+        )
         self.service_order_service = ServiceOrderService(promec_db=promec_db, db=db)
         self.fabric_service = FabricService(promec_db=promec_db, db=db)
 
@@ -220,25 +223,24 @@ class YarnWeavingDispatchService(MovementService):
         self,
         service_order: ServiceOrderSchema,
         yarn_purchase_entry_detail_heavy: MovementYarnOCHeavy,
+        fabric_id: str,
     ) -> Result[None, CustomException]:
-        entry_count = 0
-        for detail_service in service_order.detail:
-            fabric_result = await self.fabric_service.read_fabric(
-                fabric_id=detail_service.fabric_id,
-                include_recipe=True,
-            )
+        fabric_ids = [detail.fabric_id for detail in service_order.detail]
+        if fabric_id not in fabric_ids:
+            return YARN_WEAVING_DISPATCH_FABRIC_NOT_ASSOCIATED_SERVICE_ORDER_FAILURE
 
-            if fabric_result.is_failure:
-                return fabric_result
+        fabric_result = await self.fabric_service.read_fabric(
+            fabric_id=fabric_id,
+            include_recipe=True,
+        )
+        if fabric_result.is_failure:
+            return fabric_result
 
-            fabric = fabric_result.value
+        fabric = fabric_result.value
 
-            yarn_ids = [yarn.yarn_id for yarn in fabric.recipe]
+        yarn_ids = [yarn.yarn_id for yarn in fabric.recipe]
 
-            if yarn_purchase_entry_detail_heavy.yarn_id in yarn_ids:
-                entry_count += 1
-
-        if entry_count == 0:
+        if yarn_purchase_entry_detail_heavy.yarn_id not in yarn_ids:
             return YARN_WEAVING_DISPATCH_YARN_NOT_ASSOCIATED_FABRIC_FAILURE
 
         return Success(None)
@@ -273,6 +275,7 @@ class YarnWeavingDispatchService(MovementService):
             validation_result = await self._validate_service_order_with_detail(
                 service_order=service_order,
                 yarn_purchase_entry_detail_heavy=yarn_purchase_entry_detail_heavy,
+                fabric_id=detail.fabric_id,
             )
 
             if validation_result.is_failure:
@@ -579,52 +582,58 @@ class YarnWeavingDispatchService(MovementService):
 
         return Success(None)
 
-    async def _create_stock_service_order(
+    async def _upsert_service_order_supply_stock(
         self,
         period: int,
         yarn_id: str,
+        fabric_id: str,
         supplier_yarn_id: str,
         service_order_number: str,
         storage_code: str,
         quantity: float,
         supplier_code: str,
         issue_date: date,
-        dispatch_number: str,
     ) -> Result[None, CustomException]:
-        stock_service_orders_result = await self.service_order_stock_service._read_max_item_number_by_product_id_and_service_order_id(
-            product_id=yarn_id,
-            period=period,
-            storage_code=storage_code,
-            service_order_id=service_order_number,
-        )
+        # stock_service_orders_result = await self.service_order_supply_service._read_max_item_number_by_product_and_service_order(
+        #     product_id=yarn_id,
+        #     period=period,
+        #     storage_code=storage_code,
+        #     service_order_id=service_order_number,
+        # )
+        #
+        # if stock_service_orders_result.is_failure:
+        #     return stock_service_orders_result
+        #
+        # item_number = stock_service_orders_result.value
 
-        if stock_service_orders_result.is_failure:
-            return stock_service_orders_result
-
-        item_number = stock_service_orders_result.value
-
-        stock_service_order = ServiceOrderStock(
+        service_order_supply_stock = ServiceOrderSupplyDetail(
             company_code=MECSA_COMPANY_CODE,
             period=period,
-            product_code=yarn_id,
-            item_number=item_number + 1,
+            product_code=fabric_id,
+            supply_id=yarn_id,
+            # item_number=item_number + 1,
             reference_number=service_order_number,
             storage_code=storage_code,
-            stkact=quantity,
+            current_stock=quantity,
+            provided_quantity=quantity,
             status_flag="P",
             supplier_code=supplier_code,
             creation_date=issue_date,
             pormer=0,
             quantity_received=0,
-            quantity_dispatched=0,
-            provided_quantity=quantity,
-            dispatch_id=dispatch_number,
+            quantity_dispatched=quantity,
             supplier_yarn_id=supplier_yarn_id,
         )
 
-        await self.service_order_stock_repository.save(stock_service_order)
+        upsert_result = (
+            await self.service_order_supply_service.upsert_service_order_supply_stock(
+                service_order_supply_stock=service_order_supply_stock,
+            )
+        )
+        if upsert_result.is_failure:
+            return upsert_result
 
-        return Success(None)
+        return Success(upsert_result.value)
 
     async def create_yarn_weaving_dispatch(
         self,
@@ -702,6 +711,24 @@ class YarnWeavingDispatchService(MovementService):
 
         # print("------------------------")
         for detail in form.detail:
+            creation_result = await self._upsert_service_order_supply_stock(
+                period=current_period,
+                yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
+                fabric_id=detail.fabric_id,
+                supplier_yarn_id=detail._yarn_purchase_entry_heavy.supplier_yarn_id,
+                service_order_number=service_order_id,
+                storage_code=supplier.storage_code,
+                quantity=detail.net_weight,
+                supplier_code=supplier.code,
+                issue_date=creation_date,
+            )
+            if creation_result.is_failure:
+                return creation_result
+
+            service_order_supply_detail: ServiceOrderSupplyDetail = (
+                creation_result.value
+            )
+
             yarn_weaving_dispatch_detail_value = MovementDetail(
                 company_code=MECSA_COMPANY_CODE,
                 storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
@@ -732,6 +759,7 @@ class YarnWeavingDispatchService(MovementService):
                 entry_group_number=detail.entry_group_number,
                 entry_item_number=detail.entry_item_number,
                 entry_period=detail.entry_period,
+                item_number_supply=service_order_supply_detail.item_number,
             )
 
             yarn_weaving_dispatch_detail_aux_value = MovementDetailAux(
@@ -763,21 +791,6 @@ class YarnWeavingDispatchService(MovementService):
             yarn_weaving_dispatch_detail_aux.append(
                 yarn_weaving_dispatch_detail_aux_value
             )
-
-            # //! Grupos siempre separados, o juntarlos si vienen del mismo ingreso?
-            creation_result = await self._create_stock_service_order(
-                period=current_period,
-                yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
-                supplier_yarn_id=detail._yarn_purchase_entry_heavy.supplier_yarn_id,
-                service_order_number=service_order_id,
-                storage_code=supplier.storage_code,
-                quantity=detail.net_weight,
-                supplier_code=supplier.code,
-                issue_date=creation_date,
-                dispatch_number=dispatch_number,
-            )
-            if creation_result.is_failure:
-                return creation_result
 
             update_yarn_entry_detail_heavy_result = await self.yarn_purchase_entry_detail_heavy_service.update_yarn_purchase_entry_detail_heavy_by_yarn_dispatch(
                 entry_number=detail.entry_number,
@@ -864,7 +877,7 @@ class YarnWeavingDispatchService(MovementService):
 
         yarn_entry_detail = await self.yarn_entry_detail_repository.find(filter=filter)
 
-        # delete_result = await self.service_order_stock_service.delete_service_order_stock(
+        # delete_result = await self.service_order_supply_service.delete_service_order_supply_stock(
         #     product_code=yarn_weaving_dispatch_detail.product_code,
         #     period=yarn_weaving_dispatch_detail.period,
         #     storage_code=supplier.storage_code,
@@ -1109,7 +1122,7 @@ class YarnWeavingDispatchService(MovementService):
 
                 # //! Liquidacion
 
-                # await self.service_order_stock_service.update_current_stock(
+                # await self.service_order_supply_service.update_current_stock(
                 #     product_code=yarn_weaving_dispatch_detail_result.product_code,
                 #     period=yarn_weaving_dispatch_detail_result.period,
                 #     storage_code=supplier.storage_code,
@@ -1327,7 +1340,7 @@ class YarnWeavingDispatchService(MovementService):
             return anulate_result
 
         for detail in yarn_weaving_dispatch.detail:
-            # await self.service_order_stock_service.anulate_service_order_stock(
+            # await self.service_order_supply_service.annul_service_order_supply_stock(
             #     product_code=detail.product_code,
             #     period=period,
             #     storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,

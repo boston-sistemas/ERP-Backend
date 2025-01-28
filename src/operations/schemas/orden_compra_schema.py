@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 
@@ -8,8 +8,7 @@ from .orden_compra_detalle_schema import (
     OrdenCompraDetalleBase,
     YarnPurchaseOrderDetailSchema,
 )
-
-# from pydantic import field_serializer
+from .promec_status_schema import PromecStatusSchema
 
 
 class OrdenCompraBase(CustomBaseModel):
@@ -20,7 +19,7 @@ class OrdenCompraBase(CustomBaseModel):
     issue_date: date | None
     due_date: date | None
     payment_method: str | None
-    status_flag: str
+    status_flag: str | None = Field(exclude=True)
     currency_code: int
 
     class Config:
@@ -38,6 +37,14 @@ class OrdenCompraSimpleSchema(OrdenCompraBase):
 
 
 class YarnPurchaseOrderSchema(OrdenCompraBase):
+    promec_status: PromecStatusSchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_status(self):
+        if self.status_flag is not None:
+            self.promec_status = PromecStatusSchema(status_id=self.status_flag)
+        return self
+
     detail: list[YarnPurchaseOrderDetailSchema] | None = Field([])
 
 

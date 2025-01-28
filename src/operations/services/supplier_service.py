@@ -82,7 +82,7 @@ class SupplierService:
         value = supplier_service.sequence_number
 
         supplier_service.sequence_number += 1
-        await self.supplier_service_repository.save(supplier_service)
+        await self.supplier_service_repository.save(supplier_service, flush=True)
 
         return Success(value)
 

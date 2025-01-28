@@ -74,3 +74,9 @@ YARN_WEAVING_DISPATCH_SERVICE_ORDER_ALREADY_CANCELLED_FAILURE = Failure(
 YARN_WEAVING_DISPATCH_SERVICE_ORDER_ALREADY_FINISHED_FAILURE = Failure(
     ForbiddenException(detail="La orden de servicio especificada ha sido finalizada.")
 )
+
+YARN_WEAVING_DISPATCH_FABRIC_NOT_ASSOCIATED_SERVICE_ORDER_FAILURE = Failure(
+    ForbiddenException(
+        detail="El tejido especificado no pertenece a la orden de servicio."
+    )
+)

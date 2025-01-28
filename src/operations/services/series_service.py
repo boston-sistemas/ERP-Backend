@@ -36,7 +36,7 @@ class SeriesService:
         series: Series = result.value
         number = series.number
         series.number += 1
-        await self.repository.save(series)
+        await self.repository.save(series, flush=True)
 
         return Success(number)
 

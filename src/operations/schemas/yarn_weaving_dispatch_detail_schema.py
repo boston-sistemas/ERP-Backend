@@ -5,6 +5,7 @@ from pydantic import AliasChoices, Field, computed_field
 
 from src.core.schemas import CustomBaseModel
 from src.core.utils import PERU_TIMEZONE, calculate_time
+from src.operations.constants import PRODUCT_ID_MAX_LENGTH
 
 from .yarn_purchase_entry_detail_heavy_schema import (
     YarnPurchaseEntryDetailHeavySchema,
@@ -90,6 +91,7 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     package_count: int = Field(..., ge=0)
     net_weight: float = Field(..., gt=0)
     gross_weight: float = Field(..., gt=0)
+    fabric_id: str | None = Field(max_length=PRODUCT_ID_MAX_LENGTH)
 
     _yarn_purchase_entry_heavy: YarnPurchaseEntryDetailHeavySchema | None = None
 
