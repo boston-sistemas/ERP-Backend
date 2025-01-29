@@ -92,7 +92,6 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         )
 
         if include_detalle:
-            print("asdasdasd")
             options.append(
                 contains_eager(OrdenCompra.detail).contains_eager(
                     OrdenCompraDetalle.yarn

@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
@@ -109,6 +111,10 @@ class WeavingServiceEntryRepository(MovementRepository):
     async def find_weaving_service_entries(
         self,
         period: int,
+        entry_number: str = None,
+        supplier_ids: list[str] = None,
+        start_date: date = None,
+        end_date: date = None,
         include_annulled: bool = False,
         limit: int = None,
         offset: int = None,
@@ -124,6 +130,20 @@ class WeavingServiceEntryRepository(MovementRepository):
 
         if not include_annulled:
             base_filter = base_filter & (Movement.status_flag == "P")
+
+        if entry_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{entry_number}%")
+            )
+
+        if supplier_ids:
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
+
+        if start_date:
+            base_filter = base_filter & (Movement.creation_date >= start_date)
+
+        if end_date:
+            base_filter = base_filter & (Movement.creation_date <= end_date)
 
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options()

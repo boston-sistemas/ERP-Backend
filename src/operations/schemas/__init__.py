@@ -118,8 +118,10 @@ from .weaving_service_entry_detail_schema import (
     WeavingServiceEntryDetailUpdateSchema,
 )
 from .weaving_service_entry_schema import (
+    WeavingServiceEntriesListSchema,
     WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
+    WeavingServiceEntryFilterParams,
     WeavingServiceEntryPrintListSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntrySimpleSchema,
@@ -274,4 +276,6 @@ __all__ = [
     "YarnWeavingDispatchFilterParams",
     "ServiceOrderFilterParams",
     "YarnPurchaseOrderListSchema",
+    "WeavingServiceEntriesListSchema",
+    "WeavingServiceEntryFilterParams",
 ]

@@ -52,9 +52,11 @@ from src.operations.schemas import (
     FabricSchema,
     ServiceOrderSchema,
     SupplierSchema,
+    WeavingServiceEntriesListSchema,
     WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
     WeavingServiceEntryDetailCreateSchema,
+    WeavingServiceEntryFilterParams,
     WeavingServiceEntryPrintListSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntryUpdateSchema,
@@ -112,20 +114,14 @@ class WeavingServiceEntryService(MovementService):
 
     async def read_weaving_service_entries(
         self,
-        period: int,
-        limit: int = None,
-        offset: int = None,
-        include_annulled: bool = False,
+        filter_params: WeavingServiceEntryFilterParams,
     ) -> Result[WeavingServiceEntriesSimpleListSchema, CustomException]:
         weaving_service_entries = await self.repository.find_weaving_service_entries(
-            limit=limit,
-            offset=offset,
-            period=period,
-            include_annulled=include_annulled,
+            **filter_params.model_dump()
         )
 
         return Success(
-            WeavingServiceEntriesSimpleListSchema(
+            WeavingServiceEntriesListSchema(
                 weaving_service_entries=weaving_service_entries
             )
         )

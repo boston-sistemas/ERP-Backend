@@ -1,8 +1,9 @@
 from datetime import date
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_serializer, model_validator
 
 from src.core.schemas import CustomBaseModel
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
     CARD_ID_MAX_LENGTH,
     DOCUMENT_NOTE_MAX_LENGTH,
@@ -11,6 +12,7 @@ from src.operations.constants import (
     SUPPLIER_CODE_MAX_LENGTH,
 )
 
+from .promec_status_schema import PromecStatusSchema
 from .weaving_service_entry_detail_schema import (
     WeavingServiceEntryDetailCreateSchema,
     WeavingServiceEntryDetailSchema,
@@ -24,7 +26,12 @@ class WeavingServiceEntryBase(CustomBaseModel):
     creation_date: date | None = None
     creation_time: str | None = None
     supplier_code: str | None = Field(default=None, validation_alias="auxiliary_code")
-    status_flag: str | None = None
+
+    @field_serializer("creation_date", when_used="json")
+    def serialize_creation_date(value: date | None) -> str | None:
+        if value is None:
+            return None
+        return value.strftime("%d-%m-%Y")
 
     class Config:
         from_attributes = True
@@ -47,7 +54,34 @@ class WeavingServiceEntrySchema(WeavingServiceEntrySimpleSchema):
     fecgf: date | None
     user_id: str | None = None
 
+    status_flag: str | None = Field(exclude=True)
+
+    promec_status: PromecStatusSchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_status(self):
+        if self.status_flag is not None:
+            self.promec_status = PromecStatusSchema(status_id=self.status_flag)
+        return self
+
     detail: list[WeavingServiceEntryDetailSchema] = []
+
+
+class WeavingServiceEntriesListSchema(CustomBaseModel):
+    weaving_service_entries: list[WeavingServiceEntrySchema] = []
+
+
+class WeavingServiceEntryFilterParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    entry_number: str | None = Field(default=None)
+    supplier_ids: list[str] | None = Field(default=None)
+    start_date: date | None = Field(default=None)
+    end_date: date | None = Field(default=None)
+    limit: int | None = Field(default=10, ge=1, le=100)
+    offset: int | None = Field(default=0, ge=0)
+    include_annulled: bool | None = Field(default=False)
 
 
 class WeavingServiceEntryCreateSchema(CustomBaseModel):

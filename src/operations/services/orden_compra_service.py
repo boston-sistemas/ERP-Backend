@@ -31,7 +31,6 @@ class OrdenCompraService:
             period=period, include_detalle=include_detalle
         )
 
-        print("-asdasdasdsadsadsa")
         return Success(YarnPurchaseOrderListSchema(yarn_orders=yarn_orders))
 
     async def _read_purchase_yarn_order(
