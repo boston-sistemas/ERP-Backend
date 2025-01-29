@@ -1679,6 +1679,7 @@ class InventoryItem(PromecBase):
     field3: Mapped[str] = mapped_column("Estruct3", default="", nullable=True)
     field4: Mapped[str] = mapped_column("Estruct4", default="", nullable=True)
     field5: Mapped[str] = mapped_column("Estruct5", default="", nullable=True)
+    field6: Mapped[str] = mapped_column("Estruct6", default="", nullable=True)
 
     yarn_color: Mapped[MecsaColor] = relationship(
         MecsaColor,
@@ -1825,3 +1826,12 @@ class FabricYarn(PromecBase):
     stitch_length: Mapped[float] = mapped_column("longitud_malla", default=0.0)
 
     __table_args__ = ({"schema": "PUB"},)
+
+
+class FinishedFabric(Base):
+    __tablename__ = "finished_fabrics"
+
+    id: Mapped[str] = mapped_column(
+        "id", String(FABRIC_ID_MAX_LENGTH), primary_key=True
+    )
+    finishing_route_id: Mapped[int] = mapped_column("ruta_acabado_id")
