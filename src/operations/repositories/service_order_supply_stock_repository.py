@@ -13,23 +13,21 @@ class ServiceOrderSupplyDetailRepository(BaseRepository[ServiceOrderSupplyDetail
     def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
         super().__init__(ServiceOrderSupplyDetail, promec_db, flush)
 
-    async def find_service_order_supply_stock_by_product_code_and_storage_code_and_reference_number_and_item_number(
+    async def find_service_order_supply_stock_by_id(
         self,
-        product_code: str,
+        # product_code: str,
         storage_code: str,
         reference_number: str,
         item_number: int,
-        period: int,
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
         **kwargs,
     ) -> ServiceOrderSupplyDetail | None:
         base_filter = (
             (ServiceOrderSupplyDetail.company_code == MECSA_COMPANY_CODE)
-            & (ServiceOrderSupplyDetail.product_code == product_code)
+            # & (ServiceOrderSupplyDetail.product_code == product_code)
             & (ServiceOrderSupplyDetail.storage_code == storage_code)
             & (ServiceOrderSupplyDetail.reference_number == reference_number)
-            & (ServiceOrderSupplyDetail.period == period)
             & (ServiceOrderSupplyDetail.item_number == item_number)
         )
         filter = base_filter & filter if filter is not None else base_filter

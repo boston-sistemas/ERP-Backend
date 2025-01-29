@@ -591,7 +591,7 @@ class YarnWeavingDispatchService(MovementService):
         service_order_number: str,
         storage_code: str,
         quantity: float,
-        supplier_code: str,
+        supplier_id: str,
         issue_date: date,
     ) -> Result[None, CustomException]:
         # stock_service_orders_result = await self.service_order_supply_service._read_max_item_number_by_product_and_service_order(
@@ -617,7 +617,7 @@ class YarnWeavingDispatchService(MovementService):
             current_stock=quantity,
             provided_quantity=quantity,
             status_flag="P",
-            supplier_code=supplier_code,
+            supplier_code=supplier_id,
             creation_date=issue_date,
             pormer=0,
             quantity_received=0,
@@ -989,7 +989,16 @@ class YarnWeavingDispatchService(MovementService):
             if rollback_result.is_failure:
                 return rollback_result
 
-            # //! TODO: Rollbacks de insumos (almstkserv)
+            rollback_result = (
+                await self.service_order_supply_service.rollback_current_stock(
+                    storage_code=supplier.storage_code,
+                    reference_number=detail.nroreq,
+                    item_number=detail.item_number_supply,
+                    quantity=detail.mecsa_weight,
+                )
+            )
+            if rollback_result.is_failure:
+                return rollback_result
 
         return Success(None)
 
@@ -1012,7 +1021,7 @@ class YarnWeavingDispatchService(MovementService):
             return yarn_weaving_dispatch_result
 
         yarn_weaving_dispatch: Movement = yarn_weaving_dispatch_result.value
-        self.repository.expunge_all()
+        self.repository.expunge(yarn_weaving_dispatch)
         rollback_result = await self.rollback_yarn_weaving_dispatch(
             yarn_weaving_dispatch=yarn_weaving_dispatch
         )
@@ -1275,6 +1284,20 @@ class YarnWeavingDispatchService(MovementService):
                 yarn_weaving_dispatch_detail_aux.append(
                     yarn_weaving_dispatch_detail_aux_result
                 )
+
+            service_order_supply_detail = await self._upsert_service_order_supply_stock(
+                period=period,
+                yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
+                fabric_id=detail.fabric_id,
+                supplier_yarn_id=detail._yarn_purchase_entry_heavy.supplier_yarn_id,
+                service_order_number=yarn_weaving_dispatch.reference_number2,
+                storage_code=supplier.storage_code,
+                quantity=detail.net_weight,
+                supplier_id=supplier.code,
+                issue_date=yarn_weaving_dispatch.creation_date,
+            )
+
+            # upsert_result
 
         yarn_weaving_dispatch.detail = yarn_weaving_dispatch_detail
 

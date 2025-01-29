@@ -15,18 +15,18 @@ class ServiceOrderSupplyDetailService:
 
     async def _read_service_order_supply_stock(
         self,
-        product_code: str,
+        # product_code: str,
         storage_code: str,
-        period: int,
         reference_number: str,
         item_number: int,
     ) -> Result[ServiceOrderSupplyDetail, CustomException]:
-        service_order_supply_stock = await self.repository.find_service_order_supply_stock_by_product_code_and_storage_code_and_reference_number_and_item_number(
-            product_code=product_code,
-            storage_code=storage_code,
-            period=period,
-            reference_number=reference_number,
-            item_number=item_number,
+        service_order_supply_stock = (
+            await self.repository.find_service_order_supply_stock_by_id(
+                # product_code=product_code,
+                storage_code=storage_code,
+                reference_number=reference_number,
+                item_number=item_number,
+            )
         )
 
         if service_order_supply_stock is None:
@@ -130,16 +130,14 @@ class ServiceOrderSupplyDetailService:
     async def rollback_current_stock(
         self,
         storage_code: str,
-        period: int,
-        product_code: str,
+        # product_code: str,
         reference_number: str,
         item_number: int,
         quantity: int,
     ) -> Result[None, CustomException]:
         service_order_supply_stock = await self._read_service_order_supply_stock(
-            product_code=product_code,
+            # product_code=product_code,
             storage_code=storage_code,
-            period=period,
             reference_number=reference_number,
             item_number=item_number,
         )
@@ -150,7 +148,9 @@ class ServiceOrderSupplyDetailService:
         service_order_supply_stock: ServiceOrderSupplyDetail = (
             service_order_supply_stock.value
         )
-        service_order_supply_stock.stkact -= quantity
+        service_order_supply_stock.current_stock -= quantity
+        service_order_supply_stock.provided_quantity -= quantity
+        service_order_supply_stock.quantity_dispatched -= quantity
         await self.repository.save(service_order_supply_stock, flush=True)
 
         return Success(None)
