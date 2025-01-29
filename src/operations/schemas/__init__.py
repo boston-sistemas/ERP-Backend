@@ -41,7 +41,7 @@ from .orden_compra_schema import (
     OrdenCompraSimpleSchema,
     OrdenCompraWithDetailSchema,
     OrdenCompraWithDetallesListSchema,
-    # OrdenCompraBase,
+    YarnPurchaseOrderListSchema,
     YarnPurchaseOrderSchema,
 )
 from .orden_servicio_tejeduria_detalle_schema import (
@@ -273,4 +273,5 @@ __all__ = [
     "YarnWeavingDispatchListSchema",
     "YarnWeavingDispatchFilterParams",
     "ServiceOrderFilterParams",
+    "YarnPurchaseOrderListSchema",
 ]

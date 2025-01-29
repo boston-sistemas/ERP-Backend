@@ -119,9 +119,6 @@ class BaseRepository(Generic[ModelType]):
         else:
             results = (await self.db.execute(stmt)).scalars().all()
 
-        for obj in results:
-            await self.db.refresh(obj)
-
         return results
 
     async def count(self, filter: BinaryExpression = None) -> int:

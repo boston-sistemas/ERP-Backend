@@ -54,3 +54,7 @@ class OrdenCompraWithDetailSchema(OrdenCompraBase):
 
 class OrdenCompraWithDetallesListSchema(CustomBaseModel):
     ordenes: list[OrdenCompraWithDetailSchema]
+
+
+class YarnPurchaseOrderListSchema(CustomBaseModel):
+    yarn_orders: list[YarnPurchaseOrderSchema] | None = []

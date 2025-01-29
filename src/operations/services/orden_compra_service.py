@@ -11,7 +11,10 @@ from src.operations.repositories import (
     OrdenCompraRepository,
     PurchaseOrderDetailRepository,
 )
-from src.operations.schemas import OrdenCompraWithDetailSchema
+from src.operations.schemas import (
+    OrdenCompraWithDetailSchema,
+    YarnPurchaseOrderListSchema,
+)
 
 
 class OrdenCompraService:
@@ -24,9 +27,12 @@ class OrdenCompraService:
         period: int,
         include_detalle: bool = False,
     ) -> list[OrdenCompra]:
-        return await self.repository.find_ordenes_yarn(
+        yarn_orders = await self.repository.find_ordenes_yarn(
             period=period, include_detalle=include_detalle
         )
+
+        print("-asdasdasdsadsadsa")
+        return Success(YarnPurchaseOrderListSchema(yarn_orders=yarn_orders))
 
     async def _read_purchase_yarn_order(
         self,

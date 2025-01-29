@@ -719,7 +719,7 @@ class YarnWeavingDispatchService(MovementService):
                 service_order_number=service_order_id,
                 storage_code=supplier.storage_code,
                 quantity=detail.net_weight,
-                supplier_code=supplier.code,
+                supplier_id=supplier.code,
                 issue_date=creation_date,
             )
             if creation_result.is_failure:
@@ -1285,7 +1285,7 @@ class YarnWeavingDispatchService(MovementService):
                     yarn_weaving_dispatch_detail_aux_result
                 )
 
-            service_order_supply_detail = await self._upsert_service_order_supply_stock(
+            upsert_result = await self._upsert_service_order_supply_stock(
                 period=period,
                 yarn_id=detail._yarn_purchase_entry_heavy.yarn_id,
                 fabric_id=detail.fabric_id,
@@ -1297,7 +1297,14 @@ class YarnWeavingDispatchService(MovementService):
                 issue_date=yarn_weaving_dispatch.creation_date,
             )
 
-            # upsert_result
+            if upsert_result.is_failure:
+                return upsert_result
+
+            service_order_supply_detail: ServiceOrderSupplyDetail = upsert_result.value
+
+            yarn_weaving_dispatch_detail_result.item_number_supply = (
+                service_order_supply_detail.item_number
+            )
 
         yarn_weaving_dispatch.detail = yarn_weaving_dispatch_detail
 
@@ -1350,10 +1357,6 @@ class YarnWeavingDispatchService(MovementService):
 
         supplier = supplier_result.value
 
-        # await self.anulate_service_order(
-        #     service_order_number=yarn_weaving_dispatch.reference_number2,
-        # )
-
         anulate_result = await self._anulate_yarn_entry_with_dispatch(
             entry_number=yarn_weaving_dispatch.reference_number1,
             period=period,
@@ -1363,14 +1366,6 @@ class YarnWeavingDispatchService(MovementService):
             return anulate_result
 
         for detail in yarn_weaving_dispatch.detail:
-            # await self.service_order_supply_service.annul_service_order_supply_stock(
-            #     product_code=detail.product_code,
-            #     period=period,
-            #     storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
-            #     reference_number=yarn_weaving_dispatch.reference_number2,
-            #     item_number=detail.item_number,
-            # )
-
             detail.status_flag = "A"
             detail.detail_aux.status_flag = "A"
 
