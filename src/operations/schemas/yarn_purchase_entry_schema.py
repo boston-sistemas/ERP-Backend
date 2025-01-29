@@ -13,7 +13,7 @@ from src.operations.constants import (
 )
 
 from .orden_compra_schema import OrdenCompraWithDetailSchema
-from .promec_status_schema import PromecStatusSchema
+from .promec_schema import PromecStatusSchema
 from .yarn_purchase_entry_detail_schema import (
     YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntryDetailSimpleSchema,

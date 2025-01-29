@@ -10,7 +10,7 @@ from src.operations.constants import (
     SERVICE_ORDER_ID_MAX_LENGTH,
 )
 
-from .promec_status_schema import PromecStatusSchema
+from .promec_schema import PromecStatusSchema
 from .yarn_weaving_dispatch_detail_schema import (
     YarnWeavingDispatchDetailCreateSchema,
     YarnWeavingDispatchDetailUpdateSchema,

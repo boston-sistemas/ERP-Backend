@@ -8,7 +8,10 @@ from .orden_compra_detalle_schema import (
     OrdenCompraDetalleBase,
     YarnPurchaseOrderDetailSchema,
 )
-from .promec_status_schema import PromecStatusSchema
+from .promec_schema import (
+    PromecCurrencySchema,
+    PromecStatusSchema,
+)
 
 
 class OrdenCompraBase(CustomBaseModel):
@@ -20,7 +23,7 @@ class OrdenCompraBase(CustomBaseModel):
     due_date: date | None
     payment_method: str | None
     status_flag: str | None = Field(exclude=True)
-    currency_code: int
+    currency_code: int | None = Field(exclude=True)
 
     class Config:
         from_attributes = True
@@ -37,6 +40,14 @@ class OrdenCompraSimpleSchema(OrdenCompraBase):
 
 
 class YarnPurchaseOrderSchema(OrdenCompraBase):
+    promec_currency: PromecCurrencySchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_currency(self):
+        if self.currency_code is not None:
+            self.promec_currency = PromecCurrencySchema(currency_id=self.currency_code)
+        return self
+
     promec_status: PromecStatusSchema | None = Field(default=None)
 
     @model_validator(mode="after")

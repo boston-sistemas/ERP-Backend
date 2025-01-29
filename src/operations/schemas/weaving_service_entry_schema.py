@@ -12,7 +12,7 @@ from src.operations.constants import (
     SUPPLIER_CODE_MAX_LENGTH,
 )
 
-from .promec_status_schema import PromecStatusSchema
+from .promec_schema import PromecStatusSchema
 from .weaving_service_entry_detail_schema import (
     WeavingServiceEntryDetailCreateSchema,
     WeavingServiceEntryDetailSchema,
