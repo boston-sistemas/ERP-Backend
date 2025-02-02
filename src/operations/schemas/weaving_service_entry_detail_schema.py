@@ -104,8 +104,10 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     tint_supplier_color_id: str | None = Field(
         default=None, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
     )
+    generate_cards: bool | None = Field(default=False)
+
     _fabric: FabricSchema | None = None
-    _service_orders_stock: list[ServiceOrderSupplyDetail] | None = None
+    _service_orders_supply_stock: list[ServiceOrderSupplyDetail] | None = None
 
     # Posible forma de encapsular la validación de los campos
     @model_validator(mode="after")

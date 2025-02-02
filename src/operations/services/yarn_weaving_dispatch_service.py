@@ -1014,11 +1014,10 @@ class YarnWeavingDispatchService(MovementService):
             include_detail=True,
             include_detail_entry=True,
         )
-
-        current_time = calculate_time(tz=PERU_TIMEZONE)
-
         if yarn_weaving_dispatch_result.is_failure:
             return yarn_weaving_dispatch_result
+
+        current_time = calculate_time(tz=PERU_TIMEZONE)
 
         yarn_weaving_dispatch: Movement = yarn_weaving_dispatch_result.value
         self.repository.expunge(yarn_weaving_dispatch)

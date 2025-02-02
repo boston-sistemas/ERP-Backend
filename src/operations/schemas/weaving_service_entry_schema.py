@@ -92,7 +92,6 @@ class WeavingServiceEntryCreateSchema(CustomBaseModel):
     supplier_id: str = Field(max_length=SUPPLIER_CODE_MAX_LENGTH)
     fecgf: date
 
-    generate_cards: bool | None = Field(default=False)
     detail: list[WeavingServiceEntryDetailCreateSchema] = []
 
     @model_validator(mode="after")

@@ -178,7 +178,7 @@ class ServiceOrderSupplyDetailService:
         service_order_supply_stock: ServiceOrderSupplyDetail = (
             service_order_supply_stock.value
         )
-        service_order_supply_stock.stkact += new_stock
+        service_order_supply_stock.current_stock += new_stock
 
         await self.repository.save(service_order_supply_stock, flush=True)
 
@@ -191,27 +191,30 @@ class ServiceOrderSupplyDetailService:
         quantity: int,
     ) -> Result[None, CustomException]:
         for service_order_supply_stock in service_orders_stock:
-            if service_order_supply_stock.product_code == yarn_id:
-                if service_order_supply_stock.stkact <= 0:
+            if service_order_supply_stock.supply_id == yarn_id:
+                if service_order_supply_stock.current_stock <= 0:
                     continue
 
                 if quantity <= 0:
                     break
 
-                if service_order_supply_stock.stkact <= quantity:
-                    quantity -= service_order_supply_stock.stkact
-                    service_order_supply_stock.stkact = 0
+                if service_order_supply_stock.current_stock <= quantity:
+                    quantity -= service_order_supply_stock.current_stock
+                    service_order_supply_stock.current_stock = 0
+                    service_order_supply_stock.quantity_received += quantity
                 else:
-                    service_order_supply_stock.stkact -= quantity
+                    service_order_supply_stock.current_stock -= quantity
+                    service_order_supply_stock.quantity_received += quantity
                     quantity = 0
                 await self.repository.save(service_order_supply_stock, flush=True)
 
         if quantity > 0:
             if service_orders_stock:
                 if service_orders_stock[-1].product_code == yarn_id:
-                    service_orders_stock[-1].stkact = max(
-                        service_orders_stock[-1].stkact - quantity, 0
+                    service_orders_stock[-1].current_stock = max(
+                        service_orders_stock[-1].current_stock - quantity, 0
                     )
+                    service_orders_stock[-1].quantity_received += quantity
                     await self.repository.save(service_orders_stock[-1], flush=True)
         return Success(None)
 
@@ -222,36 +225,42 @@ class ServiceOrderSupplyDetailService:
         quantity: int,
     ) -> Result[None, CustomException]:
         for service_order_supply_stock in service_orders_stock:
-            if service_order_supply_stock.product_code == yarn_id:
+            if service_order_supply_stock.supply_id == yarn_id:
                 if quantity <= 0:
                     break
 
                 if (
-                    service_order_supply_stock.stkact
+                    service_order_supply_stock.current_stock
                     == service_order_supply_stock.provided_quantity
                 ):
                     continue
 
                 if (
-                    service_order_supply_stock.stkact + quantity
+                    service_order_supply_stock.current_stock + quantity
                     <= service_order_supply_stock.provided_quantity
                 ):
-                    service_order_supply_stock.stkact += quantity
+                    service_order_supply_stock.current_stock += quantity
+                    service_order_supply_stock.quantity_received -= quantity
                     quantity = 0
                 else:
                     quantity -= (
                         service_order_supply_stock.provided_quantity
                         - service_order_supply_stock.stkact
                     )
-                    service_order_supply_stock.stkact = (
+                    service_order_supply_stock.current_stock = (
                         service_order_supply_stock.provided_quantity
+                    )
+                    service_order_supply_stock.quantity_received -= (
+                        service_order_supply_stock.provided_quantity
+                        - service_order_supply_stock.stkact
                     )
 
                 await self.repository.save(service_order_supply_stock, flush=True)
 
         if quantity > 0:
             if service_order_supply_stock:
-                service_order_supply_stock[-1].stkact += quantity
+                service_order_supply_stock[-1].current_stock += quantity
+                service_order_supply_stock[-1].quantity_received -= quantity
                 await self.repository.save(service_order_supply_stock[-1], flush=True)
 
         return Success(service_orders_stock)
@@ -262,7 +271,13 @@ class ServiceOrderSupplyDetailService:
         quantity: int,
         service_orders_stock: list[ServiceOrderSupplyDetail],
     ) -> Result[None, CustomException]:
-        service_orders_stock = service_orders_stock[::-1]
+        service_orders_stock = sorted(
+            service_orders_stock,
+            key=lambda x: (
+                x.item_number is None,
+                x.item_number if x.item_number is not None else float("inf"),
+            ),
+        )
         for yarn in fabric.recipe:
             quantity_yarn = (yarn.proportion / 100.0) * quantity
 
@@ -285,6 +300,13 @@ class ServiceOrderSupplyDetailService:
         quantity: int,
         service_orders_stock: list[ServiceOrderSupplyDetail],
     ) -> Result[None, CustomException]:
+        service_orders_stock = sorted(
+            service_orders_stock,
+            key=lambda x: (
+                x.item_number is None,
+                x.item_number if x.item_number is not None else float("inf"),
+            ),
+        )
         for yarn in fabric.recipe:
             quantity_yarn = (yarn.proportion / 100.0) * quantity
 
