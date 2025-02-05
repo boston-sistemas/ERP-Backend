@@ -4,6 +4,7 @@ from sqlalchemy import Engine, create_engine, text
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=True)
+promec_silent_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=False)
 
 
 def test_database_connection(_engine: Engine) -> bool:
@@ -53,6 +54,30 @@ def delete_tables() -> None:
 
 def create_promec_tables() -> None:
     pass
+
+
+def update_promec_tables() -> None:
+    from sqlalchemy.exc import SQLAlchemyError
+
+    from scripts.db_alter import Table, alter_tables
+
+    tables: list[Table] = alter_tables(promec_silent_engine)
+
+    with promec_silent_engine.connect() as db:
+        for table in tables:
+            logger.info(f"Actualizando tabla {table.name}...")
+            stmt = table.query_update()
+            for column in table.columns:
+                try:
+                    db.execute(text(f"{stmt}{column}"))
+                    db.commit()
+                    logger.info(
+                        f"Se agregó la columna {column.name} a la tabla {table.name}."
+                    )
+                except SQLAlchemyError as e:
+                    logger.error(
+                        f"Error al actualizar tabla {table.name} con la columna {column.name}: {str(e)}"
+                    )
 
 
 def create_promec_sequences() -> None:

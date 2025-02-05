@@ -42,9 +42,10 @@ def drop_tables():
 @cli.command()
 def init_promec_db():
     """Initialize promec database: create tables and sequences"""
-    from db import create_promec_sequences, create_promec_tables
+    from db import create_promec_sequences, create_promec_tables, update_promec_tables
 
     create_promec_tables()
+    update_promec_tables()
     create_promec_sequences()
 
 

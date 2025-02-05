@@ -14,6 +14,9 @@ install_precommit:
 init-db:
 	python3 scripts/cli.py init-db
 
+init-promec-db:
+	python3 scripts/cli.py init-promec-db
+
 populate-all:
 	python3 initial_data/scripts/populate_all.py
 
