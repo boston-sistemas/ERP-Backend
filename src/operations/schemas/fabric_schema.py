@@ -54,10 +54,10 @@ class FabricListSchema(CustomBaseModel):
 class FabricRecipeItemSimpleSchema(CustomBaseModel):
     yarn_id: str = Field(max_length=YARN_ID_MAX_LENGTH)
     proportion: float = Field(gt=0.0)
-    num_plies: int = Field(default=1, ge=1, le=100)
-    galgue: float = Field(default=0.0, ge=0.0)
-    diameter: float = Field(default=0.0, ge=0.0)
-    stitch_length: float = Field(default=0.0, ge=0.0)
+    num_plies: int | None = Field(default=1, ge=1, le=100)
+    galgue: float | None = Field(default=0.0, ge=0.0)
+    diameter: float | None = Field(default=0.0, ge=0.0)
+    stitch_length: float | None = Field(default=0.0, ge=0.0)
 
     class Config:
         from_attributes = True
