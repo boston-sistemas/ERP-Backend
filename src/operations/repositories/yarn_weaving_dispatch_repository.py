@@ -156,6 +156,8 @@ class YarnWeavingDispatchRepository(MovementRepository):
         limit: int = None,
         offset: int = None,
         include_annulled: bool = False,
+        include_detail: bool = False,
+        apply_unique: bool = False,
         filter: BinaryExpression = None,
     ) -> list[Movement]:
         base_filter = (
@@ -185,13 +187,16 @@ class YarnWeavingDispatchRepository(MovementRepository):
 
         filter = base_filter & filter if filter is not None else base_filter
 
-        options = self.get_load_options()
+        options = self.get_load_options(
+            include_detail=include_detail,
+        )
 
         yarn_weaving_dispatches = await self.find_movements(
             filter=filter,
             options=options,
             limit=limit,
             offset=offset,
+            apply_unique=apply_unique,
             order_by=Movement.creation_date.desc(),
         )
 

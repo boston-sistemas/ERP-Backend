@@ -7,6 +7,9 @@ stop: stop_db stop_mailhog
 
 setup: start_dependencies install_requirements install_precommit display_odbc_message install_unixodbc
 
+venv:
+	source ./venv/bin/activate
+
 install_precommit:
 	pip install pre-commit
 	pre-commit install
@@ -15,9 +18,11 @@ init-db:
 	python3 scripts/cli.py init-db
 
 init-promec-db:
+	# source ./venv/bin/activate
 	python3 scripts/cli.py init-promec-db
 
 populate-all:
+	# source ./venv/bin/activate
 	python3 initial_data/scripts/populate_all.py
 
 start_server: start_dependencies

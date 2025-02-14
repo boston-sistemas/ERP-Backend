@@ -51,6 +51,10 @@ class YarnPurchaseEntryBase(CustomBaseModel):
             return None
         return value.strftime("%d-%m-%Y")
 
+    @field_serializer("supplier_batch")
+    def serialize_supplier_batch(value: str | None) -> str | None:
+        return value.upper() or None
+
     class Config:
         from_attributes = True
 

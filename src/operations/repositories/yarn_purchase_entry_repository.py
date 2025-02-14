@@ -14,6 +14,7 @@ from src.operations.constants import (
 from src.operations.models import (
     Movement,
     MovementDetail,
+    MovementDetailAux,
     OrdenCompra,
     OrdenCompraDetalle,
 )
@@ -63,7 +64,9 @@ class YarnPurchaseEntryRepository(MovementRepository):
     @staticmethod
     def include_details(include_heavy: bool = True) -> list[Load]:
         base_options = [
-            joinedload(Movement.detail).joinedload(MovementDetail.detail_aux)
+            joinedload(Movement.detail)
+            .joinedload(MovementDetail.detail_aux)
+            .defer(MovementDetailAux._supplier_batch),
         ]
 
         if include_heavy:
@@ -133,6 +136,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
         self,
         period: int,
         entry_number: str = None,
+        apply_unique: bool = False,
         include_annulled: bool = False,
         supplier_ids: list[str] = None,
         purchase_order_number: str = None,
@@ -140,6 +144,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
         mecsa_batch: str = None,
         start_date: date = None,
         end_date: date = None,
+        include_detail: bool = False,
         limit: int = None,
         offset: int = None,
         filter: BinaryExpression = None,
@@ -182,13 +187,14 @@ class YarnPurchaseEntryRepository(MovementRepository):
             base_filter = base_filter & (Movement.creation_date <= end_date)
 
         filter = base_filter & filter if filter is not None else base_filter
-        options = self.get_load_options()
+        options = self.get_load_options(include_detail=include_detail)
 
         yarn_purchase_entries = await self.find_movements(
             filter=filter,
             options=options,
             limit=limit,
             offset=offset,
+            apply_unique=apply_unique,
             order_by=Movement.creation_date.desc(),
         )
 

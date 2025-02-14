@@ -62,9 +62,6 @@ class BaseRepository(Generic[ModelType]):
 
         result = (await self.db.execute(stmt)).scalars().unique().one_or_none()
 
-        if result is not None:
-            await self.db.refresh(result)
-
         return result
 
     async def find_by_id(

@@ -1,10 +1,21 @@
 from config import settings
 from loguru import logger
 from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.ext.asyncio import create_async_engine
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=True)
 promec_silent_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=False)
+promec_async_silent_engine = create_async_engine(
+    settings.PROMEC_DATABASE_URL_ASYNC,
+    echo=False,
+    query_cache_size=0,
+)
+pcp_async_silent_engine = create_async_engine(
+    settings.PCP_DATABASE_URL_ASYNC,
+    echo=False,
+    query_cache_size=0,
+)
 
 
 def test_database_connection(_engine: Engine) -> bool:
@@ -78,6 +89,22 @@ def update_promec_tables() -> None:
                     logger.error(
                         f"Error al actualizar tabla {table.name} con la columna {column.name}: {str(e)}"
                     )
+
+
+async def update_promec_rows() -> None:
+    from data_parser import DataParser
+
+    data_parser = DataParser(
+        promec_engine=promec_async_silent_engine,
+        pcp_engine=pcp_async_silent_engine,
+    )
+
+    # await data_parser.parse_yarn_purchase_entry_heavies()
+    # await data_parser.parse_period_yarn_purchase_entries(2024)
+    # await data_parser.parse_period_yarn_purchase_entries(2025)
+    await data_parser.parse_period_service_order_weaving(2025)
+    # await data_parser.parse_period_yarn_weaving_dispatches(2024)
+    await promec_async_silent_engine.dispose()
 
 
 def create_promec_sequences() -> None:

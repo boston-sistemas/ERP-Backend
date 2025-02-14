@@ -864,54 +864,6 @@ class Movement(PromecBase):
         {"schema": "PUB"},
     )
 
-    def __repr__(self):
-        return (
-            f"<Movement(\n"
-            f"    codcia={self.company_code},\n"
-            f"    codalm={self.storage_code},\n"
-            f"    tpomov={self.movement_type},\n"
-            f"    codmov={self.movement_code},\n"
-            f"    coddoc={self.document_code},\n"
-            f"    nrodoc={self.document_number},\n"
-            f"    periodo={self.period}\n"
-            f"    creation_date={self.creation_date},\n"
-            f"    creation_time={self.creation_time},\n"
-            f"    currency_code={self.currency_code},\n"
-            f"    exchange_rate={self.exchange_rate},\n"
-            f"    document_note={self.document_note},\n"
-            f"    clfaux={self.clfaux},\n"
-            f"    auxiliary_code={self.auxiliary_code},\n"
-            f"    status_flag={self.status_flag},\n"
-            f"    user_id={self.user_id},\n"
-            f"    auxiliary_name={self.auxiliary_name},\n"
-            f"    reference_document={self.reference_document},\n"
-            f"    reference_number2={self.reference_number2},\n"
-            f"    nrogf={self.nrogf},\n"
-            f"    sergf={self.sergf},\n"
-            f"    fecgf={self.fecgf},\n"
-            f"    origmov={self.origmov},\n"
-            f"    annulment_date={self.annulment_date},\n"
-            f"    annulment_user_id={self.annulment_user_id},\n"
-            f"    serial_number={self.serial_number},\n"
-            f"    printed_flag={self.printed_flag},\n"
-            f"    flgact={self.flgact},\n"
-            f"    flgtras={self.flgtras},\n"
-            f"    flgreclamo={self.flgreclamo},\n"
-            f"    flgsit={self.flgsit},\n"
-            f"    voucher_number={self.voucher_number},\n"
-            f"    servadi={self.servadi},\n"
-            f"    tarfservadi={self.tarfservadi},\n"
-            f"    fchcp={self.fchcp},\n"
-            f"    flgcbd={self.flgcbd},\n"
-            f"    origin_station={self.origin_station},\n"
-            f"    undpesobrutototal={self.undpesobrutototal},\n"
-            f"    transaction_mode={self.transaction_mode},\n"
-            f"    intentosenvele={self.intentosenvele},\n"
-            f"    supplier_batch={self.supplier_batch},\n"
-            f"    mecsa_batch={self.mecsa_batch}\n"
-            f")>"
-        )
-
 
 class MovementDetail(PromecBase):
     __tablename__ = "almdmovi"
@@ -1078,7 +1030,7 @@ class MovementDetail(PromecBase):
         ],
     )
 
-    detail_heavy = relationship(
+    detail_heavy: Mapped[list["MovementYarnOCHeavy"]] = relationship(
         "MovementYarnOCHeavy",
         viewonly=True,
         lazy="noload",
@@ -1119,40 +1071,6 @@ class MovementDetail(PromecBase):
         {"schema": "PUB"},
     )
 
-    def __repr__(self):
-        return (
-            f"<MovementDetail(\n"
-            f"    codcia={self.company_code},\n"
-            f"    codalm={self.storage_code},\n"
-            f"    tpomov={self.movement_type},\n"
-            f"    codmov={self.movement_code},\n"
-            f"    coddoc={self.document_code},\n"
-            f"    nrodoc={self.document_number},\n"
-            f"    nroitm={self.item_number},\n"
-            f"    periodo={self.period},\n"
-            f"    creation_date={self.creation_date},\n"
-            f"    creation_time={self.creation_time},\n"
-            f"    codprod={self.product_code},\n"
-            f"    codund={self.unit_code},\n"
-            f"    factor={self.factor},\n"
-            f"    mecsa_weight={self.mecsa_weight},\n"
-            f"    guide_gross_weight={self.guide_gross_weight},\n"
-            f"    precto={self.precto},\n"
-            f"    impcto={self.impcto},\n"
-            f"    currency_code={self.currency_code},\n"
-            f"    exchange_rate={self.exchange_rate},\n"
-            f"    impmn1={self.impmn1},\n"
-            f"    impmn2={self.impmn2},\n"
-            f"    stkgen={self.stkgen},\n"
-            f"    stkalm={self.stkalm},\n"
-            f"    ctomn1={self.ctomn1},\n"
-            f"    ctomn2={self.ctomn2},\n"
-            f"    status_flag={self.status_flag},\n"
-            f"    is_weighted={self.is_weighted}\n"
-            f"    nrotarj={self.nrotarj},\n"
-            f")>"
-        )
-
 
 class MovementDetailAux(PromecBase):
     __tablename__ = "detauxmov"
@@ -1188,9 +1106,14 @@ class MovementDetailAux(PromecBase):
     mecsa_batch: Mapped[str] = mapped_column(
         "lotem", String(length=MECSA_BATCH_MAX_LENGTH)
     )
-    supplier_batch: Mapped[str] = mapped_column(
+    _supplier_batch: Mapped[str] = mapped_column(
         "lotep", String(length=SUPPLIER_BATCH_MAX_LENGTH)
     )
+
+    supplier_batch: Mapped[str] = column_property(
+        func.substr(_supplier_batch, literal_column("1"), literal_column("255"))
+    )
+
     reference_number: Mapped[str] = mapped_column(
         "nroref", String(length=REFERENCE_NUMBER_MAX_LENGTH)
     )
@@ -1322,26 +1245,6 @@ class MovementYarnOCHeavy(PromecBase):
         PrimaryKeyConstraint("codcia", "codprod", "grupo", "nroitm", "nroing"),
         {"schema": "PUB"},
     )
-
-    def __repr__(self):
-        return (
-            f"<MovementYarnOCHeavy(\n"
-            f"    codcia={self.company_code},\n"
-            f"    codprod={self.yarn_id},\n"
-            f"    grupo={self.group_number},\n"
-            f"    nroing={self.ingress_number},\n"
-            # f"    periodo={self.period},\n"
-            f"    nroitm={self.item_number},\n"
-            f"    nrosal={self.exit_number},\n"
-            f"    flgest={self.status_flag},\n"
-            f"    nroconos={self.cone_count},\n"
-            f"    nrobolsas={self.package_count},\n"
-            f"    pesoneto={self.net_weight},\n"
-            f"    pesobrto={self.gross_weight},\n"
-            f"    flgdesp={self.dispatch_status},\n"
-            f"    nrobolsasrest={self.packages_left}\n"
-            f")>"
-        )
 
 
 class FabricWarehouse(PromecBase):

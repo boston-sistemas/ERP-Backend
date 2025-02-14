@@ -1,3 +1,5 @@
+import asyncio
+
 import click
 
 
@@ -47,6 +49,13 @@ def init_promec_db():
     create_promec_tables()
     update_promec_tables()
     create_promec_sequences()
+
+
+@cli.command()
+def pruebas():
+    from db import update_promec_rows
+
+    asyncio.run(update_promec_rows())
 
 
 @cli.command()

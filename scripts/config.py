@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     )
     DATABASE_URL: str
     PROMEC_DATABASE_URL: str
+    PROMEC_DATABASE_URL_ASYNC: str
+    PCP_DATABASE_URL_ASYNC: str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
