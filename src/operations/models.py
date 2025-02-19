@@ -589,6 +589,21 @@ class ServiceOrderDetail(PromecBase):
     price: Mapped[float] = mapped_column("precto")
     status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
 
+    supply_stock: Mapped[list["ServiceOrderSupplyDetail"]] = relationship(
+        "ServiceOrderSupplyDetail",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            ServiceOrderDetail.company_code == ServiceOrderSupplyDetail.company_code,
+            ServiceOrderDetail.order_id == ServiceOrderSupplyDetail.reference_number,
+        ),
+        single_parent=True,
+        viewonly=True,
+        foreign_keys=lambda: [
+            ServiceOrderSupplyDetail.company_code,
+            ServiceOrderSupplyDetail.reference_number,
+        ],
+    )
+
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "nroos", "tpoos", "codprod"),
         {"schema": "PUB"},
@@ -622,14 +637,14 @@ class ServiceOrderSupplyDetail(PromecBase):
         "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
     period: Mapped[int] = mapped_column("periodo")
-    supply_id: Mapped[str] = mapped_column(
-        "insumo_id", String(length=PRODUCT_CODE_MAX_LENGTH)
+    product_code1: Mapped[str] = mapped_column(
+        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
+    product_code2: Mapped[str] = mapped_column(
+        "codprod2", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     item_number: Mapped[str] = mapped_column(
         "nroitm", String(length=PRODUCT_CODE_MAX_LENGTH)
-    )
-    product_code: Mapped[str] = mapped_column(
-        "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     reference_number: Mapped[str] = mapped_column(
         "refnro", String(length=REFERENCE_NUMBER_MAX_LENGTH)
@@ -655,7 +670,7 @@ class ServiceOrderSupplyDetail(PromecBase):
     quantity_dispatched: Mapped[float] = mapped_column("cantsal")
 
     __table_args__ = (
-        PrimaryKeyConstraint("codcia", "insumo_id", "refnro", "nroitm"),
+        PrimaryKeyConstraint("codcia", "codprod", "refnro", "nroitm"),
         {"schema": "PUB"},
     )
 
@@ -1281,8 +1296,11 @@ class FabricWarehouse(PromecBase):
     yarn_supplier_id: Mapped[str] = mapped_column(
         "prohil", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
-    service_order_id: Mapped[str] = mapped_column(
+    _service_order_id: Mapped[str] = mapped_column(
         "nroserv", String(length=SERVICE_ORDER_ID_MAX_LENGTH)
+    )
+    service_order_id: Mapped[str] = column_property(
+        func.substr(_service_order_id, literal_column("1"), literal_column("255"))
     )
     tint_supplier_id: Mapped[str] = mapped_column(
         "protin", String(length=SUPPLIER_CODE_MAX_LENGTH)

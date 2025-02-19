@@ -3,6 +3,7 @@ from datetime import date
 from pydantic import Field, field_serializer
 
 from src.core.schemas import CustomBaseModel
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.security.schemas import ParameterValueSchema
 
 from .service_order_detail_schema import (
@@ -49,6 +50,9 @@ class ServiceOrderListSchema(CustomBaseModel):
 
 class ServiceOrderFilterParams(CustomBaseModel):
     supplier_ids: list[str] | None = Field(default=None)
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
     limit: int | None = Field(default=10, ge=1, le=100)
     offset: int | None = Field(default=0, ge=0)
     include_annulled: bool | None = Field(default=False)
