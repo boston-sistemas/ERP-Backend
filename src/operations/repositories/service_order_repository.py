@@ -29,6 +29,7 @@ class ServiceOrderRepository(BaseRepository[ServiceOrder]):
     async def find_service_orders_by_order_type(
         self,
         order_type: str,
+        order_id: str = None,
         period: int = None,
         supplier_ids: list[str] = None,
         include_detail: bool = False,
@@ -47,6 +48,9 @@ class ServiceOrderRepository(BaseRepository[ServiceOrder]):
 
         if not include_annulled:
             base_filter = base_filter & (ServiceOrder.status_flag == "P")
+
+        if order_id:
+            base_filter = base_filter & (ServiceOrder.id.like(f"%{order_id}%"))
 
         if supplier_ids:
             base_filter = base_filter & (ServiceOrder.supplier_id.in_(supplier_ids))
