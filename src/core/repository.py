@@ -152,3 +152,6 @@ class BaseRepository(Generic[ModelType]):
 
     async def expunge(self, object: ModelType) -> None:
         self.db.expunge(object)
+
+    async def refresh(self, object: ModelType) -> None:
+        await self.db.refresh(object)
