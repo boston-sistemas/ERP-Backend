@@ -2,6 +2,14 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
+from src.security.constants import (
+    MAX_LENGTH_ACCESO_DESCRIPTION,
+    MAX_LENGTH_ACCESO_IMAGE_PATH,
+    MAX_LENGTH_ACCESO_NOMBRE,
+    MAX_LENGTH_ACCESO_SCOPE,
+    MAX_LENGTH_ACCESO_VIEW_PATH,
+)
+
 
 class UsuarioBase(BaseModel):
     username: str = Field(min_length=1)
@@ -99,14 +107,28 @@ class AccesoBase(BaseModel):
     nombre: str
     is_active: bool
 
-
-class AccesoSimpleSchema(AccesoBase):
     class Config:
         from_attributes = True
 
 
+class AccesoSimpleSchema(AccesoBase):
+    pass
+
+
+class AccessCreateSchema(BaseModel):
+    name: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_NOMBRE)
+    scope: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_SCOPE)
+    system_module_id: int
+    view_path: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_VIEW_PATH)
+    image_path: str | None = Field(
+        None, min_length=1, max_length=MAX_LENGTH_ACCESO_IMAGE_PATH
+    )
+    description: str | None = Field("", max_length=MAX_LENGTH_ACCESO_DESCRIPTION)
+    is_active: bool = Field(default=True)
+
+
 class AccesoSchema(AccesoBase):
-    roles: list[RolSimpleSchema]
+    roles: list[RolSimpleSchema] = []
 
 
 class AccesoListSchema(BaseModel):

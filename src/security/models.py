@@ -21,6 +21,7 @@ from src.security.constants import (
     MAX_LENGTH_ACCESO_VIEW_PATH,
     MAX_LENGTH_MODULO_IMAGE_PATH,
     MAX_LENGTH_MODULO_NOMBRE,
+    MAX_LENGTH_OPERATION_NAME,
     MAX_LENGTH_ROL_NOMBRE,
     MAX_LENGTH_SESION_IP,
     MAX_LENGTH_TOKEN_AUTENTICACION_CODIGO,
@@ -97,16 +98,27 @@ class UsuarioRol(Base):
     )
 
 
-class RolAcceso(Base):
-    __tablename__ = "rol_acceso"
+class Operation(Base):
+    __tablename__ = "operacion"
+
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    name: Mapped[str] = mapped_column(String(length=MAX_LENGTH_OPERATION_NAME))
+
+    __table_args__ = (PrimaryKeyConstraint("id"),)
+
+
+class RolAccesoOperation(Base):
+    __tablename__ = "rol_acceso_operacion"
 
     rol_id: Mapped[int] = mapped_column()
     acceso_id: Mapped[int] = mapped_column()
+    operation_id: Mapped[int] = mapped_column()
 
     __table_args__ = (
-        PrimaryKeyConstraint("rol_id", "acceso_id"),
+        PrimaryKeyConstraint("rol_id", "acceso_id", "operation_id"),
         ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
         ForeignKeyConstraint(["acceso_id"], ["acceso.acceso_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["operation_id"], ["operacion.id"], ondelete="CASCADE"),
     )
 
 
@@ -131,6 +143,7 @@ class ModuloSistema(Base):
 
     id: Mapped[int] = mapped_column(Identity(start=1))
     name: Mapped[str] = mapped_column(String(length=MAX_LENGTH_MODULO_NOMBRE))
+    is_active: Mapped[bool] = mapped_column(default=True)
     image_path: Mapped[str | None] = mapped_column(
         String(length=MAX_LENGTH_MODULO_IMAGE_PATH)
     )

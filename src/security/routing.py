@@ -7,6 +7,7 @@ from src.security.routers import (
     parameter_public_router,
     parameter_router,
     rol_router,
+    system_module_router,
     user_router,
 )
 
@@ -29,4 +30,9 @@ router.include_router(
     parameter_public_router.router,
     prefix="/parameters/public",
     tags=["[SISTEMA] PARÁMETROS PÚBLICOS"],
+)
+router.include_router(
+    system_module_router.router,
+    prefix="/system-modules",
+    tags=["[SISTEMA] MÓDULOS DEL SISTEMA"],
 )

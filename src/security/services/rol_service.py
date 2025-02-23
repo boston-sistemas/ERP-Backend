@@ -6,9 +6,9 @@ from src.core.exceptions.http_exceptions import (
 )
 from src.core.result import Result, Success
 from src.security.failures import RolFailures
-from src.security.models import Rol, RolAcceso
+from src.security.models import Rol, RolAccesoOperation
 from src.security.repositories import (
-    RolAccesoRepository,
+    RolAccesoOperationRepository,
     RolRepository,
 )
 from src.security.schemas import (
@@ -24,7 +24,7 @@ class RolService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = RolRepository(db)
         self.acceso_service = AccesoService(db)
-        self.rol_acceso_repository = RolAccesoRepository(db)
+        self.rol_acceso_repository = RolAccesoOperationRepository(db)
 
     async def read_rol(
         self, rol_id: int, include_accesos: bool = False
@@ -118,9 +118,10 @@ class RolService:
 
     async def has_acceso(
         self, rol_id: int, acceso_id: int
-    ) -> Result[RolAcceso, CustomException]:
+    ) -> Result[RolAccesoOperation, CustomException]:
         has_acceso, rol_acceso = await self.rol_acceso_repository.exists(
-            (RolAcceso.rol_id == rol_id) & (RolAcceso.acceso_id == acceso_id)
+            (RolAccesoOperation.rol_id == rol_id)
+            & (RolAccesoOperation.acceso_id == acceso_id)
         )
 
         if has_acceso:
@@ -144,7 +145,9 @@ class RolService:
                 return RolFailures.ROL_HAS_ACCESO_WHEN_ADDING_FAILURE
 
             acceso = acceso_result.value
-            accesos_to_add.append(RolAcceso(rol_id=rol_id, acceso_id=acceso.acceso_id))
+            accesos_to_add.append(
+                RolAccesoOperation(rol_id=rol_id, acceso_id=acceso.acceso_id)
+            )
 
         await self.rol_acceso_repository.save_all(accesos_to_add)
 

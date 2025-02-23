@@ -31,11 +31,18 @@ from .parameter_schema import (
     ParameterWithCategoryListSchema,
     ParameterWithCategorySchema,
 )
+from .system_module_schema import (
+    SystemModuleCreateSchema,
+    SystemModuleFilterParams,
+    SystemModuleListSchema,
+    SystemModuleSchema,
+)
 from .token_schema import AccessTokenData, RefreshTokenData
 from .user_rol_acceso_schema import (
     AccesoListSchema,
     AccesoSchema,
     AccesoSimpleSchema,
+    AccessCreateSchema,
     RolCreateSchema,
     RolCreateWithAccesosSchema,
     RolListSchema,
@@ -95,4 +102,9 @@ __all__ = [
     "LoginWithTokenForm",
     "UsuarioUpdatePasswordSchema",
     "ServiceOrderStatusSchema",
+    "AccessCreateSchema",
+    "SystemModuleSchema",
+    "SystemModuleListSchema",
+    "SystemModuleCreateSchema",
+    "SystemModuleFilterParams",
 ]

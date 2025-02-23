@@ -16,6 +16,9 @@ from .parameter_failure import (
     PARAMETER_VALUE_CONVERSION_TO_INT_FAILURE,
 )
 from .rol_failures import RolFailures
+from .system_module_failures import (
+    SYSTEM_MODULE_NOT_FOUND_FAILURE,
+)
 from .token_failures import TokenFailures
 from .user_failures import UserFailures
 from .user_sesion_failures import UserSesionFailures
@@ -38,4 +41,5 @@ __all__ = [
     "AccesoFailures",
     "PARAMETER_NOT_FOUND_FAILURE",
     "PARAMETER_CATEGORY_NOT_FOUND_FAILURE",
+    "SYSTEM_MODULE_NOT_FOUND_FAILURE",
 ]
