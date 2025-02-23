@@ -80,3 +80,6 @@ stop_mailhog:
 	@echo "\nDeteniendo contenedor '$(MAILHOG_CONTAINER_NAME)' si está en ejecución..."
 	- docker ps --format '{{.Names}}' | grep -Fx $(MAILHOG_CONTAINER_NAME) >/dev/null 2>&1 && \
 	docker stop $(MAILHOG_CONTAINER_NAME)
+
+uvicorn start:
+	uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8000 --reload
