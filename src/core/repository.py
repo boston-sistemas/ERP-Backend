@@ -150,6 +150,10 @@ class BaseRepository(Generic[ModelType]):
     def expunge_all(self) -> None:
         self.db.expunge_all()
 
+    async def expunge_all_objects(self, objects: Sequence[ModelType]) -> None:
+        for object in objects:
+            self.db.expunge(object)
+
     async def expunge(self, object: ModelType) -> None:
         self.db.expunge(object)
 

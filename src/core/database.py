@@ -15,7 +15,10 @@ engine = create_engine(
     pool_recycle=3600,
 )
 engine_async = create_async_engine(
-    settings.DATABASE_URL_ASYNC, echo=settings.DEBUG, pool_recycle=3600
+    settings.DATABASE_URL_ASYNC,
+    echo=settings.DEBUG,
+    pool_recycle=3600,
+    query_cache_size=0,
 )
 
 promec_engine = create_engine(

@@ -110,6 +110,45 @@ class RolSchema(RolBase):
         return self
 
 
+class AccessesWithOperationsSchema(BaseModel):
+    access: "AccesoSchema" = Field(default=None, exclude=True)
+    name: str | None = None
+    path: str | None = None
+    operations: list[OperationSchema] = []
+
+    @model_validator(mode="after")
+    def set_name_and_path(self):
+        self.name = self.access.nombre
+        self.path = self.access.view_path
+        return self
+
+
+class AccessesWithOperationsListSchema(BaseModel):
+    roles: list[RolSchema] = Field(default=[], exclude=True)
+
+    access: list[AccessesWithOperationsSchema] = []
+
+    @model_validator(mode="after")
+    def set_access(self):
+        for role in self.roles:
+            for rao in role.access_operation:
+                if rao.acceso_id not in [a.access.acceso_id for a in self.access]:
+                    self.access.append(
+                        AccessesWithOperationsSchema(
+                            access=rao.acceso, operations=[rao.operation]
+                        )
+                    )
+                else:
+                    for a in self.access:
+                        if a.access.acceso_id == rao.acceso.acceso_id:
+                            if rao.operation.operation_id not in [
+                                op.operation_id for op in a.operations
+                            ]:
+                                a.operations.append(rao.operation)
+
+        return self
+
+
 class RolCreateSchema(BaseModel):
     nombre: str = Field(min_length=1)
     is_active: bool = Field(default=True)
@@ -155,6 +194,8 @@ class AccesoBase(BaseModel):
     acceso_id: int = Field(validation_alias="acceso_id")
     nombre: str
     is_active: bool | None = None
+    system_module_id: int = Field(validation_alias="modulo_id")
+    view_path: str
 
     class Config:
         from_attributes = True
