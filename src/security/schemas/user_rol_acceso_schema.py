@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from src.security.constants import (
     MAX_LENGTH_ACCESO_DESCRIPTION,
@@ -9,6 +9,8 @@ from src.security.constants import (
     MAX_LENGTH_ACCESO_SCOPE,
     MAX_LENGTH_ACCESO_VIEW_PATH,
 )
+
+from .operation_schema import OperationSchema
 
 
 class UsuarioBase(BaseModel):
@@ -61,7 +63,7 @@ class UsuarioUpdatePasswordSchema(BaseModel):
 
 
 class RolBase(BaseModel):
-    rol_id: int
+    rol_id: int = Field(validation_alias="rol_id")
     nombre: str = Field(min_length=1)
     is_active: bool = Field(default=True)
     rol_color: str
@@ -74,9 +76,38 @@ class RolSimpleSchema(RolBase):
     pass
 
 
-class RolSchema(RolBase):
+class RolAccesoOperationSchema(BaseModel):
     rol_id: int
-    accesos: list["AccesoSimpleSchema"]
+    operation_id: int
+    acceso_id: int
+    acceso: "AccesoSchema" = None
+    operation: "OperationSchema" = None
+    rol: "RolSchema" = None
+
+    class Config:
+        from_attributes = True
+
+
+class RolSchema(RolBase):
+    access_operation: list[RolAccesoOperationSchema] = Field(default=[], exclude=True)
+    access: list["AccesoSchema"] = []
+
+    @model_validator(mode="after")
+    def set_access(self):
+        for rao in self.access_operation:
+            if rao.rol_id == self.rol_id:
+                if rao.acceso_id not in [a.acceso_id for a in self.access]:
+                    rao.acceso.operations.append(rao.operation)
+                    self.access.append(rao.acceso)
+                else:
+                    for a in self.access:
+                        if a.acceso_id == rao.acceso.acceso_id:
+                            if rao.operation.operation_id not in [
+                                op.operation_id for op in a.operations
+                            ]:
+                                a.operations.append(rao.operation)
+
+        return self
 
 
 class RolCreateSchema(BaseModel):
@@ -85,8 +116,26 @@ class RolCreateSchema(BaseModel):
     rol_color: str
 
 
+class AccesoCreateWithOperationSchema(BaseModel):
+    acceso_id: int
+    operation_ids: list[int]
+
+
+class RolCreateAccessWithOperationSchema(BaseModel):
+    accesses: list[AccesoCreateWithOperationSchema] = []
+
+
+class AccesoDeleteWithOperationSchema(BaseModel):
+    acceso_id: int
+    operation_ids: list[int]
+
+
+class RolDeleteAccessWithOperationSchema(BaseModel):
+    accesses: list[AccesoDeleteWithOperationSchema] = []
+
+
 class RolCreateWithAccesosSchema(RolCreateSchema):
-    acceso_ids: list[int] | None = None
+    accesses: list[AccesoCreateWithOperationSchema]
 
 
 class RolUpdateSchema(BaseModel):
@@ -103,9 +152,9 @@ class RolListSchema(BaseModel):
 
 
 class AccesoBase(BaseModel):
-    acceso_id: int
+    acceso_id: int = Field(validation_alias="acceso_id")
     nombre: str
-    is_active: bool
+    is_active: bool | None = None
 
     class Config:
         from_attributes = True
@@ -128,7 +177,8 @@ class AccessCreateSchema(BaseModel):
 
 
 class AccesoSchema(AccesoBase):
-    roles: list[RolSimpleSchema] = []
+    operations: list[OperationSchema] = []
+    # roles: list[RolSimpleSchema] = []
 
 
 class AccesoListSchema(BaseModel):

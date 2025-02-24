@@ -6,6 +6,10 @@ from .auth_schema import (
     RefreshResponse,
     SendTokenResponse,
 )
+from .operation_schema import (
+    OperationListSchema,
+    OperationSchema,
+)
 from .parameter_category_schema import (
     ParameterCategoryCreateSchema,
     ParameterCategoryListSchema,
@@ -39,12 +43,15 @@ from .system_module_schema import (
 )
 from .token_schema import AccessTokenData, RefreshTokenData
 from .user_rol_acceso_schema import (
+    AccesoCreateWithOperationSchema,
     AccesoListSchema,
     AccesoSchema,
     AccesoSimpleSchema,
     AccessCreateSchema,
+    RolCreateAccessWithOperationSchema,
     RolCreateSchema,
     RolCreateWithAccesosSchema,
+    RolDeleteAccessWithOperationSchema,
     RolListSchema,
     RolSchema,
     RolSimpleSchema,
@@ -107,4 +114,9 @@ __all__ = [
     "SystemModuleListSchema",
     "SystemModuleCreateSchema",
     "SystemModuleFilterParams",
+    "OperationListSchema",
+    "OperationSchema",
+    "AccesoCreateWithOperationSchema",
+    "RolCreateAccessWithOperationSchema",
+    "RolDeleteAccessWithOperationSchema",
 ]

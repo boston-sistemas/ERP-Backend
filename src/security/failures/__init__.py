@@ -1,5 +1,6 @@
 from .acceso_failures import AccesoFailures
 from .auth_failures import AuthFailures
+from .operation_failures import OperationFailures
 from .parameter_category_failure import (
     PARAMETER_CATEGORY_NAME_ALREADY_EXISTS,
     PARAMETER_CATEGORY_NOT_FOUND_FAILURE,
@@ -42,4 +43,5 @@ __all__ = [
     "PARAMETER_NOT_FOUND_FAILURE",
     "PARAMETER_CATEGORY_NOT_FOUND_FAILURE",
     "SYSTEM_MODULE_NOT_FOUND_FAILURE",
+    "OperationFailures",
 ]

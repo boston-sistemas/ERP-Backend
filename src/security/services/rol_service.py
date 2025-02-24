@@ -12,36 +12,64 @@ from src.security.repositories import (
     RolRepository,
 )
 from src.security.schemas import (
+    AccesoCreateWithOperationSchema,
+    AccesoSchema,
+    RolCreateAccessWithOperationSchema,
     RolCreateSchema,
     RolCreateWithAccesosSchema,
+    RolDeleteAccessWithOperationSchema,
+    RolListSchema,
+    RolSchema,
     RolUpdateSchema,
 )
 
 from .acceso_service import AccesoService
+from .operation_service import OperationService
 
 
 class RolService:
     def __init__(self, db: AsyncSession) -> None:
         self.repository = RolRepository(db)
         self.acceso_service = AccesoService(db)
-        self.rol_acceso_repository = RolAccesoOperationRepository(db)
+        self.rol_acceso_operation_repository = RolAccesoOperationRepository(db)
+        self.operation_service = OperationService(db=db)
+
+    async def _read_rol(
+        self, rol_id: int, include_access_operation: bool = False
+    ) -> Result[Rol, CustomException]:
+        rol: Rol = await self.repository.find_rol_by_id(
+            rol_id=rol_id,
+            include_access_operation=include_access_operation,
+        )
+
+        if rol is None:
+            return RolFailures.ROL_NOT_FOUND_FAILURE
+
+        return Success(rol)
 
     async def read_rol(
-        self, rol_id: int, include_accesos: bool = False
+        self, rol_id: int, include_access_operation: bool = False
     ) -> Result[Rol, CustomException]:
-        rol = await self.repository.find_rol(
-            Rol.rol_id == rol_id, include_accesos=include_accesos
+        rol: Success = await self._read_rol(
+            rol_id=rol_id, include_access_operation=include_access_operation
         )
 
-        if rol is not None:
-            return Success(rol)
+        if rol.is_failure:
+            return rol
 
-        return RolFailures.ROL_NOT_FOUND_FAILURE
+        return Success(RolSchema.model_validate(rol.value))
 
-    async def read_roles(self) -> list[Rol]:
-        return await self.repository.find_all(
-            options=(self.repository.include_accesos(),), apply_unique=True
+    async def read_roles(
+        self,
+        include_access_operation: bool = False,
+        include_inactive: bool = False,
+    ) -> Result[RolListSchema, CustomException]:
+        roles: list[Rol] = await self.repository.find_roles(
+            include_inactive=include_inactive,
+            include_access_operation=include_access_operation,
         )
+
+        return Success(RolListSchema(roles=roles))
 
     async def validate_rol_data(
         self, nombre: str | None = None
@@ -63,7 +91,7 @@ class RolService:
             return validation_result
 
         rol = Rol(**rol_dict)
-        await self.repository.save(rol)
+        await self.repository.save(rol, flush=True)
 
         return Success(rol)
 
@@ -72,24 +100,27 @@ class RolService:
         self, rol_data: RolCreateWithAccesosSchema
     ) -> Result[None, CustomException]:
         creation_result = await self.create_rol(
-            rol_data.model_dump(exclude={"acceso_ids"})
+            rol_data.model_dump(exclude={"accesses"})
         )
         if creation_result.is_failure:
             return creation_result
 
         rol: Rol = creation_result.value
-        add_accesos_result = await self._add_accesos_to_rol_instance(
-            rol=rol, acceso_ids=rol_data.acceso_ids
+        add_accesos_result = await self._add_accesses_operations_to_rol_instance(
+            rol=rol, accesses=rol_data.accesses
         )
         if add_accesos_result.is_failure:
             return RolFailures.ACCESO_NOT_FOUND_WHEN_CREATING_FAILURE
 
-        return Success(None)
+        rol_result: RolSchema = RolSchema.model_validate(rol)
+        rol_result.access = add_accesos_result.value
+
+        return Success(rol_result)
 
     async def update_rol(
         self, id: int, update_data: RolUpdateSchema
     ) -> Result[None, CustomException]:
-        rol_result = await self.read_rol(id)
+        rol_result = await self._read_rol(rol_id=id)
         if rol_result.is_failure:
             return rol_result
 
@@ -107,21 +138,24 @@ class RolService:
         return Success(None)
 
     async def delete_rol(self, id: int) -> Result[None, CustomException]:
-        rol_result = await self.read_rol(id)
+        rol_result = await self._read_rol(rol_id=id)
         if rol_result.is_failure:
             return rol_result
 
-        user: Rol = rol_result.value
-        await self.repository.delete(user)
+        rol: Rol = rol_result.value
+
+        rol.is_active = False
+        await self.repository.save(rol)
 
         return Success(None)
 
-    async def has_acceso(
-        self, rol_id: int, acceso_id: int
+    async def has_access_operation(
+        self, rol_id: int, acceso_id: int, operation_id: int
     ) -> Result[RolAccesoOperation, CustomException]:
-        has_acceso, rol_acceso = await self.rol_acceso_repository.exists(
+        has_acceso, rol_acceso = await self.rol_acceso_operation_repository.exists(
             (RolAccesoOperation.rol_id == rol_id)
             & (RolAccesoOperation.acceso_id == acceso_id)
+            & (RolAccesoOperation.operation_id == operation_id)
         )
 
         if has_acceso:
@@ -129,60 +163,108 @@ class RolService:
 
         return RolFailures.ROL_ACCESO_NOT_FOUND_FAILURE
 
-    async def _add_accesos_to_rol_instance(
-        self, rol: Rol, acceso_ids: list[int]
+    async def _add_accesses_operations_to_rol_instance(
+        self, rol: Rol, accesses: list[AccesoCreateWithOperationSchema]
     ) -> Result[None, CustomException]:
         rol_id: int = rol.rol_id
 
-        accesos_to_add = []
-        for acceso_id in set(acceso_ids):
-            acceso_result = await self.acceso_service.read_acceso(acceso_id)
+        access_operation_to_scheme: list[AccesoSchema] = []
+        access_operation_to_add = []
+        for access in accesses:
+            acceso_result = await self.acceso_service.read_acceso(access.acceso_id)
             if acceso_result.is_failure:
                 return RolFailures.ACCESO_NOT_FOUND_WHEN_ADDING_FAILURE
 
-            has_acceso_validation = await self.has_acceso(rol_id, acceso_id)
-            if has_acceso_validation.is_success:
-                return RolFailures.ROL_HAS_ACCESO_WHEN_ADDING_FAILURE
+            for operation in access.operation_ids:
+                operation_id: int = operation
+                operation_result = await self.operation_service.read_operation(
+                    operation_id
+                )
+                if operation_result.is_failure:
+                    return operation_result
 
-            acceso = acceso_result.value
-            accesos_to_add.append(
-                RolAccesoOperation(rol_id=rol_id, acceso_id=acceso.acceso_id)
-            )
+                validation_result = await self.has_access_operation(
+                    rol_id, access.acceso_id, operation_id
+                )
+                if validation_result.is_failure:
+                    access_operation_to_add.append(
+                        RolAccesoOperation(
+                            rol_id=rol_id,
+                            acceso_id=acceso_result.value.acceso_id,
+                            operation_id=operation_id,
+                        )
+                    )
+                acceso_result.value.operations.append(operation_result.value)
+            access_operation_to_scheme.append(acceso_result.value)
 
-        await self.rol_acceso_repository.save_all(accesos_to_add)
+        await self.rol_acceso_operation_repository.save_all(access_operation_to_add)
 
-        return Success(None)
+        return Success(access_operation_to_scheme)
 
     async def add_accesos_to_rol(
-        self, rol_id: int, acceso_ids: list[int]
+        self, rol_id: int, form: RolCreateAccessWithOperationSchema
     ) -> Result[None, CustomException]:
         rol_result = await self.read_rol(rol_id)
         if rol_result.is_failure:
             return rol_result
 
-        return await self._add_accesos_to_rol_instance(
-            rol=rol_result.value, acceso_ids=acceso_ids
+        rol: Rol = rol_result.value
+        add_accesos_result = await self._add_accesses_operations_to_rol_instance(
+            rol=rol, accesses=form.accesses
         )
+        if add_accesos_result.is_failure:
+            return RolFailures.ACCESO_NOT_FOUND_WHEN_CREATING_FAILURE
+
+        rol_result: RolSchema = RolSchema.model_validate(rol)
+        rol_result.access = add_accesos_result.value
+
+        return Success(rol_result)
 
     async def delete_accesos_from_rol(
-        self, rol_id: int, acceso_ids: list[int]
+        self, rol_id: int, form: RolDeleteAccessWithOperationSchema
     ) -> Result[None, CustomException]:
-        rol_result = await self.read_rol(rol_id)
+        rol_result = await self._read_rol(rol_id, include_access_operation=True)
         if rol_result.is_failure:
             return rol_result
 
-        accesos_to_delete = []
-        for acceso_id in set(acceso_ids):
-            acceso_result = await self.acceso_service.read_acceso(acceso_id)
+        rol: Rol = rol_result.value
+
+        access_operation_to_delete = []
+        for access in form.accesses:
+            access_id: int = access.acceso_id
+            acceso_result = await self.acceso_service.read_acceso(acceso_id=access_id)
             if acceso_result.is_failure:
                 return RolFailures.ACCESO_NOT_FOUND_WHEN_DELETING_FAILURE
 
-            has_acceso_validation = await self.has_acceso(rol_id, acceso_id)
-            if has_acceso_validation.is_failure:
-                return RolFailures.ROL_MISSING_ACCESO_WHEN_DELETING_FAILURE
+            for operation in access.operation_ids:
+                operation_id: int = operation
+                operation_result = await self.operation_service.read_operation(
+                    operation_id
+                )
+                if operation_result.is_failure:
+                    return operation_result
 
-            accesos_to_delete.append(has_acceso_validation.value)
+                has_acceso_validation = await self.has_access_operation(
+                    rol_id=rol_id, acceso_id=access_id, operation_id=operation_id
+                )
+                if has_acceso_validation.is_success:
+                    for access_operation in rol.access_operation:
+                        if (
+                            access_operation.acceso_id == access_id
+                            and access_operation.operation_id == operation_id
+                        ):
+                            access_operation_to_delete.append(access_operation)
 
-        await self.rol_acceso_repository.delete_all(accesos_to_delete)
+                            break
 
-        return Success(None)
+        rol.access_operation = [
+            access_operation
+            for access_operation in rol.access_operation
+            if access_operation not in access_operation_to_delete
+        ]
+
+        await self.rol_acceso_operation_repository.delete_all(
+            access_operation_to_delete
+        )
+
+        return Success(RolSchema.model_validate(rol))

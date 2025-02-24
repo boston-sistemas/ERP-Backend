@@ -1,8 +1,9 @@
 from .acceso_repository import AccesoRepository
 from .auth_token_repository import AuthTokenRepository
 from .modulo_sistema_repository import ModuloSistemaRepository
+from .operation_repository import OperationRepository
 from .parameter_repository import ParameterRepository
-from .rol_acceso_repository import RolAccesoOperationRepository
+from .rol_acceso_operation_repository import RolAccesoOperationRepository
 from .rol_repository import RolRepository
 from .user_repository import UserRepository
 from .user_rol_repository import UserRolRepository
@@ -18,4 +19,5 @@ __all__ = [
     "ModuloSistemaRepository",
     "AuthTokenRepository",
     "ParameterRepository",
+    "OperationRepository",
 ]

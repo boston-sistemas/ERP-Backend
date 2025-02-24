@@ -8,6 +8,7 @@ from sqlalchemy import (
     Identity,
     PrimaryKeyConstraint,
     String,
+    and_,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -61,6 +62,48 @@ class Usuario(Base):
         return f"<Usuario(id='{self.usuario_id}',username='{self.username}', email='{self.email}')>"
 
 
+class RolAccesoOperation(Base):
+    __tablename__ = "rol_acceso_operacion"
+
+    rol_id: Mapped[int] = mapped_column()
+    acceso_id: Mapped[int] = mapped_column()
+    operation_id: Mapped[int] = mapped_column()
+
+    # rol: Mapped["Rol"] = relationship(
+    #     "Rol",
+    #     lazy="noload",
+    #     primaryjoin=lambda: and_(
+    #         Rol.rol_id == RolAccesoOperation.rol_id,
+    #     ),
+    #     foreign_keys=lambda: [RolAccesoOperation.rol_id],
+    # )
+
+    acceso: Mapped["Acceso"] = relationship(
+        "Acceso",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Acceso.acceso_id == RolAccesoOperation.acceso_id,
+        ),
+        foreign_keys=lambda: [RolAccesoOperation.acceso_id],
+    )
+
+    operation: Mapped["Operation"] = relationship(
+        "Operation",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Operation.id == RolAccesoOperation.operation_id,
+        ),
+        foreign_keys=lambda: [RolAccesoOperation.operation_id],
+    )
+
+    __table_args__ = (
+        PrimaryKeyConstraint("rol_id", "acceso_id", "operation_id"),
+        ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["acceso_id"], ["acceso.acceso_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["operation_id"], ["operacion.id"], ondelete="CASCADE"),
+    )
+
+
 class Rol(Base):
     __tablename__ = "rol"
 
@@ -76,8 +119,13 @@ class Rol(Base):
         String(length=MAX_LENGTH_ROL_NOMBRE), default="bg-zinc-400"
     )
 
-    accesos: Mapped[list["Acceso"]] = relationship(
-        secondary="rol_acceso", lazy="noload"
+    access_operation: Mapped[list["RolAccesoOperation"]] = relationship(
+        "RolAccesoOperation",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Rol.rol_id == RolAccesoOperation.rol_id,
+        ),
+        foreign_keys=lambda: [RolAccesoOperation.rol_id],
     )
 
     __table_args__ = (PrimaryKeyConstraint("rol_id"),)
@@ -105,21 +153,6 @@ class Operation(Base):
     name: Mapped[str] = mapped_column(String(length=MAX_LENGTH_OPERATION_NAME))
 
     __table_args__ = (PrimaryKeyConstraint("id"),)
-
-
-class RolAccesoOperation(Base):
-    __tablename__ = "rol_acceso_operacion"
-
-    rol_id: Mapped[int] = mapped_column()
-    acceso_id: Mapped[int] = mapped_column()
-    operation_id: Mapped[int] = mapped_column()
-
-    __table_args__ = (
-        PrimaryKeyConstraint("rol_id", "acceso_id", "operation_id"),
-        ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
-        ForeignKeyConstraint(["acceso_id"], ["acceso.acceso_id"], ondelete="CASCADE"),
-        ForeignKeyConstraint(["operation_id"], ["operacion.id"], ondelete="CASCADE"),
-    )
 
 
 class UsuarioPassword(Base):

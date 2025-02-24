@@ -19,13 +19,23 @@ class AccesoService:
         self.repository = AccesoRepository(db)
         self.system_module_service = SystemModuleService(db=db)
 
-    async def read_acceso(self, acceso_id: int) -> Result[Acceso, CustomException]:
-        acceso = await self.repository.find_by_id(acceso_id)
+    async def _read_access(self, access_id: int) -> Result[Acceso, CustomException]:
+        access: Acceso = await self.repository.find_by_id(access_id)
 
-        if acceso is not None:
-            return Success(acceso)
+        if access is None:
+            return AccesoFailures.ACCESO_NOT_FOUND_FAILURE
 
-        return AccesoFailures.ACCESO_NOT_FOUND_FAILURE
+        return Success(access)
+
+    async def read_acceso(
+        self, acceso_id: int
+    ) -> Result[AccesoSchema, CustomException]:
+        access: Success = await self._read_access(access_id=acceso_id)
+
+        if access.is_failure:
+            return access
+
+        return Success(AccesoSchema.model_validate(access.value))
 
     async def read_accesos(self) -> list[Acceso]:
         return await self.repository.find_all()

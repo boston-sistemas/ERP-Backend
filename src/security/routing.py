@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from src.security.routers import (
     acceso_router,
     auth_router,
+    operation_router,
     parameter_category_router,
     parameter_public_router,
     parameter_router,
@@ -35,4 +36,9 @@ router.include_router(
     system_module_router.router,
     prefix="/system-modules",
     tags=["[SISTEMA] MÓDULOS DEL SISTEMA"],
+)
+router.include_router(
+    operation_router.router,
+    prefix="/operations",
+    tags=["[SISTEMA] OPERACIONES"],
 )

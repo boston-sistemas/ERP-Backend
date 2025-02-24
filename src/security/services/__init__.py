@@ -1,6 +1,7 @@
 from .acceso_service import AccesoService
 from .auth_service import AuthService
 from .hash_service import HashService
+from .operation_service import OperationService
 from .parameter_category_service import ParameterCategoryService
 from .parameter_service import ParameterService
 from .rol_service import RolService
@@ -20,4 +21,5 @@ __all__ = [
     "TokenService",
     "HashService",
     "SystemModuleService",
+    "OperationService",
 ]

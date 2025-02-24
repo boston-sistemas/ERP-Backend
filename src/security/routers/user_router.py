@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
@@ -31,8 +31,10 @@ async def read_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/", response_model=UsuarioListSchema)
-async def read_users(db: AsyncSession = Depends(get_db)):
+async def read_users(request: Request, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
+
+    access_token = request.cookies.get("refresh_token")
 
     usuarios = await user_service.read_users()
 
