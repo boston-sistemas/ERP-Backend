@@ -15,7 +15,7 @@ class OrdenCompraDetalleBase(CustomBaseModel):
     status_flag: str | None = "P"
     yarn_id: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("product_code", "yarn_id"),
+        validation_alias=AliasChoices("product_code1", "yarn_id"),
         exclude=True,
     )
 

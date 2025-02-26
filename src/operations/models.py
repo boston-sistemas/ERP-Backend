@@ -458,7 +458,7 @@ class OrdenCompraDetalle(PromecBase):
     purchase_order_number: Mapped[str] = mapped_column(
         "nrooc", String(length=PURCHASE_ORDER_NUMBER_MAX_LENGTH)
     )
-    product_code: Mapped[str] = mapped_column(
+    product_code1: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     quantity_ordered: Mapped[float] = mapped_column("canord")
@@ -494,11 +494,11 @@ class OrdenCompraDetalle(PromecBase):
         lazy="noload",
         primaryjoin=lambda: and_(
             OrdenCompraDetalle.company_code == InventoryItem.company_code,
-            OrdenCompraDetalle.product_code == InventoryItem.id,
+            OrdenCompraDetalle.product_code1 == InventoryItem.id,
         ),
         foreign_keys=lambda: [
             OrdenCompraDetalle.company_code,
-            OrdenCompraDetalle.product_code,
+            OrdenCompraDetalle.product_code1,
         ],
         viewonly=True,
     )
@@ -905,7 +905,7 @@ class MovementDetail(PromecBase):
     period: Mapped[int] = mapped_column("periodo")
     creation_date: Mapped[date] = mapped_column("fchdoc")
     creation_time: Mapped[str] = mapped_column("horadoc")
-    product_code: Mapped[str] = mapped_column(
+    product_code1: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     unit_code: Mapped[str] = mapped_column(
@@ -948,6 +948,9 @@ class MovementDetail(PromecBase):
         "loteprov", String(length=SUPPLIER_BATCH_MAX_LENGTH)
     )
     item_number_supply: Mapped[int] = mapped_column("nroiteminsumoos")
+    product_code2: Mapped[str] = mapped_column(
+        "codprod2", String(length=PRODUCT_CODE_MAX_LENGTH)
+    )
     movement = relationship(
         "Movement",
         lazy="noload",
@@ -1021,7 +1024,7 @@ class MovementDetail(PromecBase):
         primaryjoin=lambda: and_(
             MovementDetail.company_code == FabricWarehouse.company_code,
             MovementDetail.document_number == FabricWarehouse.document_number,
-            MovementDetail.product_code == FabricWarehouse.product_id,
+            MovementDetail.product_code1 == FabricWarehouse.product_id,
         ),
         uselist=False,
         foreign_keys=lambda: [
@@ -1066,9 +1069,12 @@ class MovementDetail(PromecBase):
         lazy="noload",
         primaryjoin=lambda: and_(
             MovementDetail.company_code == InventoryItem.company_code,
-            MovementDetail.product_code == InventoryItem.id,
+            MovementDetail.product_code1 == InventoryItem.id,
         ),
-        foreign_keys=lambda: [MovementDetail.company_code, MovementDetail.product_code],
+        foreign_keys=lambda: [
+            MovementDetail.company_code,
+            MovementDetail.product_code1,
+        ],
         viewonly=True,
     )
 
@@ -1101,7 +1107,7 @@ class MovementDetailAux(PromecBase):
     )
     item_number: Mapped[int] = mapped_column("nroitm")
     period: Mapped[int] = mapped_column("periodo")
-    product_code: Mapped[str] = mapped_column(
+    product_code1: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     unit_code: Mapped[str] = mapped_column(
@@ -1682,7 +1688,7 @@ class ProductInventory(PromecBase):
     storage_code: Mapped[str] = mapped_column(
         "codalm", String(length=STORAGE_CODE_MAX_LENGTH)
     )
-    product_code: Mapped[str] = mapped_column(
+    product_code1: Mapped[str] = mapped_column(
         "codprod", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
     current_stock: Mapped[float] = mapped_column("stkact")
@@ -1691,17 +1697,6 @@ class ProductInventory(PromecBase):
         PrimaryKeyConstraint("codcia", "periodo", "codalm", "codprod"),
         {"schema": "PUB"},
     )
-
-    def __repr__(self):
-        return (
-            f"<ProductInventory(\n"
-            f"company_code={self.company_code},\n"
-            f"period={self.period},\n"
-            f"storage_code={self.storage_code},\n"
-            f"product_code={self.product_code},\n"
-            f"current_stock={self.current_stock}\n"
-            f")>"
-        )
 
 
 class YarnFiber(Base):

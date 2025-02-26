@@ -13,13 +13,13 @@ class PurchaseOrderDetailRepository(BaseRepository[OrdenCompraDetalle]):
     async def find_purchase_order_detail_by_order_number_and_product_code(
         self,
         order_number: str,
-        product_code: str,
+        product_code1: str,
         filter: BinaryExpression = None,
     ) -> OrdenCompraDetalle | None:
         base_filter = (
             (OrdenCompraDetalle.company_code == MECSA_COMPANY_CODE)
             & (OrdenCompraDetalle.order_number == order_number)
-            & (OrdenCompraDetalle.product_code == product_code)
+            & (OrdenCompraDetalle.product_code1 == product_code1)
         )
 
         filter = base_filter & filter if filter is not None else base_filter

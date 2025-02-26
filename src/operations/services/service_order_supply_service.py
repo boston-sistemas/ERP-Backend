@@ -15,14 +15,14 @@ class ServiceOrderSupplyDetailService:
 
     async def _read_service_order_supply_stock(
         self,
-        # product_code: str,
+        # product_code1: str,
         storage_code: str,
         reference_number: str,
         item_number: int,
     ) -> Result[ServiceOrderSupplyDetail, CustomException]:
         service_order_supply_stock = (
             await self.repository.find_service_order_supply_stock_by_id(
-                # product_code=product_code,
+                # product_code1=product_code1,
                 storage_code=storage_code,
                 reference_number=reference_number,
                 item_number=item_number,
@@ -148,13 +148,13 @@ class ServiceOrderSupplyDetailService:
     async def rollback_current_stock(
         self,
         storage_code: str,
-        # product_code: str,
+        # product_code1: str,
         reference_number: str,
         item_number: int,
         quantity: int,
     ) -> Result[None, CustomException]:
         service_order_supply_stock = await self._read_service_order_supply_stock(
-            # product_code=product_code,
+            # product_code1=product_code1,
             storage_code=storage_code,
             reference_number=reference_number,
             item_number=item_number,
@@ -175,7 +175,7 @@ class ServiceOrderSupplyDetailService:
 
     async def update_current_stock(
         self,
-        product_code: str,
+        product_code1: str,
         storage_code: str,
         period: int,
         reference_number: str,
@@ -183,7 +183,7 @@ class ServiceOrderSupplyDetailService:
         new_stock: int,
     ) -> Result[None, CustomException]:
         service_order_supply_stock = await self._read_service_order_supply_stock(
-            product_code=product_code,
+            product_code1=product_code1,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
@@ -228,7 +228,7 @@ class ServiceOrderSupplyDetailService:
 
         if quantity > 0:
             if service_orders_stock:
-                if service_orders_stock[-1].product_code == yarn_id:
+                if service_orders_stock[-1].product_code1 == yarn_id:
                     service_orders_stock[-1].current_stock = max(
                         service_orders_stock[-1].current_stock - quantity, 0
                     )
@@ -341,14 +341,14 @@ class ServiceOrderSupplyDetailService:
 
     async def delete_service_order_supply_stock(
         self,
-        product_code: str,
+        product_code1: str,
         storage_code: str,
         period: int,
         reference_number: str,
         item_number: int,
     ) -> Result[None, CustomException]:
         service_order_supply_stock = await self._read_service_order_supply_stock(
-            product_code=product_code,
+            product_code1=product_code1,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,
@@ -364,14 +364,14 @@ class ServiceOrderSupplyDetailService:
 
     async def annul_service_order_supply_stock(
         self,
-        product_code: str,
+        product_code1: str,
         storage_code: str,
         period: int,
         reference_number: str,
         item_number: int,
     ) -> Result[None, CustomException]:
         service_order_supply_stock = await self._read_service_order_supply_stock(
-            product_code=product_code,
+            product_code1=product_code1,
             storage_code=storage_code,
             period=period,
             reference_number=reference_number,

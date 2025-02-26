@@ -73,14 +73,14 @@ class MovementService:
     async def _read_or_create_product_inventory(
         self,
         storage_code: str,
-        product_code: str,
+        product_code1: str,
         period: int,
         enable_create: bool = False,
     ) -> Result[ProductInventory, CustomException]:
         product_inventory = (
             await self.product_inventory_service._read_product_inventory(
                 storage_code=storage_code,
-                product_code=product_code,
+                product_code1=product_code1,
                 period=period,
             )
         )
@@ -90,7 +90,7 @@ class MovementService:
                 product_inventory = ProductInventory(
                     company_code=MECSA_COMPANY_CODE,
                     storage_code=storage_code,
-                    product_code=product_code,
+                    product_code1=product_code1,
                     period=period,
                     current_stock=0,
                 )

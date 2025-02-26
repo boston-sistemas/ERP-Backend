@@ -38,7 +38,11 @@ class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(YarnWeavingDispatchDetai
     detail_aux: Any = Field(default=None, exclude=True)
     yarn_id: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("yarn_id"),
+        validation_alias=AliasChoices("product_code1"),
+    )
+    fabric_id: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("product_code2"),
     )
 
     @computed_field

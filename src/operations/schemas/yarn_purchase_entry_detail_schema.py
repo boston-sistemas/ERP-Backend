@@ -16,7 +16,7 @@ from .yarn_purchase_entry_detail_heavy_schema import (
 class YarnPurchaseEntryDetailBase(CustomBaseModel):
     item_number: int | None
     yarn_id: str | None = Field(
-        validation_alias=AliasChoices("product_code", "yarn_id"),
+        validation_alias=AliasChoices("product_code1", "yarn_id"),
     )
     mecsa_weight: float | None
     status_flag: str | None

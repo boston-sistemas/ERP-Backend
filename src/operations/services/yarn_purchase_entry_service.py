@@ -300,7 +300,7 @@ class YarnPurchaseEntryService(MovementService):
             impmn1_value = impmn2_value * exchange_rate_value
 
             product_inventory = await self._read_or_create_product_inventory(
-                product_code=detail.yarn_id,
+                product_code1=detail.yarn_id,
                 period=current_period,
                 storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                 enable_create=True,
@@ -315,7 +315,7 @@ class YarnPurchaseEntryService(MovementService):
 
             products_inventory = (
                 await self.product_inventory_service._read_products_inventory(
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     period=current_period,
                 )
             ).value
@@ -333,7 +333,7 @@ class YarnPurchaseEntryService(MovementService):
                 period=current_period,
                 creation_date=creation_date,
                 creation_time=creation_time,
-                product_code=detail.yarn_id,
+                product_code1=detail.yarn_id,
                 unit_code="KG",
                 factor=1,
                 mecsa_weight=detail.mecsa_weight,
@@ -367,7 +367,7 @@ class YarnPurchaseEntryService(MovementService):
                 document_number=entry_number,
                 item_number=detail.item_number,
                 period=current_period,
-                product_code=detail.yarn_id,
+                product_code1=detail.yarn_id,
                 unit_code="KG",
                 factor=1,
                 precto=0,
@@ -418,14 +418,14 @@ class YarnPurchaseEntryService(MovementService):
             yarn_purchase_entry_detail.append(yarn_purchase_entry_detail_value)
             yarn_purchase_entry_detail_aux.append(yarn_purchase_entry_detail_aux_value)
             await self.product_inventory_service.update_current_stock(
-                product_code=detail.yarn_id,
+                product_code1=detail.yarn_id,
                 period=current_period,
                 storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                 new_stock=detail.mecsa_weight,
             )
             await self.purchase_order_service.update_quantity_supplied_by_product_code(
                 purchase_order_number=form.purchase_order_number,
-                product_code=detail.yarn_id,
+                product_code1=detail.yarn_id,
                 quantity_supplied=detail.mecsa_weight,
             )
 
@@ -547,7 +547,7 @@ class YarnPurchaseEntryService(MovementService):
         for detail in yarn_purchase_entry.detail:
             rollback_result = (
                 await self.product_inventory_service.rollback_currents_stock(
-                    product_code=detail.product_code,
+                    product_code1=detail.product_code1,
                     period=yarn_purchase_entry.period,
                     storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                     quantity=detail.mecsa_weight,
@@ -558,7 +558,7 @@ class YarnPurchaseEntryService(MovementService):
 
             rollback_result = await self.purchase_order_service.rollback_quantity_supplied_by_product_code(
                 purchase_order_number=yarn_purchase_entry.reference_number2,
-                product_code=detail.product_code,
+                product_code1=detail.product_code1,
                 quantity_supplied=detail.mecsa_weight,
             )
             if rollback_result.is_failure:
@@ -647,7 +647,7 @@ class YarnPurchaseEntryService(MovementService):
         yarn_purchase_entry_detail_heavy = []
 
         precto = {
-            detail.product_code: detail.precto for detail in purchase_yarn_order.detail
+            detail.product_code1: detail.precto for detail in purchase_yarn_order.detail
         }
 
         for detail in form.detail:
@@ -758,7 +758,7 @@ class YarnPurchaseEntryService(MovementService):
                 yarn_purchase_entry_detail_result.is_weighted = detail.is_weighted
 
                 product_inventory = await self._read_or_create_product_inventory(
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     period=period,
                     storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                     enable_create=True,
@@ -771,7 +771,7 @@ class YarnPurchaseEntryService(MovementService):
 
                 products_inventory = (
                     await self.product_inventory_service._read_products_inventory(
-                        product_code=detail.yarn_id,
+                        product_code1=detail.yarn_id,
                         period=period,
                     )
                 ).value
@@ -797,7 +797,7 @@ class YarnPurchaseEntryService(MovementService):
                 )
 
                 await self.product_inventory_service.update_current_stock(
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     period=period,
                     storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                     new_stock=yarn_purchase_entry_detail_result.mecsa_weight,
@@ -805,7 +805,7 @@ class YarnPurchaseEntryService(MovementService):
 
                 await self.purchase_order_service.update_quantity_supplied_by_product_code(
                     purchase_order_number=purchase_yarn_order.purchase_order_number,
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     quantity_supplied=detail.mecsa_weight,
                 )
             else:
@@ -823,7 +823,7 @@ class YarnPurchaseEntryService(MovementService):
                 impmn1_value = impmn2_value * yarn_purchase_entry.exchange_rate
 
                 product_inventory = await self._read_or_create_product_inventory(
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     period=period,
                     storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                     enable_create=True,
@@ -838,7 +838,7 @@ class YarnPurchaseEntryService(MovementService):
 
                 products_inventory = (
                     await self.product_inventory_service._read_products_inventory(
-                        product_code=detail.yarn_id,
+                        product_code1=detail.yarn_id,
                         period=period,
                     )
                 ).value
@@ -858,7 +858,7 @@ class YarnPurchaseEntryService(MovementService):
                     period=period,
                     creation_date=yarn_purchase_entry.creation_date,
                     creation_time=yarn_purchase_entry.creation_time,
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=detail.mecsa_weight,
@@ -882,7 +882,7 @@ class YarnPurchaseEntryService(MovementService):
                     document_number=yarn_purchase_entry_number,
                     item_number=detail.item_number,
                     period=period,
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     unit_code="KG",
                     factor=1,
                     precto=precto_value,
@@ -932,7 +932,7 @@ class YarnPurchaseEntryService(MovementService):
                 )
                 yarn_purchase_entry.detail.append(yarn_purchase_entry_detail_result)
                 await self.product_inventory_service.update_current_stock(
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     period=period,
                     storage_code=YARN_PURCHASE_ENTRY_STORAGE_CODE,
                     new_stock=detail.mecsa_weight,
@@ -940,7 +940,7 @@ class YarnPurchaseEntryService(MovementService):
 
                 await self.purchase_order_service.update_quantity_supplied_by_product_code(
                     purchase_order_number=purchase_yarn_order.purchase_order_number,
-                    product_code=detail.yarn_id,
+                    product_code1=detail.yarn_id,
                     quantity_supplied=detail.mecsa_weight,
                 )
 

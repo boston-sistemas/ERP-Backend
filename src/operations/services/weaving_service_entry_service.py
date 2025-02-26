@@ -560,7 +560,7 @@ class WeavingServiceEntryService(MovementService):
                     creation_date=creation_date,
                     creation_time=creation_time,
                     item_number=i + 1,
-                    product_code=yarn.yarn_id,
+                    product_code1=yarn.yarn_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=quantity,
@@ -574,7 +574,7 @@ class WeavingServiceEntryService(MovementService):
                 )
 
                 await self.product_inventory_service.update_current_stock(
-                    product_code=yarn.yarn_id,
+                    product_code1=yarn.yarn_id,
                     period=period,
                     storage_code=supplier.storage_code,
                     new_stock=-quantity,
@@ -698,7 +698,7 @@ class WeavingServiceEntryService(MovementService):
             mecsa_weight = sum([card.net_weight for card in card_operations_value])
 
             product_inventory = await self._read_or_create_product_inventory(
-                product_code=detail.fabric_id,
+                product_code1=detail.fabric_id,
                 period=form.period,
                 storage_code=WEAVING_STORAGE_CODE,
                 enable_create=True,
@@ -718,7 +718,7 @@ class WeavingServiceEntryService(MovementService):
                 creation_date=creation_date,
                 creation_time=creation_time,
                 item_number=detail.item_number,
-                product_code=detail.fabric_id,
+                product_code1=detail.fabric_id,
                 unit_code="KG",
                 factor=1,
                 mecsa_weight=mecsa_weight,
@@ -767,7 +767,7 @@ class WeavingServiceEntryService(MovementService):
             )
 
             update_result = await self.product_inventory_service.update_current_stock(
-                product_code=detail.fabric_id,
+                product_code1=detail.fabric_id,
                 period=form.period,
                 storage_code=WEAVING_STORAGE_CODE,
                 new_stock=mecsa_weight,
@@ -862,7 +862,7 @@ class WeavingServiceEntryService(MovementService):
                 quantity = round(guide_net_weight * (yarn.proportion / 100.0), 2)
 
                 await self.product_inventory_service.rollback_currents_stock(
-                    product_code=yarn.yarn_id,
+                    product_code1=yarn.yarn_id,
                     period=period,
                     storage_code=supplier.storage_code,
                     quantity=-quantity,
@@ -887,7 +887,7 @@ class WeavingServiceEntryService(MovementService):
         for detail in weaving_service_entry.detail:
             rollback_result = (
                 await self.product_inventory_service.rollback_currents_stock(
-                    product_code=detail.product_code,
+                    product_code1=detail.product_code1,
                     period=period,
                     storage_code=WEAVING_STORAGE_CODE,
                     quantity=detail.mecsa_weight,
@@ -897,7 +897,7 @@ class WeavingServiceEntryService(MovementService):
                 return rollback_result
 
             rollback_result = await self.service_order_service.rollback_quantity_supplied_by_fabric_id(
-                fabric_id=detail.product_code,
+                fabric_id=detail.product_code1,
                 order_id=detail.reference_number,
                 quantity_supplied=detail.mecsa_weight,
             )
@@ -915,7 +915,7 @@ class WeavingServiceEntryService(MovementService):
             service_orders_stock = service_orders_stock.value
 
             fabric_result = await self.fabric_service.read_fabric(
-                fabric_id=detail.product_code,
+                fabric_id=detail.product_code1,
                 include_recipe=True,
                 include_color=True,
             )
@@ -1096,7 +1096,7 @@ class WeavingServiceEntryService(MovementService):
                         for card in weaving_service_entry_detail.detail_card
                     ]
                 )
-                weaving_service_entry_detail.product_code = detail.fabric_id
+                weaving_service_entry_detail.product_code1 = detail.fabric_id
                 weaving_service_entry_detail.mecsa_weight = mecsa_weight
                 weaving_service_entry_detail.reference_number = detail.service_order_id
                 weaving_service_entry_detail.nroreq = detail.service_order_id
@@ -1154,7 +1154,7 @@ class WeavingServiceEntryService(MovementService):
                 )
 
                 await self.product_inventory_service.update_current_stock(
-                    product_code=detail.fabric_id,
+                    product_code1=detail.fabric_id,
                     period=period,
                     storage_code=WEAVING_STORAGE_CODE,
                     new_stock=mecsa_weight,
@@ -1225,7 +1225,7 @@ class WeavingServiceEntryService(MovementService):
                 mecsa_weight = sum([card.net_weight for card in card_operations_value])
 
                 product_inventory = await self._read_or_create_product_inventory(
-                    product_code=detail.fabric_id,
+                    product_code1=detail.fabric_id,
                     period=period,
                     storage_code=WEAVING_STORAGE_CODE,
                     enable_create=True,
@@ -1245,7 +1245,7 @@ class WeavingServiceEntryService(MovementService):
                     creation_date=creation_date,
                     creation_time=current_time.strftime("%H:%M:%S"),
                     item_number=detail.item_number,
-                    product_code=detail.fabric_id,
+                    product_code1=detail.fabric_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=mecsa_weight,
@@ -1294,7 +1294,7 @@ class WeavingServiceEntryService(MovementService):
                 )
 
                 await self.product_inventory_service.update_current_stock(
-                    product_code=detail.fabric_id,
+                    product_code1=detail.fabric_id,
                     period=period,
                     storage_code=WEAVING_STORAGE_CODE,
                     new_stock=mecsa_weight,

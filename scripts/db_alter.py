@@ -81,6 +81,7 @@ def alter_tables(engine: Engine) -> list[Table]:
                 Column(name="periodoingr", type_column=TypeInteger()),
                 Column(name="loteprov", type_column=TypeVarchar(length=30)),
                 Column(name="nroiteminsumoos", type_column=TypeInteger()),
+                Column(name="codprod2", type_column=TypeVarchar(length=12)),
             ],
         ),
         Table(

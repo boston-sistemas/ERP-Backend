@@ -148,7 +148,7 @@ class DataParser:
                 item_number: int = detail.item_number
                 service_order_id: str = detail.nroreq
                 item_number_supply: int = detail.item_number_supply
-                product_code: str = detail.product_code
+                product_code1: str = detail.product_code1
 
                 stmt = (
                     update(ServiceOrderSupplyDetail)
@@ -158,7 +158,7 @@ class DataParser:
                             ServiceOrderSupplyDetail.reference_number
                             == service_order_id
                         )
-                        & (ServiceOrderSupplyDetail.product_code1 == product_code)
+                        & (ServiceOrderSupplyDetail.product_code1 == product_code1)
                         & (ServiceOrderSupplyDetail.item_number == None)
                     )
                     .values(item_number=item_number_supply)
@@ -169,18 +169,18 @@ class DataParser:
 
                 if updated_count > 1:
                     logger.error(
-                        f"Se han actualizado más de un registro para el número de referencia {service_order_id} y el código de producto {product_code}"
+                        f"Se han actualizado más de un registro para el número de referencia {service_order_id} y el código de producto {product_code1}"
                     )
 
                 try:
                     session.add(detail)
                     await session.commit()
                     logger.info(
-                        f"Se ha actualizado el número de ítem {item_number_supply} para el número de referencia {service_order_id} con el código de producto {product_code} y el número de item del detalle {item_number}"
+                        f"Se ha actualizado el número de ítem {item_number_supply} para el número de referencia {service_order_id} con el código de producto {product_code1} y el número de item del detalle {item_number}"
                     )
                 except Exception as e:
                     logger.error(
-                        f"Error al actualizar el número de ítem {item_number_supply} para el número de referencia {service_order_id} con el código de producto {product_code} y el número de item del detalle {item_number}: {str(e)}"
+                        f"Error al actualizar el número de ítem {item_number_supply} para el número de referencia {service_order_id} con el código de producto {product_code1} y el número de item del detalle {item_number}: {str(e)}"
                     )
                     await session.rollback()
 

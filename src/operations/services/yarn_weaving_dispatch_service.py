@@ -367,7 +367,7 @@ class YarnWeavingDispatchService(MovementService):
                     period=period,
                     creation_date=creation_date,
                     creation_time=creation_time,
-                    product_code=detail[i]._yarn_purchase_entry_heavy.yarn_id,
+                    product_code1=detail[i]._yarn_purchase_entry_heavy.yarn_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=detail[i].net_weight,
@@ -387,7 +387,7 @@ class YarnWeavingDispatchService(MovementService):
             )
 
             product_inventory_service = await self._read_or_create_product_inventory(
-                product_code=detail[i]._yarn_purchase_entry_heavy.yarn_id,
+                product_code1=detail[i]._yarn_purchase_entry_heavy.yarn_id,
                 period=period,
                 storage_code=storage_code,
                 enable_create=True,
@@ -396,7 +396,7 @@ class YarnWeavingDispatchService(MovementService):
                 return product_inventory_service
 
             update_result = await self.product_inventory_service.update_current_stock(
-                product_code=detail[i]._yarn_purchase_entry_heavy.yarn_id,
+                product_code1=detail[i]._yarn_purchase_entry_heavy.yarn_id,
                 period=period,
                 storage_code=storage_code,
                 new_stock=detail[i].net_weight,
@@ -476,7 +476,7 @@ class YarnWeavingDispatchService(MovementService):
                 period=period,
                 creation_date=creation_date,
                 creation_time=creation_time,
-                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                 unit_code="KG",
                 factor=1,
                 mecsa_weight=detail.net_weight,
@@ -496,7 +496,7 @@ class YarnWeavingDispatchService(MovementService):
         )
 
         product_inventory_service = await self._read_or_create_product_inventory(
-            product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+            product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
             period=period,
             storage_code=storage_code,
             enable_create=True,
@@ -505,7 +505,7 @@ class YarnWeavingDispatchService(MovementService):
             return product_inventory_service
 
         update_result = await self.product_inventory_service.update_current_stock(
-            product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+            product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
             period=period,
             storage_code=storage_code,
             new_stock=detail.net_weight,
@@ -543,11 +543,11 @@ class YarnWeavingDispatchService(MovementService):
         yarn_entry_detail = await self.yarn_entry_detail_repository.find(filter=filter)
 
         if yarn_entry_detail is not None:
-            yarn_entry_detail.product_code = detail._yarn_purchase_entry_heavy.yarn_id
+            yarn_entry_detail.product_code1 = detail._yarn_purchase_entry_heavy.yarn_id
             yarn_entry_detail.mecsa_weight = detail.net_weight
 
         update_result = await self.product_inventory_service.update_current_stock(
-            product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+            product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
             period=period,
             storage_code=storage_code,
             new_stock=detail.net_weight,
@@ -610,8 +610,8 @@ class YarnWeavingDispatchService(MovementService):
         service_order_supply_stock = ServiceOrderSupplyDetail(
             company_code=MECSA_COMPANY_CODE,
             period=period,
-            product_code=fabric_id,
-            supply_id=yarn_id,
+            product_code2=fabric_id,
+            product_code1=yarn_id,
             # item_number=item_number + 1,
             reference_number=service_order_number,
             storage_code=storage_code,
@@ -741,7 +741,7 @@ class YarnWeavingDispatchService(MovementService):
                 period=current_period,
                 creation_date=creation_date,
                 creation_time=creation_time,
-                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                 unit_code="KG",
                 factor=1,
                 mecsa_weight=detail.net_weight,
@@ -761,6 +761,7 @@ class YarnWeavingDispatchService(MovementService):
                 entry_item_number=detail.entry_item_number,
                 entry_period=detail.entry_period,
                 item_number_supply=service_order_supply_detail.item_number,
+                product_code2=detail.fabric_id,
             )
 
             yarn_weaving_dispatch_detail_aux_value = MovementDetailAux(
@@ -769,7 +770,7 @@ class YarnWeavingDispatchService(MovementService):
                 document_number=dispatch_number,
                 item_number=detail.item_number,
                 period=current_period,
-                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                 unit_code="KG",
                 factor=1,
                 reference_code="P/I",
@@ -807,7 +808,7 @@ class YarnWeavingDispatchService(MovementService):
                 return update_yarn_entry_detail_heavy_result
 
             update_result = await self.product_inventory_service.update_current_stock(
-                product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                 period=current_period,
                 storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
                 new_stock=-detail.net_weight,
@@ -879,7 +880,7 @@ class YarnWeavingDispatchService(MovementService):
         yarn_entry_detail = await self.yarn_entry_detail_repository.find(filter=filter)
 
         # delete_result = await self.service_order_supply_service.delete_service_order_supply_stock(
-        #     product_code=yarn_weaving_dispatch_detail.product_code,
+        #     product_code1=yarn_weaving_dispatch_detail.product_code1,
         #     period=yarn_weaving_dispatch_detail.period,
         #     storage_code=supplier.storage_code,
         #     reference_number=yarn_weaving_dispatch_detail.nroreq,
@@ -959,7 +960,7 @@ class YarnWeavingDispatchService(MovementService):
         for detail in yarn_weaving_dispatch.detail:
             rollback_result = (
                 await self.product_inventory_service.rollback_currents_stock(
-                    product_code=detail.product_code,
+                    product_code1=detail.product_code1,
                     period=detail.period,
                     storage_code=supplier.storage_code,
                     quantity=detail.mecsa_weight,
@@ -970,7 +971,7 @@ class YarnWeavingDispatchService(MovementService):
 
             rollback_result = (
                 await self.product_inventory_service.rollback_currents_stock(
-                    product_code=detail.product_code,
+                    product_code1=detail.product_code1,
                     period=detail.period,
                     storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
                     quantity=-detail.mecsa_weight,
@@ -1105,13 +1106,13 @@ class YarnWeavingDispatchService(MovementService):
 
             if yarn_weaving_dispatch_detail_result is not None:
                 yarn_weaving_dispatch_detail_result.mecsa_weight = detail.net_weight
-                yarn_weaving_dispatch_detail_result.product_code = (
+                yarn_weaving_dispatch_detail_result.product_code1 = (
                     detail._yarn_purchase_entry_heavy.yarn_id
                 )
 
                 update_result = (
                     await self.product_inventory_service.update_current_stock(
-                        product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                        product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                         period=period,
                         storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
                         new_stock=-detail.net_weight,
@@ -1132,7 +1133,7 @@ class YarnWeavingDispatchService(MovementService):
                 # //! Liquidacion
 
                 # await self.service_order_supply_service.update_current_stock(
-                #     product_code=yarn_weaving_dispatch_detail_result.product_code,
+                #     product_code1=yarn_weaving_dispatch_detail_result.product_code1,
                 #     period=yarn_weaving_dispatch_detail_result.period,
                 #     storage_code=supplier.storage_code,
                 #     reference_number=yarn_weaving_dispatch_detail_result.nroreq,
@@ -1183,7 +1184,7 @@ class YarnWeavingDispatchService(MovementService):
                     period=period,
                     creation_date=yarn_weaving_dispatch.creation_date,
                     creation_time=yarn_weaving_dispatch.creation_time,
-                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                    product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=detail.net_weight,
@@ -1202,6 +1203,7 @@ class YarnWeavingDispatchService(MovementService):
                     entry_group_number=detail.entry_group_number,
                     entry_item_number=detail.entry_item_number,
                     entry_period=detail.entry_period,
+                    product_code2=detail.fabric_id,
                 )
 
                 yarn_weaving_dispatch_detail_aux_result = MovementDetailAux(
@@ -1210,7 +1212,7 @@ class YarnWeavingDispatchService(MovementService):
                     document_number=yarn_weaving_dispatch_number,
                     item_number=detail.item_number,
                     period=period,
-                    product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                    product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                     unit_code="KG",
                     factor=1,
                     reference_code="P/I",
@@ -1237,7 +1239,7 @@ class YarnWeavingDispatchService(MovementService):
                 # )
                 update_result = (
                     await self.product_inventory_service.update_current_stock(
-                        product_code=detail._yarn_purchase_entry_heavy.yarn_id,
+                        product_code1=detail._yarn_purchase_entry_heavy.yarn_id,
                         period=period,
                         storage_code=YARN_WEAVING_DISPATCH_STORAGE_CODE,
                         new_stock=-detail.net_weight,

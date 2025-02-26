@@ -274,7 +274,7 @@ class DyeingServiceDispatchService(MovementService):
                 creation_date=creation_date,
                 creation_time=creation_time,
                 item_number=item_number,
-                product_code=fabric,
+                product_code1=fabric,
                 unit_code="KG",
                 factor=1,
                 mecsa_weight=fabric_id_detail[fabric]["net_weight"],
@@ -289,7 +289,7 @@ class DyeingServiceDispatchService(MovementService):
             item_number += 1
 
             await self.product_inventory_service.update_current_stock(
-                product_code=fabric,
+                product_code1=fabric,
                 period=period,
                 storage_code=supplier.storage_code,
                 new_stock=fabric_id_detail[fabric]["net_weight"],
@@ -478,7 +478,7 @@ class DyeingServiceDispatchService(MovementService):
                     creation_date=creation_date,
                     creation_time=creation_time,
                     item_number=item_number,
-                    product_code=fabric_id,
+                    product_code1=fabric_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=detail_card.net_weight,
@@ -498,7 +498,7 @@ class DyeingServiceDispatchService(MovementService):
                 item_number += 1
 
                 await self.product_inventory_service.update_current_stock(
-                    product_code=fabric_id,
+                    product_code1=fabric_id,
                     period=form.period,
                     storage_code=WEAVING_STORAGE_CODE,
                     new_stock=-detail_card.net_weight,
@@ -577,7 +577,7 @@ class DyeingServiceDispatchService(MovementService):
         filtered_warehouses = []
         for warehouse in fabric_warehouses:
             if warehouse.product_id in {
-                detail.product_code for detail in updated_movements
+                detail.product_code1 for detail in updated_movements
             }:
                 filtered_warehouses.append(warehouse)
             else:
@@ -600,14 +600,14 @@ class DyeingServiceDispatchService(MovementService):
 
         for detail in dyeing_service_dispatch.detail_dyeing:
             await self.product_inventory_service.rollback_currents_stock(
-                product_code=detail.product_id,
+                product_code1=detail.product_id,
                 period=period,
                 storage_code=supplier.storage_code,
                 quantity=detail.guide_net_weight,
             )
 
             await self.product_inventory_service.rollback_currents_stock(
-                product_code=detail.product_id,
+                product_code1=detail.product_id,
                 period=period,
                 storage_code=WEAVING_STORAGE_CODE,
                 quantity=-detail.guide_net_weight,
@@ -879,7 +879,7 @@ class DyeingServiceDispatchService(MovementService):
                             creation_date=creation_date,
                             creation_time=creation_time,
                             item_number=item_number,
-                            product_code=fabric_id,
+                            product_code1=fabric_id,
                             unit_code="KG",
                             factor=1,
                             mecsa_weight=detail_card.net_weight,
@@ -899,7 +899,7 @@ class DyeingServiceDispatchService(MovementService):
                         item_number += 1
 
                         await self.product_inventory_service.update_current_stock(
-                            product_code=fabric_id,
+                            product_code1=fabric_id,
                             period=period,
                             storage_code=WEAVING_STORAGE_CODE,
                             new_stock=-detail_card.net_weight,
@@ -947,7 +947,7 @@ class DyeingServiceDispatchService(MovementService):
                         creation_date=creation_date,
                         creation_time=creation_time,
                         item_number=item_number,
-                        product_code=fabric_id,
+                        product_code1=fabric_id,
                         unit_code="KG",
                         factor=1,
                         mecsa_weight=detail_card.net_weight,
@@ -967,7 +967,7 @@ class DyeingServiceDispatchService(MovementService):
                     item_number += 1
 
                     await self.product_inventory_service.update_current_stock(
-                        product_code=fabric_id,
+                        product_code1=fabric_id,
                         period=period,
                         storage_code=WEAVING_STORAGE_CODE,
                         new_stock=-detail_card.net_weight,

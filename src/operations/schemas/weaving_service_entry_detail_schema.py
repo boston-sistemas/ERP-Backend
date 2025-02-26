@@ -25,7 +25,7 @@ from .fabric_schema import (
 class WeavingServiceEntryDetailBase(CustomBaseModel):
     item_number: int | None
     fabrid_id: str | None = Field(
-        validation_alias="product_code",
+        validation_alias="product_code1",
     )
     mecsa_weight: float | None
     status_flag: str | None

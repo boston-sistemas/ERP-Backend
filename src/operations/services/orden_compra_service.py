@@ -74,7 +74,7 @@ class OrdenCompraService:
     async def rollback_quantity_supplied_by_product_code(
         self,
         purchase_order_number: str,
-        product_code: str,
+        product_code1: str,
         quantity_supplied: int,
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_result = await self._read_purchase_yarn_order(
@@ -91,7 +91,7 @@ class OrdenCompraService:
         count_unsupplied = 0
 
         for detail in purchase_order.detail:
-            if detail.product_code == product_code:
+            if detail.product_code1 == product_code1:
                 detail.quantity_supplied -= quantity_supplied
 
                 if detail.quantity_supplied < detail.quantity_ordered:
@@ -111,7 +111,7 @@ class OrdenCompraService:
     async def update_quantity_supplied_by_product_code(
         self,
         purchase_order_number: str,
-        product_code: str,
+        product_code1: str,
         quantity_supplied: int,
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_result = await self._read_purchase_yarn_order(
@@ -129,7 +129,7 @@ class OrdenCompraService:
         count_supplied = 0
 
         for detail in purchase_order.detail:
-            if detail.product_code == product_code:
+            if detail.product_code1 == product_code1:
                 detail.quantity_supplied += quantity_supplied
 
                 if detail.quantity_supplied >= detail.quantity_ordered:
