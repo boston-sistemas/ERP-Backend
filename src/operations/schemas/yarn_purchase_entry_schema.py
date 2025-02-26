@@ -132,12 +132,14 @@ class YarnPurchaseEntryPrintListSchema(CustomBaseModel):
 
 class YarnPurchaseEntryCreateSchema(CustomBaseModel):
     # period: int
-    supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
-    supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
+    supplier_po_correlative: str = Field(min_length=1, max_length=NROGF_MAX_LENGTH)
+    supplier_po_series: str = Field(min_length=1, max_length=SERGF_MAX_LENGTH)
     fecgf: date
-    purchase_order_number: str = Field(max_length=REFERENCE_NUMBER_MAX_LENGTH)
+    purchase_order_number: str = Field(
+        min_length=1, max_length=REFERENCE_NUMBER_MAX_LENGTH
+    )
     document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
-    supplier_batch: str = Field(max_length=SUPPLIER_BATCH_MAX_LENGTH)
+    supplier_batch: str = Field(min_length=1, max_length=SUPPLIER_BATCH_MAX_LENGTH)
 
     detail: list[YarnPurchaseEntryDetailCreateSchema] = Field(default=[])
 

@@ -93,7 +93,7 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     package_count: int = Field(..., ge=0)
     net_weight: float = Field(..., gt=0)
     gross_weight: float = Field(..., gt=0)
-    fabric_id: str | None = Field(max_length=PRODUCT_ID_MAX_LENGTH)
+    fabric_id: str | None = Field(min_length=1, max_length=PRODUCT_ID_MAX_LENGTH)
 
     _yarn_purchase_entry_heavy: YarnPurchaseEntryDetailHeavySchema | None = None
 

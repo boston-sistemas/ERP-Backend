@@ -8,6 +8,7 @@ from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NRODIR_MAX_LENGTH,
     SERVICE_ORDER_ID_MAX_LENGTH,
+    SUPPLIER_CODE_MAX_LENGTH,
 )
 
 from .promec_schema import PromecStatusSchema
@@ -97,10 +98,12 @@ class YarnWeavingDispatchPrintListSchema(CustomBaseModel):
 
 
 class YarnWeavingDispatchCreateSchema(CustomBaseModel):
-    supplier_code: str
+    supplier_code: str | None = Field(min_length=1, max_length=SUPPLIER_CODE_MAX_LENGTH)
     document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
     nrodir: str | None = Field("000", max_length=NRODIR_MAX_LENGTH)
-    service_order_id: str | None = Field(max_length=SERVICE_ORDER_ID_MAX_LENGTH)
+    service_order_id: str | None = Field(
+        min_length=1, max_length=SERVICE_ORDER_ID_MAX_LENGTH
+    )
 
     detail: list[YarnWeavingDispatchDetailCreateSchema] = Field(default=[])
 

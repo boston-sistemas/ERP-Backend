@@ -78,7 +78,7 @@ class YarnPurchaseEntryDetailListSchema(CustomBaseModel):
 
 class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
     item_number: int | None = Field(default=None, ge=1)
-    yarn_id: str = Field(max_length=PRODUCT_CODE_MAX_LENGTH)
+    yarn_id: str = Field(min_length=1, max_length=PRODUCT_CODE_MAX_LENGTH)
     guide_net_weight: float = Field(gt=0.0)
     guide_gross_weight: float = Field(gt=0.0)
     guide_cone_count: int = Field(gt=0)
