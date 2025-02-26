@@ -55,7 +55,39 @@ def init_promec_db():
 def pruebas():
     from db import update_promec_rows
 
-    asyncio.run(update_promec_rows())
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(update_promec_rows())
+
+
+@cli.command()
+def inspect():
+    from db import inspect_tables
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(inspect_tables())
+
+
+@cli.command()
+def populate_data_test():
+    from test.populate_purchase_order import populate_purchase_order
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(populate_purchase_order())
 
 
 @cli.command()

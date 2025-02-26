@@ -11,6 +11,7 @@ class ServiceOrderPCP(Base):
     period: Mapped[str] = mapped_column("strannoid")
     issue_date: Mapped[str] = mapped_column("dtmfechaemision")
     user_id: Mapped[float] = mapped_column("intusuarioregistroid")
+    status: Mapped[str] = mapped_column("strdesestado")
 
     detail: Mapped[list["ServiceOrderPCPDetail"]] = relationship(
         "ServiceOrderPCPDetail",

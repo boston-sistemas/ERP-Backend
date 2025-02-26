@@ -1,0 +1,18 @@
+[
+  {
+    "id": 101,
+    "name": "visualizar"
+  },
+  {
+    "id": 102,
+    "name": "crear"
+  },
+  {
+    "id": 103,
+    "name": "editar"
+  },
+  {
+    "id": 104,
+    "name": "anular"
+  }
+]

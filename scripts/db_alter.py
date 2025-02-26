@@ -103,7 +103,7 @@ def alter_tables(engine: Engine) -> list[Table]:
                 ),
                 Column(name="es_complemento", type_column=TypeBit()),
                 Column(name="proveedor_hilado_id", type_column=TypeVarchar(length=22)),
-                Column(name="insumo_id", type_column=TypeVarchar(length=12)),
+                Column(name="codprod2", type_column=TypeVarchar(length=12)),
             ],
         ),
         Table(

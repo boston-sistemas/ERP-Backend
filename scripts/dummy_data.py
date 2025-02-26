@@ -14,7 +14,12 @@ from src.operations.models import (  # noqa: E402
     ProveedorEspecialidad,
     Tejido,
 )
-from src.security.models import Acceso, ModuloSistema, Rol, RolAcceso  # noqa: E402
+from src.security.models import (  # noqa: E402
+    Acceso,
+    ModuloSistema,
+    Rol,
+    RolAccesoOperation,
+)
 
 
 def insert_data(generate_data):
@@ -131,7 +136,7 @@ def generate_rol_acceso():
         {"rol_id": 4, "acceso_id": 6},
     ]
 
-    return RolAcceso, objects
+    return RolAccesoOperation, objects
 
 
 @insert_data

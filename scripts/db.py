@@ -60,7 +60,7 @@ def delete_tables() -> None:
     from src.core.database import Base  # noqa: F401
 
     import_models()
-    Base.metadata.drop_all(engine)
+    Base.metadata.drop_all(engine, checkfirst=True)
 
 
 def create_promec_tables() -> None:
@@ -99,11 +99,35 @@ async def update_promec_rows() -> None:
         pcp_engine=pcp_async_silent_engine,
     )
 
-    # await data_parser.parse_yarn_purchase_entry_heavies()
-    # await data_parser.parse_period_yarn_purchase_entries(2024)
-    # await data_parser.parse_period_yarn_purchase_entries(2025)
-    await data_parser.parse_period_service_order_weaving(2025)
-    # await data_parser.parse_period_yarn_weaving_dispatches(2024)
+    await data_parser.parse_yarn_purchase_entry_heavies()
+    await data_parser.parse_period_yarn_purchase_entries(2024)
+    await data_parser.parse_period_yarn_purchase_entries(2025)
+    # await data_parser.parse_period_service_orders_weaving_from_pcp(2024)
+    # await data_parser.parse_period_service_orders_weaving_from_pcp(2025)
+    # await data_parser.parse_period_service_orders_supply_item_number(2024)
+    # await data_parser.parse_period_service_orders_supply_item_number(2025)
+    # await data_parser.parse_period_service_orders_weaving(2024)
+    # await data_parser.parse_period_service_orders_weaving(2025)
+    # await data_parser.parse_period_service_orders_weaving_stocks(2024)
+    # await data_parser.parse_period_service_orders_weaving_stocks(2025)
+    # await data_parser.parse_period_service_orders_weaving_stocks_lyc(2024)
+    await promec_async_silent_engine.dispose()
+
+
+async def inspect_tables() -> None:
+    from data_inspector import DataInspector
+
+    data_inspector = DataInspector(
+        promec_engine=promec_async_silent_engine,
+        pcp_engine=pcp_async_silent_engine,
+    )
+
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2022)
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2023)
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2024)
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2025)
+    await data_inspector.inspect_period_service_orders_weaving(2024)
+
     await promec_async_silent_engine.dispose()
 
 
