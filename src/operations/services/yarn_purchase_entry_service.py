@@ -381,7 +381,7 @@ class YarnPurchaseEntryService(MovementService):
                 guide_package_count=detail.guide_package_count,
                 reference_code="006",
                 mecsa_batch=mecsa_batch_sq,
-                supplier_batch=form.supplier_batch[:14],
+                _supplier_batch=form.supplier_batch[:15],
             )
 
             for heavy in detail.detail_heavy:
