@@ -16,7 +16,7 @@ class YarnWeavingDispatchDetailBase(CustomBaseModel):
     item_number: int | None = None
     entry_number: str | None = Field(
         None,
-        validation_alias=AliasChoices("reference_number", "entry_number"),
+        validation_alias=AliasChoices("reference_number"),
     )
     entry_group_number: int | None = None
     entry_item_number: int | None = None
@@ -28,13 +28,7 @@ class YarnWeavingDispatchDetailBase(CustomBaseModel):
         from_attributes = True
 
 
-class YarnWeavingDispatchDetailSimpleSchema(YarnWeavingDispatchDetailBase):
-    pass
-
-
-class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(
-    YarnWeavingDispatchDetailSimpleSchema
-):
+class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(YarnWeavingDispatchDetailBase):
     yarn_purchase_entry: Any | None = Field(
         None,
         exclude=True,
@@ -42,6 +36,10 @@ class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(
     )
 
     detail_aux: Any = Field(default=None, exclude=True)
+    yarn_id: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("yarn_id"),
+    )
 
     @computed_field
     @property
@@ -71,14 +69,14 @@ class YarnWeavingDispatchDetailWithEntryYarnHeavySchema(
             return self.detail_aux.guide_package_count
         return None
 
-    @computed_field
-    @property
-    def yarn_id(self) -> str | None:
-        if self.yarn_purchase_entry and hasattr(
-            self.yarn_purchase_entry, "movement_detail"
-        ):
-            return self.yarn_purchase_entry.yarn_id
-        return None
+    # @computed_field
+    # @property
+    # def yarn_id(self) -> str | None:
+    #     if self.yarn_purchase_entry and hasattr(
+    #         self.yarn_purchase_entry, "movement_detail"
+    #     ):
+    #         return self.yarn_purchase_entry.yarn_id
+    #     return None
 
 
 class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):

@@ -103,7 +103,8 @@ class YarnWeavingDispatchService(MovementService):
         filter_params: YarnWeavingDispatchFilterParams,
     ) -> Result[YarnWeavingDispatchListSchema, CustomException]:
         yarn_weaving_dispatches = await self.repository.find_yarn_weaving_dispatches(
-            **filter_params.model_dump()
+            **filter_params.model_dump(),
+            apply_unique=True,
         )
 
         return Success(

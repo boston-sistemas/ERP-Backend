@@ -510,9 +510,6 @@ class OrdenCompraDetalle(PromecBase):
         {"schema": "PUB"},
     )
 
-    def __repr__(self):
-        return f"<OrdenCompraDetalle(codprod={self.product_code}>"
-
 
 class ServiceOrder(PromecBase):
     __tablename__ = "opecosmp"

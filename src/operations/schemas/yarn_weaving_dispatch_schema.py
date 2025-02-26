@@ -29,8 +29,7 @@ class YarnWeavingDispatchBase(CustomBaseModel):
         default=None, validation_alias=AliasChoices("auxiliary_code", "supplier_code")
     )
     supplier_yarn_etry_number: str | None = Field(
-        default=None,
-        validation_alias="reference_number1",
+        default=None, validation_alias="reference_number1", exclude=True
     )
     service_order_id: str | None = Field(
         default=None, validation_alias="reference_number2"
@@ -61,6 +60,7 @@ class YarnWeavingDispatchFilterParams(CustomBaseModel):
     period: int | None = Field(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     )
+    include_detail: bool | None = Field(default=False)
     dispatch_number: str | None = Field(default=None)
     supplier_ids: list[str] | None = Field(default=None)
     start_date: date | None = Field(default=None)
