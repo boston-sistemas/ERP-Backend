@@ -76,6 +76,7 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     )
     entry_number: str | None = Field(default=None)
+    service_order_id: str | None = Field(default=None)
     supplier_ids: list[str] | None = Field(default=None)
     start_date: date | None = Field(default=None)
     end_date: date | None = Field(default=None)

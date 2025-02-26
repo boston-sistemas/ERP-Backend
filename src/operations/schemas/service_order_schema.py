@@ -67,3 +67,21 @@ class ServiceOrderCreateSchema(CustomBaseModel):
 class ServiceOrderUpdateSchema(CustomBaseModel):
     status_param_id: int
     detail: list[ServiceOrderDetailUpdateSchema] = []
+
+
+class ServiceOrderSupplyDetailSchema(CustomBaseModel):
+    service_order_id: str | None = Field(
+        default=None, validation_alias="reference_number"
+    )
+    creation_date: date | None = None
+    yarn_id: str | None = Field(default=None, validation_alias="product_code1")
+    quantity_dispatched: float | None = None
+    quantity_received: float | None = None
+    status_flag: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ServiceOrderProgressReviewListSchema(CustomBaseModel):
+    service_orders_progress: list[ServiceOrderSupplyDetailSchema] | None = []

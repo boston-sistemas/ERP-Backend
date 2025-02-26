@@ -30,12 +30,14 @@ from src.operations.schemas import (
     ServiceOrderDetailSchema,
     ServiceOrderFilterParams,
     ServiceOrderListSchema,
+    ServiceOrderProgressReviewListSchema,
     ServiceOrderSchema,
     ServiceOrderUpdateSchema,
 )
 from src.security.services import ParameterService
 
 from .fabric_service import FabricService
+from .service_order_supply_service import ServiceOrderSupplyDetailService
 from .supplier_service import SupplierService
 
 
@@ -50,6 +52,9 @@ class ServiceOrderService:
         )
         self.parameter_service = ParameterService(db=db)
         self.fabric_service = FabricService(promec_db=promec_db, db=db)
+        self.service_order_supply_service = ServiceOrderSupplyDetailService(
+            promec_db=promec_db
+        )
 
     async def read_service_orders(
         self,
@@ -566,3 +571,22 @@ class ServiceOrderService:
         await self.service_order_detail_repository.save_all(service_order.detail)
         await self.repository.save(service_order, flush=True)
         return Success(None)
+
+    async def read_service_orders_in_progress_review(
+        self,
+        period: int,
+        limit: int = None,
+        offset: int = None,
+    ) -> Result[ServiceOrderProgressReviewListSchema, CustomException]:
+        service_orders_progress = (
+            await self.service_order_supply_service.read_service_orders_supply_stock(
+                period=period,
+                limit=limit,
+                offset=offset,
+            )
+        )
+
+        if service_orders_progress.is_failure:
+            return service_orders_progress
+
+        return Success(service_orders_progress.value)

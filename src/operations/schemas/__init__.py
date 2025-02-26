@@ -93,9 +93,11 @@ from .service_order_schema import (
     ServiceOrderCreateSchema,
     ServiceOrderFilterParams,
     ServiceOrderListSchema,
+    ServiceOrderProgressReviewListSchema,
     ServiceOrderSchema,
     ServiceOrderSimpleListSchema,
     ServiceOrderSimpleSchema,
+    ServiceOrderSupplyDetailSchema,
     ServiceOrderUpdateSchema,
 )
 from .supplier_schema import (
@@ -278,4 +280,6 @@ __all__ = [
     "YarnPurchaseOrderListSchema",
     "WeavingServiceEntriesListSchema",
     "WeavingServiceEntryFilterParams",
+    "ServiceOrderProgressReviewListSchema",
+    "ServiceOrderSupplyDetailSchema",
 ]

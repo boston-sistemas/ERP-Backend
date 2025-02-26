@@ -5,7 +5,7 @@ from src.core.result import Result, Success
 from src.operations.failures import SERVICE_ORDER_SUPPLY_STOCK_NOT_FOUND_FAILURE
 from src.operations.models import ServiceOrderSupplyDetail
 from src.operations.repositories import ServiceOrderSupplyDetailRepository
-from src.operations.schemas import FabricSchema
+from src.operations.schemas import FabricSchema, ServiceOrderProgressReviewListSchema
 
 
 class ServiceOrderSupplyDetailService:
@@ -47,6 +47,24 @@ class ServiceOrderSupplyDetailService:
         )
 
         return Success(service_orders_stock)
+
+    async def read_service_orders_supply_stock(
+        self,
+        period: int,
+        limit: int = None,
+        offset: int = None,
+    ) -> Result[ServiceOrderProgressReviewListSchema, CustomException]:
+        service_orders_stock = await self.repository.find_service_orders_supply_stock(
+            period=period,
+            limit=limit,
+            offset=offset,
+        )
+
+        return Success(
+            ServiceOrderProgressReviewListSchema(
+                service_orders_progress=service_orders_stock
+            )
+        )
 
     async def _read_max_item_number_by_id_service_order_supply_stock(
         self,

@@ -61,6 +61,7 @@ class ServiceOrderSupplyDetailRepository(BaseRepository[ServiceOrderSupplyDetail
         supply_id: str = None,
         period: int = None,
         limit: int = None,
+        offset: int = None,
         order_by: Sequence = None,
     ) -> list[ServiceOrderSupplyDetail]:
         base_filter = ServiceOrderSupplyDetail.company_code == MECSA_COMPANY_CODE
@@ -82,5 +83,6 @@ class ServiceOrderSupplyDetailRepository(BaseRepository[ServiceOrderSupplyDetail
         return await self.find_all(
             filter=filter,
             limit=limit,
+            offset=offset,
             order_by=order_by,
         )

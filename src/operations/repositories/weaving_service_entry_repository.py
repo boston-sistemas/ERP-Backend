@@ -115,6 +115,7 @@ class WeavingServiceEntryRepository(MovementRepository):
         supplier_ids: list[str] = None,
         start_date: date = None,
         end_date: date = None,
+        service_order_id: str = None,
         include_annulled: bool = False,
         limit: int = None,
         offset: int = None,

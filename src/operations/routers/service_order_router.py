@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     ServiceOrderCreateSchema,
     ServiceOrderFilterParams,
     ServiceOrderListSchema,
+    ServiceOrderProgressReviewListSchema,
     ServiceOrderSchema,
     ServiceOrderUpdateSchema,
 )
@@ -25,6 +27,27 @@ async def read_service_orders(
         order_type="TJ",
         filter_params=filter_params,
         include_status=True,
+    )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@router.get("/progress/review", response_model=ServiceOrderProgressReviewListSchema)
+async def read_service_orders_in_progress_review(
+    period: int | None = Query(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    ),
+    limit: int | None = Query(default=10, ge=1, le=100),
+    offset: int | None = Query(default=0, ge=0),
+    promec_db: AsyncSession = Depends(get_promec_db),
+    db: AsyncSession = Depends(get_db),
+):
+    service = ServiceOrderService(promec_db=promec_db, db=db)
+    result = await service.read_service_orders_in_progress_review(
+        period=period, limit=limit, offset=offset
     )
 
     if result.is_success:
