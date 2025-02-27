@@ -132,5 +132,6 @@ class YarnPurchaseEntryDetailHeavyRepository(BaseRepository[MovementYarnOCHeavy]
             filter=filter,
             options=options,
             joins=joins,
+            order_by=MovementYarnOCHeavy.ingress_number.desc(),
             **kwargs,
         )

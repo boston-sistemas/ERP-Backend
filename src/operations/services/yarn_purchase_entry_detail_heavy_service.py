@@ -229,7 +229,6 @@ class YarnPurchaseEntryDetailHeavyService:
         yarn_purchase_entries_detail_heavy_result = (
             await self.repository.find_yarn_purchase_entries_items_groups_availability(
                 period=period,
-                include_detail_entry=True,
             )
         )
 

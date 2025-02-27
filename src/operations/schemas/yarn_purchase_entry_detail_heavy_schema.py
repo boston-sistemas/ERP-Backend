@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import Field, computed_field, model_validator
+from pydantic import Field, computed_field, field_serializer, model_validator
 
 from src.core.schemas import CustomBaseModel
 
@@ -37,8 +37,53 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
     yarn_id: str | None = Field(default=None)
 
 
+class YarnPurchaseEntryAvailabilitySchema(CustomBaseModel):
+    entry_number: str | None = Field(default=None)
+    detail_heavy: list[YarnPurchaseEntryDetailHeavySchema] = []
+
+    @field_serializer("detail_heavy")
+    def sort_detail_heavy(self, value):
+        return (
+            sorted(
+                value,
+                key=lambda x: (
+                    x.ingress_number or "",
+                    x.item_number or 0,
+                    x.group_number or 0,
+                ),
+            )
+            if value
+            else value
+        )
+
+
 class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
-    yarn_purchase_entries_detail_heavy: list[YarnPurchaseEntryDetailHeavySchema]
+    yarn_purchase_entries_detail_heavy: list[YarnPurchaseEntryDetailHeavySchema] = (
+        Field(
+            default=[],
+            exclude=True,
+        )
+    )
+
+    yarn_purchase_entries: list[YarnPurchaseEntryAvailabilitySchema] = []
+
+    @model_validator(mode="after")
+    def set_yarn_purchase_entries(self):
+        for heavy in self.yarn_purchase_entries_detail_heavy:
+            if heavy.ingress_number not in [
+                entry.entry_number for entry in self.yarn_purchase_entries
+            ]:
+                self.yarn_purchase_entries.append(
+                    YarnPurchaseEntryAvailabilitySchema(
+                        entry_number=heavy.ingress_number, detail_heavy=[heavy]
+                    )
+                )
+            else:
+                for entry in self.yarn_purchase_entries:
+                    if entry.entry_number == heavy.ingress_number:
+                        if heavy not in entry.detail_heavy:
+                            entry.detail_heavy.append(heavy)
+        return self
 
 
 class YarnPurchaseEntryDetailHeavyCreateSchema(CustomBaseModel):

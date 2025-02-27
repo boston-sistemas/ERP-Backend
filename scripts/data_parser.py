@@ -16,7 +16,7 @@ from sqlalchemy.orm import joinedload, load_only
 from src.core.constants import MECSA_COMPANY_CODE
 from src.operations.constants import (
     DISPATCH_MOVEMENT_TYPE,
-    UNSTARTED_SERVICE_ORDER_ID,
+    SCHEDULED_SERVICE_ORDER_ID,
     YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
     YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
     YARN_WEAVING_DISPATCH_STORAGE_CODE,
@@ -86,6 +86,9 @@ class DataParser:
                         heavy.supplier_batch = entry.supplier_batch
                         heavy.mecsa_batch = entry.mecsa_batch
                         heavy.period = entry.period
+                        heavy.dispatch_status = False
+                        heavy.packages_left = heavy.package_count
+                        heavy.cones_left = heavy.cone_count
                         guide_gross_weight += heavy.gross_weight
 
                     detail.guide_gross_weight = round(guide_gross_weight, 6)
@@ -212,7 +215,7 @@ class DataParser:
                             quantity_ordered=detail.quantity_ordered,
                             quantity_supplied=0,
                             price=0,
-                            status_param_id=UNSTARTED_SERVICE_ORDER_ID,
+                            status_param_id=SCHEDULED_SERVICE_ORDER_ID,
                         )
                     )
                     service_orders_detail.append(service_order_detail_result)
@@ -362,7 +365,7 @@ class DataParser:
                                 quantity_ordered=-1,
                                 quantity_supplied=-1,
                                 price=0,
-                                status_param_id=UNSTARTED_SERVICE_ORDER_ID,
+                                status_param_id=SCHEDULED_SERVICE_ORDER_ID,
                             )
                         )
                         logger.error(
