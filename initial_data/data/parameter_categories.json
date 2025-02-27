@@ -16,10 +16,6 @@
         "name": "TIPOS DE TEJIDOS"
     },
     {
-        "id": 105,
-        "name": "ESTADOS DE LA ORDEN DE SERVICIO"
-    },
-    {
         "id": 106,
         "name": "FIBRA - VARIEDAD(es) / MARCA(s)"
     },
@@ -34,5 +30,21 @@
     {
         "id": 109,
         "name": "HILADO - DISTINCIONES"
+    },
+    {
+        "id": 110,
+        "name": "ESTADOS DE LA ORDEN DE SERVICIO"
+    },
+    {
+        "id": 111,
+        "name": "ESTADOS DE LA ORDEN DE SERVICIO DE LOS TEJIDOS"
+    },
+    {
+        "id": 112,
+        "name": "ESTADOS DE LA ORDEN DE SERVICIO DE LOS TALLERES"
+    },
+    {
+        "id": 113,
+        "name": "ESTADOS DE LA ORDEN DE SERVICIO DE LOS HILADOS"
     }
 ]

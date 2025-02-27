@@ -11,15 +11,20 @@ from src.core.repository import (
 from src.core.result import Result, Success
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
+    ANNULLED_SERVICE_ORDER_ID,
     CANCELLED_SERVICE_ORDER_ID,
+    CLOSED_SERVICE_ORDER_ID,
     DISPATCH_DOCUMENT_CODE,
     DISPATCH_MOVEMENT_TYPE,
     ENTRY_DOCUMENT_CODE,
     ENTRY_MOVEMENT_TYPE,
-    FINISHED_SERVICE_ORDER_ID,
+    IN_PROCESS_SERVICE_ORDER_ID,
+    LIQUIDATED_SERVICE_ORDER_ID,
+    PENDING_BALANCES_SERVICE_ORDER_ID,
+    SCHEDULED_SERVICE_ORDER_ID,
     SERVICE_CODE_SUPPLIER_DYEING,
     SERVICE_CODE_SUPPLIER_WEAVING,
-    UNSTARTED_SERVICE_ORDER_ID,
+    STOPPED_SERVICE_ORDER_ID,
     WEAVING_SERVICE_ENTRY_MOVEMENT_CODE,
     WEAVING_STORAGE_CODE,
     YARN_WEAVING_DISPATCH_MOVEMENT_CODE,
@@ -330,7 +335,7 @@ class WeavingServiceEntryService(MovementService):
                 if service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID:
                     return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_ANULLED_FAILURE
 
-                if service_order.status_param_id == FINISHED_SERVICE_ORDER_ID:
+                if service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID:
                     return WEAVING_SERVICE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE
 
                 # Se recolecta los proveedores que componen el hilado del stock del insumo de O/S
@@ -373,7 +378,7 @@ class WeavingServiceEntryService(MovementService):
                 if count_recipe_supplied != len(fabric.recipe):
                     return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_SUPPLIED_FABRIC_YARNS_FAILURE
 
-                if fabric_ids[detail.fabric_id] == FINISHED_SERVICE_ORDER_ID:
+                if fabric_ids[detail.fabric_id] == LIQUIDATED_SERVICE_ORDER_ID:
                     return (
                         WEAVING_SERVICE_ENTRY_FABRIC_ALREADY_QUANTITY_RECEIVED_FAILURE
                     )

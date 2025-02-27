@@ -62,6 +62,19 @@ class Usuario(Base):
         return f"<Usuario(id='{self.usuario_id}',username='{self.username}', email='{self.email}')>"
 
 
+class AccessOperation(Base):
+    __tablename__ = "acceso_operacion"
+
+    acceso_id: Mapped[int] = mapped_column()
+    operation_id: Mapped[int] = mapped_column()
+
+    __table_args__ = (
+        PrimaryKeyConstraint("acceso_id", "operation_id"),
+        ForeignKeyConstraint(["acceso_id"], ["acceso.acceso_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["operation_id"], ["operacion.id"], ondelete="CASCADE"),
+    )
+
+
 class RolAccesoOperation(Base):
     __tablename__ = "rol_acceso_operacion"
 
@@ -99,8 +112,12 @@ class RolAccesoOperation(Base):
     __table_args__ = (
         PrimaryKeyConstraint("rol_id", "acceso_id", "operation_id"),
         ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
-        ForeignKeyConstraint(["acceso_id"], ["acceso.acceso_id"], ondelete="CASCADE"),
-        ForeignKeyConstraint(["operation_id"], ["operacion.id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(
+            ["acceso_id"], ["acceso_operacion.acceso_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["operation_id"], ["acceso_operacion.operation_id"], ondelete="CASCADE"
+        ),
     )
 
 

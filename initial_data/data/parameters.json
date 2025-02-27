@@ -216,38 +216,6 @@
         "is_active": true
     },
     {
-        "id": 1028,
-        "category_id": 105,
-        "description": "TIPO DE ESTADO: NO INICIADO",
-        "value": "No Iniciado",
-        "data_type": "string",
-        "is_active": true
-    },
-    {
-        "id": 1029,
-        "category_id": 105,
-        "description": "TIPO DE ESTADO: EN PROCESO",
-        "value": "En Proceso",
-        "data_type": "string",
-        "is_active": true
-    },
-    {
-        "id": 1030,
-        "category_id": 105,
-        "description": "TIPO DE ESTADO: FINALIZADO",
-        "value": "Finalizado",
-        "data_type": "string",
-        "is_active": true
-    },
-    {
-        "id": 1031,
-        "category_id": 105,
-        "description": "TIPO DE ESTADO: CANCELADO",
-        "value": "CANCELADO",
-        "data_type": "string",
-        "is_active": true
-    },
-    {
         "id": 1032,
         "category_id": 106,
         "description": "DENOMINACION DE FIBRA: TANGÜIS",
@@ -412,6 +380,246 @@
         "category_id": 109,
         "description": "DISTINCION DE HILADO: CONTAMINACION CONTROLADA",
         "value": "Contaminación controlada",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1053,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: PROGRAMADO",
+        "value": "Programado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1054,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: ANULADO",
+        "value": "Anulado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1055,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: EN PROCESO",
+        "value": "En proceso",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1056,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: CERRADO",
+        "value": "Cerrado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1057,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: CANCELADO",
+        "value": "Cancelado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1058,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: DETENIDO",
+        "value": "Detenido",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1059,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: LIQUIDADO",
+        "value": "Liquidado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1060,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: SALDOS PENDIENTES",
+        "value": "Saldos pendientes",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1061,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: NO INICIADO",
+        "value": "No iniciado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1062,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: ANULADO",
+        "value": "Anulado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1063,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: EN PROCESO",
+        "value": "En proceso",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1064,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: DETENIDO",
+        "value": "Detenido",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1065,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: CANCELADO",
+        "value": "Cancelado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1066,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: COMPLETADO",
+        "value": "Completado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1067,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: STOCK A RECOGER",
+        "value": "Stock a recoger",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1068,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: RECOGIDO",
+        "value": "Recogido",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1069,
+        "category_id": 112,
+        "description": "TIPO DE ESTADO: NO INICIADO",
+        "value": "No iniciado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1070,
+        "category_id": 112,
+        "description": "TIPO DE ESTADO: ANULADO",
+        "value": "Anulado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1071,
+        "category_id": 112,
+        "description": "TIPO DE ESTADO: EN PROCESO",
+        "value": "En proceso",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1072,
+        "category_id": 112,
+        "description": "TIPO DE ESTADO: DETENIDO",
+        "value": "Detenido",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1073,
+        "category_id": 112,
+        "description": "TIPO DE ESTADO: CANCELADO",
+        "value": "Cancelado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1074,
+        "category_id": 112,
+        "description": "TIPO DE ESTADO: COMPLETADO",
+        "value": "Completado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1075,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: NO INICIADO",
+        "value": "No iniciado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1076,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: ANULADO",
+        "value": "Anulado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1077,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: EN PROCESO",
+        "value": "En proceso",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1078,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: DETENIDO",
+        "value": "Detenido",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1079,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: CANCELADO",
+        "value": "Cancelado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1080,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: COMPLETADO",
+        "value": "Completado",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1081,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: SALDO PENDIENTE A AJUSTAR",
+        "value": "Saldo pendiente a ajustar",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1082,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: SALDO PENDIENTE A RECOGER",
+        "value": "Saldo pendiente a recoger",
         "data_type": "string",
         "is_active": true
     }

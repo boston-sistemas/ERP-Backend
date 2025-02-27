@@ -6,12 +6,16 @@ from src.core.repository import BaseRepository
 from src.core.result import Result, Success
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
+    ANNULLED_SERVICE_ORDER_ID,
     CANCELLED_SERVICE_ORDER_ID,
     CATEGORY_SERVICE_ORDER_ID,
-    FINISHED_SERVICE_ORDER_ID,
+    CLOSED_SERVICE_ORDER_ID,
+    IN_PROCESS_SERVICE_ORDER_ID,
+    LIQUIDATED_SERVICE_ORDER_ID,
+    PENDING_BALANCES_SERVICE_ORDER_ID,
+    SCHEDULED_SERVICE_ORDER_ID,
     SERVICE_CODE_SUPPLIER_WEAVING,
-    STARTED_SERVICE_ORDER_ID,
-    UNSTARTED_SERVICE_ORDER_ID,
+    STOPPED_SERVICE_ORDER_ID,
 )
 from src.operations.failures import (
     SERVICE_ORDER_ALREADY_ANULLED_FAILURE,
@@ -269,7 +273,7 @@ class ServiceOrderService:
             user_id="DESA01",  # TODO: Set the current user's username as user_id for PROMEC
             flgatc="N",
             flgprt="N",
-            status_param_id=UNSTARTED_SERVICE_ORDER_ID,
+            status_param_id=SCHEDULED_SERVICE_ORDER_ID,
         )
 
         service_order_detail = []
@@ -283,7 +287,7 @@ class ServiceOrderService:
                 quantity_ordered=detail.quantity_ordered,
                 quantity_supplied=0,
                 price=detail.price,
-                status_param_id=UNSTARTED_SERVICE_ORDER_ID,
+                status_param_id=SCHEDULED_SERVICE_ORDER_ID,
             )
             service_order_detail.append(service_order_detail_value)
 
@@ -324,7 +328,7 @@ class ServiceOrderService:
         if service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID:
             return SERVICE_ORDER_ALREADY_ANULLED_FAILURE
 
-        if service_order.status_param_id == FINISHED_SERVICE_ORDER_ID:
+        if service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID:
             return SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE
 
         for detail in service_order.detail:
@@ -412,23 +416,23 @@ class ServiceOrderService:
         count_unsupplied = 0
 
         for detail in service_order.detail:
-            if detail.status_param_id == STARTED_SERVICE_ORDER_ID:
-                service_order.status_param_id = STARTED_SERVICE_ORDER_ID
+            if detail.status_param_id == IN_PROCESS_SERVICE_ORDER_ID:
+                service_order.status_param_id = IN_PROCESS_SERVICE_ORDER_ID
                 service_order.status_flag = "P"
                 count_unsupplied += 1
                 break
 
             if (
-                detail.status_param_id != FINISHED_SERVICE_ORDER_ID
+                detail.status_param_id != LIQUIDATED_SERVICE_ORDER_ID
                 or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID
             ):
                 count_unsupplied += 1
 
         if count_unsupplied > 0:
-            service_order.status_param_id = STARTED_SERVICE_ORDER_ID
+            service_order.status_param_id = IN_PROCESS_SERVICE_ORDER_ID
             service_order.status_flag = "P"
         else:
-            service_order.status_param_id = FINISHED_SERVICE_ORDER_ID
+            service_order.status_param_id = LIQUIDATED_SERVICE_ORDER_ID
             service_order.status_flag = "C"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
@@ -516,16 +520,16 @@ class ServiceOrderService:
                 detail.quantity_supplied += quantity_supplied
 
                 if detail.quantity_supplied >= detail.quantity_ordered:
-                    detail.status_param_id = FINISHED_SERVICE_ORDER_ID
+                    detail.status_param_id = LIQUIDATED_SERVICE_ORDER_ID
 
             if (
-                detail.status_param_id == FINISHED_SERVICE_ORDER_ID
+                detail.status_param_id == LIQUIDATED_SERVICE_ORDER_ID
                 or detail.status_param_id == CANCELLED_SERVICE_ORDER_ID
             ):
                 count_unsupplied += 1
 
         if count_unsupplied == detail_amount:
-            service_order.status_param_id = FINISHED_SERVICE_ORDER_ID
+            service_order.status_param_id = LIQUIDATED_SERVICE_ORDER_ID
             service_order.status_flag = "C"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
@@ -556,16 +560,16 @@ class ServiceOrderService:
                 detail.quantity_supplied -= quantity_supplied
 
                 if detail.quantity_supplied < detail.quantity_ordered:
-                    detail.status_param_id = STARTED_SERVICE_ORDER_ID
+                    detail.status_param_id = IN_PROCESS_SERVICE_ORDER_ID
 
             if (
-                detail.status_param_id != FINISHED_SERVICE_ORDER_ID
+                detail.status_param_id != LIQUIDATED_SERVICE_ORDER_ID
                 or detail.status_param_id != CANCELLED_SERVICE_ORDER_ID
             ):
                 count_unsupplied += 1
 
         if count_unsupplied > 0:
-            service_order.status_param_id = STARTED_SERVICE_ORDER_ID
+            service_order.status_param_id = IN_PROCESS_SERVICE_ORDER_ID
             service_order.status_flag = "P"
 
         await self.service_order_detail_repository.save_all(service_order.detail)

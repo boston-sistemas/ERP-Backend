@@ -12,7 +12,7 @@ from src.operations.constants import (
     CANCELLED_SERVICE_ORDER_ID,
     ENTRY_DOCUMENT_CODE,
     ENTRY_MOVEMENT_TYPE,
-    FINISHED_SERVICE_ORDER_ID,
+    LIQUIDATED_SERVICE_ORDER_ID,
     SERVICE_CODE_SUPPLIER_WEAVING,
     WEAVING_MOVEMENT_CODE,
     YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
@@ -174,7 +174,7 @@ class YarnWeavingDispatchService(MovementService):
         if service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID:
             return YARN_WEAVING_DISPATCH_SERVICE_ORDER_ALREADY_CANCELLED_FAILURE
 
-        if service_order.status_param_id == FINISHED_SERVICE_ORDER_ID:
+        if service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID:
             return YARN_WEAVING_DISPATCH_SERVICE_ORDER_ALREADY_FINISHED_FAILURE
 
         supplier_result = await self.supplier_service.read_supplier(

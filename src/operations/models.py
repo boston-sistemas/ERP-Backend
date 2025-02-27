@@ -668,6 +668,7 @@ class ServiceOrderSupplyDetail(PromecBase):
     pormer: Mapped[float] = mapped_column("pormer")
     quantity_received: Mapped[float] = mapped_column("canting")
     quantity_dispatched: Mapped[float] = mapped_column("cantsal")
+    status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
 
     __table_args__ = (
         PrimaryKeyConstraint("codcia", "codprod", "refnro", "nroitm"),
