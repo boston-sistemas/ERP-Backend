@@ -36,26 +36,13 @@ class TokenService:
         return encoded_jwt
 
     @staticmethod
-    def create_access_token(
-        user: Usuario, accesos: list[Acceso], modules: list[ModuloSistema]
-    ) -> tuple[str, datetime]:
-        system_modules = {}
-        for module in modules:
-            access_names = [
-                {"nombre": acceso.nombre, "path": acceso.view_path}
-                for acceso in accesos
-                if acceso.modulo_id == module.id
-            ]
-            if access_names:
-                system_modules[module.name] = access_names
-
+    def create_access_token(user: Usuario) -> tuple[str, datetime]:
         expiration_at = datetime.now(UTC) + timedelta(
             minutes=ACCESS_TOKEN_EXPIRATION_MINUTES
         )
         payload = {
             "sub": user.usuario_id,
             "username": user.username,
-            "system_modules": system_modules,
             "aud": "authenticated",
             "type": "access",
             "exp": expiration_at,

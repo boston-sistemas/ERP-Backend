@@ -3,7 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.security.schemas import (
+    RolCreateAccessWithOperationSchema,
     RolCreateWithAccesosSchema,
+    RolDeleteAccessWithOperationSchema,
     RolListSchema,
     RolSchema,
     RolUpdateSchema,
@@ -17,7 +19,7 @@ router = APIRouter(tags=["Seguridad - Roles"], prefix="/roles")
 async def read_rol(rol_id: int, db: AsyncSession = Depends(get_db)):
     rol_service = RolService(db)
 
-    result = await rol_service.read_rol(rol_id, include_accesos=True)
+    result = await rol_service.read_rol(rol_id, include_access_operation=True)
     if result.is_success:
         return result.value
 
@@ -26,11 +28,13 @@ async def read_rol(rol_id: int, db: AsyncSession = Depends(get_db)):
 
 @router.get("/", response_model=RolListSchema)
 async def read_roles(db: AsyncSession = Depends(get_db)):
-    rol_service = RolService(db)
+    service = RolService(db)
+    result = await service.read_roles()
 
-    roles = await rol_service.read_roles()
+    if result.is_success:
+        return result.value
 
-    return RolListSchema(roles=roles)
+    raise result.error
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -41,10 +45,7 @@ async def create_rol_with_accesos(
 
     creation_result = await rol_service.create_rol_with_accesos(rol_data)
     if creation_result.is_success:
-        if rol_data.acceso_ids:
-            return {"message": "Rol creado y accesos añadidos."}
-
-        return {"message": "Rol creado"}
+        return creation_result.value
 
     raise creation_result.error
 
@@ -68,7 +69,7 @@ async def delete_rol(rol_id: int, db: AsyncSession = Depends(get_db)):
 
     result = await rol_service.delete_rol(rol_id)
     if result.is_success:
-        return {"message": "Rol eliminado correctamente"}
+        return {"message": "Rol desactivado correctamente"}
 
     raise result.error
 
@@ -79,14 +80,14 @@ async def delete_rol(rol_id: int, db: AsyncSession = Depends(get_db)):
 @router.post("/{rol_id}/accesos/")
 async def add_accesos_to_rol(
     rol_id: int,
-    acceso_ids: list[int] = Body(embed=True),
+    form: RolCreateAccessWithOperationSchema,
     db: AsyncSession = Depends(get_db),
 ):
     rol_service = RolService(db)
 
-    result = await rol_service.add_accesos_to_rol(rol_id, acceso_ids)
+    result = await rol_service.add_accesos_to_rol(rol_id=rol_id, form=form)
     if result.is_success:
-        return {"message": "Accesos añadidos correctamente"}
+        return result.value
 
     raise result.error
 
@@ -94,13 +95,13 @@ async def add_accesos_to_rol(
 @router.delete("/{rol_id}/accesos/")
 async def delete_accesos_from_rol(
     rol_id: int,
-    acceso_ids: list[int] = Body(embed=True),
+    form: RolDeleteAccessWithOperationSchema,
     db: AsyncSession = Depends(get_db),
 ):
     rol_service = RolService(db)
 
-    result = await rol_service.delete_accesos_from_rol(rol_id, acceso_ids)
+    result = await rol_service.delete_accesos_from_rol(rol_id=rol_id, form=form)
     if result.is_success:
-        return {"message": "Accesos eliminados correctamente"}
+        return result.value
 
     raise result.error

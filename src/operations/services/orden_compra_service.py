@@ -11,7 +11,10 @@ from src.operations.repositories import (
     OrdenCompraRepository,
     PurchaseOrderDetailRepository,
 )
-from src.operations.schemas import OrdenCompraWithDetailSchema
+from src.operations.schemas import (
+    OrdenCompraWithDetailSchema,
+    YarnPurchaseOrderListSchema,
+)
 
 
 class OrdenCompraService:
@@ -24,20 +27,20 @@ class OrdenCompraService:
         period: int,
         include_detalle: bool = False,
     ) -> list[OrdenCompra]:
-        return await self.repository.find_ordenes_yarn(
+        yarn_orders = await self.repository.find_ordenes_yarn(
             period=period, include_detalle=include_detalle
         )
+
+        return Success(YarnPurchaseOrderListSchema(yarn_orders=yarn_orders))
 
     async def _read_purchase_yarn_order(
         self,
         purchase_order_number: str,
-        period: int,
         include_detalle: bool = False,
         include_annulled: bool = False,
     ) -> Result[OrdenCompra, CustomException]:
         orden = await self.repository.find_yarn_order_by_purchase_order_number(
             purchase_order_number=purchase_order_number,
-            period=period,
             include_detalle=include_detalle,
         )
 
@@ -52,12 +55,10 @@ class OrdenCompraService:
     async def read_purchase_yarn_order(
         self,
         purchase_order_number: str,
-        period: int,
         include_detalle: bool = False,
         include_annulled: bool = False,
     ) -> OrdenCompra | None:
         purchase_yarn_order_result = await self._read_purchase_yarn_order(
-            period=period,
             purchase_order_number=purchase_order_number,
             include_detalle=include_detalle,
             include_annulled=include_annulled,
@@ -73,13 +74,11 @@ class OrdenCompraService:
     async def rollback_quantity_supplied_by_product_code(
         self,
         purchase_order_number: str,
-        product_code: str,
+        product_code1: str,
         quantity_supplied: int,
-        period: int,
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_result = await self._read_purchase_yarn_order(
             purchase_order_number=purchase_order_number,
-            period=period,
             include_detalle=True,
             include_annulled=True,
         )
@@ -92,7 +91,7 @@ class OrdenCompraService:
         count_unsupplied = 0
 
         for detail in purchase_order.detail:
-            if detail.product_code == product_code:
+            if detail.product_code1 == product_code1:
                 detail.quantity_supplied -= quantity_supplied
 
                 if detail.quantity_supplied < detail.quantity_ordered:
@@ -105,19 +104,17 @@ class OrdenCompraService:
             purchase_order.status_flag = "P"
 
         await self.purchase_order_detail_service.save_all(purchase_order.detail)
-        await self.repository.save(purchase_order)
+        await self.repository.save(purchase_order, flush=True)
 
         return Success(None)
 
     async def update_quantity_supplied_by_product_code(
         self,
         purchase_order_number: str,
-        product_code: str,
+        product_code1: str,
         quantity_supplied: int,
-        period: int,
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_result = await self._read_purchase_yarn_order(
-            period=period,
             purchase_order_number=purchase_order_number,
             include_detalle=True,
         )
@@ -132,7 +129,7 @@ class OrdenCompraService:
         count_supplied = 0
 
         for detail in purchase_order.detail:
-            if detail.product_code == product_code:
+            if detail.product_code1 == product_code1:
                 detail.quantity_supplied += quantity_supplied
 
                 if detail.quantity_supplied >= detail.quantity_ordered:
@@ -145,6 +142,6 @@ class OrdenCompraService:
             purchase_order.status_flag = "C"
 
         await self.purchase_order_detail_service.save_all(purchase_order.detail)
-        await self.repository.save(purchase_order)
+        await self.repository.save(purchase_order, flush=True)
 
         return Success(None)

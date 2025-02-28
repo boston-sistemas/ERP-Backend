@@ -11,7 +11,7 @@ from src.operations.constants import (
     SUPPLIER_CODE_MAX_LENGTH,
     SUPPLIER_COLOR_ID_MAX_LENGTH,
 )
-from src.operations.models import ServiceOrderStock
+from src.operations.models import ServiceOrderSupplyDetail
 
 from .card_operation_schema import (
     CardOperationSchema,
@@ -25,7 +25,7 @@ from .fabric_schema import (
 class WeavingServiceEntryDetailBase(CustomBaseModel):
     item_number: int | None
     fabrid_id: str | None = Field(
-        validation_alias="product_code",
+        validation_alias="product_code1",
     )
     mecsa_weight: float | None
     status_flag: str | None
@@ -104,8 +104,10 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     tint_supplier_color_id: str | None = Field(
         default=None, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
     )
+    generate_cards: bool | None = Field(default=False)
+
     _fabric: FabricSchema | None = None
-    _service_orders_stock: list[ServiceOrderStock] | None = None
+    _service_orders_supply_stock: list[ServiceOrderSupplyDetail] | None = None
 
     # Posible forma de encapsular la validación de los campos
     @model_validator(mode="after")

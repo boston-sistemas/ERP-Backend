@@ -87,14 +87,14 @@ class DyeingServiceDispatchService(MovementService):
         period: int,
         limit: int = None,
         offset: int = None,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
     ) -> Result[DyeingServiceDispatchesListSchema, CustomException]:
         dyeing_service_dispatches = (
             await self.repository.find_dyeing_service_dispatches(
                 period=period,
                 limit=limit,
                 offset=offset,
-                include_inactive=include_inactive,
+                include_annulled=include_annulled,
             )
         )
 
@@ -274,7 +274,7 @@ class DyeingServiceDispatchService(MovementService):
                 creation_date=creation_date,
                 creation_time=creation_time,
                 item_number=item_number,
-                product_code=fabric,
+                product_code1=fabric,
                 unit_code="KG",
                 factor=1,
                 mecsa_weight=fabric_id_detail[fabric]["net_weight"],
@@ -289,13 +289,13 @@ class DyeingServiceDispatchService(MovementService):
             item_number += 1
 
             await self.product_inventory_service.update_current_stock(
-                product_code=fabric,
+                product_code1=fabric,
                 period=period,
                 storage_code=supplier.storage_code,
                 new_stock=fabric_id_detail[fabric]["net_weight"],
             )
 
-        await self.create_movement(
+        await self.save_movement(
             movement=dyeing_service_entry,
             movement_detail=dyeing_service_entry_detail,
         )
@@ -478,7 +478,7 @@ class DyeingServiceDispatchService(MovementService):
                     creation_date=creation_date,
                     creation_time=creation_time,
                     item_number=item_number,
-                    product_code=fabric_id,
+                    product_code1=fabric_id,
                     unit_code="KG",
                     factor=1,
                     mecsa_weight=detail_card.net_weight,
@@ -498,7 +498,7 @@ class DyeingServiceDispatchService(MovementService):
                 item_number += 1
 
                 await self.product_inventory_service.update_current_stock(
-                    product_code=fabric_id,
+                    product_code1=fabric_id,
                     period=form.period,
                     storage_code=WEAVING_STORAGE_CODE,
                     new_stock=-detail_card.net_weight,
@@ -516,7 +516,7 @@ class DyeingServiceDispatchService(MovementService):
 
         dyeing_service_dispatch.detail_dyeing = dyeing_service_dispatch_detail
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch_detail,
@@ -532,12 +532,12 @@ class DyeingServiceDispatchService(MovementService):
         target_card: CardOperation,
         existing_movements: list[MovementDetail],
     ) -> Result[list[MovementDetail], CustomException]:
-        await self.card_operation_repository.save(target_card)
+        # await self.card_operation_repository.save(target_card)
 
         remaining_movements = []
         for movement in existing_movements:
             if movement.nrotarj == target_card.id:
-                await self.movement_detail_repository.delete(movement)
+                await self.movement_detail_repository.delete(movement, flush=True)
             else:
                 remaining_movements.append(movement)
 
@@ -577,11 +577,11 @@ class DyeingServiceDispatchService(MovementService):
         filtered_warehouses = []
         for warehouse in fabric_warehouses:
             if warehouse.product_id in {
-                detail.product_code for detail in updated_movements
+                detail.product_code1 for detail in updated_movements
             }:
                 filtered_warehouses.append(warehouse)
             else:
-                await self.fabric_warehouse_repository.delete(warehouse)
+                await self.fabric_warehouse_repository.delete(warehouse, flush=True)
 
         return Success((fabric_warehouses, updated_movements))
 
@@ -600,14 +600,14 @@ class DyeingServiceDispatchService(MovementService):
 
         for detail in dyeing_service_dispatch.detail_dyeing:
             await self.product_inventory_service.rollback_currents_stock(
-                product_code=detail.product_id,
+                product_code1=detail.product_id,
                 period=period,
                 storage_code=supplier.storage_code,
                 quantity=detail.guide_net_weight,
             )
 
             await self.product_inventory_service.rollback_currents_stock(
-                product_code=detail.product_id,
+                product_code1=detail.product_id,
                 period=period,
                 storage_code=WEAVING_STORAGE_CODE,
                 quantity=-detail.guide_net_weight,
@@ -686,8 +686,10 @@ class DyeingServiceDispatchService(MovementService):
         )
 
         if entry_movement:
-            await self.movement_detail_repository.delete_all(entry_movement.detail)
-            await self.repository.delete(entry_movement)
+            await self.movement_detail_repository.delete_all(
+                entry_movement.detail, flush=True
+            )
+            await self.repository.delete(entry_movement, flush=True)
 
         return Success(None)
 
@@ -877,7 +879,7 @@ class DyeingServiceDispatchService(MovementService):
                             creation_date=creation_date,
                             creation_time=creation_time,
                             item_number=item_number,
-                            product_code=fabric_id,
+                            product_code1=fabric_id,
                             unit_code="KG",
                             factor=1,
                             mecsa_weight=detail_card.net_weight,
@@ -897,7 +899,7 @@ class DyeingServiceDispatchService(MovementService):
                         item_number += 1
 
                         await self.product_inventory_service.update_current_stock(
-                            product_code=fabric_id,
+                            product_code1=fabric_id,
                             period=period,
                             storage_code=WEAVING_STORAGE_CODE,
                             new_stock=-detail_card.net_weight,
@@ -945,7 +947,7 @@ class DyeingServiceDispatchService(MovementService):
                         creation_date=creation_date,
                         creation_time=creation_time,
                         item_number=item_number,
-                        product_code=fabric_id,
+                        product_code1=fabric_id,
                         unit_code="KG",
                         factor=1,
                         mecsa_weight=detail_card.net_weight,
@@ -965,7 +967,7 @@ class DyeingServiceDispatchService(MovementService):
                     item_number += 1
 
                     await self.product_inventory_service.update_current_stock(
-                        product_code=fabric_id,
+                        product_code1=fabric_id,
                         period=period,
                         storage_code=WEAVING_STORAGE_CODE,
                         new_stock=-detail_card.net_weight,
@@ -986,7 +988,7 @@ class DyeingServiceDispatchService(MovementService):
 
         dyeing_service_dispatch.detail_dyeing = dyeing_service_dispatch_detail
 
-        creation_result = await self.create_movement(
+        creation_result = await self.save_movement(
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch_detail,
@@ -1046,7 +1048,7 @@ class DyeingServiceDispatchService(MovementService):
         for detail in dyeing_service_dispatch.detail_dyeing:
             detail.status_flag = "A"
 
-        update_result = await self.create_movement(
+        update_result = await self.save_movement(
             movement=dyeing_service_dispatch,
             movement_detail=dyeing_service_dispatch_detail_card,
             movement_detail_fabric=dyeing_service_dispatch.detail_dyeing,

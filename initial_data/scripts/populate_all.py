@@ -4,6 +4,7 @@ from create_admin_user import create_admin_user
 from populate_fabrics import populate_fabrics
 from populate_fibers import populate_fibers
 from populate_mecsa_colors import populate_mecsa_colors
+from populate_operations import populate_operations
 from populate_parameter_categories import populate_parameter_categories
 from populate_parameters import populate_parameters
 from populate_yarns import populate_yarns
@@ -19,6 +20,7 @@ async def main():
     await populate_fibers()
     await populate_yarns()
     await populate_fabrics()
+    await populate_operations()
 
     await promec_async_engine.dispose()
     await engine_async.dispose()

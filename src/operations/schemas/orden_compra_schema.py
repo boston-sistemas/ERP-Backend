@@ -1,12 +1,17 @@
 from datetime import date
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 
-from .orden_compra_detalle_schema import OrdenCompraDetalleBase
-
-# from pydantic import field_serializer
+from .orden_compra_detalle_schema import (
+    OrdenCompraDetalleBase,
+    YarnPurchaseOrderDetailSchema,
+)
+from .promec_schema import (
+    PromecCurrencySchema,
+    PromecStatusSchema,
+)
 
 
 class OrdenCompraBase(CustomBaseModel):
@@ -17,8 +22,8 @@ class OrdenCompraBase(CustomBaseModel):
     issue_date: date | None
     due_date: date | None
     payment_method: str | None
-    status_flag: str
-    currency_code: int
+    status_flag: str | None = Field(exclude=True)
+    currency_code: int | None = Field(exclude=True)
 
     class Config:
         from_attributes = True
@@ -34,9 +39,33 @@ class OrdenCompraSimpleSchema(OrdenCompraBase):
     pass
 
 
+class YarnPurchaseOrderSchema(OrdenCompraBase):
+    promec_currency: PromecCurrencySchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_currency(self):
+        if self.currency_code is not None:
+            self.promec_currency = PromecCurrencySchema(currency_id=self.currency_code)
+        return self
+
+    promec_status: PromecStatusSchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_status(self):
+        if self.status_flag is not None:
+            self.promec_status = PromecStatusSchema(status_id=self.status_flag)
+        return self
+
+    detail: list[YarnPurchaseOrderDetailSchema] | None = Field([])
+
+
 class OrdenCompraWithDetailSchema(OrdenCompraBase):
     detail: list[OrdenCompraDetalleBase] | None = Field([])
 
 
 class OrdenCompraWithDetallesListSchema(CustomBaseModel):
     ordenes: list[OrdenCompraWithDetailSchema]
+
+
+class YarnPurchaseOrderListSchema(CustomBaseModel):
+    yarn_orders: list[YarnPurchaseOrderSchema] | None = []

@@ -76,7 +76,7 @@ class SupplierRepository(BaseRepository[Supplier]):
         service_code: str,
         limit: int,
         offset: int,
-        include_inactive: bool = False,
+        include_inactives: bool = False,
         include_other_addresses: bool = False,
     ) -> list[Supplier]:
         options: list[Load] = []
@@ -90,7 +90,7 @@ class SupplierRepository(BaseRepository[Supplier]):
             SupplierService.service_code == service_code
         )
 
-        if not include_inactive:
+        if not include_inactives:
             base_filter = base_filter & (Supplier.is_active == "A")
 
         suppliers = await self.find_all(

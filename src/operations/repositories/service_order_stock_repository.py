@@ -15,7 +15,7 @@ class ServiceOrderStockRepository(BaseRepository[ServiceOrderStock]):
 
     async def find_service_order_stock_by_product_code_and_storage_code_and_reference_number_and_item_number(
         self,
-        product_code: str,
+        product_code1: str,
         storage_code: str,
         reference_number: str,
         item_number: int,
@@ -26,7 +26,7 @@ class ServiceOrderStockRepository(BaseRepository[ServiceOrderStock]):
     ) -> ServiceOrderStock | None:
         base_filter = (
             (ServiceOrderStock.company_code == MECSA_COMPANY_CODE)
-            & (ServiceOrderStock.product_code == product_code)
+            & (ServiceOrderStock.product_code1 == product_code1)
             & (ServiceOrderStock.storage_code == storage_code)
             & (ServiceOrderStock.reference_number == reference_number)
             & (ServiceOrderStock.period == period)
@@ -70,7 +70,7 @@ class ServiceOrderStockRepository(BaseRepository[ServiceOrderStock]):
             & (ServiceOrderStock.reference_number == service_order_id)
             & (ServiceOrderStock.period == period)
             & (ServiceOrderStock.storage_code == storage_code)
-            & (ServiceOrderStock.product_code == product_id)
+            & (ServiceOrderStock.product_code1 == product_id)
         )
 
         filter = base_filter

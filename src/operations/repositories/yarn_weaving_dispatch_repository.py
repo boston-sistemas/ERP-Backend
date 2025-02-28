@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, load_only
@@ -73,15 +75,15 @@ class YarnWeavingDispatchRepository(MovementRepository):
         if include_detail_entry:
             if use_contains_eager:
                 options.append(
-                    contains_eager(Movement.detail)
-                    .contains_eager(MovementDetail.movement_ingress)
-                    .contains_eager(MovementYarnOCHeavy.movement_detail)
+                    contains_eager(Movement.detail).contains_eager(
+                        MovementDetail.movement_ingress
+                    )
                 )
             else:
                 options.append(
-                    joinedload(Movement.detail)
-                    .joinedload(MovementDetail.movement_ingress)
-                    .joinedload(MovementYarnOCHeavy.movement_detail)
+                    joinedload(Movement.detail).joinedload(
+                        MovementDetail.movement_ingress
+                    )
                 )
 
         return options
@@ -147,9 +149,15 @@ class YarnWeavingDispatchRepository(MovementRepository):
     async def find_yarn_weaving_dispatches(
         self,
         period: int,
-        include_inactive: bool = False,
+        dispatch_number: str = None,
+        supplier_ids: list[str] = None,
+        start_date: date = None,
+        end_date: date = None,
         limit: int = None,
         offset: int = None,
+        include_annulled: bool = False,
+        include_detail: bool = False,
+        apply_unique: bool = False,
         filter: BinaryExpression = None,
     ) -> list[Movement]:
         base_filter = (
@@ -160,18 +168,35 @@ class YarnWeavingDispatchRepository(MovementRepository):
             & (Movement.period == period)
         )
 
-        if not include_inactive:
+        if not include_annulled:
             base_filter = base_filter & (Movement.status_flag == "P")
+
+        if dispatch_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{dispatch_number}%")
+            )
+
+        if supplier_ids:
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
+
+        if start_date:
+            base_filter = base_filter & (Movement.creation_date >= start_date)
+
+        if end_date:
+            base_filter = base_filter & (Movement.creation_date <= end_date)
 
         filter = base_filter & filter if filter is not None else base_filter
 
-        options = self.get_load_options()
+        options = self.get_load_options(
+            include_detail=include_detail,
+        )
 
         yarn_weaving_dispatches = await self.find_movements(
             filter=filter,
             options=options,
             limit=limit,
             offset=offset,
+            apply_unique=apply_unique,
             order_by=Movement.creation_date.desc(),
         )
 

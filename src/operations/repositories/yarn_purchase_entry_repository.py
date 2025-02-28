@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
@@ -12,6 +14,7 @@ from src.operations.constants import (
 from src.operations.models import (
     Movement,
     MovementDetail,
+    MovementDetailAux,
     OrdenCompra,
     OrdenCompraDetalle,
 )
@@ -61,7 +64,9 @@ class YarnPurchaseEntryRepository(MovementRepository):
     @staticmethod
     def include_details(include_heavy: bool = True) -> list[Load]:
         base_options = [
-            joinedload(Movement.detail).joinedload(MovementDetail.detail_aux)
+            joinedload(Movement.detail)
+            .joinedload(MovementDetail.detail_aux)
+            .defer(MovementDetailAux._supplier_batch),
         ]
 
         if include_heavy:
@@ -130,7 +135,16 @@ class YarnPurchaseEntryRepository(MovementRepository):
     async def find_yarn_purchase_entries(
         self,
         period: int,
-        include_inactive: bool,
+        entry_number: str = None,
+        apply_unique: bool = False,
+        include_annulled: bool = False,
+        supplier_ids: list[str] = None,
+        purchase_order_number: str = None,
+        supplier_batch: str = None,
+        mecsa_batch: str = None,
+        start_date: date = None,
+        end_date: date = None,
+        include_detail: bool = False,
         limit: int = None,
         offset: int = None,
         filter: BinaryExpression = None,
@@ -142,16 +156,45 @@ class YarnPurchaseEntryRepository(MovementRepository):
             & (Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE)
             & (Movement.period == period)
         )
-        if not include_inactive:
+        if not include_annulled:
             base_filter = base_filter & (Movement.status_flag == "P")
+
+        if entry_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{entry_number}%")
+            )
+
+        if supplier_ids:
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
+
+        if purchase_order_number:
+            base_filter = base_filter & (
+                Movement.reference_number2.like(f"%{purchase_order_number}%")
+            )
+
+        if supplier_batch:
+            base_filter = base_filter & (
+                Movement.supplier_batch.like(f"%{supplier_batch}%")
+            )
+
+        if mecsa_batch:
+            base_filter = base_filter & (Movement.mecsa_batch.like(f"%{mecsa_batch}%"))
+
+        if start_date:
+            base_filter = base_filter & (Movement.creation_date >= start_date)
+
+        if end_date:
+            base_filter = base_filter & (Movement.creation_date <= end_date)
+
         filter = base_filter & filter if filter is not None else base_filter
-        options = self.get_load_options()
+        options = self.get_load_options(include_detail=include_detail)
 
         yarn_purchase_entries = await self.find_movements(
             filter=filter,
             options=options,
             limit=limit,
             offset=offset,
+            apply_unique=apply_unique,
             order_by=Movement.creation_date.desc(),
         )
 

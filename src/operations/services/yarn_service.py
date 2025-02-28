@@ -639,7 +639,7 @@ class YarnService:
         order_detail_items = await self.purcharse_order_detail_repository.find_all(
             filter=and_(
                 OrdenCompraDetalle.company_code == MECSA_COMPANY_CODE,
-                OrdenCompraDetalle.product_code == yarn.id,
+                OrdenCompraDetalle.product_code1 == yarn.id,
                 OrdenCompraDetalle.status_flag != "A",
             ),
             limit=1,
@@ -652,7 +652,7 @@ class YarnService:
         # movement_detail_items = await self.movement_detail_repository.find_all(
         #     filter=and_(
         #         MovementDetail.company_code == MECSA_COMPANY_CODE,
-        #         MovementDetail.product_code == yarn.id,
+        #         MovementDetail.product_code1 == yarn.id,
         #         MovementDetail.status_flag != "A",
         #     ),
         #     limit=1,

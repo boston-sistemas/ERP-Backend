@@ -7,6 +7,9 @@ stop: stop_db stop_mailhog
 
 setup: start_dependencies install_requirements install_precommit display_odbc_message install_unixodbc
 
+venv:
+	source ./venv/bin/activate
+
 install_precommit:
 	pip install pre-commit
 	pre-commit install
@@ -14,7 +17,12 @@ install_precommit:
 init-db:
 	python3 scripts/cli.py init-db
 
+init-promec-db:
+	# source ./venv/bin/activate
+	python3 scripts/cli.py init-promec-db
+
 populate-all:
+	# source ./venv/bin/activate
 	python3 initial_data/scripts/populate_all.py
 
 start_server: start_dependencies
@@ -72,3 +80,6 @@ stop_mailhog:
 	@echo "\nDeteniendo contenedor '$(MAILHOG_CONTAINER_NAME)' si está en ejecución..."
 	- docker ps --format '{{.Names}}' | grep -Fx $(MAILHOG_CONTAINER_NAME) >/dev/null 2>&1 && \
 	docker stop $(MAILHOG_CONTAINER_NAME)
+
+uvicorn start:
+	uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8000 --reload

@@ -14,6 +14,8 @@ from src.operations.models import (
     FabricWarehouse,
     Movement,
     MovementDetail,
+    MovementDetailAux,
+    MovementYarnOCHeavy,
     ProductInventory,
 )
 from src.operations.repositories import MovementRepository
@@ -28,6 +30,12 @@ class MovementService:
         self.movement_detail_repository = BaseRepository(
             model=MovementDetail, db=promec_db
         )
+        self.movement_detail_aux_repository = BaseRepository(
+            model=MovementDetailAux, db=promec_db
+        )
+        self.movement_detail_heavy_repository = BaseRepository(
+            model=MovementYarnOCHeavy, db=promec_db
+        )
         self.fabric_warehouse_repository = BaseRepository(
             model=FabricWarehouse, db=promec_db
         )
@@ -36,17 +44,43 @@ class MovementService:
         )
         self.product_inventory_service = ProductInventoryService(promec_db=promec_db)
 
+    async def read_movement(
+        self,
+        document_number: str,
+        storage_code: str,
+        movement_type: str,
+        movement_code: str,
+        document_code: str,
+        period: int,
+        include_detail: bool = False,
+    ) -> Result[Movement, CustomException]:
+        base_filter = (
+            (Movement.storage_code == storage_code)
+            & (Movement.movement_type == movement_type)
+            & (Movement.movement_code == movement_code)
+            & (Movement.document_code == document_code)
+            & (Movement.period == period)
+        )
+
+        movement = await self.repository.find_movement_by_document_number(
+            document_number=document_number,
+            filter=base_filter,
+            include_detail=include_detail,
+        )
+
+        return Success(movement)
+
     async def _read_or_create_product_inventory(
         self,
         storage_code: str,
-        product_code: str,
+        product_code1: str,
         period: int,
         enable_create: bool = False,
     ) -> Result[ProductInventory, CustomException]:
         product_inventory = (
             await self.product_inventory_service._read_product_inventory(
                 storage_code=storage_code,
-                product_code=product_code,
+                product_code1=product_code1,
                 period=period,
             )
         )
@@ -56,7 +90,7 @@ class MovementService:
                 product_inventory = ProductInventory(
                     company_code=MECSA_COMPANY_CODE,
                     storage_code=storage_code,
-                    product_code=product_code,
+                    product_code1=product_code1,
                     period=period,
                     current_stock=0,
                 )
@@ -69,22 +103,78 @@ class MovementService:
 
         return Success(product_inventory.value)
 
-    async def create_movement(
+    async def delete_movement(
         self,
-        movement: Movement,
+        movement: Movement = None,
         movement_detail: list[MovementDetail] = [],
+        movememt_detail_aux: list[MovementDetailAux] = [],
+        movement_detail_heavy: list[MovementYarnOCHeavy] = [],
         movement_detail_fabric: list[FabricWarehouse] = [],
         movement_detail_card: list[CardOperation] = [],
     ) -> Result[None, CustomException]:
-        await self.repository.save(movement)
+        if movement:
+            await self.repository.delete(movement, flush=True)
 
-        for detail in movement_detail:
-            await self.movement_detail_repository.save(detail)
+        if movement_detail:
+            await self.movement_detail_repository.delete_all(
+                movement_detail, flush=True
+            )
 
-        for detail in movement_detail_fabric:
-            await self.fabric_warehouse_repository.save(detail)
+        if movememt_detail_aux:
+            await self.movement_detail_aux_repository.delete_all(
+                movememt_detail_aux, flush=True
+            )
 
-        for detail in movement_detail_card:
-            await self.card_operation_repository.save(detail)
+        if movement_detail_heavy:
+            await self.movement_detail_heavy_repository.delete_all(
+                movement_detail_heavy, flush=True
+            )
+
+        if movement_detail_fabric:
+            await self.fabric_warehouse_repository.delete_all(
+                movement_detail_fabric, flush=True
+            )
+
+        if movement_detail_card:
+            await self.card_operation_repository.delete_all(
+                movement_detail_card, flush=True
+            )
+
+        return Success(None)
+
+    async def save_movement(
+        self,
+        movement: Movement = None,
+        movement_detail: list[MovementDetail] = [],
+        movememt_detail_aux: list[MovementDetailAux] = [],
+        movement_detail_heavy: list[MovementYarnOCHeavy] = [],
+        movement_detail_fabric: list[FabricWarehouse] = [],
+        movement_detail_card: list[CardOperation] = [],
+    ) -> Result[None, CustomException]:
+        if movement:
+            await self.repository.save(movement, flush=True)
+
+        if movement_detail:
+            await self.movement_detail_repository.save_all(movement_detail, flush=True)
+
+        if movememt_detail_aux:
+            await self.movement_detail_aux_repository.save_all(
+                movememt_detail_aux, flush=True
+            )
+
+        if movement_detail_heavy:
+            await self.movement_detail_heavy_repository.save_all(
+                movement_detail_heavy, flush=True
+            )
+
+        if movement_detail_fabric:
+            await self.fabric_warehouse_repository.save_all(
+                movement_detail_fabric, flush=True
+            )
+
+        if movement_detail_card:
+            await self.card_operation_repository.save_all(
+                movement_detail_card, flush=True
+            )
 
         return Success(None)

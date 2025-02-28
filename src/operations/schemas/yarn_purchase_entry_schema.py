@@ -1,8 +1,9 @@
 from datetime import date, datetime
 
-from pydantic import AliasChoices, Field, model_validator
+from pydantic import AliasChoices, Field, field_serializer, model_validator
 
 from src.core.schemas import CustomBaseModel
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NROGF_MAX_LENGTH,
@@ -12,6 +13,7 @@ from src.operations.constants import (
 )
 
 from .orden_compra_schema import OrdenCompraWithDetailSchema
+from .promec_schema import PromecStatusSchema
 from .yarn_purchase_entry_detail_schema import (
     YarnPurchaseEntryDetailCreateSchema,
     YarnPurchaseEntryDetailSimpleSchema,
@@ -33,7 +35,6 @@ class YarnPurchaseEntryBase(CustomBaseModel):
     supplier_code: str | None = Field(
         default=None, validation_alias=AliasChoices("auxiliary_code", "supplier_code")
     )
-    status_flag: str | None
     purchase_order_number: str | None = Field(
         default=None,
         validation_alias=AliasChoices("reference_number2", "purchase_order_number"),
@@ -44,12 +45,46 @@ class YarnPurchaseEntryBase(CustomBaseModel):
 
     document_note: str | None
 
+    @field_serializer("creation_date", when_used="json")
+    def serialize_creation_date(value: date | None) -> str | None:
+        if value is None:
+            return None
+        return value.strftime("%d-%m-%Y")
+
+    @field_serializer("supplier_code")
+    def serialize_supplier_batch(value: str | None) -> str | None:
+        return value.upper() if value is not None else None
+
     class Config:
         from_attributes = True
 
 
 class YarnPurchaseEntrySimpleSchema(YarnPurchaseEntryBase):
-    pass
+    status_flag: str | None = Field(exclude=True)
+
+    promec_status: PromecStatusSchema | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_promec_status(self):
+        if self.status_flag is not None:
+            self.promec_status = PromecStatusSchema(status_id=self.status_flag)
+        return self
+
+
+class YarnPurchaseEntryFilterParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    entry_number: str | None = Field(default=None)
+    supplier_ids: list[str] | None = Field(default=None)
+    purchase_order_number: str | None = Field(default=None)
+    supplier_batch: str | None = Field(default=None)
+    mecsa_batch: str | None = Field(default=None)
+    start_date: date | None = Field(default=None)
+    end_date: date | None = Field(default=None)
+    limit: int | None = Field(default=10, ge=1, le=100)
+    offset: int | None = Field(default=0, ge=0)
+    include_annulled: bool | None = Field(default=False)
 
 
 class YarnPurchaseEntriesSimpleListSchema(CustomBaseModel):
@@ -86,14 +121,25 @@ class YarnPurchaseEntrySchema(YarnPurchaseEntrySimpleSchema):
     )
 
 
+class YarnPurchaseEntryPrintSchema(CustomBaseModel):
+    entry_number: str
+    include_heave: bool | None = Field(default=False)
+
+
+class YarnPurchaseEntryPrintListSchema(CustomBaseModel):
+    entry_numbers: list[YarnPurchaseEntryPrintSchema] = []
+
+
 class YarnPurchaseEntryCreateSchema(CustomBaseModel):
-    period: int
-    supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
-    supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
+    # period: int
+    supplier_po_correlative: str = Field(min_length=1, max_length=NROGF_MAX_LENGTH)
+    supplier_po_series: str = Field(min_length=1, max_length=SERGF_MAX_LENGTH)
     fecgf: date
-    purchase_order_number: str = Field(max_length=REFERENCE_NUMBER_MAX_LENGTH)
-    document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
-    supplier_batch: str = Field(max_length=SUPPLIER_BATCH_MAX_LENGTH)
+    purchase_order_number: str = Field(
+        min_length=1, max_length=REFERENCE_NUMBER_MAX_LENGTH
+    )
+    document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
+    supplier_batch: str = Field(min_length=1, max_length=SUPPLIER_BATCH_MAX_LENGTH)
 
     detail: list[YarnPurchaseEntryDetailCreateSchema] = Field(default=[])
 
@@ -127,31 +173,6 @@ class YarnPurchaseEntryUpdateSchema(CustomBaseModel):
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     fecgf: date
-    document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
+    document_note: str | None = Field("", max_length=DOCUMENT_NOTE_MAX_LENGTH)
     supplier_batch: str = Field(max_length=SUPPLIER_BATCH_MAX_LENGTH)
     detail: list[YarnPurchaseEntryDetailUpdateSchema] = Field(default=[])
-
-    @model_validator(mode="after")
-    def align_item_numbers(self):
-        total = len(self.detail)
-        assigned_nums = [
-            d.item_number for d in self.detail if d.item_number is not None
-        ]
-
-        if len(assigned_nums) != len(set(assigned_nums)) or any(
-            num < 1 or num > total for num in assigned_nums
-        ):
-            for i, d in enumerate(self.detail, start=1):
-                d.item_number = i
-            return self
-
-        used = set(assigned_nums)
-        missing = [i for i in range(1, total + 1) if i not in used]
-
-        m_idx = 0
-        for d in self.detail:
-            if d.item_number is None:
-                d.item_number = missing[m_idx]
-                m_idx += 1
-
-        return self

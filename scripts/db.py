@@ -1,9 +1,21 @@
 from config import settings
 from loguru import logger
 from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.ext.asyncio import create_async_engine
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 promec_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=True)
+promec_silent_engine = create_engine(settings.PROMEC_DATABASE_URL, echo=False)
+promec_async_silent_engine = create_async_engine(
+    settings.PROMEC_DATABASE_URL_ASYNC,
+    echo=False,
+    query_cache_size=0,
+)
+pcp_async_silent_engine = create_async_engine(
+    settings.PCP_DATABASE_URL_ASYNC,
+    echo=False,
+    query_cache_size=0,
+)
 
 
 def test_database_connection(_engine: Engine) -> bool:
@@ -48,11 +60,75 @@ def delete_tables() -> None:
     from src.core.database import Base  # noqa: F401
 
     import_models()
-    Base.metadata.drop_all(engine)
+    Base.metadata.drop_all(engine, checkfirst=True)
 
 
 def create_promec_tables() -> None:
     pass
+
+
+def update_promec_tables() -> None:
+    from sqlalchemy.exc import SQLAlchemyError
+
+    from scripts.db_alter import Table, alter_tables
+
+    tables: list[Table] = alter_tables(promec_silent_engine)
+
+    with promec_silent_engine.connect() as db:
+        for table in tables:
+            logger.info(f"Actualizando tabla {table.name}...")
+            stmt = table.query_update()
+            for column in table.columns:
+                try:
+                    db.execute(text(f"{stmt}{column}"))
+                    db.commit()
+                    logger.info(
+                        f"Se agregó la columna {column.name} a la tabla {table.name}."
+                    )
+                except SQLAlchemyError as e:
+                    logger.error(
+                        f"Error al actualizar tabla {table.name} con la columna {column.name}: {str(e)}"
+                    )
+
+
+async def update_promec_rows() -> None:
+    from data_parser import DataParser
+
+    data_parser = DataParser(
+        promec_engine=promec_async_silent_engine,
+        pcp_engine=pcp_async_silent_engine,
+    )
+
+    await data_parser.parse_yarn_purchase_entry_heavies()
+    await data_parser.parse_period_yarn_purchase_entries(2024)
+    await data_parser.parse_period_yarn_purchase_entries(2025)
+    # await data_parser.parse_period_service_orders_weaving_from_pcp(2024)
+    # await data_parser.parse_period_service_orders_weaving_from_pcp(2025)
+    # await data_parser.parse_period_service_orders_supply_item_number(2024)
+    # await data_parser.parse_period_service_orders_supply_item_number(2025)
+    # await data_parser.parse_period_service_orders_weaving(2024)
+    # await data_parser.parse_period_service_orders_weaving(2025)
+    # await data_parser.parse_period_service_orders_weaving_stocks(2024)
+    # await data_parser.parse_period_service_orders_weaving_stocks(2025)
+    # await data_parser.parse_period_service_orders_weaving_stocks_lyc(2024)
+    await promec_async_silent_engine.dispose()
+
+
+async def inspect_tables() -> None:
+    from data_inspector import DataInspector
+
+    data_inspector = DataInspector(
+        promec_engine=promec_async_silent_engine,
+        pcp_engine=pcp_async_silent_engine,
+    )
+
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2022)
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2023)
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2024)
+    # await data_inspector.inspect_period_yarn_weaving_dispatches(2025)
+    await data_inspector.inspect_period_service_orders_weaving(2024)
+
+    await promec_async_silent_engine.dispose()
 
 
 def create_promec_sequences() -> None:

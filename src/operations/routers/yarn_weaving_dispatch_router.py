@@ -6,8 +6,10 @@ from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchFilterParams,
+    YarnWeavingDispatchListSchema,
+    YarnWeavingDispatchPrintListSchema,
     YarnWeavingDispatchSchema,
-    YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchUpdateSchema,
 )
 from src.operations.services import YarnWeavingDispatchService
@@ -15,20 +17,17 @@ from src.operations.services import YarnWeavingDispatchService
 router = APIRouter()
 
 
-@router.get("/", response_model=YarnWeavingDispatchSimpleListSchema)
+@router.get("/", response_model=YarnWeavingDispatchListSchema)
 async def read_yarn_weaving_dispatches(
-    period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    filter_params: YarnWeavingDispatchFilterParams = Query(
+        YarnWeavingDispatchFilterParams()
     ),
-    limit: int | None = Query(default=10, ge=1, le=100),
-    offset: int | None = Query(default=0, ge=0),
-    include_inactive: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
 ):
     service = YarnWeavingDispatchService(promec_db=promec_db, db=db)
     result = await service.read_yarn_weaving_dispatches(
-        limit=limit, offset=offset, period=period, include_inactive=include_inactive
+        filter_params=filter_params,
     )
 
     if result.is_success:
@@ -93,9 +92,7 @@ async def update_yarn_weaving_dispatch(
     )
 
     if result.is_success:
-        return {
-            "message": "La salida de hilado ha tejeduría ha sido actualizada exitosamente."
-        }
+        return result.value
 
     raise result.error
 
@@ -148,7 +145,7 @@ async def is_updated_permission(
 
 @router.post("/print/movement")
 async def print_yarn_weaving_dispatch(
-    # form: WeavingServiceEntryPrintListSchema,
+    form: YarnWeavingDispatchPrintListSchema,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),

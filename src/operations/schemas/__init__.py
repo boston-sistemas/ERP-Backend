@@ -38,10 +38,11 @@ from .mecsa_color_schema import (
     MecsaColorUpdateSchema,
 )
 from .orden_compra_schema import (
-    # OrdenCompraBase,
     OrdenCompraSimpleSchema,
     OrdenCompraWithDetailSchema,
     OrdenCompraWithDetallesListSchema,
+    YarnPurchaseOrderListSchema,
+    YarnPurchaseOrderSchema,
 )
 from .orden_servicio_tejeduria_detalle_schema import (
     OrdenServicioTejeduriaDetalleBase,
@@ -90,10 +91,13 @@ from .service_order_detail_schema import (
 # from .orden_compra_detalle_schema import OrdenCompraDetalleSchema
 from .service_order_schema import (
     ServiceOrderCreateSchema,
+    ServiceOrderFilterParams,
     ServiceOrderListSchema,
+    ServiceOrderProgressReviewListSchema,
     ServiceOrderSchema,
     ServiceOrderSimpleListSchema,
     ServiceOrderSimpleSchema,
+    ServiceOrderSupplyDetailSchema,
     ServiceOrderUpdateSchema,
 )
 from .supplier_schema import (
@@ -116,8 +120,10 @@ from .weaving_service_entry_detail_schema import (
     WeavingServiceEntryDetailUpdateSchema,
 )
 from .weaving_service_entry_schema import (
+    WeavingServiceEntriesListSchema,
     WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
+    WeavingServiceEntryFilterParams,
     WeavingServiceEntryPrintListSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntrySimpleSchema,
@@ -132,6 +138,8 @@ from .yarn_purchase_entry_schema import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
     YarnPurchaseEntryDetailCreateSchema,
+    YarnPurchaseEntryFilterParams,
+    YarnPurchaseEntryPrintListSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntrySearchSchema,
     YarnPurchaseEntryUpdateSchema,
@@ -150,6 +158,9 @@ from .yarn_weaving_dispatch_detail_schema import (
 )
 from .yarn_weaving_dispatch_schema import (
     YarnWeavingDispatchCreateSchema,
+    YarnWeavingDispatchFilterParams,
+    YarnWeavingDispatchListSchema,
+    YarnWeavingDispatchPrintListSchema,
     YarnWeavingDispatchSchema,
     YarnWeavingDispatchSimpleListSchema,
     YarnWeavingDispatchSimpleSchema,
@@ -261,4 +272,14 @@ __all__ = [
     "DyeingServiceDispatchDetailCreateSchema",
     "CardOperationSchema",
     "SupplierListSchema",
+    "YarnPurchaseEntryPrintListSchema",
+    "YarnPurchaseOrderSchema",
+    "YarnWeavingDispatchListSchema",
+    "YarnWeavingDispatchFilterParams",
+    "ServiceOrderFilterParams",
+    "YarnPurchaseOrderListSchema",
+    "WeavingServiceEntriesListSchema",
+    "WeavingServiceEntryFilterParams",
+    "ServiceOrderProgressReviewListSchema",
+    "ServiceOrderSupplyDetailSchema",
 ]

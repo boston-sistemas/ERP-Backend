@@ -20,18 +20,18 @@ class BaseRepository(Generic[ModelType]):
         self.db = db
         self.flush = flush
 
-    async def save(self, object: ModelType) -> ModelType:
+    async def save(self, object: ModelType, flush: bool = False) -> ModelType:
         self.db.add(object)
 
-        if self.flush:
+        if flush:
             await self.db.flush()
 
         return object
 
-    async def save_all(self, objects: Sequence[ModelType]) -> None:
+    async def save_all(self, objects: Sequence[ModelType], flush: bool = False) -> None:
         self.db.add_all(objects)
 
-        if self.flush:
+        if flush:
             await self.db.flush()
 
     async def find(
@@ -60,7 +60,9 @@ class BaseRepository(Generic[ModelType]):
             stmt = stmt.options(*options)
             return (await self.db.execute(stmt)).scalars().unique().one_or_none()
 
-        return (await self.db.execute(stmt)).scalar_one_or_none()
+        result = (await self.db.execute(stmt)).scalars().unique().one_or_none()
+
+        return result
 
     async def find_by_id(
         self, id: Any, options: Sequence[Load] = None, **kwargs
@@ -110,9 +112,11 @@ class BaseRepository(Generic[ModelType]):
             stmt = stmt.limit(limit)
 
         if apply_unique:
-            return (await self.db.scalars(stmt)).unique().all()
+            results = (await self.db.execute(stmt)).scalars().unique().all()
+        else:
+            results = (await self.db.execute(stmt)).scalars().all()
 
-        return (await self.db.scalars(stmt)).all()
+        return results
 
     async def count(self, filter: BinaryExpression = None) -> int:
         stmt = select(func.count()).select_from(self.model)
@@ -142,3 +146,16 @@ class BaseRepository(Generic[ModelType]):
 
         if flush:
             await self.db.flush()
+
+    def expunge_all(self) -> None:
+        self.db.expunge_all()
+
+    async def expunge_all_objects(self, objects: Sequence[ModelType]) -> None:
+        for object in objects:
+            self.db.expunge(object)
+
+    async def expunge(self, object: ModelType) -> None:
+        self.db.expunge(object)
+
+    async def refresh(self, object: ModelType) -> None:
+        await self.db.refresh(object)

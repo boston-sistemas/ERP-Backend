@@ -1,7 +1,13 @@
+import json
 import sys
+from datetime import datetime
 from pathlib import Path
+from typing import Type
 
+from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Settings(BaseSettings):
@@ -11,8 +17,11 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
+    DATA_DIR: str = BASE_DIR + "scripts/data/"
     DATABASE_URL: str
     PROMEC_DATABASE_URL: str
+    PROMEC_DATABASE_URL_ASYNC: str
+    PCP_DATABASE_URL_ASYNC: str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,6 +29,44 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def load_data(file_path: str) -> list[dict]:
+    try:
+        with open(file_path, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        logger.error(f"Archivo {file_path} no encontrado.")
+        return []
+    except json.JSONDecodeError as e:
+        logger.error(f"Error al leer el archivo JSON: {str(e)}")
+        return []
+
+
+async def populate(
+    db: AsyncSession, model: Type[DeclarativeBase], filename: str
+) -> None:
+    items = load_data(settings.DATA_DIR + filename)
+    created_objects = 0
+    for item in items:
+        try:
+            if "issue_date" in item and isinstance(item["issue_date"], str):
+                item["issue_date"] = datetime.strptime(
+                    item["issue_date"], "%Y-%m-%d"
+                ).date()
+            if "due_date" in item and isinstance(item["due_date"], str):
+                item["due_date"] = datetime.strptime(
+                    item["due_date"], "%Y-%m-%d"
+                ).date()
+            db.add(model(**item))
+            await db.commit()
+            created_objects += 1
+            logger.info(f"Item creado con éxito: '{item}'.")
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Error al crear el item: '{item}', {e}")
+
+    logger.info(f"Numero de items creado: {created_objects}")
 
 
 if __name__ == "__main__":

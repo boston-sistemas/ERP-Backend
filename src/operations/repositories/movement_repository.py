@@ -2,6 +2,7 @@ from typing import Sequence, Union
 
 from sqlalchemy import BinaryExpression, ClauseElement, Column
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.strategy_options import Load
 
 from src.core.constants import MECSA_COMPANY_CODE
@@ -22,13 +23,18 @@ class MovementRepository(BaseRepository[Movement]):
         use_outer_joins: bool = False,
         filter: BinaryExpression = None,
         joins: list[tuple] = None,
-        options: Sequence[Load] = None,
+        options: list[Load] = None,
+        include_detail: bool = False,
         **kwargs,
     ) -> Movement | None:
+        options = options or []
         base_filter = (Movement.company_code == MECSA_COMPANY_CODE) & (
             Movement.document_number == document_number
         )
         filter = base_filter & filter if filter is not None else base_filter
+
+        if include_detail:
+            options.append(joinedload(Movement.detail))
 
         return await self.find(
             filter=filter,
@@ -83,3 +89,32 @@ class MovementRepository(BaseRepository[Movement]):
             offset=offset,
             order_by=order_by,
         )
+
+    async def find_max_item_number_by_movement(
+        self,
+        storage_code: str,
+        movement_type: str,
+        movement_code: str,
+        document_code: str,
+        document_number: str,
+        period: int,
+    ) -> int:
+        base_filter = (
+            (MovementDetail.company_code == MECSA_COMPANY_CODE)
+            & (MovementDetail.storage_code == storage_code)
+            & (MovementDetail.movement_type == movement_type)
+            & (MovementDetail.movement_code == movement_code)
+            & (MovementDetail.document_code == document_code)
+            & (MovementDetail.document_number == document_number)
+            & (MovementDetail.period == period)
+        )
+        movement_detail = await self.movement_detail_repository.find_all(
+            filter=base_filter,
+            order_by=MovementDetail.item_number.desc(),
+            limit=1,
+        )
+
+        if len(movement_detail) == 0:
+            return 1
+
+        return movement_detail[0].item_number

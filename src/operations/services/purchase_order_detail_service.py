@@ -13,10 +13,10 @@ class PurchaseOrderDetailService:
         self.repository = PurchaseOrderDetailRepository(promec_db=promec_db)
 
     async def _read_purchase_order_detail(
-        self, order_number: str, product_code: str
+        self, order_number: str, product_code1: str
     ) -> Result[OrdenCompra, CustomException]:
         purchase_order_detail = await self.repository.find_purchase_order_detail_by_order_number_and_product_code(
-            order_number=order_number, product_code=product_code
+            order_number=order_number, product_code1=product_code1
         )
 
         if purchase_order_detail is None:

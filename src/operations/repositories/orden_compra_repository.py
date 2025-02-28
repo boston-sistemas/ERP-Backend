@@ -32,7 +32,6 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
     async def find_yarn_order_by_purchase_order_number(
         self,
         purchase_order_number: str,
-        period: int,
         include_detalle: bool = False,
     ) -> OrdenCompra | None:
         options: list[Load] = []
@@ -41,18 +40,12 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
         joins.append(OrdenCompra.detail)
         joins.append(OrdenCompraDetalle.yarn)
 
-        current_year = period
-        start_of_year = datetime(current_year, 1, 1).date()
-        end_of_year = datetime(current_year, 12, 31).date()
-
         filter_conditions = [
             OrdenCompra.company_code == MECSA_COMPANY_CODE,
             OrdenCompra.purchase_order_number == purchase_order_number,
             func.locate("TITULO GRATUITO", OrdenCompra.payment_method) == 0,
             InventoryItem.family_id == SUPPLY_FAMILY_ID,
             InventoryItem.subfamily_id == YARN_SUBFAMILY_ID,
-            OrdenCompra.issue_date >= start_of_year,
-            OrdenCompra.issue_date <= end_of_year,
             or_(
                 OrdenCompra.status_flag == "P",
                 OrdenCompra.status_flag == "C",

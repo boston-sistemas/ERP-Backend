@@ -10,6 +10,7 @@ class ServiceOrderDetailBase(CustomBaseModel):
     quantity_supplied: float | None = None
     price: float | None = None
     status_param_id: int | None = None
+    detail_note: str | None = None
 
     class Config:
         from_attributes = True

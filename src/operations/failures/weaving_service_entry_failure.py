@@ -10,6 +10,12 @@ WEAVING_SERVICE_ENTRY_NOT_FOUND_FAILURE = Failure(
     )
 )
 
+WEAVING_SERVICE_ENTRY_CARD_OPERATION_ALREADY_DISPATCHED_FAILURE = Failure(
+    ForbiddenException(
+        detail="Una o más tarjeta(s) asociada(s) al movimiento de ingreso por servicio de tejeduría ya ha(n) sido despachada(s)."
+    )
+)
+
 WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_FAILURE = Failure(
     ForbiddenException(
         detail="El proveedor especificado no ofrece el servicio de tejeduría."

@@ -10,12 +10,14 @@ from src.security.failures import AuthFailures
 from src.security.models import Acceso, Usuario
 from src.security.repositories import ModuloSistemaRepository
 from src.security.schemas import (
+    AccessesWithOperationsListSchema,
     LoginForm,
     LoginResponse,
     LoginWithTokenForm,
     LogoutResponse,
     RefreshResponse,
     RefreshTokenData,
+    RolSchema,
     SendTokenResponse,
 )
 
@@ -50,9 +52,11 @@ class AuthService:
         rol_ids = [rol.rol_id for rol in user.roles if rol.is_active]
         accesos: list[Acceso] = []
         for rol_id in rol_ids:
-            rol_result = await self.rol_service.read_rol(rol_id, include_accesos=True)
+            rol_result = await self.rol_service.read_rol(
+                rol_id=rol_id, include_access_operation=True
+            )
             rol = rol_result.value
-            accesos.extend([acceso for acceso in rol.accesos if acceso.is_active])
+            accesos.extend([access for access in rol.access if access.is_active])
         return accesos
 
     async def _validate_user_credentials(
@@ -93,11 +97,11 @@ class AuthService:
         id: UUID = await self.user_sesion_service.create_sesion(user, ip)
         message = "Inicio de sesión exitoso."
 
+        await self.modulo_repository.expunge_all_objects(user.roles)
+
         access_token, access_token_expiration_at = (
             self.token_service.create_access_token(
                 user=user,
-                accesos=(await self.get_valid_user_access(user)),
-                modules=(await self.modulo_repository.find_all()),
             )
         )
         refresh_token, refresh_token_expiration_at = (
@@ -195,5 +199,39 @@ class AuthService:
                 token_expiration_at=expiration_at,
                 token_expiration_minutes=self.token_service.AUTH_TOKEN_EXPIRATION_MINUTES,
                 email_send_to=user.email,
+            )
+        )
+
+    async def read_accesses_operations(
+        self, access_token: str | None
+    ) -> Result[AccessesWithOperationsListSchema, CustomException]:
+        verification_result = self.token_service.verify_access_token(token=access_token)
+        if verification_result.is_failure:
+            return verification_result
+
+        token_data = self.token_service.decode_token(access_token)
+
+        user_result = await self.user_service.read_user(
+            user_id=token_data.sub, include_roles=True
+        )
+        if user_result.is_failure:
+            return user_result
+
+        user: Usuario = user_result.value
+        await self.modulo_repository.expunge_all_objects(user.roles)
+
+        roles: list[RolSchema] = []
+        for rol in user.roles:
+            rol_result = await self.rol_service.read_rol(
+                rol_id=rol.rol_id, include_access_operation=True
+            )
+            if rol_result.is_failure:
+                return rol_result
+
+            roles.append(rol_result.value)
+
+        return Success(
+            AccessesWithOperationsListSchema(
+                roles=roles,
             )
         )

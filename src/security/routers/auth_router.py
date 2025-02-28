@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.config import settings
 from src.core.database import get_db
 from src.security.schemas import (
+    AccessesWithOperationsListSchema,
     LoginForm,
     LoginResponse,
     LoginWithTokenForm,
@@ -118,3 +119,19 @@ async def logout(
 
     response.delete_cookie(key="refresh_token")
     return logout_result.value
+
+
+@router.get("/accesses", response_model=AccessesWithOperationsListSchema)
+async def get_accesses_with_operations(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    auth_service = AuthService(db)
+    access_token = request.cookies.get("access_token")
+    accesses_with_operations = await auth_service.read_accesses_operations(
+        access_token=access_token
+    )
+    if accesses_with_operations.is_success:
+        return accesses_with_operations.value
+
+    raise accesses_with_operations.error

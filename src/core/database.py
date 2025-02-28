@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import AsyncGenerator
 
 from sqlalchemy import create_engine, func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from src.core.config import settings
@@ -14,7 +15,10 @@ engine = create_engine(
     pool_recycle=3600,
 )
 engine_async = create_async_engine(
-    settings.DATABASE_URL_ASYNC, echo=settings.DEBUG, pool_recycle=3600
+    settings.DATABASE_URL_ASYNC,
+    echo=settings.DEBUG,
+    pool_recycle=3600,
+    query_cache_size=0,
 )
 
 promec_engine = create_engine(
@@ -34,11 +38,43 @@ promec_async_engine = create_async_engine(
 
 
 class Base(DeclarativeBase):
-    pass
+    def __repr__(self):
+        insp = inspect(self)
+        formatted_attrs = ""
+        for attr in self.__mapper__.column_attrs:
+            column_name = attr.columns[0].name
+            if attr.key in insp.unloaded:
+                formatted_attrs += f"\n    {attr.key}({column_name})=None"
+            else:
+                value = getattr(self, attr.key, None)
+                if isinstance(value, date):
+                    formatted_attrs += (
+                        f"\n    {attr.key}({column_name})={value.strftime("%d-%m-%Y")}"
+                    )
+                else:
+                    formatted_attrs += f"\n    {attr.key}({column_name})={repr(value)}"
+
+        return f"<{self.__class__.__name__}({formatted_attrs}\n)>"
 
 
 class PromecBase(DeclarativeBase):
-    pass
+    def __repr__(self):
+        insp = inspect(self)
+        formatted_attrs = ""
+        for attr in self.__mapper__.column_attrs:
+            column_name = attr.columns[0].name
+            if attr.key in insp.unloaded:
+                formatted_attrs += f"\n    {attr.key}({column_name})=None"
+            else:
+                value = getattr(self, attr.key, None)
+                if isinstance(value, date):
+                    formatted_attrs += (
+                        f"\n    {attr.key}({column_name})={value.strftime("%d-%m-%Y")}"
+                    )
+                else:
+                    formatted_attrs += f"\n    {attr.key}({column_name})={repr(value)}"
+
+        return f"<{self.__class__.__name__}({formatted_attrs}\n)>"
 
 
 class AuditMixin:

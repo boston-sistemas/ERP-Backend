@@ -1,0 +1,17 @@
+\usepackage[utf8]{inputenc}
+\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{array,booktabs,arydshln,xcolor}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{xifthen}
+\pagestyle{fancy}
+\newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
+
+\newcommand{\GenerateCaberaIzq}[1]{
+    \fancyhead[L]{%
+        \begin{tabular}[t]{@{}l@{}}
+            MERCADEO COMERCIAL S.A. 20241208 #1 \\
+            Av. Guzman Blanco 422 - Lima 1
+        \end{tabular}
+    }
+}

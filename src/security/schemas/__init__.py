@@ -6,6 +6,10 @@ from .auth_schema import (
     RefreshResponse,
     SendTokenResponse,
 )
+from .operation_schema import (
+    OperationListSchema,
+    OperationSchema,
+)
 from .parameter_category_schema import (
     ParameterCategoryCreateSchema,
     ParameterCategoryListSchema,
@@ -31,13 +35,24 @@ from .parameter_schema import (
     ParameterWithCategoryListSchema,
     ParameterWithCategorySchema,
 )
+from .system_module_schema import (
+    SystemModuleCreateSchema,
+    SystemModuleFilterParams,
+    SystemModuleListSchema,
+    SystemModuleSchema,
+)
 from .token_schema import AccessTokenData, RefreshTokenData
 from .user_rol_acceso_schema import (
+    AccesoCreateWithOperationSchema,
     AccesoListSchema,
     AccesoSchema,
     AccesoSimpleSchema,
+    AccessCreateSchema,
+    AccessesWithOperationsListSchema,
+    RolCreateAccessWithOperationSchema,
     RolCreateSchema,
     RolCreateWithAccesosSchema,
+    RolDeleteAccessWithOperationSchema,
     RolListSchema,
     RolSchema,
     RolSimpleSchema,
@@ -95,4 +110,15 @@ __all__ = [
     "LoginWithTokenForm",
     "UsuarioUpdatePasswordSchema",
     "ServiceOrderStatusSchema",
+    "AccessCreateSchema",
+    "SystemModuleSchema",
+    "SystemModuleListSchema",
+    "SystemModuleCreateSchema",
+    "SystemModuleFilterParams",
+    "OperationListSchema",
+    "OperationSchema",
+    "AccesoCreateWithOperationSchema",
+    "RolCreateAccessWithOperationSchema",
+    "RolDeleteAccessWithOperationSchema",
+    "AccessesWithOperationsListSchema",
 ]

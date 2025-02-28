@@ -7,6 +7,8 @@ from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnPurchaseEntriesSimpleListSchema,
     YarnPurchaseEntryCreateSchema,
+    YarnPurchaseEntryFilterParams,
+    YarnPurchaseEntryPrintListSchema,
     YarnPurchaseEntrySchema,
     YarnPurchaseEntryUpdateSchema,
 )
@@ -19,17 +21,14 @@ router = APIRouter()
 
 @router.get("/", response_model=YarnPurchaseEntriesSimpleListSchema)
 async def read_yarn_purchase_entries(
-    period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    filter_params: YarnPurchaseEntryFilterParams = Query(
+        YarnPurchaseEntryFilterParams()
     ),
-    limit: int | None = Query(default=10, ge=1, le=100),
-    offset: int | None = Query(default=0, ge=0),
-    include_inactive: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = YarnPurchaseEntryService(promec_db=promec_db)
     result = await service.read_yarn_purchase_entries(
-        limit=limit, offset=offset, period=period, include_inactive=include_inactive
+        filter_params=filter_params,
     )
 
     if result.is_success:
@@ -43,11 +42,14 @@ async def read_yarn_purchase_entries_items_groups_availability(
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
+    service_order_id: str | None = Query(default=None, alias="serviceOrderId"),
+    db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
-    service = YarnPurchaseEntryService(promec_db=promec_db)
+    service = YarnPurchaseEntryService(promec_db=promec_db, db=db)
     result = await service.read_yarn_purchase_entry_item_group_availability(
         period=period,
+        service_order_id=service_order_id,
     )
 
     if result.is_success:
@@ -110,9 +112,7 @@ async def update_yarn_purchase_entry(
     )
 
     if result.is_success:
-        return {
-            "message": "El ingreso por compra de hilado ha sido actualizado con éxito."
-        }
+        return result.value
 
     raise result.error
 
@@ -164,7 +164,7 @@ async def is_updated_permission(
 
 @router.post("/print/movement")
 async def print_yarn_purchase_entry(
-    # form: WeavingServiceEntryPrintListSchema,
+    form: YarnPurchaseEntryPrintListSchema,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),

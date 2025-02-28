@@ -90,7 +90,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
     async def find_dyeing_service_dispatches(
         self,
         period: int,
-        include_inactive: bool = False,
+        include_annulled: bool = False,
         include_detail: bool = False,
         include_detail_card: bool = False,
         limit: int = None,
@@ -105,7 +105,7 @@ class DyeingServiceDispatchRepository(MovementRepository):
             & (Movement.period == period)
         )
 
-        if not include_inactive:
+        if not include_annulled:
             base_filter = base_filter & (Movement.status_flag == "P")
 
         filter = base_filter & filter if filter is not None else base_filter

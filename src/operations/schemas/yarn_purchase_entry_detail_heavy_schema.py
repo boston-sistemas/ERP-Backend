@@ -9,6 +9,7 @@ class YarnPurchaseEntryDetailHeavyBase(CustomBaseModel):
     ingress_number: str | None = Field(default=None)  # , exclude=True)
     item_number: int | None = Field(default=None)  # , exclude=True)
     group_number: int | None = None
+    period: int | None = None
     status_flag: str | None = None
     cone_count: int | None = None
     package_count: int | None = None
@@ -33,20 +34,7 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
     exit_user_id: str | None = Field(default=None)
     movement_detail: Any | None = Field(default=None, exclude=True)
     supplier_yarn_id: str | None = Field(default=None)
-
-    @computed_field
-    @property
-    def yarn_id(self) -> str | None:
-        if self.movement_detail and hasattr(self.movement_detail, "product_code"):
-            return self.movement_detail.product_code
-        return None
-
-    @computed_field
-    @property
-    def period(self) -> int | None:
-        if self.movement_detail and hasattr(self.movement_detail, "period"):
-            return self.movement_detail.period
-        return None
+    yarn_id: str | None = Field(default=None)
 
 
 class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
@@ -71,4 +59,4 @@ class YarnPurchaseEntryDetailHeavyCreateSchema(CustomBaseModel):
 class YarnPurchaseEntryDetailHeavyUpdateSchema(
     YarnPurchaseEntryDetailHeavyCreateSchema
 ):
-    pass
+    group_number: int = Field(ge=1)

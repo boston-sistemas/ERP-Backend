@@ -28,13 +28,16 @@ from src.operations.repositories import ServiceOrderRepository
 from src.operations.schemas import (
     ServiceOrderCreateSchema,
     ServiceOrderDetailSchema,
+    ServiceOrderFilterParams,
     ServiceOrderListSchema,
+    ServiceOrderProgressReviewListSchema,
     ServiceOrderSchema,
     ServiceOrderUpdateSchema,
 )
 from src.security.services import ParameterService
 
 from .fabric_service import FabricService
+from .service_order_supply_service import ServiceOrderSupplyDetailService
 from .supplier_service import SupplierService
 
 
@@ -49,22 +52,19 @@ class ServiceOrderService:
         )
         self.parameter_service = ParameterService(db=db)
         self.fabric_service = FabricService(promec_db=promec_db, db=db)
+        self.service_order_supply_service = ServiceOrderSupplyDetailService(
+            promec_db=promec_db
+        )
 
     async def read_service_orders(
         self,
         order_type: str,
-        limit: int,
-        offset: int,
-        include_detail: bool = False,
-        include_inactive: bool = False,
+        filter_params: ServiceOrderFilterParams = ServiceOrderFilterParams(),
         include_status: bool = False,
     ) -> Result[ServiceOrderListSchema, CustomException]:
         service_orders = await self.repository.find_service_orders_by_order_type(
             order_type=order_type,
-            limit=limit,
-            offset=offset,
-            include_detail=include_detail,
-            include_inactive=include_inactive,
+            **filter_params.model_dump(),
             order_by=ServiceOrder.issue_date.desc(),
         )
 
@@ -79,7 +79,7 @@ class ServiceOrderService:
                 else:
                     service_order.status = status.value
 
-                if include_detail:
+                if filter_params.include_detail:
                     for detail in service_order.detail:
                         status = await self.parameter_service.read_parameter(
                             parameter_id=detail.status_param_id
@@ -287,7 +287,7 @@ class ServiceOrderService:
             )
             service_order_detail.append(service_order_detail_value)
 
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
 
         service_order.detail = service_order_detail
 
@@ -299,7 +299,9 @@ class ServiceOrderService:
         self,
         service_order_detail: ServiceOrderDetail,
     ) -> None:
-        await self.service_order_detail_repository.delete(service_order_detail)
+        await self.service_order_detail_repository.delete(
+            service_order_detail, flush=True
+        )
 
     async def _delete_service_order_detail(
         self,
@@ -460,7 +462,7 @@ class ServiceOrderService:
         for detail in service_order.detail:
             detail.status_flag = "A"
 
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
         await self.service_order_detail_repository.save_all(service_order.detail)
 
         return Success(None)
@@ -527,7 +529,7 @@ class ServiceOrderService:
             service_order.status_flag = "C"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
         return Success(None)
 
     async def rollback_quantity_supplied_by_fabric_id(
@@ -567,5 +569,24 @@ class ServiceOrderService:
             service_order.status_flag = "P"
 
         await self.service_order_detail_repository.save_all(service_order.detail)
-        await self.repository.save(service_order)
+        await self.repository.save(service_order, flush=True)
         return Success(None)
+
+    async def read_service_orders_in_progress_review(
+        self,
+        period: int,
+        limit: int = None,
+        offset: int = None,
+    ) -> Result[ServiceOrderProgressReviewListSchema, CustomException]:
+        service_orders_progress = (
+            await self.service_order_supply_service.read_service_orders_supply_stock(
+                period=period,
+                limit=limit,
+                offset=offset,
+            )
+        )
+
+        if service_orders_progress.is_failure:
+            return service_orders_progress
+
+        return Success(service_orders_progress.value)

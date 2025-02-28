@@ -15,7 +15,7 @@ class ProductInventoryRepository(BaseRepository[ProductInventory]):
 
     async def find_product_inventory_by_product_code_and_storage_code(
         self,
-        product_code: str,
+        product_code1: str,
         storage_code: str,
         period: int,
         filter: BinaryExpression = None,
@@ -24,7 +24,7 @@ class ProductInventoryRepository(BaseRepository[ProductInventory]):
     ) -> ProductInventory | None:
         base_filter = (
             (ProductInventory.company_code == MECSA_COMPANY_CODE)
-            & (ProductInventory.product_code == product_code)
+            & (ProductInventory.product_code1 == product_code1)
             & (ProductInventory.storage_code == storage_code)
             & (ProductInventory.period == period)
         )
@@ -34,7 +34,7 @@ class ProductInventoryRepository(BaseRepository[ProductInventory]):
 
     async def find_products_inventory_by_product_code(
         self,
-        product_code: str,
+        product_code1: str,
         period: int,
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
@@ -47,7 +47,7 @@ class ProductInventoryRepository(BaseRepository[ProductInventory]):
     ) -> list[ProductInventory]:
         base_filter = (
             (ProductInventory.company_code == MECSA_COMPANY_CODE)
-            & (ProductInventory.product_code == product_code)
+            & (ProductInventory.product_code1 == product_code1)
             & (ProductInventory.period == period)
         )
         filter = base_filter & filter if filter is not None else base_filter

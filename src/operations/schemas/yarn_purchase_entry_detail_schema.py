@@ -16,7 +16,7 @@ from .yarn_purchase_entry_detail_heavy_schema import (
 class YarnPurchaseEntryDetailBase(CustomBaseModel):
     item_number: int | None
     yarn_id: str | None = Field(
-        validation_alias=AliasChoices("product_code", "yarn_id"),
+        validation_alias=AliasChoices("product_code1", "yarn_id"),
     )
     mecsa_weight: float | None
     status_flag: str | None
@@ -78,7 +78,7 @@ class YarnPurchaseEntryDetailListSchema(CustomBaseModel):
 
 class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
     item_number: int | None = Field(default=None, ge=1)
-    yarn_id: str = Field(max_length=PRODUCT_CODE_MAX_LENGTH)
+    yarn_id: str = Field(min_length=1, max_length=PRODUCT_CODE_MAX_LENGTH)
     guide_net_weight: float = Field(gt=0.0)
     guide_gross_weight: float = Field(gt=0.0)
     guide_cone_count: int = Field(gt=0)
@@ -86,7 +86,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
     detail_heavy: list[YarnPurchaseEntryDetailHeavyCreateSchema] = Field(default=[])
 
-    is_weighted: bool = Field(default=False, exclude=True)
+    is_weighted: bool = Field(default=False)
 
     @computed_field
     @property
@@ -95,8 +95,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
     @model_validator(mode="after")
     def initialize_detail_heavy(self):
-        if not self.detail_heavy:
-            self.is_weighted = False
+        if not self.detail_heavy and not self.is_weighted:
             self.detail_heavy = [
                 YarnPurchaseEntryDetailHeavyCreateSchema(
                     group_number=1,
@@ -106,7 +105,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
                     package_count=self.guide_package_count,
                 )
             ]
-        else:
+        elif self.detail_heavy:
             self.is_weighted = True
         return self
 
@@ -137,6 +136,7 @@ class YarnPurchaseEntryDetailCreateSchema(CustomBaseModel):
 
 
 class YarnPurchaseEntryDetailUpdateSchema(YarnPurchaseEntryDetailCreateSchema):
+    item_number: int = Field(ge=1)
     detail_heavy: list[YarnPurchaseEntryDetailHeavyUpdateSchema] = Field(default=[])
     is_weighted: bool = Field(default=False, exclude=True)
 
