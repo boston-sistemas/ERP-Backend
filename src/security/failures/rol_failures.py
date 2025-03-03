@@ -40,6 +40,10 @@ class RolFailures:
         _ACCESO_NOT_FOUND_WHEN_DELETING_ERROR
     )
 
+    ROL_ACCESS_NOT_ASSIGNED_OPERATION_FAILURE = Failure(
+        NotFoundException(detail="Operación no asignada al acceso.")
+    )
+
     @staticmethod
     def ROL_NAME_ALREADY_EXISTS_FAILURE(nombre: str):
         _ERROR = DuplicateValueException(f"Rol {nombre} ya existe.")

@@ -2,7 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.security.schemas import AccesoListSchema, AccesoSchema, AccessCreateSchema
+from src.security.schemas import (
+    AccesoListSchema,
+    AccesoSchema,
+    AccessCreateSchema,
+    AccessUpdateSchema,
+)
 from src.security.services import AccesoService
 
 router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
@@ -14,7 +19,24 @@ async def read_accesos(db: AsyncSession = Depends(get_db)) -> AccesoListSchema:
 
     accesos = await acceso_service.read_accesos()
 
-    return AccesoListSchema(accesos=accesos)
+    if accesos.is_success:
+        return accesos.value
+
+    raise accesos.error
+
+
+@router.get("/{acceso_id}", response_model=AccesoSchema)
+async def read_acceso(acceso_id: int, db: AsyncSession = Depends(get_db)):
+    acceso_service = AccesoService(db)
+
+    result = await acceso_service.read_acceso(
+        acceso_id=acceso_id, include_operations=True
+    )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
 
 
 @router.post("/", response_model=AccesoSchema)
@@ -22,6 +44,20 @@ async def create_access(form: AccessCreateSchema, db: AsyncSession = Depends(get
     access_service = AccesoService(db)
 
     result = await access_service.create_access(form)
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@router.patch("/{access_id}", response_model=AccesoSchema)
+async def update_access(
+    access_id: int, form: AccessUpdateSchema, db: AsyncSession = Depends(get_db)
+):
+    access_service = AccesoService(db)
+
+    result = await access_service.update_access(form=form, access_id=access_id)
 
     if result.is_success:
         return result.value

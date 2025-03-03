@@ -49,6 +49,7 @@ from .user_rol_acceso_schema import (
     AccesoSimpleSchema,
     AccessCreateSchema,
     AccessesWithOperationsListSchema,
+    AccessUpdateSchema,
     RolCreateAccessWithOperationSchema,
     RolCreateSchema,
     RolCreateWithAccesosSchema,
@@ -121,4 +122,5 @@ __all__ = [
     "RolCreateAccessWithOperationSchema",
     "RolDeleteAccessWithOperationSchema",
     "AccessesWithOperationsListSchema",
+    "AccessUpdateSchema",
 ]

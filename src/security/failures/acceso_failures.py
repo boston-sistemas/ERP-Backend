@@ -10,3 +10,7 @@ class AccesoFailures:
     ACCESS_SYSTEM_MODULE_ANULLED_FAILURE = Failure(
         ForbiddenException(detail="El modulo de sistema especificado fue anulado.")
     )
+
+    ACCESS_NAME_ALREADY_EXISTS_FAILURE = Failure(
+        ForbiddenException(detail="El nombre del acceso ya existe.")
+    )

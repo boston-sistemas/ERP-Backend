@@ -97,15 +97,15 @@ class RolSchema(RolBase):
         for rao in self.access_operation:
             if rao.rol_id == self.rol_id:
                 if rao.acceso_id not in [a.acceso_id for a in self.access]:
-                    rao.acceso.operations.append(rao.operation)
+                    rao.acceso.role_operations.append(rao.operation)
                     self.access.append(rao.acceso)
                 else:
                     for a in self.access:
                         if a.acceso_id == rao.acceso.acceso_id:
                             if rao.operation.operation_id not in [
-                                op.operation_id for op in a.operations
+                                op.operation_id for op in a.role_operations
                             ]:
-                                a.operations.append(rao.operation)
+                                a.role_operations.append(rao.operation)
 
         return self
 
@@ -142,7 +142,7 @@ class AccessesWithOperationsListSchema(BaseModel):
                     for a in self.access:
                         if a.access.acceso_id == rao.acceso.acceso_id:
                             if rao.operation.operation_id not in [
-                                op.operation_id for op in a.operations
+                                op.operation_id for op in a.role_operations
                             ]:
                                 a.operations.append(rao.operation)
 
@@ -216,10 +216,26 @@ class AccessCreateSchema(BaseModel):
     description: str | None = Field("", max_length=MAX_LENGTH_ACCESO_DESCRIPTION)
     is_active: bool = Field(default=True)
 
+    operations: list[int] = []
+
 
 class AccesoSchema(AccesoBase):
     operations: list[OperationSchema] = []
+    role_operations: list[OperationSchema] = []
     # roles: list[RolSimpleSchema] = []
+
+
+class AccessUpdateSchema(BaseModel):
+    name: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_NOMBRE)
+    system_module_id: int
+    view_path: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_VIEW_PATH)
+    image_path: str | None = Field(
+        None, min_length=1, max_length=MAX_LENGTH_ACCESO_IMAGE_PATH
+    )
+    description: str | None = Field("", max_length=MAX_LENGTH_ACCESO_DESCRIPTION)
+    is_active: bool = Field(default=True)
+
+    operations: list[int] = []
 
 
 class AccesoListSchema(BaseModel):

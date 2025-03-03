@@ -113,10 +113,9 @@ class RolAccesoOperation(Base):
         PrimaryKeyConstraint("rol_id", "acceso_id", "operation_id"),
         ForeignKeyConstraint(["rol_id"], ["rol.rol_id"], ondelete="CASCADE"),
         ForeignKeyConstraint(
-            ["acceso_id"], ["acceso_operacion.acceso_id"], ondelete="CASCADE"
-        ),
-        ForeignKeyConstraint(
-            ["operation_id"], ["acceso_operacion.operation_id"], ondelete="CASCADE"
+            ["acceso_id", "operation_id"],
+            ["acceso_operacion.acceso_id", "acceso_operacion.operation_id"],
+            ondelete="CASCADE",
         ),
     )
 
@@ -218,6 +217,33 @@ class Acceso(Base):
         String(length=MAX_LENGTH_ACCESO_DESCRIPTION)
     )
     is_active: Mapped[bool] = mapped_column(default=True)
+
+    operations: Mapped[list["Operation"]] = relationship(
+        "Operation",
+        secondary="acceso_operacion",
+        lazy="noload",
+        viewonly=True,
+    )
+
+    access_operations: Mapped[list["AccessOperation"]] = relationship(
+        "AccessOperation",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Acceso.acceso_id == AccessOperation.acceso_id,
+        ),
+        foreign_keys=lambda: [AccessOperation.acceso_id],
+        viewonly=True,
+    )
+
+    rol_accesses_operations: Mapped[list["RolAccesoOperation"]] = relationship(
+        "RolAccesoOperation",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            Acceso.acceso_id == RolAccesoOperation.acceso_id,
+        ),
+        foreign_keys=lambda: [RolAccesoOperation.acceso_id],
+        viewonly=True,
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("acceso_id"),

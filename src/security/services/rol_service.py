@@ -110,7 +110,7 @@ class RolService:
             rol=rol, accesses=rol_data.accesses
         )
         if add_accesos_result.is_failure:
-            return RolFailures.ACCESO_NOT_FOUND_WHEN_CREATING_FAILURE
+            return add_accesos_result
 
         rol_result: RolSchema = RolSchema.model_validate(rol)
         rol_result.access = add_accesos_result.value
@@ -171,17 +171,28 @@ class RolService:
         access_operation_to_scheme: list[AccesoSchema] = []
         access_operation_to_add = []
         for access in accesses:
-            acceso_result = await self.acceso_service.read_acceso(access.acceso_id)
+            acceso_result = await self.acceso_service.read_acceso(
+                access.acceso_id,
+                include_operations=True,
+            )
+
             if acceso_result.is_failure:
                 return RolFailures.ACCESO_NOT_FOUND_WHEN_ADDING_FAILURE
 
             for operation in access.operation_ids:
                 operation_id: int = operation
-                operation_result = await self.operation_service.read_operation(
-                    operation_id
+
+                operation_result = next(
+                    (
+                        access_operation
+                        for access_operation in acceso_result.value.operations
+                        if access_operation.operation_id == operation_id
+                    ),
+                    None,
                 )
-                if operation_result.is_failure:
-                    return operation_result
+
+                if operation_result is None:
+                    return RolFailures.ROL_ACCESS_NOT_ASSIGNED_OPERATION_FAILURE
 
                 validation_result = await self.has_access_operation(
                     rol_id, access.acceso_id, operation_id
@@ -194,7 +205,8 @@ class RolService:
                             operation_id=operation_id,
                         )
                     )
-                acceso_result.value.operations.append(operation_result.value)
+                acceso_result.value.role_operations.append(operation_result)
+            acceso_result.value.operations = []
             access_operation_to_scheme.append(acceso_result.value)
 
         await self.rol_acceso_operation_repository.save_all(access_operation_to_add)
@@ -213,7 +225,7 @@ class RolService:
             rol=rol, accesses=form.accesses
         )
         if add_accesos_result.is_failure:
-            return RolFailures.ACCESO_NOT_FOUND_WHEN_CREATING_FAILURE
+            return add_accesos_result
 
         rol_result: RolSchema = RolSchema.model_validate(rol)
         rol_result.access = add_accesos_result.value
@@ -232,12 +244,16 @@ class RolService:
         access_operation_to_delete = []
         for access in form.accesses:
             access_id: int = access.acceso_id
-            acceso_result = await self.acceso_service.read_acceso(acceso_id=access_id)
+            acceso_result = await self.acceso_service.read_acceso(
+                acceso_id=access_id,
+                include_operations=True,
+            )
             if acceso_result.is_failure:
                 return RolFailures.ACCESO_NOT_FOUND_WHEN_DELETING_FAILURE
 
             for operation in access.operation_ids:
                 operation_id: int = operation
+
                 operation_result = await self.operation_service.read_operation(
                     operation_id
                 )
