@@ -32,7 +32,22 @@ async def read_yarn_purchase_entries(
     )
 
     if result.is_success:
-        return result.value
+        # return result.value
+        entries = result.value.yarn_purchase_entries
+        next_cursor = result.value.next_cursor
+        previous_cursor = result.value.previous_cursor
+
+        return {
+            "items": entries,
+            "total": len(entries),
+            "page_size": filter_params.page_size,
+            "next_cursor": next_cursor,
+            "previous_cursor": previous_cursor,
+            "next_page": f"/?cursor={next_cursor}&page_size={filter_params.page_size}" if next_cursor else None,
+            "previous_page": f"/?cursor={previous_cursor}&page_size={filter_params.page_size}" if previous_cursor else None,
+            "has_next_page": next_cursor is not None,
+            "has_previous_page": previous_cursor is not None,
+        }
 
     raise result.error
 

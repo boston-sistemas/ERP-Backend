@@ -128,11 +128,31 @@ class YarnPurchaseEntryService(MovementService):
             **filter_params.model_dump()
         )
 
+        if not yarn_purchase_entries:
+            return Success(
+                YarnPurchaseEntriesSimpleListSchema(
+                yarn_purchase_entries=[],
+                next_cursor=None,
+                previous_cursor=filter_params.cursor,
+                hast_next_page=False, #no data
+                has_previous_page=filter_params.cursor is not None
+                )
+            )
+        
+        next_cursor = yarn_purchase_entries[-1].entry_number if len(yarn_purchase_entries) == filter_params.page_size else None
+        previous_cursor = filter_params.cursor
+        
         return Success(
             YarnPurchaseEntriesSimpleListSchema(
-                yarn_purchase_entries=yarn_purchase_entries
+                yarn_purchase_entries=yarn_purchase_entries,
+                next_cursor=next_cursor,
+                previous_cursor=previous_cursor,
+                has_next_page=next_cursor is not None,
+                has_previous_page=previous_cursor is not None
             )
         )
+        
+
 
     async def _validate_yarn_purchase_entry_data(
         self,
