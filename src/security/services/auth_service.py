@@ -126,12 +126,12 @@ class AuthService:
             return validation_result
 
         user: Usuario = validation_result.value
-        # token_verification_result = await self.token_service.verify_auth_token(
-        #     user.usuario_id, form.token
-        # )
-        #
-        # if token_verification_result.is_failure:
-        #     return token_verification_result
+        token_verification_result = await self.token_service.verify_auth_token(
+            user.usuario_id, form.token
+        )
+
+        if token_verification_result.is_failure:
+            return token_verification_result
 
         id: UUID = await self.user_sesion_service.create_sesion(user, ip)
         message = "Inicio de sesión exitoso."
