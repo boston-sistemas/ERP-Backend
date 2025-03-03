@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
+from src.core.services import PermissionService
 from src.security.schemas import (
     AccesoListSchema,
     AccesoSchema,
@@ -14,7 +15,10 @@ router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
 
 
 @router.get("/", response_model=AccesoListSchema)
-async def read_accesos(db: AsyncSession = Depends(get_db)) -> AccesoListSchema:
+@PermissionService.check_permission(1, 101)
+async def read_accesos(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> AccesoListSchema:
     acceso_service = AccesoService(db)
 
     accesos = await acceso_service.read_accesos()
@@ -26,7 +30,9 @@ async def read_accesos(db: AsyncSession = Depends(get_db)) -> AccesoListSchema:
 
 
 @router.get("/{acceso_id}", response_model=AccesoSchema)
-async def read_acceso(acceso_id: int, db: AsyncSession = Depends(get_db)):
+async def read_acceso(
+    request: Request, acceso_id: int, db: AsyncSession = Depends(get_db)
+):
     acceso_service = AccesoService(db)
 
     result = await acceso_service.read_acceso(
@@ -40,7 +46,9 @@ async def read_acceso(acceso_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", response_model=AccesoSchema)
-async def create_access(form: AccessCreateSchema, db: AsyncSession = Depends(get_db)):
+async def create_access(
+    request: Request, form: AccessCreateSchema, db: AsyncSession = Depends(get_db)
+):
     access_service = AccesoService(db)
 
     result = await access_service.create_access(form)
@@ -53,7 +61,10 @@ async def create_access(form: AccessCreateSchema, db: AsyncSession = Depends(get
 
 @router.patch("/{access_id}", response_model=AccesoSchema)
 async def update_access(
-    access_id: int, form: AccessUpdateSchema, db: AsyncSession = Depends(get_db)
+    request: Request,
+    access_id: int,
+    form: AccessUpdateSchema,
+    db: AsyncSession = Depends(get_db),
 ):
     access_service = AccesoService(db)
 

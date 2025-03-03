@@ -114,7 +114,7 @@ class AccessesWithOperationsSchema(BaseModel):
     access: "AccesoSchema" = Field(default=None, exclude=True)
     name: str | None = None
     path: str | None = None
-    operations: list[OperationSchema] = []
+    role_operations: list[OperationSchema] = []
 
     @model_validator(mode="after")
     def set_name_and_path(self):
@@ -135,7 +135,7 @@ class AccessesWithOperationsListSchema(BaseModel):
                 if rao.acceso_id not in [a.access.acceso_id for a in self.access]:
                     self.access.append(
                         AccessesWithOperationsSchema(
-                            access=rao.acceso, operations=[rao.operation]
+                            access=rao.acceso, role_operations=[rao.operation]
                         )
                     )
                 else:

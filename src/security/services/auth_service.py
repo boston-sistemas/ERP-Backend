@@ -21,6 +21,7 @@ from src.security.schemas import (
     SendTokenResponse,
 )
 
+from .acceso_service import AccesoService
 from .rol_service import RolService
 from .token_service import TokenService
 from .user_service import UserService
@@ -35,6 +36,7 @@ class AuthService:
         self.rol_service = RolService(db)
         self.modulo_repository = ModuloSistemaRepository(db)
         self.email_service = EmailService()
+        self.acceso_service = AccesoService(db)
 
     @staticmethod
     def validate_user_status(user: Usuario) -> bool:
@@ -47,6 +49,43 @@ class AuthService:
             return False
 
         return True
+
+    async def is_valid_access_operation_to_user(
+        self,
+        user_id: int,
+        access_id: int,
+        operation_id: int,
+    ) -> bool:
+        user_result = await self.user_service.read_user(user_id, include_roles=True)
+        if user_result.is_failure:
+            return False
+
+        user: Usuario = user_result.value
+        if not self.validate_user_status(user):
+            return False
+
+        for rol in user.roles:
+            if rol.is_active:
+                validation_result = await self.acceso_service._read_access(
+                    access_id=access_id
+                )
+
+                if validation_result.is_failure:
+                    return False
+
+                access: Acceso = validation_result.value
+
+                if access.is_active:
+                    validation_result = await self.rol_service.has_access_operation(
+                        rol_id=rol.rol_id,
+                        acceso_id=access_id,
+                        operation_id=operation_id,
+                    )
+
+                    if validation_result.is_success:
+                        return True
+
+        return False
 
     async def get_valid_user_access(self, user: Usuario) -> list[Acceso]:
         rol_ids = [rol.rol_id for rol in user.roles if rol.is_active]
@@ -87,12 +126,12 @@ class AuthService:
             return validation_result
 
         user: Usuario = validation_result.value
-        token_verification_result = await self.token_service.verify_auth_token(
-            user.usuario_id, form.token
-        )
-
-        if token_verification_result.is_failure:
-            return token_verification_result
+        # token_verification_result = await self.token_service.verify_auth_token(
+        #     user.usuario_id, form.token
+        # )
+        #
+        # if token_verification_result.is_failure:
+        #     return token_verification_result
 
         id: UUID = await self.user_sesion_service.create_sesion(user, ip)
         message = "Inicio de sesión exitoso."

@@ -8,3 +8,7 @@ class AuthFailures:
     )
 
     INVALID_CREDENTIALS_FAILURE = Failure(_INVALID_CREDENTIALS_ERROR)
+
+    UNAUTHORIZED_FAILURE = Failure(
+        UnauthorizedException(detail="No esta autorizado para realizar esta acción.")
+    )

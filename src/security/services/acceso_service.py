@@ -210,17 +210,26 @@ class AccesoService:
 
         access = await self.repository.save(access, flush=True)
 
-        await self.repository.delete_all(access.access_operations, flush=True)
-
-        to_delete = [
-            rol_access_operation
-            for rol_access in access.rol_accesses_operations
-            for rol_access_operation in rol_access.rol_access_operations
-            if rol_access_operation.operation_id not in set(form.operations)
+        access_operations_to_delete = [
+            ac_op
+            for ac_op in access.access_operations
+            if ac_op.operation_id not in set(form.operations)
         ]
 
-        if to_delete:
-            await self.repository.delete_all(to_delete, flush=True)
+        if access_operations_to_delete:
+            await self.repository.delete_all(access_operations_to_delete, flush=True)
+
+        rol_access_operations_to_delete = [
+            rol_access
+            for rol_access in access.rol_accesses_operations
+            if rol_access.acceso_id == access.acceso_id
+            and rol_access.operation_id not in set(form.operations)
+        ]
+
+        if rol_access_operations_to_delete:
+            await self.repository.delete_all(
+                rol_access_operations_to_delete, flush=True
+            )
 
         accessess_operations = []
 
@@ -246,11 +255,14 @@ class AccesoService:
             ):
                 continue
 
-            accessess_operations.append(access_operation)
-
             access.operations.append(operation)
 
             await self.repository.expunge(operation)
+            if any(
+                ac_op.operation_id == operation_id for ac_op in access.access_operations
+            ):
+                continue
+            accessess_operations.append(access_operation)
 
         await self.repository.save_all(accessess_operations)
 
