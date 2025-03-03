@@ -15,7 +15,7 @@ router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
 
 
 @router.get("/", response_model=AccesoListSchema)
-@PermissionService.check_permission(1, 101)
+# @PermissionService.check_permission(1, 101)
 async def read_accesos(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> AccesoListSchema:
