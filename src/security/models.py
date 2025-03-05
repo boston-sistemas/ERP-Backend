@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from sqlalchemy import (
@@ -11,6 +11,7 @@ from sqlalchemy import (
     and_,
     func,
 )
+from sqlalchemy.dialects.oracle import CLOB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
@@ -207,7 +208,6 @@ class Acceso(Base):
     nombre: Mapped[str] = mapped_column(
         String(length=MAX_LENGTH_ACCESO_NOMBRE), unique=True
     )
-    scope: Mapped[str] = mapped_column(String(length=MAX_LENGTH_ACCESO_SCOPE))
     modulo_id: Mapped[int] = mapped_column()
     view_path: Mapped[str] = mapped_column(String(length=MAX_LENGTH_ACCESO_VIEW_PATH))
     image_path: Mapped[str | None] = mapped_column(
@@ -314,3 +314,33 @@ class Parameter(Base):
     __table_args__ = (
         ForeignKeyConstraint(["category_id"], ["parameter_categories.id"]),
     )
+
+
+class AuditActionLog(Base):
+    __tablename__ = "audit_action_lo"
+
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    user_id: Mapped[int] = mapped_column()
+    endpoint_name: Mapped[str] = mapped_column(String(50))
+    action: Mapped[str] = mapped_column(String(50))
+    request_data: Mapped[str] = mapped_column(CLOB)
+    response_data: Mapped[str] = mapped_column(CLOB)
+    status_code: Mapped[int] = mapped_column()
+    at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
+
+    __table_args__ = (PrimaryKeyConstraint("id"),)
+
+
+class AuditDataLog(Base):
+    __tablename__ = "audit_data_log"
+
+    id: Mapped[int] = mapped_column(Identity(start=1))
+    entity_type: Mapped[str] = mapped_column()
+    action: Mapped[str] = mapped_column()
+    old_data: Mapped[str] = mapped_column(CLOB)
+    new_data: Mapped[str] = mapped_column(CLOB)
+    at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
+    action_id: Mapped[int] = mapped_column()
+    user_id: Mapped[int] = mapped_column()
+
+    __table_args__ = (PrimaryKeyConstraint("id"),)

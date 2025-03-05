@@ -207,7 +207,6 @@ class AccesoSimpleSchema(AccesoBase):
 
 class AccessCreateSchema(BaseModel):
     name: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_NOMBRE)
-    scope: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_SCOPE)
     system_module_id: int
     view_path: str = Field(min_length=1, max_length=MAX_LENGTH_ACCESO_VIEW_PATH)
     image_path: str | None = Field(

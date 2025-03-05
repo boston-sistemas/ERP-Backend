@@ -91,6 +91,19 @@ def populate_data_test():
 
 
 @cli.command()
+def update_name_tables():
+    from db import update_name_tables
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(update_name_tables())
+
+
+@cli.command()
 @click.option("-o", "--output", help="Output file name", default="", required=False)
 @click.option(
     "--dialect",

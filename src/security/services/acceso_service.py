@@ -133,7 +133,6 @@ class AccesoService:
 
         access: Acceso = Acceso(
             nombre=form.name,
-            scope=form.scope,
             modulo_id=form.system_module_id,
             view_path=form.view_path,
             image_path=form.image_path,

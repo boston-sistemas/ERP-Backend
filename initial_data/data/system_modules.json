@@ -1,0 +1,14 @@
+[
+  {
+    "id": 101,
+    "name": "Seguridad",
+    "is_active": true,
+    "image_path": ""
+  },
+  {
+    "id": 102,
+    "name": "Operaciones",
+    "is_active": true,
+    "image_path": ""
+  }
+]

@@ -105,6 +105,9 @@ class YarnWeavingDispatchCreateSchema(CustomBaseModel):
         min_length=1, max_length=SERVICE_ORDER_ID_MAX_LENGTH
     )
 
+    # total_cone_count: int = Field(ge=1)
+    # total_package_count: int = Field(ge=1)
+
     detail: list[YarnWeavingDispatchDetailCreateSchema] = Field(default=[])
 
     @model_validator(mode="after")

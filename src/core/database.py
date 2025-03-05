@@ -1,10 +1,11 @@
+import json
 from datetime import date, datetime
 from typing import AsyncGenerator
 
-from sqlalchemy import create_engine, func
+from sqlalchemy import CLOB, TypeDecorator, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase
 
 from src.core.config import settings
 
@@ -77,16 +78,22 @@ class PromecBase(DeclarativeBase):
         return f"<{self.__class__.__name__}({formatted_attrs}\n)>"
 
 
-class AuditMixin:
-    is_deleted: Mapped[bool] = mapped_column(default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    created_by: Mapped[int] = mapped_column()
-    updated_at: Mapped[datetime | None] = mapped_column(
-        server_default=func.now(), onupdate=func.now()
-    )
-    updated_by: Mapped[int | None] = mapped_column()
-    deleted_at: Mapped[datetime | None] = mapped_column()
-    deleted_by: Mapped[int | None] = mapped_column()
+class JSONCLOB(TypeDecorator):
+    """Convierte automáticamente JSON <-> CLOB en SQLAlchemy."""
+
+    impl = CLOB  # Se almacena como CLOB en la BD
+
+    def process_bind_param(self, value, dialect):
+        """Convierte dict -> str antes de guardar."""
+        if value is None:
+            return None
+        return json.dumps(value)
+
+    def process_result_value(self, value, dialect):
+        """Convierte str -> dict al recuperar."""
+        if value is None:
+            return None
+        return json.loads(value)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

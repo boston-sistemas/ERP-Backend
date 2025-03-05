@@ -131,6 +131,15 @@ async def inspect_tables() -> None:
     await promec_async_silent_engine.dispose()
 
 
+async def update_name_tables() -> None:
+    from data_watcher import DataWatcher
+
+    data_watcher = DataWatcher(promec_engine=promec_async_silent_engine)
+
+    await data_watcher.write_table_name()
+    await promec_async_silent_engine.dispose()
+
+
 def create_promec_sequences() -> None:
     from src.core.database import PromecBase  # noqa: F401
     from src.operations.sequences import product_id_seq  # noqa: F401

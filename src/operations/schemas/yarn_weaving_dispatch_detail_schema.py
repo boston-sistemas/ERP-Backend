@@ -90,7 +90,7 @@ class YarnWeavingDispatchDetailCreateSchema(CustomBaseModel):
     entry_item_number: int
     entry_period: int = Field(ge=0)
     cone_count: int = Field(..., ge=1)
-    package_count: int = Field(..., ge=0)
+    package_count: int = Field(..., ge=1)
     net_weight: float = Field(..., gt=0)
     gross_weight: float = Field(..., gt=0)
     fabric_id: str | None = Field(min_length=1, max_length=PRODUCT_ID_MAX_LENGTH)
