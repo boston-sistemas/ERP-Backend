@@ -116,7 +116,7 @@ class WeavingServiceEntryService(MovementService):
         filter_params: WeavingServiceEntryFilterParams,
     ) -> Result[WeavingServiceEntriesSimpleListSchema, CustomException]:
         weaving_service_entries = await self.repository.find_weaving_service_entries(
-            **filter_params.model_dump()
+            **filter_params.model_dump(exclude={"page"})
         )
 
         return Success(
