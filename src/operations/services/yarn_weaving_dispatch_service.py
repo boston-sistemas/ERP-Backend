@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.exceptions import CustomException

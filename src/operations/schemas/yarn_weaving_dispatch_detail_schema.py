@@ -4,7 +4,6 @@ from typing import Any
 from pydantic import AliasChoices, Field, computed_field
 
 from src.core.schemas import CustomBaseModel
-from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import PRODUCT_ID_MAX_LENGTH
 
 from .yarn_purchase_entry_detail_heavy_schema import (

@@ -83,3 +83,6 @@ stop_mailhog:
 
 uvicorn start:
 	uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8000 --reload
+
+uvicorn start flav:
+	uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 9000 --reload

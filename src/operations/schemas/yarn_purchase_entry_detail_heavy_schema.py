@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import Field, computed_field, model_validator
+from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 

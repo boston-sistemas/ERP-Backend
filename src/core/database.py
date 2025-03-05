@@ -49,7 +49,7 @@ class Base(DeclarativeBase):
                 value = getattr(self, attr.key, None)
                 if isinstance(value, date):
                     formatted_attrs += (
-                        f"\n    {attr.key}({column_name})={value.strftime("%d-%m-%Y")}"
+                        f"\n    {attr.key}({column_name})={value.strftime('%d-%m-%Y')}"
                     )
                 else:
                     formatted_attrs += f"\n    {attr.key}({column_name})={repr(value)}"
@@ -69,7 +69,7 @@ class PromecBase(DeclarativeBase):
                 value = getattr(self, attr.key, None)
                 if isinstance(value, date):
                     formatted_attrs += (
-                        f"\n    {attr.key}({column_name})={value.strftime("%d-%m-%Y")}"
+                        f"\n    {attr.key}({column_name})={value.strftime('%d-%m-%Y')}"
                     )
                 else:
                     formatted_attrs += f"\n    {attr.key}({column_name})={repr(value)}"
