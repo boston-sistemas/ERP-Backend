@@ -81,8 +81,8 @@ stop_mailhog:
 	- docker ps --format '{{.Names}}' | grep -Fx $(MAILHOG_CONTAINER_NAME) >/dev/null 2>&1 && \
 	docker stop $(MAILHOG_CONTAINER_NAME)
 
-uvicorn start:
+uvicorn_start_dev:
 	uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 8000 --reload
 
-uvicorn start flav:
+uvicorn_start_flav:
 	uvicorn --app-dir src/ main:app --host 0.0.0.0 --port 9000 --reload
