@@ -125,7 +125,7 @@ class YarnPurchaseEntryService(MovementService):
         filter_params: YarnPurchaseEntryFilterParams = YarnPurchaseEntryFilterParams(),
     ) -> Result[YarnPurchaseEntriesSimpleListSchema, CustomException]:
         yarn_purchase_entries = await self.repository.find_yarn_purchase_entries(
-            **filter_params.model_dump()
+            **filter_params.model_dump(exclude={"page"})
         )
 
         return Success(

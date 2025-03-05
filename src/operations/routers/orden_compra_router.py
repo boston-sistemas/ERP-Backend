@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
-    OrdenCompraWithDetallesListSchema,
     YarnPurchaseOrderListSchema,
     YarnPurchaseOrderSchema,
 )

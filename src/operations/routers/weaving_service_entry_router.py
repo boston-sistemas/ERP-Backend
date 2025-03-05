@@ -6,7 +6,6 @@ from src.core.database import get_db, get_promec_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     WeavingServiceEntriesListSchema,
-    WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
     WeavingServiceEntryFilterParams,
     WeavingServiceEntryPrintListSchema,

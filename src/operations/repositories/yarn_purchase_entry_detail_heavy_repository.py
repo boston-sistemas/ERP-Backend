@@ -2,7 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import BinaryExpression, Integer, cast
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager, joinedload, load_only, with_loader_criteria
+from sqlalchemy.orm import contains_eager, joinedload, load_only
 from sqlalchemy.orm.strategy_options import Load
 
 from src.core.constants import MECSA_COMPANY_CODE

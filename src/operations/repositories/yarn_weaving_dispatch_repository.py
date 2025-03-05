@@ -11,7 +11,7 @@ from src.operations.constants import (
     YARN_WEAVING_DISPATCH_MOVEMENT_TYPE,
     YARN_WEAVING_DISPATCH_STORAGE_CODE,
 )
-from src.operations.models import Movement, MovementDetail, MovementYarnOCHeavy
+from src.operations.models import Movement, MovementDetail
 
 from .movement_repository import MovementRepository
 

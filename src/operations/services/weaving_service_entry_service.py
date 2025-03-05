@@ -38,7 +38,6 @@ from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_FABRIC_NOT_FOUND_FAILURE,
     WEAVING_SERVICE_ENTRY_NOT_FOUND_FAILURE,
     WEAVING_SERVICE_ENTRY_SERVICE_ORDER_ANULLED_FAILURE,
-    WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_STARTED_FAILURE,
     WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_SUPPLIED_FABRIC_YARNS_FAILURE,
     WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_SUPPLIED_YARNS_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_COLOR_NOT_FOUND_FAILURE,
@@ -52,7 +51,6 @@ from src.operations.models import (
     Movement,
     MovementDetail,
     ServiceCardOperation,
-    ServiceOrderSupplyDetail,
 )
 from src.operations.repositories import WeavingServiceEntryRepository
 from src.operations.schemas import (
@@ -124,7 +122,7 @@ class WeavingServiceEntryService(MovementService):
         filter_params: WeavingServiceEntryFilterParams,
     ) -> Result[WeavingServiceEntriesSimpleListSchema, CustomException]:
         weaving_service_entries = await self.repository.find_weaving_service_entries(
-            **filter_params.model_dump()
+            **filter_params.model_dump(exclude={"page"})
         )
 
         return Success(

@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from src.core.constants import MECSA_COMPANY_CODE
 from src.core.exceptions import CustomException
@@ -103,7 +102,7 @@ class YarnWeavingDispatchService(MovementService):
         filter_params: YarnWeavingDispatchFilterParams,
     ) -> Result[YarnWeavingDispatchListSchema, CustomException]:
         yarn_weaving_dispatches = await self.repository.find_yarn_weaving_dispatches(
-            **filter_params.model_dump(),
+            **filter_params.model_dump(exclude={"page"}),
             apply_unique=True,
         )
 
