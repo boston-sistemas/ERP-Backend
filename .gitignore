@@ -189,3 +189,5 @@ pyrightconfig.json
 # Ignore all local history of files
 .history
 .ionide
+
+filtered_table_names.txt
