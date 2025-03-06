@@ -65,7 +65,6 @@ class ServiceOrderCreateSchema(CustomBaseModel):
 
 
 class ServiceOrderUpdateSchema(CustomBaseModel):
-    status_param_id: int
     detail: list[ServiceOrderDetailUpdateSchema] = []
 
 
