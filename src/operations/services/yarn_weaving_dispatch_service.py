@@ -12,6 +12,7 @@ from src.operations.constants import (
     ENTRY_DOCUMENT_CODE,
     ENTRY_MOVEMENT_TYPE,
     LIQUIDATED_SERVICE_ORDER_ID,
+    NOT_STARTED_SERVICE_ORDER_YARN_ID,
     SERVICE_CODE_SUPPLIER_WEAVING,
     WEAVING_MOVEMENT_CODE,
     YARN_WEAVING_DISPATCH_DOCUMENT_CODE,
@@ -117,6 +118,7 @@ class YarnWeavingDispatchService(MovementService):
         yarn_weaving_dispatch_number: str,
         period: int,
         include_detail: bool = False,
+        include_supply_stock: bool = False,
         include_detail_entry: bool = False,
     ) -> Result[YarnWeavingDispatchSchema, CustomException]:
         yarn_weaving_dispatch = (
@@ -125,6 +127,7 @@ class YarnWeavingDispatchService(MovementService):
                 period=period,
                 use_outer_joins=True,
                 include_detail=include_detail,
+                include_supply_stock=include_supply_stock,
                 include_detail_entry=include_detail_entry,
             )
         )
@@ -139,12 +142,14 @@ class YarnWeavingDispatchService(MovementService):
         yarn_weaving_dispatch_number: str,
         period: int,
         include_detail: bool = False,
+        include_supply_stock: bool = False,
         include_detail_entry: bool = False,
     ) -> Result[YarnWeavingDispatchSchema, CustomException]:
         yarn_weaving_dispatch = await self._read_yarn_weaving_dispatch(
             yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
             period=period,
             include_detail=include_detail,
+            include_supply_stock=include_supply_stock,
             include_detail_entry=include_detail_entry,
         )
 
@@ -623,6 +628,7 @@ class YarnWeavingDispatchService(MovementService):
             quantity_received=0,
             quantity_dispatched=quantity,
             supplier_yarn_id=supplier_yarn_id,
+            status_param_id=NOT_STARTED_SERVICE_ORDER_YARN_ID,
         )
 
         upsert_result = (
@@ -1013,6 +1019,7 @@ class YarnWeavingDispatchService(MovementService):
             yarn_weaving_dispatch_number=yarn_weaving_dispatch_number,
             period=period,
             include_detail=True,
+            include_supply_stock=True,
             include_detail_entry=True,
         )
         if yarn_weaving_dispatch_result.is_failure:
@@ -1021,7 +1028,7 @@ class YarnWeavingDispatchService(MovementService):
         current_time = calculate_time(tz=PERU_TIMEZONE)
 
         yarn_weaving_dispatch: Movement = yarn_weaving_dispatch_result.value
-        self.repository.expunge(yarn_weaving_dispatch)
+        await self.repository.expunge(yarn_weaving_dispatch)
         rollback_result = await self.rollback_yarn_weaving_dispatch(
             yarn_weaving_dispatch=yarn_weaving_dispatch
         )

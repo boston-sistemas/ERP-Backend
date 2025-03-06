@@ -952,6 +952,24 @@ class MovementDetail(PromecBase):
     product_code2: Mapped[str] = mapped_column(
         "codprod2", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
+
+    supply_stock: Mapped["ServiceOrderSupplyDetail"] = relationship(
+        "ServiceOrderSupplyDetail",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            MovementDetail.company_code == ServiceOrderSupplyDetail.company_code,
+            MovementDetail.nroreq == ServiceOrderSupplyDetail.reference_number,
+            MovementDetail.item_number_supply == ServiceOrderSupplyDetail.item_number,
+        ),
+        uselist=False,
+        viewonly=True,
+        foreign_keys=lambda: [
+            ServiceOrderSupplyDetail.company_code,
+            ServiceOrderSupplyDetail.reference_number,
+            ServiceOrderSupplyDetail.item_number,
+        ],
+    )
+
     movement = relationship(
         "Movement",
         lazy="noload",

@@ -118,7 +118,8 @@ class ServiceOrderSupplyDetailService:
 
         for service_order_supply in service_orders_supply_stock:
             if (
-                service_order_supply.supply_id == service_order_supply_stock.supply_id
+                service_order_supply.reference_number
+                == service_order_supply_stock.reference_number
             ) and (
                 service_order_supply.supplier_yarn_id
                 == service_order_supply_stock.supplier_yarn_id
