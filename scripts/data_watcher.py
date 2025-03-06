@@ -1,3 +1,4 @@
+import asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from time import time
@@ -58,59 +59,61 @@ class DataWatcher:
                 )
 
     async def save_initital_row_counts_parallel(
-        self, table_names: str, output_file: str, max_workers: int = 5
+        self, table_names: list[str], output_file: str, max_workers: int = 5
     ) -> int:
         with open(output_file, "w"):
             pass
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(self.count_rows_for_table, table_name): table_name
-                for table_name in table_names
-            }
 
-            for future in as_completed(futures):
-                table_name, row_count = future.result()
+        semaphore = asyncio.Semaphore(max_workers)
+
+        async def count_and_save(table_name: str):
+            async with semaphore:
+                table_name, row_count = await self.count_rows_for_table(table_name)
                 if row_count is not None:
-                    self.save_row_count_to_file(table_name, row_count, output_file)
+                    await self.save_row_count_to_file(
+                        table_name, row_count, output_file
+                    )
+
+        tasks = [count_and_save(table_name) for table_name in table_names]
+        await asyncio.gather(*tasks)
 
     async def get_table_row_counts_parallel(
-        self, table_names: str, max_workers: int = 5
-    ) -> int:
+        self, table_names: list[str], max_workers: int = 5
+    ) -> dict:
         start_time = time()
-        row_counts = {}
+        semaphore = asyncio.Semaphore(max_workers)
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(self.count_rows_for_table, table_name): table_name
-                for table_name in table_names
-            }
+        async def limited_count(table_name):
+            async with semaphore:
+                return await self.count_rows_for_table(table_name)
 
-            for future in as_completed(futures):
-                table_name, row_count = future.result()
-                if row_count is not None:
-                    row_counts[table_name] = row_count
-
+        tasks = [limited_count(table) for table in table_names]
+        results = await asyncio.gather(*tasks)
+        row_counts = {table: count for table, count in results}
         elapsed_time = time() - start_time
         logger.info(f"Conteo de filas completado en {elapsed_time:.2f} segundos.")
         return row_counts
 
-    async def detect_altered_tables(self, current_counts, previous_counts_file):
+    async def detect_altered_tables(
+        self, current_counts: dict, previous_counts_file: str
+    ):
         altered_tables = []
 
-        with open(previous_counts_file, "r") as file:
-            previous_counts = {
-                line.split(":")[0]: int(line.split(":")[1])
-                for line in file
-                if ":" in line
-            }
+        try:
+            with open(previous_counts_file, "r") as file:
+                previous_counts = {
+                    line.split(":")[0]: int(line.split(":")[1])
+                    for line in file
+                    if ":" in line
+                }
+        except FileNotFoundError:
+            previous_counts = {}
 
         for table_name, current_count in current_counts.items():
             if current_count is None:
                 logger.warning(f"No se pudo contar filas para la tabla {table_name}.")
                 continue
-
             previous_count = previous_counts.get(table_name)
-
             if previous_count is None:
                 logger.info(
                     f"Tabla nueva detectada: {table_name} con {current_count} filas."
@@ -121,5 +124,4 @@ class DataWatcher:
                     f"Tabla alterada: {table_name}, previo: {previous_count}, actual: {current_count}."
                 )
                 altered_tables.append((table_name, previous_count, current_count))
-
         return altered_tables

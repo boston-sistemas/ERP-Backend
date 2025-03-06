@@ -104,6 +104,32 @@ def update_name_tables():
 
 
 @cli.command()
+def update_row_counts():
+    from db import update_row_counts
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(update_row_counts())
+
+
+@cli.command()
+def detect_altered():
+    from db import detect_altered
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(detect_altered())
+
+
+@cli.command()
 @click.option("-o", "--output", help="Output file name", default="", required=False)
 @click.option(
     "--dialect",

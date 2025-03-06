@@ -191,3 +191,4 @@ pyrightconfig.json
 .ionide
 
 filtered_table_names.txt
+table_row_counts.txt

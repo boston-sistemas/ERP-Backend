@@ -140,6 +140,58 @@ async def update_name_tables() -> None:
     await promec_async_silent_engine.dispose()
 
 
+async def update_row_counts() -> None:
+    from data_watcher import DataWatcher
+
+    data_watcher = DataWatcher(promec_engine=promec_async_silent_engine)
+    output_file_names = "filtered_table_names.txt"
+    row_count_file = "table_row_counts.txt"
+
+    with open(output_file_names, "r") as file:
+        table_names = [line.strip() for line in file]
+
+    await data_watcher.save_initital_row_counts_parallel(
+        table_names=table_names, output_file=row_count_file, max_workers=5
+    )
+
+    await promec_async_silent_engine.dispose()
+
+
+async def detect_altered() -> None:
+    from data_watcher import DataWatcher
+
+    data_watcher = DataWatcher(promec_engine=promec_async_silent_engine)
+    output_file_names = "filtered_table_names.txt"
+    row_count_file = "table_row_counts.txt"
+
+    with open(output_file_names, "r") as file:
+        table_names = [line.strip() for line in file]
+
+    current_counts = await data_watcher.get_table_row_counts_parallel(
+        table_names=table_names, max_workers=5
+    )
+
+    alter_tables = await data_watcher.detect_altered_tables(
+        current_counts, row_count_file
+    )
+
+    if alter_tables:
+        logger.info("Tablas alteradas detectadas:")
+        for table, prev, current in alter_tables:
+            if prev == "nueva":
+                logger.info(
+                    f"Tabla nueva detectada: {table}, filas actuales: {current}."
+                )
+            else:
+                logger.info(
+                    f"Tabla alterada detectada: {table}, nuevos valores: {current - prev}"
+                )
+    else:
+        logger.info("No se detectaron alteraciones en las tablas.")
+
+    await promec_async_silent_engine.dispose()
+
+
 def create_promec_sequences() -> None:
     from src.core.database import PromecBase  # noqa: F401
     from src.operations.sequences import product_id_seq  # noqa: F401
