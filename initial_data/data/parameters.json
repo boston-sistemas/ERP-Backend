@@ -622,5 +622,29 @@
         "value": "Saldo pendiente a recoger",
         "data_type": "string",
         "is_active": true
+    },
+    {
+        "id": 1083,
+        "category_id": 110,
+        "description": "TIPO DE ESTADO: SALDOS PENDIENTES POR CANCELACIÓN",
+        "value": "Saldo pendiente a recoger por cancelación",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1084,
+        "category_id": 111,
+        "description": "TIPO DE ESTADO: STOCK A RECOGER POR CANCELACIÓN",
+        "value": "Stock a recoger por cancelación",
+        "data_type": "string",
+        "is_active": true
+    },
+    {
+        "id": 1085,
+        "category_id": 113,
+        "description": "TIPO DE ESTADO: SALDO PENDIENTE A RECOGER POR CANCELACIÓN",
+        "value": "Saldo pendiente a recoger por cancelación",
+        "data_type": "string",
+        "is_active": true
     }
 ]

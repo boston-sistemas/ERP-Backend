@@ -20,6 +20,7 @@ from src.operations.constants import (
     ENTRY_MOVEMENT_TYPE,
     IN_PROCESS_SERVICE_ORDER_ID,
     LIQUIDATED_SERVICE_ORDER_ID,
+    PENDING_BALANCES_FOR_CANCELLED_SERVICE_ORDER_ID,
     PENDING_BALANCES_SERVICE_ORDER_ID,
     SCHEDULED_SERVICE_ORDER_ID,
     SERVICE_CODE_SUPPLIER_DYEING,
@@ -44,6 +45,7 @@ from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_WITHOUT_STORAGE_FAILURE,
+    WeavingServiceEntryFailures,
 )
 from src.operations.models import (
     CardOperation,
@@ -198,9 +200,6 @@ class WeavingServiceEntryService(MovementService):
         self,
         current_date: datetime,
         supplier_id: str,
-        tint_supplier_id: str,
-        tint_color_id: str,
-        tint_supplier_color_id: str,
         fabric: FabricSchema,
     ) -> Result[None, CustomException]:
         codcol = "CRUD"
@@ -228,26 +227,6 @@ class WeavingServiceEntryService(MovementService):
         if rate is None:
             print("Fabric rate missing")
             # return WEAVING_SERVICE_ENTRY_FABRIC_RATE_MISSING_FAILURE
-
-        if tint_supplier_id and tint_color_id and tint_supplier_color_id:
-            filter = (
-                (ServiceCardOperation.company_code == MECSA_COMPANY_CODE)
-                & (ServiceCardOperation.period == current_date.date().year)
-                & (ServiceCardOperation.month_number == current_date.date().month)
-                & (ServiceCardOperation.serial_code == "004")
-                & (ServiceCardOperation.supplier_id == tint_supplier_id)
-                & (ServiceCardOperation.fabric_id == fabric_id)
-                & (ServiceCardOperation.width == fabric.width)
-                & (ServiceCardOperation.codcol == tint_color_id)
-            )
-
-            rate = await self.service_card_operation_service.find(
-                filter=filter,
-            )
-
-            if rate is None:
-                print("Tintoreria rate missing")
-                # return WEAVING_SERVICE_ENTRY_FABRIC_TINTORERIA_RATE_MISSING_FAILURE
 
         return Success(None)
 
@@ -330,11 +309,19 @@ class WeavingServiceEntryService(MovementService):
                     for supply_stock in service_orders_supply_stock
                 }
 
-                if service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID:
-                    return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_ANULLED_FAILURE
+                if (service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID) or (
+                    service_order.status_param_id
+                    == PENDING_BALANCES_FOR_CANCELLED_SERVICE_ORDER_ID
+                ):
+                    return WeavingServiceEntryFailures.WEAVING_SERVICE_ENTRY_SERVICE_ORDER_CANCELLED_FAILURE
 
-                if service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID:
+                if (service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID) or (
+                    service_order.status_param_id == PENDING_BALANCES_SERVICE_ORDER_ID
+                ):
                     return WEAVING_SERVICE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE
+
+                if service_order.status_param_id == ANNULLED_SERVICE_ORDER_ID:
+                    return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_ANULLED_FAILURE
 
                 # Se recolecta los proveedores que componen el hilado del stock del insumo de O/S
                 # //!Consultar para facilicitar
@@ -382,47 +369,11 @@ class WeavingServiceEntryService(MovementService):
                     )
 
                 if fabric_ids[detail.fabric_id] == CANCELLED_SERVICE_ORDER_ID:
-                    return WEAVING_SERVICE_ENTRY_FABRIC_ALREADY_ANULLED_FAILURE
-
-                # if fabric_ids[detail.fabric_id] == UNSTARTED_SERVICE_ORDER_ID:
-                #     return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_STARTED_FAILURE
-
-                if detail.tint_color_id:
-                    validation_result = await self.mecsa_color_service.read_mecsa_color(
-                        color_id=detail.tint_color_id,
-                    )
-                    if validation_result.is_failure:
-                        return validation_result
-
-                if detail.tint_supplier_id:
-                    validation_result = await self.supplier_service.read_supplier(
-                        supplier_code=detail.tint_supplier_id,
-                        include_colors=True,
-                        include_service=True,
-                    )
-                    if validation_result.is_failure:
-                        return validation_result
-
-                    services_tint = [
-                        service.service_code
-                        for service in validation_result.value.services
-                    ]
-
-                    if SERVICE_CODE_SUPPLIER_DYEING not in services_tint:
-                        return WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE
-                    supplier_colors_ids = [
-                        color.id for color in validation_result.value.colors
-                    ]
-
-                    if detail.tint_supplier_color_id not in supplier_colors_ids:
-                        return WEAVING_SERVICE_ENTRY_SUPPLIER_COLOR_NOT_FOUND_FAILURE
+                    return WeavingServiceEntryFailures.WEAVING_SERVICE_ENTRY_SERVICE_ORDER_CANCELLED_FAILURE
 
                 validation_result = await self._validate_rate_fabric(
                     current_date=current_date,
                     supplier_id=service_order.supplier_id,
-                    tint_supplier_id=detail.tint_supplier_id,
-                    tint_color_id=detail.tint_color_id,
-                    tint_supplier_color_id=detail.tint_supplier_color_id,
                     fabric=fabric,
                 )
 
@@ -480,9 +431,9 @@ class WeavingServiceEntryService(MovementService):
                 storage_code=WEAVING_STORAGE_CODE,
                 entry_user_id="DESA01",
                 product_id=detail.fabric_id,
-                tint_supplier_id=detail.tint_supplier_id,
+                tint_supplier_id="",
                 fabric_type="C",
-                tint_color_id=detail.tint_color_id,
+                tint_color_id="",
                 desttej="T",
                 flgsit="P",
                 sdoneto=sdoneto,
@@ -762,11 +713,11 @@ class WeavingServiceEntryService(MovementService):
                 real_width=detail._fabric.width,
                 yarn_supplier_id=service_order.supplier_id,
                 service_order_id=service_order.id,
-                tint_supplier_id=detail.tint_supplier_id,
+                tint_supplier_id="",
                 fabric_type=detail.fabric_type,
-                tint_color_id=detail.tint_color_id,
-                _tint_supplier_color_id=detail.tint_supplier_color_id[0:8],
-                tint_supplier_color_id=detail.tint_supplier_color_id,
+                tint_color_id="",
+                _tint_supplier_color_id="",
+                tint_supplier_color_id="",
             )
 
             update_result = await self.product_inventory_service.update_current_stock(
@@ -1140,20 +1091,8 @@ class WeavingServiceEntryService(MovementService):
                 weaving_service_entry_detail.detail_fabric.service_order_id = (
                     service_order.id
                 )
-                weaving_service_entry_detail.detail_fabric.tint_supplier_id = (
-                    detail.tint_supplier_id
-                )
                 weaving_service_entry_detail.detail_fabric.fabric_type = (
                     detail.fabric_type
-                )
-                weaving_service_entry_detail.detail_fabric.tint_color_id = (
-                    detail.tint_color_id
-                )
-                weaving_service_entry_detail.detail_fabric._tint_supplier_color_id = (
-                    detail.tint_supplier_color_id[0:8]
-                )
-                weaving_service_entry_detail.detail_fabric.tint_supplier_color_id = (
-                    detail.tint_supplier_color_id
                 )
 
                 await self.product_inventory_service.update_current_stock(
@@ -1186,7 +1125,7 @@ class WeavingServiceEntryService(MovementService):
                             card.gross_weight = net_weight
                             card.supplier_weaving_tej = supplier.code
                             card.product_id = detail.fabric_id
-                            card.tint_supplier_id = detail.tint_supplier_id
+                            card.tint_supplier_id = ""
                             card.sdoneto = net_weight
                             card.service_order_id = service_order.id
                     else:
@@ -1289,11 +1228,11 @@ class WeavingServiceEntryService(MovementService):
                     real_width=detail._fabric.width,
                     yarn_supplier_id=service_order.supplier_id,
                     service_order_id=service_order.id,
-                    tint_supplier_id=detail.tint_supplier_id,
+                    tint_supplier_id="",
                     fabric_type=detail.fabric_type,
-                    tint_color_id=detail.tint_color_id,
-                    _tint_supplier_color_id=detail.tint_supplier_color_id[0:8],
-                    tint_supplier_color_id=detail.tint_supplier_color_id,
+                    tint_color_id="",
+                    _tint_supplier_color_id="",
+                    tint_supplier_color_id="",
                 )
 
                 await self.product_inventory_service.update_current_stock(

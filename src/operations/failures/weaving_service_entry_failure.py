@@ -101,3 +101,9 @@ WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE = Failure(
         detail="El proveedor especificado no ofrece el servicio de tintorería."
     )  # TODO: This failure is repetead
 )
+
+
+class WeavingServiceEntryFailures:
+    WEAVING_SERVICE_ENTRY_SERVICE_ORDER_CANCELLED_FAILURE = Failure(
+        ForbiddenException(detail="La O/S de Tejeduría asociada ha sido cancelada.")
+    )

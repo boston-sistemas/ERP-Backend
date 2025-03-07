@@ -96,28 +96,20 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     service_order_id: str = Field(max_length=SERVICE_ORDER_ID_MAX_LENGTH)
     service_order_ids: list[str] | None = Field(default=[])
     fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
-    fabric_type: str = Field(default="A", max_length=FABRIC_TYPE_MAX_LENGTH)
-    tint_color_id: str | None = Field(default=None, max_length=COLOR_ID_MAX_LENGTH)
-    tint_supplier_id: str | None = Field(
-        default=None, max_length=SUPPLIER_CODE_MAX_LENGTH
-    )
-    tint_supplier_color_id: str | None = Field(
-        default=None, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
-    )
+
+    generate_cards: bool | None = Field(default=False)
+    # tint_color_id: str | None = Field(default=None, max_length=COLOR_ID_MAX_LENGTH)
+    # tint_supplier_id: str | None = Field(
+    #     default=None, max_length=SUPPLIER_CODE_MAX_LENGTH
+    # )
+    # tint_supplier_color_id: str | None = Field(
+    #     default=None, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH
+    # )
     generate_cards: bool | None = Field(default=False)
 
     _fabric: FabricSchema | None = None
     _service_orders_supply_stock: list[ServiceOrderSupplyDetail] | None = None
 
-    # Posible forma de encapsular la validación de los campos
-    @model_validator(mode="after")
-    def validate_tint_fields(self):
-        if bool(self.tint_supplier_id) ^ bool(self.tint_supplier_color_id):
-            raise ValueError(
-                "El código de proveedor y el código de color del proveedor deben ser mandados."
-            )
-        return self
 
-
-class WeavingServiceEntryDetailUpdateSchema(WeavingServiceEntryDetailCreateSchema):
+class WeavingServiceEntryDetailUpdateSchema(CustomBaseModel):
     detail_card: list[CardOperationUpdateSchema] | None = []
