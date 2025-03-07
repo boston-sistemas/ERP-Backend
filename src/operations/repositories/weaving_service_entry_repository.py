@@ -77,6 +77,7 @@ class WeavingServiceEntryRepository(MovementRepository):
         options.append(load_only(*self.get_weaving_service_entry_fields()))
 
         if include_detail:
+            print("---->Z")
             options.extend(self.include_details())
 
         return options
@@ -116,6 +117,7 @@ class WeavingServiceEntryRepository(MovementRepository):
         start_date: date = None,
         end_date: date = None,
         service_order_id: str = None,
+        include_detail: bool = False,
         include_annulled: bool = False,
         limit: int = None,
         offset: int = None,
@@ -147,13 +149,14 @@ class WeavingServiceEntryRepository(MovementRepository):
             base_filter = base_filter & (Movement.creation_date <= end_date)
 
         filter = base_filter & filter if filter is not None else base_filter
-        options = self.get_load_options()
+        options = self.get_load_options(include_detail=include_detail)
 
         weaving_service_entries = await self.find_movements(
             filter=filter,
             options=options,
             limit=limit,
             offset=offset,
+            apply_unique=True,
             order_by=Movement.creation_date.desc(),
         )
 

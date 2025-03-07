@@ -82,6 +82,7 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
     start_date: date | None = Field(default=None)
     end_date: date | None = Field(default=None)
     include_annulled: bool | None = Field(default=False)
+    include_detail: bool | None = Field(default=False)
     page: int | None = Field(default=1, ge=1)
 
     @computed_field
