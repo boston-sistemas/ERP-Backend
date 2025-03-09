@@ -79,6 +79,7 @@ class BaseRepository(Generic[ModelType]):
         apply_unique: bool = False,
         offset: int = None,
         limit: int = None,
+        use_outer_joins: bool = False,
         order_by: Union[
             Column, ClauseElement, Sequence[Union[Column, ClauseElement]]
         ] = None,
@@ -90,11 +91,16 @@ class BaseRepository(Generic[ModelType]):
 
         if joins:
             for join_item in joins:
-                # stmt = stmt.join(*join_item)
-                if isinstance(join_item, tuple) and len(join_item) == 2:
-                    stmt = stmt.join(join_item[0], join_item[1])
+                if use_outer_joins:
+                    if isinstance(join_item, tuple) and len(join_item) == 2:
+                        stmt = stmt.outerjoin(join_item[0], join_item[1])
+                    else:
+                        stmt = stmt.outerjoin(join_item)
                 else:
-                    stmt = stmt.join(join_item)
+                    if isinstance(join_item, tuple) and len(join_item) == 2:
+                        stmt = stmt.join(join_item[0], join_item[1])
+                    else:
+                        stmt = stmt.join(join_item)
 
         if options:
             stmt = stmt.options(*options)
