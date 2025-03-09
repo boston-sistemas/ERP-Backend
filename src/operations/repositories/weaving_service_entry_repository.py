@@ -165,6 +165,7 @@ class WeavingServiceEntryRepository(MovementRepository):
             joins=joins,
             limit=limit,
             offset=offset,
+            use_outer_joins=True,
             apply_unique=True,
             order_by=Movement.creation_date.desc(),
         )

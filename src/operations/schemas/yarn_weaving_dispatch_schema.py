@@ -68,7 +68,7 @@ class YarnWeavingDispatchFilterParams(CustomBaseModel):
     period: int | None = Field(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     )
-    include_detail: bool | None = Field(default=False)
+    # include_detail: bool | None = Field(default=False)
     dispatch_number: str | None = Field(default=None)
     supplier_ids: list[str] | None = Field(default=None)
     start_date: date | None = Field(default=None)

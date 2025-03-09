@@ -50,6 +50,7 @@ class MovementRepository(BaseRepository[Movement]):
         options: Sequence[Load] = None,
         apply_unique: bool = False,
         joins: list[tuple] = None,
+        use_outer_joins: bool = False,
         limit: int = None,
         offset: int = None,
         order_by: Union[
@@ -65,6 +66,7 @@ class MovementRepository(BaseRepository[Movement]):
             joins=joins,
             apply_unique=apply_unique,
             limit=limit,
+            use_outer_joins=use_outer_joins,
             offset=offset,
             order_by=order_by,
         )
