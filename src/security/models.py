@@ -323,11 +323,11 @@ class AuditActionLog(Base):
     __tablename__ = "audit_action_log"
 
     id: Mapped[int] = mapped_column(Identity(start=1))
-    user_id: Mapped[int] = mapped_column()
+    user_id: Mapped[int] = mapped_column(nullable=True)
     endpoint_name: Mapped[str] = mapped_column(String(ENDPOINT_NAME_MAX_LENGTH))
     action: Mapped[str] = mapped_column(String(ACTION_MAX_LENGTH))
-    request_data: Mapped[str] = mapped_column(CLOB)
-    response_data: Mapped[str] = mapped_column(CLOB)
+    request_data: Mapped[str] = mapped_column(CLOB, nullable=True)
+    response_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     status_code: Mapped[int] = mapped_column()
     at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
 
@@ -340,8 +340,8 @@ class AuditDataLog(Base):
     id: Mapped[int] = mapped_column(Identity(start=1))
     entity_type: Mapped[str] = mapped_column(String(ENTITY_TYPE_MAX_LENGTH))
     action: Mapped[str] = mapped_column(String(ACTION_MAX_LENGTH))
-    old_data: Mapped[str] = mapped_column(CLOB)
-    new_data: Mapped[str] = mapped_column(CLOB)
+    old_data: Mapped[str] = mapped_column(CLOB, nullable=True)
+    new_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
     action_id: Mapped[int] = mapped_column()
     user_id: Mapped[int] = mapped_column()

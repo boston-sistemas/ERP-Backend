@@ -3,23 +3,17 @@ from functools import wraps
 
 from fastapi import Depends, Request
 from fastapi.encoders import jsonable_encoder
+from fastapi.routing import APIRoute
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
-from src.core.result import Failure
+from src.core.repository import BaseRepository
+from src.security.models import AuditActionLog
 
 from ...security.services.token_service import TokenService
 
 
 class AuditService:
-    def __init__(
-        self,
-        promec_db: AsyncSession = None,
-        db: AsyncSession = None,
-    ):
-        self.promec_db = promec_db
-        self.db = db
-
     @staticmethod
     def audit_action_log():
         def decorator(func):
@@ -45,40 +39,37 @@ class AuditService:
 
                 request_data: dict | None = None
 
+                route: APIRoute = request.scope.get("route")
+                status_code: int = route.status_code
                 try:
                     request_data = await request.json()
                 except Exception:
                     request_data = None
 
-                try:
-                    response = await func(*args, **kwargs)
-                except Exception as exc:
-                    print(exc.json())
-                    detail = getattr(exc, "detail", None)
-                    print("AUDIT: Excepción custom capturada:", exc)
-                    print("Detalle:", detail)
-                    raise exc
-
-                # except Exception as e:
-                #     if isinstance(e, dict):
-                #         error_json = json.dumps(e)
-                #     else:
-                #     # Si es un str o cualquier otra cosa
-                #        error_json = str(e)
-                #
-                #     print(error_json)
-                #     raise e
+                response = await func(*args, **kwargs)
 
                 response_data: dict | None = None
 
-                try:
-                    encoded = jsonable_encoder(response)
-                    response_data = json.dumps(encoded)  # string JSON
-                except Exception:
-                    response_data = str(response)
+                encoded = jsonable_encoder(response)
+                response_data = json.dumps(encoded)
 
-                print("asdasdasdasdasdasdasd")
-                print(endpoint_name, user_id, action, request_data, response_data)
+                audit_action_log_repository = BaseRepository(
+                    model=AuditActionLog, db=db
+                )
+
+                audit_action_log = AuditActionLog(
+                    endpoint_name=endpoint_name,
+                    user_id=user_id,
+                    action=action,
+                    request_data=json.dumps(request_data) if request_data else "",
+                    response_data=json.dumps(response_data) if response_data else "",
+                    status_code=status_code,
+                )
+
+                try:
+                    await audit_action_log_repository.save(audit_action_log)
+                except Exception as e:
+                    print(e)
 
                 return response
 

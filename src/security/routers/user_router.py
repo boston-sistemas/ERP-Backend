@@ -20,7 +20,9 @@ router = APIRouter(tags=["Seguridad - Usuarios"], prefix="/usuarios")
 """
 
 
-@router.get("/{usuario_id}", response_model=UsuarioSchema)
+@router.get(
+    "/{usuario_id}", response_model=UsuarioSchema, status_code=status.HTTP_200_OK
+)
 # @PermissionService.check_permission(1, 101)
 @AuditService.audit_action_log()
 async def read_user(
@@ -37,7 +39,7 @@ async def read_user(
     raise result.error
 
 
-@router.get("/", response_model=UsuarioListSchema)
+@router.get("/", response_model=UsuarioListSchema, status_code=status.HTTP_200_OK)
 async def read_users(request: Request, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
 
