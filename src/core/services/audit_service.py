@@ -53,6 +53,7 @@ class AuditService:
                 try:
                     response = await func(*args, **kwargs)
                 except Exception as exc:
+                    print(exc.json())
                     detail = getattr(exc, "detail", None)
                     print("AUDIT: Excepción custom capturada:", exc)
                     print("Detalle:", detail)
