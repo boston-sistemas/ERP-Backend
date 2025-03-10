@@ -425,7 +425,7 @@ class WeavingServiceEntryService(MovementService):
                 sdoneto=sdoneto,
                 yarn_supplier_id=yarn_supplier_ids,
                 service_order_id=service_order.id,
-                card_type="A",
+                card_type="C",
                 company_code=MECSA_COMPANY_CODE,
                 period=period,
             )
@@ -697,7 +697,7 @@ class WeavingServiceEntryService(MovementService):
                 meters_count=meters_count,
                 density=detail._fabric.density,
                 real_width=detail._fabric.width,
-                yarn_supplier_id=service_order.supplier_id,
+                yarn_supplier_id=",".join(detail._fabric.supplier_yarn_ids),
                 service_order_id=service_order.id,
                 tint_supplier_id="",
                 fabric_type="C",
@@ -945,6 +945,34 @@ class WeavingServiceEntryService(MovementService):
 
         return Success(details_to_keep)
 
+    async def _delete_card(
+        self,
+        weaving_service_entry_detail_card: CardOperation,
+    ) -> Result[None, CustomException]:
+        await self.card_operation_repository.delete(weaving_service_entry_detail_card)
+        return Success(None)
+
+    async def _delete_weaving_service_entry_detail_card(
+        self,
+        weaving_service_entry_detail_card: list[CardOperation],
+        form: WeavingServiceEntryUpdateSchema,
+    ) -> Result[list[CardOperation], CustomException]:
+        card_ids = {card.id for detail in form.detail for card in detail.detail_card}
+        print(card_ids)
+        cards_to_keep = []
+
+        for card in weaving_service_entry_detail_card:
+            if card.id not in card_ids:
+                delete_result = await self._delete_card(
+                    weaving_service_entry_detail_card=card
+                )
+                if delete_result.is_failure:
+                    return delete_result
+            else:
+                cards_to_keep.append(card)
+
+        return Success(cards_to_keep)
+
     async def _find_weaving_service_entry_detail(
         self,
         weaving_service_entry_detail: list[MovementDetail],
@@ -1036,6 +1064,17 @@ class WeavingServiceEntryService(MovementService):
             return delete_result
 
         weaving_service_entry.detail = delete_result.value
+
+        for detail in weaving_service_entry.detail:
+            delete_result = await self._delete_weaving_service_entry_detail_card(
+                weaving_service_entry_detail_card=detail.detail_card,
+                form=form,
+            )
+
+            if delete_result.is_failure:
+                return delete_result
+
+            detail.detail_card = delete_result.value
 
         for detail in form.detail:
             weaving_service_entry_detail_result = (
@@ -1132,7 +1171,7 @@ class WeavingServiceEntryService(MovementService):
                 weaving_service_entry_detail.detail_fabric.real_width = (
                     detail._fabric.width
                 )
-                weaving_service_entry_detail.detail_fabric.yarn_supplier_id = (
+                weaving_service_entry_detail.detail_fabric.yarn_supplier_id = ",".join(
                     detail._fabric.supplier_yarn_ids
                 )
                 weaving_service_entry_detail.detail_fabric.service_order_id = (
@@ -1155,7 +1194,7 @@ class WeavingServiceEntryService(MovementService):
                 await self.service_order_supply_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
-                    service_orders_stock=detail._service_orders_stock,
+                    service_orders_stock=detail._service_orders_supply_stock,
                 )
             else:
                 card_operations_value = []
@@ -1236,7 +1275,7 @@ class WeavingServiceEntryService(MovementService):
                     meters_count=meters_count,
                     density=detail._fabric.density,
                     real_width=detail._fabric.width,
-                    yarn_supplier_id=service_order.supplier_id,
+                    yarn_supplier_id=",".join(detail._fabric.supplier_yarn_ids),
                     service_order_id=service_order.id,
                     tint_supplier_id="",
                     fabric_type="C",
