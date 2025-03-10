@@ -88,9 +88,10 @@ class WeavingServiceEntryRepository(MovementRepository):
         entry_number: str,
         period: int,
         filter: BinaryExpression = None,
-        include_detail_card: bool = True,
+        include_detail_card: bool = False,
         include_detail: bool = False,
     ) -> Movement | None:
+        joins: list[tuple] = []
         base_filter = (
             (Movement.storage_code == WEAVING_STORAGE_CODE)
             & (Movement.movement_type == ENTRY_MOVEMENT_TYPE)
@@ -102,10 +103,18 @@ class WeavingServiceEntryRepository(MovementRepository):
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options(include_detail=include_detail)
 
+        if include_detail:
+            joins.append(Movement.detail)
+            joins.append(MovementDetail.detail_fabric)
+
+            if include_detail_card:
+                joins.append(MovementDetail.detail_card)
+
         weaving_service_entry = await self.find_movement_by_document_number(
             document_number=entry_number,
             filter=filter,
             options=options,
+            joins=joins,
         )
 
         return weaving_service_entry if weaving_service_entry is not None else None

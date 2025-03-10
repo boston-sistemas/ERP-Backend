@@ -60,33 +60,33 @@ class WeavingServiceEntryDetailSchema(WeavingServiceEntrySimpleSchema):
             return self.detail_fabric.roll_count
         return None
 
-    @computed_field
-    @property
-    def fabric_type(self) -> str | None:
-        if self.detail_fabric and hasattr(self.detail_fabric, "fabric_type"):
-            return self.detail_fabric.fabric_type
-        return None
-
-    @computed_field
-    @property
-    def tint_color_id(self) -> str | None:
-        if self.detail_fabric and hasattr(self.detail_fabric, "tint_color_id"):
-            return self.detail_fabric.tint_color_id
-        return None
-
-    @computed_field
-    @property
-    def tint_supplier_id(self) -> str | None:
-        if self.detail_fabric and hasattr(self.detail_fabric, "tint_supplier_id"):
-            return self.detail_fabric.tint_supplier_id
-        return None
-
-    @computed_field
-    @property
-    def tint_supplier_color_id(self) -> str | None:
-        if self.detail_fabric and hasattr(self.detail_fabric, "tint_supplier_color_id"):
-            return self.detail_fabric.tint_supplier_color_id
-        return None
+    # @computed_field
+    # @property
+    # def fabric_type(self) -> str | None:
+    #     if self.detail_fabric and hasattr(self.detail_fabric, "fabric_type"):
+    #         return self.detail_fabric.fabric_type
+    #     return None
+    #
+    # @computed_field
+    # @property
+    # def tint_color_id(self) -> str | None:
+    #     if self.detail_fabric and hasattr(self.detail_fabric, "tint_color_id"):
+    #         return self.detail_fabric.tint_color_id
+    #     return None
+    #
+    # @computed_field
+    # @property
+    # def tint_supplier_id(self) -> str | None:
+    #     if self.detail_fabric and hasattr(self.detail_fabric, "tint_supplier_id"):
+    #         return self.detail_fabric.tint_supplier_id
+    #     return None
+    #
+    # @computed_field
+    # @property
+    # def tint_supplier_color_id(self) -> str | None:
+    #     if self.detail_fabric and hasattr(self.detail_fabric, "tint_supplier_color_id"):
+    #         return self.detail_fabric.tint_supplier_color_id
+    #     return None
 
 
 class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
@@ -94,10 +94,8 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
     guide_net_weight: float = Field(gt=0.0)
     roll_count: int = Field(gt=0)
     service_order_id: str = Field(max_length=SERVICE_ORDER_ID_MAX_LENGTH)
-    service_order_ids: list[str] | None = Field(default=[])
     fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
 
-    generate_cards: bool | None = Field(default=False)
     # tint_color_id: str | None = Field(default=None, max_length=COLOR_ID_MAX_LENGTH)
     # tint_supplier_id: str | None = Field(
     #     default=None, max_length=SUPPLIER_CODE_MAX_LENGTH
@@ -112,4 +110,12 @@ class WeavingServiceEntryDetailCreateSchema(CustomBaseModel):
 
 
 class WeavingServiceEntryDetailUpdateSchema(CustomBaseModel):
+    item_number: int | None = Field(default=None, ge=1)
+    guide_net_weight: float = Field(gt=0.0)
+    roll_count: int = Field(gt=0)
+    service_order_id: str = Field(max_length=SERVICE_ORDER_ID_MAX_LENGTH)
+    fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
+    generate_cards: bool | None = Field(default=False)
     detail_card: list[CardOperationUpdateSchema] | None = []
+    _fabric: FabricSchema | None = None
+    _service_orders_supply_stock: list[ServiceOrderSupplyDetail] | None = None

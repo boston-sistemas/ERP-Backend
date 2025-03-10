@@ -107,3 +107,15 @@ class WeavingServiceEntryFailures:
     WEAVING_SERVICE_ENTRY_SERVICE_ORDER_CANCELLED_FAILURE = Failure(
         ForbiddenException(detail="La O/S de Tejeduría asociada ha sido cancelada.")
     )
+
+    WEAVING_SERVICE_ENTRY_CARD_NOT_FOUND_FAILURE = Failure(
+        NotFoundException(
+            detail="La tarjeta de tejeduría especificada no existe o no pertenece al ingreso"
+        )
+    )
+
+    WEAVING_SERVICE_ENTRY_REGENERATE_CARDS_FAILURE = Failure(
+        ForbiddenException(
+            detail="No puede volver a generar las tarjetas, habiendo ya tarjetas generadas."
+        )
+    )

@@ -210,7 +210,7 @@ class ServiceOrderSupplyDetailService:
         quantity: int,
     ) -> Result[None, CustomException]:
         for service_order_supply_stock in service_orders_stock:
-            if service_order_supply_stock.supply_id == yarn_id:
+            if service_order_supply_stock.product_code1 == yarn_id:
                 if service_order_supply_stock.current_stock <= 0:
                     continue
 
@@ -244,7 +244,7 @@ class ServiceOrderSupplyDetailService:
         quantity: int,
     ) -> Result[None, CustomException]:
         for service_order_supply_stock in service_orders_stock:
-            if service_order_supply_stock.supply_id == yarn_id:
+            if service_order_supply_stock.product_code1 == yarn_id:
                 if quantity <= 0:
                     break
 
@@ -264,23 +264,23 @@ class ServiceOrderSupplyDetailService:
                 else:
                     quantity -= (
                         service_order_supply_stock.provided_quantity
-                        - service_order_supply_stock.stkact
+                        - service_order_supply_stock.current_stock
                     )
                     service_order_supply_stock.current_stock = (
                         service_order_supply_stock.provided_quantity
                     )
                     service_order_supply_stock.quantity_received -= (
                         service_order_supply_stock.provided_quantity
-                        - service_order_supply_stock.stkact
+                        - service_order_supply_stock.current_stock
                     )
 
                 await self.repository.save(service_order_supply_stock, flush=True)
 
         if quantity > 0:
-            if service_order_supply_stock:
-                service_order_supply_stock[-1].current_stock += quantity
-                service_order_supply_stock[-1].quantity_received -= quantity
-                await self.repository.save(service_order_supply_stock[-1], flush=True)
+            if service_orders_stock:
+                service_orders_stock[-1].current_stock += quantity
+                service_orders_stock[-1].quantity_received -= quantity
+                await self.repository.save(service_orders_stock[-1], flush=True)
 
         return Success(service_orders_stock)
 
