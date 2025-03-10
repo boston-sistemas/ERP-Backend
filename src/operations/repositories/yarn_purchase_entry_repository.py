@@ -157,7 +157,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             & (Movement.period == period)
         )
         if not include_annulled:
-            base_filter = base_filter & (Movement.status_flag == "P")
+            base_filter = base_filter & (Movement.status_flag != "A")
 
         if entry_number:
             base_filter = base_filter & (
