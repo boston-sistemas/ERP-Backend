@@ -1319,7 +1319,6 @@ class WeavingServiceEntryService(MovementService):
 
         rolling_back_result = await self.rollback_weaving_service_entry(
             period=period,
-            supplier=supplier.value,
             weaving_service_entry=weaving_service_entry,
         )
         if rolling_back_result.is_failure:
