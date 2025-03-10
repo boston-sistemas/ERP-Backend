@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_db
+from src.core.database import get_db, get_promec_db
 from src.core.dependencies import get_current_user_id
+from src.core.services import AuditService, PermissionService
 from src.security.schemas import (
     UsuarioCreateWithRolesSchema,
     UsuarioListSchema,
@@ -20,7 +21,13 @@ router = APIRouter(tags=["Seguridad - Usuarios"], prefix="/usuarios")
 
 
 @router.get("/{usuario_id}", response_model=UsuarioSchema)
-async def read_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
+# @PermissionService.check_permission(1, 101)
+@AuditService.audit_action_log()
+async def read_user(
+    request: Request,
+    usuario_id: int,
+    db: AsyncSession = Depends(get_db),
+):
     user_service = UserService(db)
 
     result = await user_service.read_user(usuario_id, include_roles=True)
@@ -34,16 +41,17 @@ async def read_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
 async def read_users(request: Request, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
 
-    access_token = request.cookies.get("refresh_token")
-
     usuarios = await user_service.read_users()
 
     return UsuarioListSchema(usuarios=usuarios)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
+@AuditService.audit_action_log()
 async def create_user_with_roles(
-    user_data: UsuarioCreateWithRolesSchema, db: AsyncSession = Depends(get_db)
+    request: Request,
+    user_data: UsuarioCreateWithRolesSchema,
+    db: AsyncSession = Depends(get_db),
 ):
     user_service = UserService(db)
 
