@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
+from src.core.services import AuditService, PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnPurchaseOrderListSchema,
@@ -15,8 +16,12 @@ router = APIRouter(
 )
 
 
-@router.get("/yarns", response_model=YarnPurchaseOrderListSchema)
+@router.get(
+    "/yarns", response_model=YarnPurchaseOrderListSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def get_ordenes_yarns(
+    request: Request,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
@@ -34,8 +39,14 @@ async def get_ordenes_yarns(
     raise result.error
 
 
-@router.get("/yarns/{id}", response_model=YarnPurchaseOrderSchema)
+@router.get(
+    "/yarns/{id}",
+    response_model=YarnPurchaseOrderSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_yarn_order(
+    request: Request,
     id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.services import AuditService, PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     DyeingServiceDispatchCreateSchema,
@@ -15,8 +16,14 @@ from src.operations.services import DyeingServiceDispatchService
 router = APIRouter()
 
 
-@router.get("/", response_model=DyeingServiceDispatchesListSchema)
+@router.get(
+    "/",
+    response_model=DyeingServiceDispatchesListSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_dyeing_service_dispatches(
+    request: Request,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
@@ -38,9 +45,13 @@ async def read_dyeing_service_dispatches(
 
 
 @router.get(
-    "/{dyeing_service_dispatch_number}", response_model=DyeingServiceDispatchSchema
+    "/{dyeing_service_dispatch_number}",
+    response_model=DyeingServiceDispatchSchema,
+    status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_dyeing_service_dispatch(
+    request: Request,
     dyeing_service_dispatch_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -62,8 +73,12 @@ async def read_dyeing_service_dispatch(
     raise result.error
 
 
-@router.post("/", response_model=DyeingServiceDispatchSchema)
+@router.post(
+    "/", response_model=DyeingServiceDispatchSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def create_dyeing_service_dispatch(
+    request: Request,
     form: DyeingServiceDispatchCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
@@ -78,9 +93,13 @@ async def create_dyeing_service_dispatch(
 
 
 @router.patch(
-    "/{dyeing_service_dispatch_number}", response_model=DyeingServiceDispatchSchema
+    "/{dyeing_service_dispatch_number}",
+    response_model=DyeingServiceDispatchSchema,
+    status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def update_dyeing_service_dispatch(
+    request: Request,
     dyeing_service_dispatch_number: str,
     form: DyeingServiceDispatchUpdateSchema,
     period: int | None = Query(
@@ -102,8 +121,10 @@ async def update_dyeing_service_dispatch(
     raise result.error
 
 
-@router.put("/{dyeing_service_dispatch_number}/anulate")
+@router.put("/{dyeing_service_dispatch_number}/anulate", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def anulate_dyeing_service_dispatch(
+    request: Request,
     dyeing_service_dispatch_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -124,8 +145,12 @@ async def anulate_dyeing_service_dispatch(
     raise result.error
 
 
-@router.get("/{dyeing_service_dispatch_number}/is-updatable")
+@router.get(
+    "/{dyeing_service_dispatch_number}/is-updatable", status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def check_dyeing_service_dispatch_is_updatable(
+    request: Request,
     dyeing_service_dispatch_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -147,8 +172,10 @@ async def check_dyeing_service_dispatch_is_updatable(
     return {"updatable": False, "message": result.error.detail}
 
 
-@router.post("/print/movement")
+@router.post("/print/movement", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def print_dyeing_service_dispatch(
+    request: Request,
     # form: WeavingServiceEntryPrintListSchema,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000

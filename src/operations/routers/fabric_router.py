@@ -1,10 +1,11 @@
 from copy import copy
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.schemas import ItemStatusUpdateSchema
+from src.core.services import AuditService, PermissionService
 from src.operations.schemas import (
     FabricCreateSchema,
     FabricListSchema,
@@ -16,8 +17,10 @@ from src.operations.services import FabricService
 router = APIRouter()
 
 
-@router.get("/{fabric_id}", response_model=FabricSchema)
+@router.get("/{fabric_id}", response_model=FabricSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_fabric(
+    request: Request,
     fabric_id: str,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -37,8 +40,10 @@ async def read_fabric(
     raise result.error
 
 
-@router.get("/", response_model=FabricListSchema)
+@router.get("/", response_model=FabricListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_fabrics(
+    request: Request,
     include_inactives: bool = Query(default=False, alias="includeInactives"),
     yarn_ids: list[str] = Query(default=None, alias="yarnIds", min_length=1),
     db: AsyncSession = Depends(get_db),
@@ -71,8 +76,10 @@ async def read_fabrics(
     raise result.error
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def create_fabric(
+    request: Request,
     form: FabricCreateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -86,8 +93,10 @@ async def create_fabric(
     raise result.error
 
 
-@router.patch("/{fabric_id}")
+@router.patch("/{fabric_id}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_fabric(
+    request: Request,
     fabric_id: str,
     form: FabricUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -104,8 +113,10 @@ async def update_fabric(
     raise error
 
 
-@router.put("/{fabric_id}/status")
+@router.put("/{fabric_id}/status", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_fabric_status(
+    request: Request,
     fabric_id: str,
     form: ItemStatusUpdateSchema,
     db: AsyncSession = Depends(get_db),

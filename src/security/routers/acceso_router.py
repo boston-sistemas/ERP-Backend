@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.core.services import PermissionService
+from src.core.services import AuditService, PermissionService
 from src.security.schemas import (
     AccesoListSchema,
     AccesoSchema,
@@ -14,8 +14,9 @@ from src.security.services import AccesoService
 router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
 
 
-@router.get("/", response_model=AccesoListSchema)
+@router.get("/", response_model=AccesoListSchema, status_code=status.HTTP_200_OK)
 # @PermissionService.check_permission(1, 101)
+@AuditService.audit_action_log()
 async def read_accesos(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> AccesoListSchema:
@@ -29,7 +30,8 @@ async def read_accesos(
     raise accesos.error
 
 
-@router.get("/{acceso_id}", response_model=AccesoSchema)
+@router.get("/{acceso_id}", response_model=AccesoSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_acceso(
     request: Request, acceso_id: int, db: AsyncSession = Depends(get_db)
 ):
@@ -45,7 +47,8 @@ async def read_acceso(
     raise result.error
 
 
-@router.post("/", response_model=AccesoSchema)
+@router.post("/", response_model=AccesoSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def create_access(
     request: Request, form: AccessCreateSchema, db: AsyncSession = Depends(get_db)
 ):
@@ -59,7 +62,10 @@ async def create_access(
     raise result.error
 
 
-@router.patch("/{access_id}", response_model=AccesoSchema)
+@router.patch(
+    "/{access_id}", response_model=AccesoSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def update_access(
     request: Request,
     access_id: int,

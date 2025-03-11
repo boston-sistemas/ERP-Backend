@@ -1,10 +1,11 @@
 from copy import copy
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.schemas import ItemStatusUpdateSchema
+from src.core.services import AuditService, PermissionService
 from src.operations.docs import YarnRouterDocumentation
 from src.operations.schemas import (
     YarnCreateSchema,
@@ -18,8 +19,10 @@ from src.operations.services import YarnService
 router = APIRouter()
 
 
-@router.get("/{yarn_id}", response_model=YarnSchema)
+@router.get("/{yarn_id}", response_model=YarnSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_yarn(
+    request: Request,
     yarn_id: str,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -33,8 +36,10 @@ async def read_yarn(
     raise result.error
 
 
-@router.get("/", response_model=YarnListSchema)
+@router.get("/", response_model=YarnListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_yarns(
+    request: Request,
     include_inactives: bool = Query(default=False, alias="includeInactives"),
     fiber_ids: list[str] = Query(default=None, alias="fiberIds", min_length=1),
     db: AsyncSession = Depends(get_db),
@@ -63,8 +68,12 @@ async def read_yarns(
     raise result.error
 
 
-@router.post("/", **YarnRouterDocumentation.create_yarn())
+@router.post(
+    "/", **YarnRouterDocumentation.create_yarn(), status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def create_yarn(
+    request: Request,
     form: YarnCreateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -78,8 +87,10 @@ async def create_yarn(
     raise result.error
 
 
-@router.patch("/{yarn_id}")
+@router.patch("/{yarn_id}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_yarn(
+    request: Request,
     yarn_id: str,
     form: YarnUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -96,8 +107,10 @@ async def update_yarn(
     raise error
 
 
-@router.put("/{yarn_id}/status")
+@router.put("/{yarn_id}/status", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_yarn_status(
+    request: Request,
     yarn_id: str,
     form: ItemStatusUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -115,9 +128,13 @@ async def update_yarn_status(
 
 
 @router.get(
-    "/{yarn_id}/is-updatable", **YarnRouterDocumentation.check_is_yarn_updatable()
+    "/{yarn_id}/is-updatable",
+    **YarnRouterDocumentation.check_is_yarn_updatable(),
+    status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def check_is_yarn_updatable(
+    request: Request,
     yarn_id: str,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),

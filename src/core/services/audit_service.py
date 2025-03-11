@@ -28,74 +28,67 @@ class AuditService:
                         if isinstance(arg, Request):
                             request = arg
                             break
+                async for db in get_db():
+                    access_token = request.cookies.get("access_token")
+                    user_id: int | None = None
+                    endpoint_name = getattr(request.scope.get("route"), "name", None)
+                    action = request.method
+                    if access_token:
+                        token_service = TokenService(db=db)
 
-                db: AsyncSession = await anext(get_db())
+                        verification_result = token_service.verify_access_token(
+                            token=access_token
+                        )
+                        if verification_result.is_failure:
+                            user_id = None
+                        else:
+                            user_id = verification_result.value.user_id
 
-                access_token = request.cookies.get("access_token")
-                user_id: int | None = None
-                endpoint_name = getattr(request.scope.get("route"), "name", None)
-                action = request.method
-                if access_token:
-                    token_service = TokenService(db=db)
+                    request_data: dict | None = None
 
-                    verification_result = token_service.verify_access_token(
-                        token=access_token
-                    )
-                    if verification_result.is_failure:
-                        user_id = None
+                    route: APIRoute = request.scope.get("route")
+                    try:
+                        request_data = await request.json()
+                    except Exception:
+                        request_data = None
+
+                    response = await func(*args, **kwargs)
+
+                    encoded = jsonable_encoder(response)
+                    response_data: dict | None = None
+
+                    if isinstance(response, BaseModel):
+                        response_data = response.json()
+                        route: APIRoute = request.scope.get("route")
+                        status_code: int = route.status_code
+                    elif isinstance(response, JSONResponse):
+                        status_code: int = response.status_code
+                        response_data = encoded.get("body")
                     else:
-                        user_id = verification_result.value.user_id
+                        route: APIRoute = request.scope.get("route")
+                        status_code: int = route.status_code
+                        response_data = json.dumps(encoded) if encoded else ""
 
-                request_data: dict | None = None
+                    request_data = json.dumps(request_data) if request_data else ""
 
-                route: APIRoute = request.scope.get("route")
-                try:
-                    request_data = await request.json()
-                except Exception:
-                    request_data = None
+                    audit_action_log_repository = BaseRepository(
+                        model=AuditActionLog, db=db
+                    )
 
-                response = await func(*args, **kwargs)
+                    audit_action_log = AuditActionLog(
+                        endpoint_name=endpoint_name,
+                        user_id=user_id,
+                        action=action,
+                        request_data=request_data,
+                        response_data=response_data,
+                        status_code=status_code,
+                        at=calculate_time(tz=PERU_TIMEZONE),
+                    )
 
-                encoded = jsonable_encoder(response)
-                response_data: dict | None = None
-
-                if isinstance(response, BaseModel):
-                    # print("-->", response.json())
-                    response_data = response.json()
-                    route: APIRoute = request.scope.get("route")
-                    status_code: int = route.status_code
-                elif isinstance(response, JSONResponse):
-                    status_code: int = response.status_code
-                    response_data = encoded.get("body")
-                else:
-                    route: APIRoute = request.scope.get("route")
-                    status_code: int = route.status_code
-                    # print(encoded)
-                    response_data = json.dumps(encoded) if encoded else ""
-                    # response_data.pop("password")
-
-                request_data = json.dumps(request_data) if request_data else ""
-
-                audit_action_log_repository = BaseRepository(
-                    model=AuditActionLog, db=db
-                )
-
-                audit_action_log = AuditActionLog(
-                    endpoint_name=endpoint_name,
-                    user_id=user_id,
-                    action=action,
-                    request_data=request_data,
-                    response_data=response_data,
-                    status_code=status_code,
-                    at=calculate_time(tz=PERU_TIMEZONE),
-                )
-
-                # print(audit_action_log)
-
-                try:
-                    await audit_action_log_repository.save(audit_action_log)
-                except Exception as e:
-                    print(e)
+                    try:
+                        await audit_action_log_repository.save(audit_action_log)
+                    except Exception as e:
+                        print(e)
 
                 return response
 

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
+from src.core.services import AuditService, PermissionService
 from src.operations.schemas import SupplierSimpleListSchema
 from src.operations.services import SupplierService
 
@@ -12,8 +13,11 @@ router = APIRouter()
     "/{service_code}",
     response_model=SupplierSimpleListSchema,
     description="Obtén una lista de proveedores según el código del servicio. Códigos disponibles: HIL (Servicio de Hilado), 003 (Servicio de Tejeduria), 004 (Servicio de Tintoreria).",
+    status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_suppliers_by_service(
+    request: Request,
     service_code: str,
     limit: int | None = Query(default=10, ge=1, le=100),
     offset: int | None = Query(default=0, ge=0),

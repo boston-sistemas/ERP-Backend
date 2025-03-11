@@ -1,10 +1,11 @@
 from copy import copy
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.schemas import ItemStatusUpdateSchema
+from src.core.services import AuditService, PermissionService
 from src.operations.docs import FiberRouterDocumentation
 from src.operations.schemas import (
     FiberCreateSchema,
@@ -18,8 +19,14 @@ from src.operations.services import FiberService
 router = APIRouter()
 
 
-@router.get("/{fiber_id}", responses={200: {"model": FiberExtendedSchema}})
+@router.get(
+    "/{fiber_id}",
+    responses={200: {"model": FiberExtendedSchema}},
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_fiber(
+    request: Request,
     fiber_id: str,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -40,8 +47,14 @@ async def read_fiber(
     raise result.error
 
 
-@router.get("/", responses={200: {"model": FiberExtendedListSchema}})
+@router.get(
+    "/",
+    responses={200: {"model": FiberExtendedListSchema}},
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_fibers(
+    request: Request,
     include_inactives: bool = Query(default=False, alias="includeInactives"),
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -67,8 +80,10 @@ async def read_fibers(
         )
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def create_fiber(
+    request: Request,
     form: FiberCreateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -84,8 +99,10 @@ async def create_fiber(
     raise error
 
 
-@router.patch("/{fiber_id}")
+@router.patch("/{fiber_id}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_fiber(
+    request: Request,
     fiber_id: str,
     form: FiberUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -102,8 +119,10 @@ async def update_fiber(
     raise error
 
 
-@router.put("/{fiber_id}/status")
+@router.put("/{fiber_id}/status", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_fiber_status(
+    request: Request,
     fiber_id: str,
     form: ItemStatusUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -121,9 +140,13 @@ async def update_fiber_status(
 
 
 @router.get(
-    "/{fiber_id}/is-updatable", **FiberRouterDocumentation.check_is_fiber_updatable()
+    "/{fiber_id}/is-updatable",
+    **FiberRouterDocumentation.check_is_fiber_updatable(),
+    status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def check_is_fiber_updatable(
+    request: Request,
     fiber_id: str,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),

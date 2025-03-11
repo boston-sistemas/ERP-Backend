@@ -1,10 +1,11 @@
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import settings
 from src.core.database import get_db
+from src.core.services import AuditService, PermissionService
 from src.security.schemas import (
     AccessesWithOperationsListSchema,
     LoginForm,
@@ -48,8 +49,12 @@ def set_tokens_in_cookies(
     )
 
 
-@router.post("/send-token", response_model=SendTokenResponse)
+@router.post(
+    "/send-token", response_model=SendTokenResponse, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def send_token(
+    request: Request,
     form: LoginForm,
     db: AsyncSession = Depends(get_db),
 ):
@@ -61,7 +66,8 @@ async def send_token(
     raise send_token_result.error
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def login(
     request: Request,
     response: Response,
@@ -87,7 +93,8 @@ async def login(
     return result
 
 
-@router.post("/refresh", response_model=RefreshResponse)
+@router.post("/refresh", response_model=RefreshResponse, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def refresh_access_token(
     request: Request, response: Response, db: AsyncSession = Depends(get_db)
 ):
@@ -106,7 +113,8 @@ async def refresh_access_token(
     return result
 
 
-@router.post("/logout", response_model=LogoutResponse)
+@router.post("/logout", response_model=LogoutResponse, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def logout(
     request: Request, response: Response, db: AsyncSession = Depends(get_db)
 ):
@@ -121,7 +129,12 @@ async def logout(
     return logout_result.value
 
 
-@router.get("/accesses", response_model=AccessesWithOperationsListSchema)
+@router.get(
+    "/accesses",
+    response_model=AccessesWithOperationsListSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def get_accesses_with_operations(
     request: Request,
     db: AsyncSession = Depends(get_db),

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.services import AuditService, PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     ServiceOrderCreateSchema,
@@ -16,8 +17,10 @@ from src.operations.services import ServiceOrderService
 router = APIRouter()
 
 
-@router.get("/", response_model=ServiceOrderListSchema)
+@router.get("/", response_model=ServiceOrderListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_service_orders(
+    request: Request,
     filter_params: ServiceOrderFilterParams = Query(ServiceOrderFilterParams()),
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
@@ -35,8 +38,14 @@ async def read_service_orders(
     raise result.error
 
 
-@router.get("/progress/review", response_model=ServiceOrderProgressReviewListSchema)
+@router.get(
+    "/progress/review",
+    response_model=ServiceOrderProgressReviewListSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_service_orders_in_progress_review(
+    request: Request,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
@@ -56,8 +65,12 @@ async def read_service_orders_in_progress_review(
     raise result.error
 
 
-@router.get("/{order_id}", response_model=ServiceOrderSchema)
+@router.get(
+    "/{order_id}", response_model=ServiceOrderSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def read_service_order(
+    request: Request,
     order_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
@@ -76,8 +89,10 @@ async def read_service_order(
     raise result.error
 
 
-@router.post("/", response_model=ServiceOrderSchema)
+@router.post("/", response_model=ServiceOrderSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def create_weaving_service_order(
+    request: Request,
     form: ServiceOrderCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
@@ -91,8 +106,12 @@ async def create_weaving_service_order(
     raise result.error
 
 
-@router.patch("/{order_id}", response_model=ServiceOrderSchema)
+@router.patch(
+    "/{order_id}", response_model=ServiceOrderSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def update_weaving_service_order(
+    request: Request,
     order_id: str,
     form: ServiceOrderUpdateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -107,8 +126,10 @@ async def update_weaving_service_order(
     raise result.error
 
 
-@router.put("/{order_id}/anulate")
+@router.put("/{order_id}/anulate", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def anulate_weaving_service_order(
+    request: Request,
     order_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
@@ -124,8 +145,10 @@ async def anulate_weaving_service_order(
     raise result.error
 
 
-@router.get("/{order_id}/is-updatable")
+@router.get("/{order_id}/is-updatable", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def is_updated_permission_weaving_service_order(
+    request: Request,
     order_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
