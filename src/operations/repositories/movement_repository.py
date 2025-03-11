@@ -17,6 +17,10 @@ class MovementRepository(BaseRepository[Movement]):
             model=MovementDetail, db=promec_db
         )
 
+    @staticmethod
+    def get_movement_fields() -> tuple:
+        return (Movement.auxiliary_code,)
+
     async def find_movement_by_document_number(
         self,
         document_number: str,
