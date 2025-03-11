@@ -40,6 +40,7 @@ async def read_user(
 
 
 @router.get("/", response_model=UsuarioListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_users(request: Request, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
 
@@ -68,6 +69,7 @@ async def create_user_with_roles(
 
 
 @router.patch("/{usuario_id}")
+@AuditService.audit_action_log()
 async def update_usuario(
     usuario_id: int,
     update_data: UsuarioUpdateSchema,
@@ -83,6 +85,7 @@ async def update_usuario(
 
 
 @router.delete("/{usuario_id}")
+@AuditService.audit_action_log()
 async def delete_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
 
@@ -97,6 +100,7 @@ async def delete_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/{usuario_id}/roles/")
+@AuditService.audit_action_log()
 async def add_roles_to_user(
     usuario_id: int,
     rol_ids: list[int] = Body(embed=True),
@@ -112,6 +116,7 @@ async def add_roles_to_user(
 
 
 @router.delete("/{usuario_id}/roles/")
+@AuditService.audit_action_log()
 async def delete_roles_from_user(
     usuario_id: int,
     rol_ids: list[int] = Body(embed=True),
@@ -127,6 +132,7 @@ async def delete_roles_from_user(
 
 
 @router.put("/me/password")
+@AuditService.audit_action_log()
 async def update_password(
     update_password: UsuarioUpdatePasswordSchema,
     current_user_id: int = Depends(get_current_user_id),
@@ -145,6 +151,7 @@ async def update_password(
 
 
 @router.put("/{usuario_id}/reset-password")
+@AuditService.audit_action_log()
 async def reset_password(
     usuario_id: int,
     db: AsyncSession = Depends(get_db),

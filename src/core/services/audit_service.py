@@ -3,7 +3,9 @@ from functools import wraps
 
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
@@ -21,7 +23,13 @@ class AuditService:
             @wraps(func)
             async def wrapper(*args, **kwargs):
                 request: Request = kwargs.get("request")
-                db: AsyncSession = kwargs.get("db")
+                if request is None:
+                    for arg in args:
+                        if isinstance(arg, Request):
+                            request = arg
+                            break
+
+                db: AsyncSession = await anext(get_db())
 
                 access_token = request.cookies.get("access_token")
                 user_id: int | None = None
@@ -41,7 +49,6 @@ class AuditService:
                 request_data: dict | None = None
 
                 route: APIRoute = request.scope.get("route")
-                status_code: int = route.status_code
                 try:
                     request_data = await request.json()
                 except Exception:
@@ -49,11 +56,25 @@ class AuditService:
 
                 response = await func(*args, **kwargs)
 
+                encoded = jsonable_encoder(response)
                 response_data: dict | None = None
 
-                encoded = jsonable_encoder(response)
+                if isinstance(response, BaseModel):
+                    # print("-->", response.json())
+                    response_data = response.json()
+                    route: APIRoute = request.scope.get("route")
+                    status_code: int = route.status_code
+                elif isinstance(response, JSONResponse):
+                    status_code: int = response.status_code
+                    response_data = encoded.get("body")
+                else:
+                    route: APIRoute = request.scope.get("route")
+                    status_code: int = route.status_code
+                    # print(encoded)
+                    response_data = json.dumps(encoded) if encoded else ""
+                    # response_data.pop("password")
+
                 request_data = json.dumps(request_data) if request_data else ""
-                response_data = json.dumps(encoded) if encoded else ""
 
                 audit_action_log_repository = BaseRepository(
                     model=AuditActionLog, db=db
@@ -68,6 +89,8 @@ class AuditService:
                     status_code=status_code,
                     at=calculate_time(tz=PERU_TIMEZONE),
                 )
+
+                # print(audit_action_log)
 
                 try:
                     await audit_action_log_repository.save(audit_action_log)

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
+from src.core.services import AuditService, PermissionService
 from src.security.schemas import (
     SystemModuleCreateSchema,
     SystemModuleFilterParams,
@@ -14,6 +15,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=SystemModuleListSchema)
+@AuditService.audit_action_log()
 async def read_system_modules(
     filter_params: SystemModuleFilterParams = Depends(),
     db: AsyncSession = Depends(get_db),
@@ -28,6 +30,7 @@ async def read_system_modules(
 
 
 @router.get("/{system_module_id}", response_model=SystemModuleSchema)
+@AuditService.audit_action_log()
 async def read_system_module(
     system_module_id: int,
     db: AsyncSession = Depends(get_db),
@@ -42,6 +45,7 @@ async def read_system_module(
 
 
 @router.post("/", response_model=SystemModuleSchema)
+@AuditService.audit_action_log()
 async def create_system_module(
     form: SystemModuleCreateSchema,
     db: AsyncSession = Depends(get_db),

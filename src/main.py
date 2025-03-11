@@ -5,7 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from routing import api_router
 
+from src.core.database import get_db
 from src.core.exceptions import CustomException
+from src.core.services import AuditService
+from src.security.services import AuthService, TokenService
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -22,6 +25,7 @@ app.add_middleware(
 
 
 @app.exception_handler(RequestValidationError)
+@AuditService.audit_action_log()
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     def remove_password(error):
         if "input" in error and isinstance(error["input"], dict):
@@ -31,6 +35,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         return error
 
     errors = [remove_password(err) for err in exc.errors()]
+
     return JSONResponse(
         status_code=422,
         content={"detail": errors},
@@ -38,11 +43,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 @app.exception_handler(CustomException)
+@AuditService.audit_action_log()
 async def custom_exception_handler(request: Request, exc: CustomException):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 @app.exception_handler(Exception)
+@AuditService.audit_action_log()
 async def internal_error_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,

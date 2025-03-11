@@ -15,6 +15,7 @@ from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
 from src.security.schemas import (
     UsuarioCreateWithRolesSchema,
+    UsuarioSchema,
     UsuarioUpdateSchema,
 )
 
@@ -94,7 +95,7 @@ class UserService:
             Usuario.usuario_id == user_id, include_roles=include_roles
         )
         if user is not None:
-            return Success(user)
+            return Success(UsuarioSchema.model_validate(user))
 
         return UserFailures.USER_NOT_FOUND_FAILURE
 
