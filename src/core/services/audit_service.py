@@ -66,7 +66,7 @@ class AuditService:
                     request_data=request_data,
                     response_data=response_data,
                     status_code=status_code,
-                    at=calculate_time(PERU_TIMEZONE),
+                    at=calculate_time(tz=PERU_TIMEZONE),
                 )
 
                 try:
