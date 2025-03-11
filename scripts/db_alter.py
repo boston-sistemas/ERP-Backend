@@ -144,6 +144,12 @@ def alter_tables(engine: Engine) -> list[Table]:
                 Column(name="slug", type_column=TypeVarchar(length=80)),
             ],
         ),
+        Table(
+            name="opetarserv",
+            columns=[
+                Column(name="id", type_column=TypeInteger()),
+            ],
+        ),
     ]
 
     return tables

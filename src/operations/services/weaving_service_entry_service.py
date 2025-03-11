@@ -50,7 +50,7 @@ from src.operations.models import (
     FabricWarehouse,
     Movement,
     MovementDetail,
-    ServiceCardOperation,
+    ServiceRate,
 )
 from src.operations.repositories import WeavingServiceEntryRepository
 from src.operations.schemas import (
@@ -93,7 +93,7 @@ class WeavingServiceEntryService(MovementService):
         self.fabric_service = FabricService(db=db, promec_db=promec_db)
         self.service_order_service = ServiceOrderService(db=db, promec_db=promec_db)
         self.service_card_operation_service = BaseRepository(
-            model=ServiceCardOperation, db=promec_db
+            model=ServiceRate, db=promec_db
         )
         self.mecsa_color_service = MecsaColorService(promec_db=promec_db)
         self.card_operation_sequence = SequenceRepository(
@@ -211,14 +211,14 @@ class WeavingServiceEntryService(MovementService):
             fabric_id = fabric_id[0:3] + str(round(fabric.density))
 
         filter = (
-            (ServiceCardOperation.company_code == MECSA_COMPANY_CODE)
-            & (ServiceCardOperation.period == current_date.date().year)
-            & (ServiceCardOperation.month_number == current_date.date().month)
-            & (ServiceCardOperation.serial_code == "003")
-            & (ServiceCardOperation.supplier_id == supplier_id)
-            & (ServiceCardOperation.fabric_id == fabric_id)
-            & (ServiceCardOperation.width == fabric.width)
-            & (ServiceCardOperation.codcol == codcol)
+            (ServiceRate.company_code == MECSA_COMPANY_CODE)
+            & (ServiceRate.period == current_date.date().year)
+            & (ServiceRate.month_number == current_date.date().month)
+            & (ServiceRate.serial_code == "003")
+            & (ServiceRate.supplier_id == supplier_id)
+            & (ServiceRate.fabric_id == fabric_id)
+            & (ServiceRate.width == fabric.width)
+            & (ServiceRate.codcol == codcol)
         )
 
         rate = await self.service_card_operation_service.find(
@@ -231,14 +231,14 @@ class WeavingServiceEntryService(MovementService):
 
         if tint_supplier_id and tint_color_id and tint_supplier_color_id:
             filter = (
-                (ServiceCardOperation.company_code == MECSA_COMPANY_CODE)
-                & (ServiceCardOperation.period == current_date.date().year)
-                & (ServiceCardOperation.month_number == current_date.date().month)
-                & (ServiceCardOperation.serial_code == "004")
-                & (ServiceCardOperation.supplier_id == tint_supplier_id)
-                & (ServiceCardOperation.fabric_id == fabric_id)
-                & (ServiceCardOperation.width == fabric.width)
-                & (ServiceCardOperation.codcol == tint_color_id)
+                (ServiceRate.company_code == MECSA_COMPANY_CODE)
+                & (ServiceRate.period == current_date.date().year)
+                & (ServiceRate.month_number == current_date.date().month)
+                & (ServiceRate.serial_code == "004")
+                & (ServiceRate.supplier_id == tint_supplier_id)
+                & (ServiceRate.fabric_id == fabric_id)
+                & (ServiceRate.width == fabric.width)
+                & (ServiceRate.codcol == tint_color_id)
             )
 
             rate = await self.service_card_operation_service.find(

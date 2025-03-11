@@ -25,6 +25,7 @@ from src.operations.constants import (
     CARD_TYPE_MAX_LENGTH,
     CLFAUX_MAX_LENGTH,
     CODCOL_MAX_LENGTH,
+    CODE_MAX_LENGTH,
     COLOR_ID_MAX_LENGTH,
     COMPANY_CODE_MAX_LENGTH,
     DESTTEJ_MAX_LENGTH,
@@ -103,6 +104,7 @@ from src.operations.constants import (
     TRANSPORTER_CODE_MAX_LENGTH,
     UNDPESOBRUTOTOTAL_MAX_LENGTH,
     UNIT_CODE_MAX_LENGTH,
+    UNIT_MAX_LENGTH,
     USER_ID_MAX_LENGTH,
     VEHICLE_BRAND_MAX_LENGTH,
     VEHICLE_CODE_MAX_LENGTH,
@@ -1349,8 +1351,9 @@ class FabricWarehouse(PromecBase):
     )
 
 
-class ServiceCardOperation(PromecBase):
+class ServiceRate(PromecBase):
     __tablename__ = "opetarserv"
+    rate_id: Mapped[int] = mapped_column("id")
     company_code: Mapped[str] = mapped_column(
         "codcia", String(length=COMPANY_CODE_MAX_LENGTH)
     )
@@ -1361,26 +1364,25 @@ class ServiceCardOperation(PromecBase):
     supplier_id: Mapped[str] = mapped_column(
         "codpro", String(length=SUPPLIER_CODE_MAX_LENGTH)
     )
-    codcol: Mapped[str] = mapped_column("codcol", String(length=CODCOL_MAX_LENGTH))
+    color_id: Mapped[str] = mapped_column("codcol", String(length=CODCOL_MAX_LENGTH))
     fabric_id: Mapped[str] = mapped_column(
         "codtej", String(length=FABRIC_ID_MAX_LENGTH)
     )
     width: Mapped[float] = mapped_column("ancho")
+    unit: Mapped[str] = mapped_column("codund", String(length=UNIT_MAX_LENGTH))
+    currency: Mapped[bool] = mapped_column(
+        "moneda", default=0
+    )  # 0 para dollar, 1 para soles
     rate: Mapped[float] = mapped_column("tarifa")
     extended_rate: Mapped[float] = mapped_column("tarifal")
+    project_rate: Mapped[float] = mapped_column("tarifaproy")
     month_number: Mapped[int] = mapped_column("nromes")
+    os_beggining: Mapped[date] = mapped_column("ordserini")
+    os_ending: Mapped[date] = mapped_column("ordserfin")
+    code: Mapped[str] = mapped_column("codigo", String(length=CODE_MAX_LENGTH))
 
     __table_args__ = (
-        PrimaryKeyConstraint(
-            "codcia",
-            "codser",
-            "codpro",
-            "codcol",
-            "codtej",
-            "ancho",
-            "periodo",
-            "nromes",
-        ),
+        PrimaryKeyConstraint("id", "codser", "codpro", "codcol", "codtej"),
     )
 
 

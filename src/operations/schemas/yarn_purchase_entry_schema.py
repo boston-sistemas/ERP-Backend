@@ -33,9 +33,7 @@ class YarnPurchaseEntryBase(CustomBaseModel):
     # movement_type: str
     # movement_code: str
     # document_code: str
-    entry_number: str | None = Field(
-        validation_alias=AliasChoices("document_number", "entry_number")
-    )
+    entry_number: str | None = Field(validation_alias=AliasChoices("document_number"))
     period: int
     creation_date: date | None
     creation_time: str | None
