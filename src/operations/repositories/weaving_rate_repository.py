@@ -12,9 +12,15 @@ class WeavingRateRepository(RateRepository):
     def __init__(self, db: AsyncSession, flush: bool = False) -> None:
         super().__init__(ServiceRate, db, flush)
 
+    @staticmethod
+    def get_weaving_rate_fields() -> tuple:
+        fields = RateRepository.get_rate_fields()
+
+        return fields
+
     def get_load_options(self) -> list[Load]:
         options: list[Load] = []
-        options.append(load_only(*RateRepository.get_rate_fields()))
+        options.append(load_only(*self.get_weaving_rate_fields()))
 
         return options
 
