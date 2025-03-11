@@ -69,6 +69,10 @@ class AuditService:
                         status_code: int = route.status_code
                         response_data = json.dumps(encoded) if encoded else ""
 
+                    query_params = json.dumps(dict(request.query_params))
+
+                    print(query_params)
+
                     request_data = json.dumps(request_data) if request_data else ""
 
                     audit_action_log_repository = BaseRepository(
@@ -79,6 +83,7 @@ class AuditService:
                         endpoint_name=endpoint_name,
                         user_id=user_id,
                         action=action,
+                        query_params=query_params,
                         request_data=request_data,
                         response_data=response_data,
                         status_code=status_code,
