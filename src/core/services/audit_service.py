@@ -51,7 +51,8 @@ class AuditService:
                 response_data: dict | None = None
 
                 encoded = jsonable_encoder(response)
-                response_data = json.dumps(encoded)
+                request_data = json.dumps(request_data) if request_data else ""
+                response_data = json.dumps(encoded) if encoded else ""
 
                 audit_action_log_repository = BaseRepository(
                     model=AuditActionLog, db=db
@@ -61,8 +62,8 @@ class AuditService:
                     endpoint_name=endpoint_name,
                     user_id=user_id,
                     action=action,
-                    request_data=json.dumps(request_data) if request_data else "",
-                    response_data=json.dumps(response_data) if response_data else "",
+                    request_data=request_data,
+                    response_data=response_data,
                     status_code=status_code,
                 )
 
