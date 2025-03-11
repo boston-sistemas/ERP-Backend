@@ -1,13 +1,14 @@
 import json
 from functools import wraps
 
-from fastapi import Depends, Request
+from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.routing import APIRoute
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.repository import BaseRepository
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.security.models import AuditActionLog
 
 from ...security.services.token_service import TokenService
@@ -65,6 +66,7 @@ class AuditService:
                     request_data=request_data,
                     response_data=response_data,
                     status_code=status_code,
+                    at=calculate_time(PERU_TIMEZONE),
                 )
 
                 try:
