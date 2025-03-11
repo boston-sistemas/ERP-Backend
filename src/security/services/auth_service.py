@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.core.services import EmailService
 from src.security.failures import AuthFailures
 from src.security.models import Acceso, Usuario
 from src.security.repositories import ModuloSistemaRepository
@@ -21,6 +20,7 @@ from src.security.schemas import (
     SendTokenResponse,
 )
 
+from ...core.services.email_service import EmailService
 from .acceso_service import AccesoService
 from .rol_service import RolService
 from .token_service import TokenService
