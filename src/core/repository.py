@@ -25,7 +25,7 @@ class BaseRepository(Generic[ModelType]):
 
         if (
             object.__tablename__ != "audit_data_log"
-            and object.__tablename__ != "audit_data_log_detail"
+            and object.__tablename__ != "audit_action_log"
         ):
             values_before = await AuditService.get_current_values(
                 db=self.db, instance=object
@@ -36,17 +36,23 @@ class BaseRepository(Generic[ModelType]):
         if flush:
             await self.db.flush()
 
-        if (
-            object.__tablename__ != "audit_data_log"
-            and object.__tablename__ != "audit_data_log_detail"
-        ):
-            values_after = await AuditService.get_current_values(
-                db=self.db, instance=object
-            )
+            if (
+                object.__tablename__ != "audit_data_log"
+                and object.__tablename__ != "audit_action_log"
+            ):
+                values_after = await AuditService.get_current_values(
+                    db=self.db, instance=object
+                )
+        else:
+            values_after = {
+                key: value
+                for key, value in vars(object).items()
+                if not key.startswith("_sa_")  # Excluir metadatos de SQLAlchemy
+            }
 
         if (
             object.__tablename__ != "audit_data_log"
-            and object.__tablename__ != "audit_data_log_detail"
+            and object.__tablename__ != "audit_action_log"
         ):
             async for db in get_db():
                 await AuditService.audit_data_log(
@@ -65,7 +71,7 @@ class BaseRepository(Generic[ModelType]):
             await AuditService.get_current_values(db=self.db, instance=obj)
             for obj in objects
             if obj.__tablename__ != "audit_data_log"
-            and obj.__tablename__ != "audit_data_log_detail"
+            and obj.__tablename__ != "audit_action_log"
         ]
 
         self.db.add_all(objects)
@@ -77,7 +83,7 @@ class BaseRepository(Generic[ModelType]):
             await AuditService.get_current_values(db=self.db, instance=obj)
             for obj in objects
             if obj.__tablename__ != "audit_data_log"
-            and obj.__tablename__ != "audit_data_log_detail"
+            and obj.__tablename__ != "audit_action_log"
         ]
 
         async for db in get_db():
@@ -86,7 +92,7 @@ class BaseRepository(Generic[ModelType]):
             ):
                 if (
                     obj.__tablename__ != "audit_data_log"
-                    and obj.__tablename__ != "audit_data_log_detail"
+                    and obj.__tablename__ != "audit_action_log"
                 ):
                     await AuditService.audit_data_log(
                         db=db,
@@ -204,7 +210,7 @@ class BaseRepository(Generic[ModelType]):
 
         if (
             object.__tablename__ != "audit_data_log"
-            and object.__tablename__ != "audit_data_log_detail"
+            and object.__tablename__ != "audit_action_log"
         ):
             values_before = await AuditService.get_current_values(
                 db=self.db, instance=object
@@ -218,7 +224,7 @@ class BaseRepository(Generic[ModelType]):
         async for db in get_db():
             if (
                 object.__tablename__ != "audit_data_log"
-                and object.__tablename__ != "audit_data_log_detail"
+                and object.__tablename__ != "audit_action_log"
             ):
                 await AuditService.audit_data_log(
                     db=db,
@@ -236,7 +242,7 @@ class BaseRepository(Generic[ModelType]):
             await AuditService.get_current_values(db=self.db, instance=obj)
             for obj in objects
             if obj.__tablename__ != "audit_data_log"
-            and obj.__tablename__ != "audit_data_log_detail"
+            and obj.__tablename__ != "audit_action_log"
         ]
 
         for object in objects:
@@ -248,7 +254,7 @@ class BaseRepository(Generic[ModelType]):
         for obj, before in zip(objects, values_before_list):
             if (
                 obj.__tablename__ != "audit_data_log"
-                and obj.__tablename__ != "audit_data_log_detail"
+                and obj.__tablename__ != "audit_action_log"
             ):
                 async for db in get_db():
                     await AuditService.audit_data_log(

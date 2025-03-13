@@ -142,6 +142,9 @@ class AuditService:
 
         action = ""
 
+        # print(values_before)
+        # print("---->", values_after)
+
         if values_before and values_after:
             action = "UPDATE"
         elif not values_before and values_after:
