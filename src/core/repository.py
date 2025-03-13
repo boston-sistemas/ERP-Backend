@@ -4,7 +4,7 @@ from sqlalchemy import BinaryExpression, ClauseElement, Column, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import Load
 
-from src.core.database import Base
+from src.core.database import Base, get_db
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -21,18 +21,79 @@ class BaseRepository(Generic[ModelType]):
         self.flush = flush
 
     async def save(self, object: ModelType, flush: bool = False) -> ModelType:
+        from .services.audit_service import AuditService
+
+        if (
+            object.__tablename__ != "audit_data_log"
+            and object.__tablename__ != "audit_data_log_detail"
+        ):
+            values_before = await AuditService.get_current_values(
+                db=self.db, instance=object
+            )
+
         self.db.add(object)
 
         if flush:
             await self.db.flush()
 
+        if (
+            object.__tablename__ != "audit_data_log"
+            and object.__tablename__ != "audit_data_log_detail"
+        ):
+            values_after = await AuditService.get_current_values(
+                db=self.db, instance=object
+            )
+
+        if (
+            object.__tablename__ != "audit_data_log"
+            and object.__tablename__ != "audit_data_log_detail"
+        ):
+            async for db in get_db():
+                await AuditService.audit_data_log(
+                    db=db,
+                    instance=object,
+                    values_before=values_before,
+                    values_after=values_after,
+                )
+
         return object
 
     async def save_all(self, objects: Sequence[ModelType], flush: bool = False) -> None:
+        from .services.audit_service import AuditService
+
+        values_before_list = [
+            await AuditService.get_current_values(db=self.db, instance=obj)
+            for obj in objects
+            if obj.__tablename__ != "audit_data_log"
+            and obj.__tablename__ != "audit_data_log_detail"
+        ]
+
         self.db.add_all(objects)
 
         if flush:
             await self.db.flush()
+
+        values_after_list = [
+            await AuditService.get_current_values(db=self.db, instance=obj)
+            for obj in objects
+            if obj.__tablename__ != "audit_data_log"
+            and obj.__tablename__ != "audit_data_log_detail"
+        ]
+
+        async for db in get_db():
+            for obj, before, after in zip(
+                objects, values_before_list, values_after_list
+            ):
+                if (
+                    obj.__tablename__ != "audit_data_log"
+                    and obj.__tablename__ != "audit_data_log_detail"
+                ):
+                    await AuditService.audit_data_log(
+                        db=db,
+                        instance=obj,
+                        values_before=before,
+                        values_after=after,
+                    )
 
     async def find(
         self,
@@ -139,19 +200,63 @@ class BaseRepository(Generic[ModelType]):
         return object is not None, object
 
     async def delete(self, object: ModelType) -> None:
+        from .services.audit_service import AuditService
+
+        if (
+            object.__tablename__ != "audit_data_log"
+            and object.__tablename__ != "audit_data_log_detail"
+        ):
+            values_before = await AuditService.get_current_values(
+                db=self.db, instance=object
+            )
+
         await self.db.delete(object)
 
         if self.flush:
             await self.db.flush()
 
+        async for db in get_db():
+            if (
+                object.__tablename__ != "audit_data_log"
+                and object.__tablename__ != "audit_data_log_detail"
+            ):
+                await AuditService.audit_data_log(
+                    db=db,
+                    instance=object,
+                    values_before=values_before,
+                    values_after={},
+                )
+
     async def delete_all(
         self, objects: Sequence[ModelType], flush: bool = False
     ) -> None:
+        from .services.audit_service import AuditService
+
+        values_before_list = [
+            await AuditService.get_current_values(db=self.db, instance=obj)
+            for obj in objects
+            if obj.__tablename__ != "audit_data_log"
+            and obj.__tablename__ != "audit_data_log_detail"
+        ]
+
         for object in objects:
             await self.db.delete(object)
 
         if flush:
             await self.db.flush()
+
+        for obj, before in zip(objects, values_before_list):
+            if (
+                obj.__tablename__ != "audit_data_log"
+                and obj.__tablename__ != "audit_data_log_detail"
+            ):
+                async for db in get_db():
+                    await AuditService.audit_data_log(
+                        db=db,
+                        instance=obj,
+                        values_before=before,
+                        values_after={},
+                    )
 
     def expunge_all(self) -> None:
         self.db.expunge_all()

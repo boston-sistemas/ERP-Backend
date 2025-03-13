@@ -322,7 +322,7 @@ class Parameter(Base):
 class AuditActionLog(Base):
     __tablename__ = "audit_action_log"
 
-    id: Mapped[int] = mapped_column(Identity(start=1))
+    id: Mapped[UUID] = mapped_column()
     user_id: Mapped[int] = mapped_column(nullable=True)
     endpoint_name: Mapped[str] = mapped_column(String(ENDPOINT_NAME_MAX_LENGTH))
     action: Mapped[str] = mapped_column(String(ACTION_MAX_LENGTH))
@@ -344,7 +344,6 @@ class AuditDataLog(Base):
     old_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     new_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
-    action_id: Mapped[int] = mapped_column()
-    user_id: Mapped[int] = mapped_column()
+    action_id: Mapped[UUID] = mapped_column()
 
     __table_args__ = (PrimaryKeyConstraint("id"),)

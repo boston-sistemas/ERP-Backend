@@ -1,22 +1,30 @@
 import json
+import uuid
 from functools import wraps
+from typing import TypeVar
 
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from pydantic import BaseModel
+from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.inspection import inspect
 
-from src.core.database import get_db, get_promec_db
-from src.core.repository import BaseRepository
+from src.core.database import Base, get_db
 from src.core.utils import PERU_TIMEZONE, calculate_time
-from src.security.models import AuditActionLog
+from src.security.models import AuditActionLog, AuditDataLog
 
 from ...security.services.token_service import TokenService
+from ..repository import BaseRepository
+
+ModelType = TypeVar("ModelType", bound=Base)
 
 
 class AuditService:
+    _context = {}
+
     @staticmethod
     def audit_action_log():
         def decorator(func):
@@ -52,6 +60,9 @@ class AuditService:
                     except Exception:
                         request_data = None
 
+                    id = uuid.uuid4()
+
+                    AuditService._context["id"] = id
                     response = await func(*args, **kwargs)
 
                     encoded = jsonable_encoder(response)
@@ -67,19 +78,22 @@ class AuditService:
                     else:
                         route: APIRoute = request.scope.get("route")
                         status_code: int = route.status_code
-                        response_data = json.dumps(encoded) if encoded else ""
+                        response_data = (
+                            json.dumps(encoded, default=str) if encoded else ""
+                        )
 
-                    query_params = json.dumps(dict(request.query_params))
+                    query_params = json.dumps(dict(request.query_params), default=str)
 
-                    print(query_params)
-
-                    request_data = json.dumps(request_data) if request_data else ""
+                    request_data = (
+                        json.dumps(request_data, default=str) if request_data else ""
+                    )
 
                     audit_action_log_repository = BaseRepository(
                         model=AuditActionLog, db=db
                     )
 
                     audit_action_log = AuditActionLog(
+                        id=id,
                         endpoint_name=endpoint_name,
                         user_id=user_id,
                         action=action,
@@ -100,3 +114,79 @@ class AuditService:
             return wrapper
 
         return decorator
+
+    # @staticmethod
+    # def audit_data_log():
+    #     def decorator(func):
+    #         @wraps(func)
+    #         async def wrapper(*args, **kwargs):
+    #             from src.core.services.audit_service import AuditService
+    #             if "id" in AuditService._context:
+    #                 print(AuditService._context["id"])
+    #                 print("id exists")
+    #
+    #             response = await func(*args, **kwargs)
+    #             return response
+    #         return wrapper
+    #
+    #     return decorator
+
+    @staticmethod
+    async def audit_data_log(
+        db: AsyncSession,
+        instance: ModelType,
+        values_before: dict,
+        values_after: dict,
+    ):
+        table_name = instance.__tablename__
+
+        action = ""
+
+        if values_before and values_after:
+            action = "UPDATE"
+        elif not values_before and values_after:
+            action = "CREATE"
+        elif values_before and not values_after:
+            action = "DELETE"
+
+        audit_data_log_repository = BaseRepository(model=AuditDataLog, db=db)
+        audit_data_log = AuditDataLog(
+            entity_type=table_name,
+            action=action,
+            old_data=json.dumps(values_before, default=str),
+            new_data=json.dumps(values_after, default=str),
+            at=calculate_time(tz=PERU_TIMEZONE),
+            action_id=AuditService._context["id"],
+        )
+
+        try:
+            await audit_data_log_repository.save(audit_data_log)
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    async def get_current_values(db: AsyncSession, instance):
+        model = instance.__class__
+        primary_keys = inspect(model).primary_key
+
+        column_to_attr = {
+            attr.columns[0].name: attr.key for attr in model.__mapper__.column_attrs
+        }
+
+        filter = and_(
+            *[
+                getattr(model, column_to_attr[col.name])
+                == getattr(instance, column_to_attr[col.name])
+                for col in primary_keys
+            ]
+        )
+
+        audit_action_log_repository = BaseRepository(model=model, db=db)
+        value = await audit_action_log_repository.find(filter=filter)
+
+        if value:
+            return {
+                column_name: getattr(value, attr_key)
+                for column_name, attr_key in column_to_attr.items()
+            }
+        return {}
