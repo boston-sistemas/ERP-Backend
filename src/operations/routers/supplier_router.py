@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
 from src.operations.schemas import SupplierSimpleListSchema
 from src.operations.services import SupplierService
+from src.security.audit import AuditService
 
 router = APIRouter()
 

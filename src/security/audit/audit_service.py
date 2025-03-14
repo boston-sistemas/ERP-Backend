@@ -54,6 +54,17 @@ class AuditService:
         )
 
     @staticmethod
+    def extract_response_data(response, request):
+        encoded = jsonable_encoder(response)
+        route = request.scope.get("route")
+
+        if isinstance(response, BaseModel):
+            return response.json(), route.status_code
+        if isinstance(response, JSONResponse):
+            return encoded.get("body"), response.status_code
+        return json.dumps(encoded, default=str) if encoded else "", route.status_code
+
+    @staticmethod
     def audit_action_log():
         def decorator(func):
             @wraps(func)

@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
+from src.security.audit import AuditService
 from src.security.docs import ParameterPublicRouterDocumentation
 from src.security.loaders import (
     FabricTypes,
@@ -34,6 +35,7 @@ router = APIRouter()
 @router.get(
     "/data-types", response_model=DataTypeListSchema, status_code=status.HTTP_200_OK
 )
+@AuditService.audit_action_log()
 async def read_datatypes(
     request: Request,
 ):
@@ -45,6 +47,7 @@ async def read_datatypes(
     response_model=FiberCategoriesSchema,
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_fiber_categories(request: Request, db: AsyncSession = Depends(get_db)):
     return FiberCategoriesSchema(fiber_categories=await FiberCategories(db=db).get())
 
@@ -54,6 +57,7 @@ async def read_fiber_categories(request: Request, db: AsyncSession = Depends(get
     response_model=UserPasswordPolicySchema,
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def password_restrictions(db: AsyncSession = Depends(get_db)):
     return await UserPasswordPolicy(db=db).get_schema()
 
@@ -63,6 +67,7 @@ async def password_restrictions(db: AsyncSession = Depends(get_db)):
     **ParameterPublicRouterDocumentation.read_spinning_methods(),
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_spinning_methods(request: Request, db: AsyncSession = Depends(get_db)):
     return SpinningMethodsSchema(spinning_methods=await SpinningMethods(db=db).get())
 
@@ -70,6 +75,7 @@ async def read_spinning_methods(request: Request, db: AsyncSession = Depends(get
 @router.get(
     "/fabric-types", response_model=FabricTypesSchema, status_code=status.HTTP_200_OK
 )
+@AuditService.audit_action_log()
 async def read_fabric_types(request: Request, db: AsyncSession = Depends(get_db)):
     return FabricTypesSchema(fabric_types=await FabricTypes(db=db).get())
 
@@ -79,6 +85,7 @@ async def read_fabric_types(request: Request, db: AsyncSession = Depends(get_db)
     response_model=ServiceOrderStatusSchema,
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_service_order_status(
     request: Request, db: AsyncSession = Depends(get_db)
 ):
@@ -92,6 +99,7 @@ async def read_service_order_status(
     response_model=FiberDenominationsSchema,
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_fiber_denominations(
     request: Request, db: AsyncSession = Depends(get_db)
 ):
@@ -105,6 +113,7 @@ async def read_fiber_denominations(
     **ParameterPublicRouterDocumentation.read_yarn_counts(),
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_yarn_counts(request: Request, db: AsyncSession = Depends(get_db)):
     return YarnCountsSchema(yarn_counts=await YarnCounts(db=db).get())
 
@@ -114,6 +123,7 @@ async def read_yarn_counts(request: Request, db: AsyncSession = Depends(get_db))
     **ParameterPublicRouterDocumentation.read_yarn_manufacturing_sites(),
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_yarn_manufacturing_sites(
     request: Request, db: AsyncSession = Depends(get_db)
 ):
@@ -127,5 +137,6 @@ async def read_yarn_manufacturing_sites(
     **ParameterPublicRouterDocumentation.read_yarn_distinctions(),
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def read_yarn_distinctions(request: Request, db: AsyncSession = Depends(get_db)):
     return YarnDistinctionsSchema(yarn_distinctions=await YarnDistinctions(db=db).get())

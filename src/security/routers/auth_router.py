@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import settings
 from src.core.database import get_db
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
+from src.security.audit import AuditService
 from src.security.schemas import (
     AccessesWithOperationsListSchema,
     LoginForm,

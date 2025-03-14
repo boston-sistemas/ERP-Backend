@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.dependencies import get_current_user_id
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
+from src.security.audit import AuditService
 from src.security.schemas import (
     UsuarioCreateWithRolesSchema,
     UsuarioListSchema,

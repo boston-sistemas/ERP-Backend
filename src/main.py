@@ -7,7 +7,7 @@ from routing import api_router
 
 from src.core.database import get_db
 from src.core.exceptions import CustomException
-from src.core.services import AuditService
+from src.security.audit import AuditService
 from src.security.services import AuthService, TokenService
 
 app = FastAPI(

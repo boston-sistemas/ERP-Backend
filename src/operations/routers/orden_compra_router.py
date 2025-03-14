@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnPurchaseOrderListSchema,
     YarnPurchaseOrderSchema,
 )
 from src.operations.services import OrdenCompraService
+from src.security.audit import AuditService
 
 router = APIRouter(
     tags=["Area Operaciones - Ordenes de Compra"],

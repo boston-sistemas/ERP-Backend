@@ -2,14 +2,15 @@ from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
-from src.core.services import AuditService, PermissionService
-from src.security.audit import AccesoService
+from src.core.services import PermissionService
+from src.security.audit import AuditService
 from src.security.schemas import (
     AccesoListSchema,
     AccesoSchema,
     AccessCreateSchema,
     AccessUpdateSchema,
 )
+from src.security.services import AccesoService
 
 router = APIRouter(tags=["Seguridad - Accesos"], prefix="/accesos")
 

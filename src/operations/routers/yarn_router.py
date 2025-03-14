@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
 from src.core.schemas import ItemStatusUpdateSchema
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
 from src.operations.docs import YarnRouterDocumentation
 from src.operations.schemas import (
     YarnCreateSchema,
@@ -15,6 +15,7 @@ from src.operations.schemas import (
     YarnUpdateSchema,
 )
 from src.operations.services import YarnService
+from src.security.audit import AuditService
 
 router = APIRouter()
 
