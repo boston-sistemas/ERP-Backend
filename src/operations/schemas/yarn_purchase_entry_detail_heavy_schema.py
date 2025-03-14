@@ -84,6 +84,7 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
 
 class YarnPurchaseEntryAvailabilitySchema(CustomBaseModel):
     entry_number: str | None = Field(default=None)
+    yarn_id: str | None = Field(default=None)
     detail_heavy: list[YarnPurchaseEntryDetailHeavySchema] = []
 
     @field_serializer("detail_heavy")
@@ -120,7 +121,9 @@ class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
             ]:
                 self.yarn_purchase_entries.append(
                     YarnPurchaseEntryAvailabilitySchema(
-                        entry_number=heavy.ingress_number, detail_heavy=[heavy]
+                        entry_number=heavy.ingress_number,
+                        detail_heavy=[heavy],
+                        yarn_id=heavy.yarn_id,
                     )
                 )
             else:
