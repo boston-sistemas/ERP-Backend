@@ -115,22 +115,6 @@ class AuditService:
 
         return decorator
 
-    # @staticmethod
-    # def audit_data_log():
-    #     def decorator(func):
-    #         @wraps(func)
-    #         async def wrapper(*args, **kwargs):
-    #             from src.core.services.audit_service import AuditService
-    #             if "id" in AuditService._context:
-    #                 print(AuditService._context["id"])
-    #                 print("id exists")
-    #
-    #             response = await func(*args, **kwargs)
-    #             return response
-    #         return wrapper
-    #
-    #     return decorator
-
     @staticmethod
     async def audit_data_log(
         db: AsyncSession,
@@ -141,9 +125,6 @@ class AuditService:
         table_name = instance.__tablename__
 
         action = ""
-
-        # print(values_before)
-        # print("---->", values_after)
 
         if values_before and values_after:
             action = "UPDATE"

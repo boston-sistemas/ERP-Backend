@@ -7,7 +7,7 @@ from sqlalchemy import select
 from src.core.database import get_db
 from src.core.utils import calculate_time
 from src.security.models import Usuario
-from src.security.services.hash_service import HashService
+from src.security.services import HashService
 
 
 async def create_admin_user() -> None:

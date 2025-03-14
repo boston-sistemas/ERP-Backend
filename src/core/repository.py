@@ -64,27 +64,48 @@ class BaseRepository(Generic[ModelType]):
 
         return object
 
-    async def save_all(self, objects: Sequence[ModelType], flush: bool = False) -> None:
+    async def save_all(
+        self, objects: Sequence[ModelType], flush: bool = False
+    ) -> Sequence[ModelType]:
         from .services.audit_service import AuditService
 
-        values_before_list = [
-            await AuditService.get_current_values(db=self.db, instance=obj)
-            for obj in objects
-            if obj.__tablename__ != "audit_data_log"
-            and obj.__tablename__ != "audit_action_log"
-        ]
+        values_before_list = []
+        for obj in objects:
+            if (
+                obj.__tablename__ != "audit_data_log"
+                and obj.__tablename__ != "audit_action_log"
+            ):
+                values_before_list.append(
+                    await AuditService.get_current_values(db=self.db, instance=obj)
+                )
+            else:
+                values_before_list.append(None)
 
         self.db.add_all(objects)
 
         if flush:
             await self.db.flush()
-
-        values_after_list = [
-            await AuditService.get_current_values(db=self.db, instance=obj)
-            for obj in objects
-            if obj.__tablename__ != "audit_data_log"
-            and obj.__tablename__ != "audit_action_log"
-        ]
+            values_after_list = []
+            for obj in objects:
+                if (
+                    obj.__tablename__ != "audit_data_log"
+                    and obj.__tablename__ != "audit_action_log"
+                ):
+                    values_after_list.append(
+                        await AuditService.get_current_values(db=self.db, instance=obj)
+                    )
+                else:
+                    values_after_list.append(None)
+        else:
+            values_after_list = []
+            for obj in objects:
+                values_after_list.append(
+                    {
+                        key: value
+                        for key, value in vars(obj).items()
+                        if not key.startswith("_sa_")
+                    }
+                )
 
         async for db in get_db():
             for obj, before, after in zip(
@@ -100,6 +121,7 @@ class BaseRepository(Generic[ModelType]):
                         values_before=before,
                         values_after=after,
                     )
+        return objects
 
     async def find(
         self,
