@@ -21,7 +21,7 @@ class BaseRepository(Generic[ModelType]):
         self.flush = flush
 
     async def save(self, object: ModelType, flush: bool = False) -> ModelType:
-        from .services.audit_service import AuditService
+        from ..security.audit.audit_service import AuditService
 
         values_before = await AuditService.get_current_values(
             db=self.db, instance=object
@@ -58,7 +58,7 @@ class BaseRepository(Generic[ModelType]):
     async def save_all(
         self, objects: Sequence[ModelType], flush: bool = False
     ) -> Sequence[ModelType]:
-        from .services.audit_service import AuditService
+        from ..security.audit.audit_service import AuditService
 
         values_before_list = []
         for obj in objects:
@@ -206,7 +206,7 @@ class BaseRepository(Generic[ModelType]):
         return object is not None, object
 
     async def delete(self, object: ModelType) -> None:
-        from .services.audit_service import AuditService
+        from ..security.audit.audit_service import AuditService
 
         values_before = await AuditService.get_current_values(
             db=self.db, instance=object
@@ -228,7 +228,7 @@ class BaseRepository(Generic[ModelType]):
     async def delete_all(
         self, objects: Sequence[ModelType], flush: bool = False
     ) -> None:
-        from .services.audit_service import AuditService
+        from ..security.audit.audit_service import AuditService
 
         values_before_list = [
             await AuditService.get_current_values(db=self.db, instance=obj)

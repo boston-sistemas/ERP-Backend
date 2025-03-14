@@ -14,17 +14,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.inspection import inspect
 
 from src.core.database import Base, get_db
+from src.core.exceptions import CustomException
+from src.core.result import Result, Success
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.security.models import AuditActionLog, AuditDataLog
 
 from ...core.repository import BaseRepository
 from ...security.services.token_service import TokenService
+from .audit_schema import AuditActionLogSchema
 
 ModelType = TypeVar("ModelType", bound=Base)
 
 
 class AuditService:
     _context = {}
+
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+        self.audit_action_log_repository = BaseRepository(
+            model=AuditActionLog, db=self.db
+        )
+        self.audit_data_log_repository = BaseRepository(model=AuditDataLog, db=self.db)
 
     @staticmethod
     @asynccontextmanager
@@ -185,3 +195,13 @@ class AuditService:
                 for column_name, attr_key in column_to_attr.items()
             }
         return {}
+
+    # async def read_audit_action_log(
+    #     self, id: str
+    # ) -> Result[AuditActionLogSchema, CustomException]:
+    #
+    #     audit_action_log: AuditActionLog = await self.audit_action_log_repository.find_by_id(
+    #         id=uuid.UUID(id)
+    #     )
+    #
+    #
