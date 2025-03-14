@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
-from src.core.services import AuditService, PermissionService
+from src.core.services import PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     DyeingServiceDispatchCreateSchema,
@@ -12,6 +12,7 @@ from src.operations.schemas import (
     DyeingServiceDispatchUpdateSchema,
 )
 from src.operations.services import DyeingServiceDispatchService
+from src.security.audit import AuditService
 
 router = APIRouter()
 

@@ -1,8 +1,7 @@
-__all__ = ["EmailService", "PermissionService", "AuditService"]
+__all__ = ["EmailService", "PermissionService"]
 
 
 _module_map = {
-    "AuditService": "audit_service",
     "EmailService": "email_service",
     "PermissionService": "permission_service",
 }
