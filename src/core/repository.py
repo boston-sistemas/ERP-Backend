@@ -23,27 +23,14 @@ class BaseRepository(Generic[ModelType]):
     async def save(self, object: ModelType, flush: bool = False) -> ModelType:
         from ..security.audit.audit_service import AuditService
 
-        values_before = await AuditService.get_current_values(
-            db=self.db, instance=object
-        )
+        values_before = await AuditService.get_before_values(instance=object)
 
         self.db.add(object)
 
         if flush:
             await self.db.flush()
 
-            values_after = await AuditService.get_current_values(
-                db=self.db, instance=object
-            )
-        else:
-            values_after = {
-                key: value
-                for key, value in vars(object).items()
-                if not key.startswith("_sa_")
-                and not callable(value)
-                and not isinstance(value, str)
-                and "%(" not in key
-            }
+        values_after = await AuditService.get_after_values(instance=object)
 
         async for db in get_db():
             await AuditService.audit_data_log(
@@ -63,31 +50,17 @@ class BaseRepository(Generic[ModelType]):
         values_before_list = []
         for obj in objects:
             values_before_list.append(
-                await AuditService.get_current_values(db=self.db, instance=obj)
+                await AuditService.get_before_values(instance=obj)
             )
 
         self.db.add_all(objects)
 
         if flush:
             await self.db.flush()
-            values_after_list = []
-            for obj in objects:
-                values_after_list.append(
-                    await AuditService.get_current_values(db=self.db, instance=obj)
-                )
-        else:
-            values_after_list = []
-            for obj in objects:
-                values_after_list.append(
-                    {
-                        key: value
-                        for key, value in vars(obj).items()
-                        if not key.startswith("_sa_")
-                        and not callable(value)
-                        and not isinstance(value, str)
-                        and "%(" not in key
-                    }
-                )
+
+        values_after_list = []
+        for obj in objects:
+            values_after_list.append(await AuditService.get_after_values(instance=obj))
 
         async for db in get_db():
             for obj, before, after in zip(
@@ -208,9 +181,7 @@ class BaseRepository(Generic[ModelType]):
     async def delete(self, object: ModelType) -> None:
         from ..security.audit.audit_service import AuditService
 
-        values_before = await AuditService.get_current_values(
-            db=self.db, instance=object
-        )
+        values_before = await AuditService.get_before_values(instance=object)
 
         await self.db.delete(object)
 
@@ -231,8 +202,7 @@ class BaseRepository(Generic[ModelType]):
         from ..security.audit.audit_service import AuditService
 
         values_before_list = [
-            await AuditService.get_current_values(db=self.db, instance=obj)
-            for obj in objects
+            await AuditService.get_before_values(instance=obj) for obj in objects
         ]
 
         for object in objects:

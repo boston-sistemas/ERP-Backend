@@ -7,11 +7,13 @@ from typing import TypeVar
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from fastapi.routing import APIRoute
 from pydantic import BaseModel
 from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.attributes import get_history
+from sqlalchemy.orm.properties import ColumnProperty
 
 from src.core.database import Base, get_db
 from src.core.exceptions import CustomException
@@ -21,7 +23,13 @@ from src.security.models import AuditActionLog, AuditDataLog
 
 from ...core.repository import BaseRepository
 from ...security.services.token_service import TokenService
-from .audit_schema import AuditActionLogSchema
+from .audit_failures import AuditFailures
+from .audit_repository import AuditRepository
+from .audit_schema import (
+    AuditActionLogFilterParams,
+    AuditActionLogListSchema,
+    AuditActionLogSchema,
+)
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -31,9 +39,7 @@ class AuditService:
 
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
-        self.audit_action_log_repository = BaseRepository(
-            model=AuditActionLog, db=self.db
-        )
+        self.audit_action_log_repository = AuditRepository(db=db)
         self.audit_data_log_repository = BaseRepository(model=AuditDataLog, db=self.db)
 
     @staticmethod
@@ -89,6 +95,7 @@ class AuditService:
                     user_id = AuditService.get_user_id_from_token(db, request)
                     request_data = await AuditService.get_request_data(request)
                     endpoint_name = getattr(request.scope.get("route"), "name", None)
+                    ip = request.client.host
                     action = request.method
                     query_params = json.dumps(dict(request.query_params), default=str)
                     request_data = (
@@ -112,6 +119,7 @@ class AuditService:
                         response_data=response_data,
                         status_code=status_code,
                         at=calculate_time(tz=PERU_TIMEZONE),
+                        ip=ip,
                     )
 
                     try:
@@ -139,6 +147,9 @@ class AuditService:
         if table_name == "audit_action_log" or table_name == "audit_data_log":
             return
 
+        if values_before == values_after:
+            return
+
         action = ""
 
         if values_before and values_after:
@@ -164,44 +175,94 @@ class AuditService:
             print(e)
 
     @staticmethod
-    async def get_current_values(db: AsyncSession, instance: ModelType):
+    async def get_before_values(instance: ModelType):
         if (
             instance.__tablename__ == "audit_action_log"
             or instance.__tablename__ == "audit_data_log"
         ):
             return {}
 
-        model = instance.__class__
-        primary_keys = inspect(model).primary_key
+        before_changes: dict = {}
+        insp = inspect(instance)
+        is_updated = False
+        is_not_None = False
+        for attr in instance.__mapper__.column_attrs:
+            if not isinstance(attr, ColumnProperty) or attr.columns[0].name.startswith(
+                "%"
+            ):
+                continue
+            column_name = attr.columns[0].name
+            if attr.key in insp.unloaded:
+                before_changes[column_name] = None
+            else:
+                hist = get_history(instance, attr.key)
+                if hist.has_changes():
+                    old_value = hist.deleted
+                    before_changes[column_name] = old_value[0] if old_value else None
+                    is_updated |= bool(old_value[0]) if old_value else False
+                else:
+                    current_value = getattr(instance, attr.key)
+                    before_changes[column_name] = current_value
+                    is_not_None |= bool(current_value)
 
-        column_to_attr = {
-            attr.columns[0].name: attr.key for attr in model.__mapper__.column_attrs
-        }
+        if not is_updated and not is_not_None:
+            return {}
 
-        filter = and_(
-            *[
-                getattr(model, column_to_attr[col.name])
-                == getattr(instance, column_to_attr[col.name])
-                for col in primary_keys
-            ]
+        return before_changes
+
+    @staticmethod
+    async def get_after_values(instance: ModelType):
+        if (
+            instance.__tablename__ == "audit_action_log"
+            or instance.__tablename__ == "audit_data_log"
+        ):
+            return {}
+
+        after_changes: dict = {}
+        insp = inspect(instance)
+        for attr in instance.__mapper__.column_attrs:
+            if not isinstance(attr, ColumnProperty) or attr.columns[0].name.startswith(
+                "%"
+            ):
+                continue
+            column_name = attr.columns[0].name
+            if attr.key in insp.unloaded:
+                after_changes[column_name] = None
+            else:
+                hist = get_history(instance, attr.key)
+                if hist.has_changes():
+                    new_value = hist.added
+                    after_changes[column_name] = new_value[0] if new_value else None
+                else:
+                    current_value = getattr(instance, attr.key)
+                    after_changes[column_name] = current_value
+
+        return after_changes
+
+    async def read_audit_action_log(
+        self, audit_action_log_id: str
+    ) -> Result[AuditActionLogSchema, CustomException]:
+        audit_action_log_id = uuid.UUID(audit_action_log_id)
+        audit_action_log: AuditActionLog = (
+            await self.audit_action_log_repository.find_audit_action_log_by_id(
+                audit_action_log_id=audit_action_log_id,
+                include_action_data_logs=True,
+            )
         )
 
-        audit_action_log_repository = BaseRepository(model=model, db=db)
-        value = await audit_action_log_repository.find(filter=filter)
+        if not audit_action_log:
+            return AuditFailures.AUDIT_ACTION_NOT_FOUND
 
-        if value:
-            return {
-                column_name: getattr(value, attr_key)
-                for column_name, attr_key in column_to_attr.items()
-            }
-        return {}
+        return Success(AuditActionLogSchema.model_validate(audit_action_log))
 
-    # async def read_audit_action_log(
-    #     self, id: str
-    # ) -> Result[AuditActionLogSchema, CustomException]:
-    #
-    #     audit_action_log: AuditActionLog = await self.audit_action_log_repository.find_by_id(
-    #         id=uuid.UUID(id)
-    #     )
-    #
-    #
+    async def read_audit_action_logs(
+        self,
+        filter_params: AuditActionLogFilterParams,
+    ) -> Result[AuditActionLogListSchema, CustomException]:
+        audit_action_logs = (
+            await self.audit_action_log_repository.find_audit_action_logs(
+                **filter_params.model_dump(exclude={"page"})
+            )
+        )
+
+        return Success(AuditActionLogListSchema(audit_action_logs=audit_action_logs))

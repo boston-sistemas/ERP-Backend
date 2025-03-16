@@ -330,7 +330,17 @@ class AuditActionLog(Base):
     request_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     response_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     status_code: Mapped[int] = mapped_column()
+    ip: Mapped[str] = mapped_column(String(MAX_LENGTH_SESION_IP))
     at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
+
+    audit_data_logs: Mapped[list["AuditDataLog"]] = relationship(
+        "AuditDataLog",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            AuditActionLog.id == AuditDataLog.action_id,
+        ),
+        foreign_keys=lambda: [AuditDataLog.action_id],
+    )
 
     __table_args__ = (PrimaryKeyConstraint("id"),)
 

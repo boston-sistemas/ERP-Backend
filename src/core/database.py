@@ -33,8 +33,8 @@ promec_async_engine = create_async_engine(
     settings.PROMEC_DATABASE_URL_ASYNC,
     echo=settings.DEBUG,
     pool_recycle=1800,
-    pool_size=5,
-    max_overflow=10,
+    pool_size=10,
+    max_overflow=20,
     pool_pre_ping=True,
     query_cache_size=0,
 )
