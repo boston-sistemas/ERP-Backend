@@ -1058,13 +1058,15 @@ class MovementDetail(PromecBase):
         "CardOperation",
         lazy="noload",
         viewonly=True,
-        primaryjoin=lambda: (
+        primaryjoin=lambda: and_(
             func.concat(MovementDetail.document_code, MovementDetail.document_number)
-            == CardOperation.document_number
+            == CardOperation.document_number,
+            MovementDetail.product_code1 == CardOperation.product_id,
         ),
         single_parent=True,
         foreign_keys=lambda: [
             CardOperation.document_number,
+            CardOperation.product_id,
         ],
     )
 
