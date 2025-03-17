@@ -105,7 +105,7 @@ class AuditService:
                     AuditService._context["id"] = audit_id = uuid.uuid4()
                     response = await func(*args, **kwargs)
 
-                    print("----->", path_params, user_agent)
+                    print("----->", user_agent)
 
                     response_data, status_code = AuditService.extract_response_data(
                         response, request

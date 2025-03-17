@@ -8,6 +8,7 @@ from pydantic import (
     Field,
     computed_field,
     field_serializer,
+    model_validator,
 )
 
 from src.core.constants import PAGE_SIZE
@@ -120,6 +121,16 @@ class AuditActionLogListSchema(BaseModel):
 
 class AuditActionLogFilterParams(BaseModel):
     page: int | None = Field(default=1, ge=1)
+    user_ids: list[int] | None = Field(default=None)
+    actions: list[str] | None = Field(default=None)
+    start_date: datetime | None = Field(default=None)
+    end_date: datetime | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def validate_actions(self):
+        if self.actions:
+            self.actions = list(set(a.upper() for a in (self.actions or [])))
+        return self
 
     @computed_field
     def limit(self) -> int:
