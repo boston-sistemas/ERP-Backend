@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
 from src.core.services import PermissionService
-from src.operations.schemas import SupplierSimpleListSchema
+from src.operations.schemas import SupplierFilterParams, SupplierSimpleListSchema
 from src.operations.services import SupplierService
 from src.security.audit import AuditService
 
@@ -20,18 +20,13 @@ router = APIRouter()
 async def read_suppliers_by_service(
     request: Request,
     service_code: str,
-    limit: int | None = Query(default=10, ge=1, le=100),
-    offset: int | None = Query(default=0, ge=0),
-    include_inactives: bool | None = Query(default=False),
+    filter_params: SupplierFilterParams = Query(SupplierFilterParams()),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = SupplierService(promec_db=promec_db)
     result = await service.read_suppliers_by_service(
         service_code=service_code,
-        limit=limit,
-        offset=offset,
-        include_inactives=include_inactives,
-        include_other_addresses=True,
+        filter_params=filter_params,
     )
 
     if result.is_success:

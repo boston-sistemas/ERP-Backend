@@ -1,7 +1,8 @@
 from datetime import date
 
-from pydantic import Field, field_serializer
+from pydantic import Field, computed_field, field_serializer
 
+from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.security.schemas import ParameterValueSchema
@@ -53,10 +54,17 @@ class ServiceOrderFilterParams(CustomBaseModel):
     period: int | None = Field(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     )
-    limit: int | None = Field(default=10, ge=1, le=100)
-    offset: int | None = Field(default=0, ge=0)
     include_annulled: bool | None = Field(default=False)
-    include_detail: bool | None = Field(default=False)
+
+    page: int | None = Field(default=1, ge=1)
+
+    @computed_field
+    def limit(self) -> int:
+        return PAGE_SIZE
+
+    @computed_field
+    def offset(self) -> int:
+        return (self.page - 1) * PAGE_SIZE
 
 
 class ServiceOrderCreateSchema(CustomBaseModel):

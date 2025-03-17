@@ -71,7 +71,7 @@ class ServiceOrderService:
     ) -> Result[ServiceOrderListSchema, CustomException]:
         service_orders = await self.repository.find_service_orders_by_order_type(
             order_type=order_type,
-            **filter_params.model_dump(),
+            **filter_params.model_dump(exclude={"page"}),
             order_by=ServiceOrder.issue_date.desc(),
         )
 
@@ -86,16 +86,16 @@ class ServiceOrderService:
                 else:
                     service_order.status = status.value
 
-                if filter_params.include_detail:
-                    for detail in service_order.detail:
-                        status = await self.parameter_service.read_parameter(
-                            parameter_id=detail.status_param_id
-                        )
-
-                        if status.is_failure:
-                            detail.status = None
-                        else:
-                            detail.status = status.value
+                # if filter_params.include_detail:
+                #     for detail in service_order.detail:
+                #         status = await self.parameter_service.read_parameter(
+                #             parameter_id=detail.status_param_id
+                #         )
+                #
+                #         if status.is_failure:
+                #             detail.status = None
+                #         else:
+                #             detail.status = status.value
 
         return Success(ServiceOrderListSchema(service_orders=service_orders))
 

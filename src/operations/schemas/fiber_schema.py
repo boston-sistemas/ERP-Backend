@@ -1,6 +1,7 @@
-from pydantic import Field
+from pydantic import Field, computed_field
 from pydantic_extra_types.country import CountryAlpha3
 
+from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel, ItemIsUpdatableSchema
 from src.operations.constants import (
     MECSA_COLOR_ID_MAX_LENGTH,
@@ -64,3 +65,16 @@ class FiberCreateSchema(CustomBaseModel):
 
 class FiberUpdateSchema(FiberCreateSchema):
     category_id: int = None
+
+
+class FiberFilterParams(CustomBaseModel):
+    include_inactives: bool | None = Field(default=False)
+    page: int | None = Field(default=1, ge=1)
+
+    @computed_field
+    def limit(self) -> int:
+        return PAGE_SIZE
+
+    @computed_field
+    def offset(self) -> int:
+        return (self.page - 1) * PAGE_SIZE
