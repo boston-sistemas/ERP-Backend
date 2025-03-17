@@ -6,6 +6,7 @@ from src.core.schemas import ItemStatusUpdateSchema
 from src.core.services import PermissionService
 from src.operations.schemas import (
     MecsaColorCreateSchema,
+    MecsaColorFilterParams,
     MecsaColorListSchema,
     MecsaColorSchema,
     MecsaColorUpdateSchema,
@@ -36,13 +37,13 @@ async def read_mecsa_color(
 @AuditService.audit_action_log()
 async def read_mecsa_colors(
     request: Request,
-    include_inactives: bool = Query(default=False, alias="includeInactives"),
+    filter_params: MecsaColorFilterParams = Query(MecsaColorFilterParams()),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = MecsaColorService(promec_db=promec_db)
 
     result = await service.read_mecsa_colors(
-        include_inactives=include_inactives, exclude_legacy=True
+        filter_params=filter_params, exclude_legacy=True
     )
     if result.is_success:
         return MecsaColorListSchema(mecsa_colors=result.value)

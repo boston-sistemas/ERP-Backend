@@ -8,6 +8,7 @@ from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     DyeingServiceDispatchCreateSchema,
     DyeingServiceDispatchesListSchema,
+    DyeingServiceDispatchFilterParams,
     DyeingServiceDispatchSchema,
     DyeingServiceDispatchUpdateSchema,
 )
@@ -25,19 +26,14 @@ router = APIRouter()
 @AuditService.audit_action_log()
 async def read_dyeing_service_dispatches(
     request: Request,
-    period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    filter_params: DyeingServiceDispatchFilterParams = Query(
+        DyeingServiceDispatchFilterParams()
     ),
-    limit: int | None = Query(default=10, ge=1, le=100),
-    offset: int | None = Query(default=0, ge=0),
-    include_annulled: bool | None = Query(default=False),
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
 ):
     service = DyeingServiceDispatchService(promec_db=promec_db, db=db)
-    result = await service.read_dyeing_service_dispatches(
-        limit=limit, offset=offset, period=period, include_annulled=include_annulled
-    )
+    result = await service.read_dyeing_service_dispatches(filter_params=filter_params)
 
     if result.is_success:
         return result.value

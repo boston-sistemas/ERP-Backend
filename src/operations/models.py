@@ -374,6 +374,7 @@ class MecsaColor(AbstractTableModel):
     slug: Mapped[str] = mapped_column("slug")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
+    alias: Mapped[str] = mapped_column("datoaux")
 
     __mapper_args__ = {"polymorphic_identity": "COL"}
 

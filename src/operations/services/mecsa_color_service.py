@@ -11,7 +11,11 @@ from src.operations.failures import (
 )
 from src.operations.models import MecsaColor
 from src.operations.repositories import MecsaColorRepository
-from src.operations.schemas import MecsaColorCreateSchema, MecsaColorUpdateSchema
+from src.operations.schemas import (
+    MecsaColorCreateSchema,
+    MecsaColorFilterParams,
+    MecsaColorUpdateSchema,
+)
 from src.operations.sequences import color_id_seq
 
 
@@ -69,10 +73,12 @@ class MecsaColorService:
         return MECSA_COLOR_NOT_FOUND_FAILURE
 
     async def read_mecsa_colors(
-        self, include_inactives: bool = True, exclude_legacy: bool = False
+        self,
+        filter_params: MecsaColorFilterParams = MecsaColorFilterParams(),
+        exclude_legacy: bool = False,
     ) -> Result[list[MecsaColor], CustomException]:
         mecsa_colors = await self.repository.find_mecsa_colors(
-            include_inactives=include_inactives,
+            **filter_params.model_dump(exclude={"page"}),
             exclude_legacy=exclude_legacy,
             order_by=MecsaColor.slug.asc(),
         )

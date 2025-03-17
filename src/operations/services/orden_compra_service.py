@@ -13,6 +13,7 @@ from src.operations.repositories import (
 )
 from src.operations.schemas import (
     OrdenCompraWithDetailSchema,
+    PurchaseOrderFilterParams,
     YarnPurchaseOrderListSchema,
 )
 
@@ -24,11 +25,10 @@ class OrdenCompraService:
 
     async def read_purchase_yarn_orders(
         self,
-        period: int,
-        include_detalle: bool = False,
+        filter_params: PurchaseOrderFilterParams = PurchaseOrderFilterParams(),
     ) -> list[OrdenCompra]:
         yarn_orders = await self.repository.find_ordenes_yarn(
-            period=period, include_detalle=include_detalle
+            **filter_params.model_dump(exclude={"page"})
         )
 
         return Success(YarnPurchaseOrderListSchema(yarn_orders=yarn_orders))

@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
 from src.core.services import PermissionService
-from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
+    PurchaseOrderFilterParams,
     YarnPurchaseOrderListSchema,
     YarnPurchaseOrderSchema,
 )
@@ -23,15 +23,12 @@ router = APIRouter(
 @AuditService.audit_action_log()
 async def get_ordenes_yarns(
     request: Request,
-    period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
-    ),
-    include_detail: bool = Query(default=False, alias="includeDetail"),
+    filter_params: PurchaseOrderFilterParams = Query(PurchaseOrderFilterParams()),
     db: AsyncSession = Depends(get_promec_db),
 ):
     service = OrdenCompraService(db)
     result = await service.read_purchase_yarn_orders(
-        period=period, include_detalle=include_detail
+        filter_params=filter_params,
     )
 
     if result.is_success:
