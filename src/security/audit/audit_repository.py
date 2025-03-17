@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import BinaryExpression, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, load_only
@@ -46,6 +48,10 @@ class AuditRepository(BaseRepository[AuditActionLog]):
 
     async def find_audit_action_logs(
         self,
+        user_ids: list[int] = None,
+        actions: list[str] = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
         filter: BinaryExpression = None,
         options: list[Load] = None,
         limit: int = None,
@@ -56,6 +62,18 @@ class AuditRepository(BaseRepository[AuditActionLog]):
         base_filter: list[BinaryExpression] = []
         options: list[Load] = [] if options is None else options
         joins: list[tuple] = [] if joins is None else joins
+
+        if user_ids:
+            base_filter.append(AuditActionLog.user_id.in_(user_ids))
+
+        if actions:
+            base_filter.append(AuditActionLog.action.in_(actions))
+
+        if start_date:
+            base_filter.append(AuditActionLog.at >= start_date)
+
+        if end_date:
+            base_filter.append(AuditActionLog.at <= end_date)
 
         filter = (
             and_(filter, *base_filter) if filter is not None else and_(*base_filter)
