@@ -18,6 +18,7 @@ class AuditRepository(BaseRepository[AuditActionLog]):
             AuditActionLog.user_id,
             AuditActionLog.endpoint_name,
             AuditActionLog.action,
+            AuditActionLog.path_params,
             AuditActionLog.query_params,
             AuditActionLog.request_data,
             AuditActionLog.response_data,

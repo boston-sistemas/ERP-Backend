@@ -8,10 +8,8 @@ from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.attributes import get_history
 from sqlalchemy.orm.properties import ColumnProperty
 
@@ -94,7 +92,9 @@ class AuditService:
                 async with AuditService.get_db_session() as db:
                     user_id = AuditService.get_user_id_from_token(db, request)
                     request_data = await AuditService.get_request_data(request)
+                    path_params = json.dumps(request.path_params, default=str)
                     endpoint_name = getattr(request.scope.get("route"), "name", None)
+                    user_agent = request.headers.get("user-agent", "Desconocido")
                     ip = request.client.host
                     action = request.method
                     query_params = json.dumps(dict(request.query_params), default=str)
@@ -105,6 +105,8 @@ class AuditService:
                     AuditService._context["id"] = audit_id = uuid.uuid4()
                     response = await func(*args, **kwargs)
 
+                    print("----->", path_params, user_agent)
+
                     response_data, status_code = AuditService.extract_response_data(
                         response, request
                     )
@@ -114,6 +116,7 @@ class AuditService:
                         endpoint_name=endpoint_name,
                         user_id=user_id,
                         action=action,
+                        path_params=path_params,
                         query_params=query_params,
                         request_data=request_data,
                         response_data=response_data,

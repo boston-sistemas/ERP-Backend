@@ -57,6 +57,7 @@ class AuditActionLogBase(BaseModel):
     endpoint_name: str
     ip: str | None = None
     action: str
+    path_params: str | None = None
     query_params: str | None = None
     request_data: str | None = None
     response_data: str | None = None
@@ -75,6 +76,15 @@ class AuditActionLogSchema(AuditActionLogBase):
         if value is None:
             return None
         return value.strftime("%d-%m-%Y %H:%M:%S")
+
+    @field_serializer("path_params", when_used="json", mode="plain")
+    def serialize_path_params(value: str | None) -> dict | None:
+        if value is None:
+            return {}
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            return {"error": "Invalid JSON"}
 
     @field_serializer("response_data", when_used="json", mode="plain")
     def serialize_response_data(value: str | None) -> dict | None:
