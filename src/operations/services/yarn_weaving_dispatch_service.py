@@ -1079,6 +1079,8 @@ class YarnWeavingDispatchService(MovementService):
         if delete_result.is_failure:
             return delete_result
 
+        yarn_weaving_dispatch.nrodir2 = form.nrodir
+        yarn_weaving_dispatch.document_note = form.document_note
         yarn_weaving_dispatch.detail = delete_result.value
 
         yarn_weaving_dispatch_detail = []
