@@ -124,6 +124,7 @@ def alter_tables(engine: Engine) -> list[Table]:
             name="opedosmp",
             columns=[
                 Column(name="status_param_id", type_column=TypeInteger()),
+                Column(name="id", type_column=TypeInteger()),
             ],
         ),
         Table(

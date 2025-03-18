@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 
+from src.operations.rates import RateRouter
+
 from .routers import (
     dyeing_service_dispatch_router,
     fabric_router,
@@ -77,4 +79,9 @@ router.include_router(
     router=dyeing_service_dispatch_router.router,
     prefix="/dyeing-service-dispatches",
     tags=["[AREA OPERACIONES] GESTION DE MOV. SALIDA DE TEJIDOS POR O/S DE TINTORERIA"],
+)
+router.include_router(
+    router=RateRouter,
+    prefix="/service-rates",
+    tags=["[AREA OPERACIONES] GESTION DE TARIFAS DE SERVICIO"],
 )

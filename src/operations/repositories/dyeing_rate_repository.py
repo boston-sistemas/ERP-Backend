@@ -57,7 +57,6 @@ class DyeingRepository(RateRepository):
         joins: list[tuple] = None,
     ) -> list[ServiceRate]:
         base_filter = list[BinaryExpression] = []
-        base_filter.append(ServiceRate.serial_code == SERVICE_CODE_SUPPLIER_DYEING)
 
         if supplier_ids:
             base_filter = base_filter & ServiceRate.supplier_id.in_(supplier_ids)

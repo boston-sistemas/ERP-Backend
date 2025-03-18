@@ -56,7 +56,6 @@ class WeavingRateRepository(RateRepository):
         joins: list[tuple] = None,
     ) -> list[ServiceRate]:
         base_filter = list[BinaryExpression] = []
-        base_filter.append(ServiceRate.serial_code == SERVICE_CODE_SUPPLIER_WEAVING)
         base_filter.append(ServiceRate.color_id == ID_COLOR_CRUD)
 
         if supplier_ids:

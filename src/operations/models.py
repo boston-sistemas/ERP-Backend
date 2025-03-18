@@ -590,7 +590,7 @@ class ServiceOrderDetail(PromecBase):
     detail_note: Mapped[str] = mapped_column(
         "detalle", String(length=DOCUMENT_NOTE_MAX_LENGTH)
     )
-
+    rate_id: Mapped[int] = mapped_column("id")
     supply_stock: Mapped[list["ServiceOrderSupplyDetail"]] = relationship(
         "ServiceOrderSupplyDetail",
         lazy="noload",
@@ -1381,9 +1381,20 @@ class ServiceRate(PromecBase):
     os_ending: Mapped[date] = mapped_column("ordserfin")
     code: Mapped[str] = mapped_column("codigo", String(length=CODE_MAX_LENGTH))
 
-    __table_args__ = (
-        PrimaryKeyConstraint("id", "codser", "codpro", "codcol", "codtej"),
+    order_service_detail_rate = relationship(
+        "ServiceOrderDetail",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            ServiceRate.rate_id == ServiceOrderDetail.rate_id,
+        ),
+        single_parent=False,
+        viewonly=True,
+        foreign_keys=lambda: [
+            ServiceOrderDetail.rate_id,
+        ],
     )
+
+    __table_args__ = (PrimaryKeyConstraint("id"),)
 
 
 class CardOperation(PromecBase):
