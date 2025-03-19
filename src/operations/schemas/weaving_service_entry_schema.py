@@ -34,6 +34,10 @@ class WeavingServiceEntryBase(CustomBaseModel):
             return None
         return value.strftime("%d-%m-%Y")
 
+    @field_serializer("supplier_code")
+    def serialize_supplier_batch(value: str | None) -> str | None:
+        return value.upper() if value is not None else None
+
     class Config:
         from_attributes = True
 
