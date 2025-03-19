@@ -79,7 +79,7 @@ class AuditService:
         return json.dumps(encoded, default=str) if encoded else "", route.status_code
 
     @staticmethod
-    def audit_action_log():
+    def audit_action_log(audit_save: bool = False):
         def decorator(func):
             @wraps(func)
             async def wrapper(*args, **kwargs):
@@ -102,10 +102,9 @@ class AuditService:
                         json.dumps(request_data, default=str) if request_data else ""
                     )
 
+                    AuditService._context["audit_save"] = audit_save
                     AuditService._context["id"] = audit_id = uuid.uuid4()
                     response = await func(*args, **kwargs)
-
-                    print("----->", user_agent)
 
                     response_data, status_code = AuditService.extract_response_data(
                         response, request
@@ -120,6 +119,7 @@ class AuditService:
                         query_params=query_params,
                         request_data=request_data,
                         response_data=response_data,
+                        user_agent=user_agent,
                         status_code=status_code,
                         at=calculate_time(tz=PERU_TIMEZONE),
                         ip=ip,
@@ -147,7 +147,9 @@ class AuditService:
     ):
         table_name = instance.__tablename__
 
-        if table_name == "audit_action_log" or table_name == "audit_data_log":
+        if (
+            table_name == "audit_action_log" or table_name == "audit_data_log"
+        ) and not AuditService._context["audit_save"]:
             return
 
         if values_before == values_after:
@@ -173,6 +175,7 @@ class AuditService:
         )
 
         try:
+            AuditService._context["audit_save"] = False
             await audit_data_log_repository.save(audit_data_log)
         except Exception as e:
             print(e)
@@ -182,7 +185,7 @@ class AuditService:
         if (
             instance.__tablename__ == "audit_action_log"
             or instance.__tablename__ == "audit_data_log"
-        ):
+        ) and not AuditService._context["audit_save"]:
             return {}
 
         before_changes: dict = {}
@@ -218,7 +221,7 @@ class AuditService:
         if (
             instance.__tablename__ == "audit_action_log"
             or instance.__tablename__ == "audit_data_log"
-        ):
+        ) and not AuditService._context["audit_save"]:
             return {}
 
         after_changes: dict = {}
