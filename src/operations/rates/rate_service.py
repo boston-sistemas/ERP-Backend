@@ -217,12 +217,12 @@ class RateService:
         current_period = current_time.date().year
         current_month_number = current_time.date().month
         service_rates: list[ServiceRate] = await self.repository.find_rates(
-            fabric_id=fabric_id,
+            fabric_ids=[fabric_id],
             period=current_period,
             month_number=current_month_number,
             limit=2,
         )
-        if service_rates:
+        if not service_rates:
             return RateFailures.RATE_NOT_FOUND_FAILURE
 
         if len(service_rates) == 1:
@@ -233,6 +233,6 @@ class RateService:
                 service_rates[0].os_beggining = purchase_service_number
                 service_rates[1].os_ending = purchase_service_number
 
-        await self.repository.save(service_rates)
+        await self.repository.save_all(service_rates)
 
         return Success(service_rates[0].rate_id)

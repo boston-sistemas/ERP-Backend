@@ -284,6 +284,7 @@ class ServiceOrderService:
         for detail in form.detail:
             rate_id_result = await self.rate_service.initialize_os_beg_by_fabric(
                 fabric_id=detail.fabric_id,
+                service_rates=self.rate_service,
                 purchase_service_number=purchase_service_number,
             )
             if rate_id_result.is_failure:

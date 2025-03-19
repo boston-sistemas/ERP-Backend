@@ -23,6 +23,8 @@ class RateRepository(BaseRepository[ServiceRate]):
             ServiceRate.rate,
             ServiceRate.period,
             ServiceRate.month_number,
+            ServiceRate.os_beggining,
+            ServiceRate.os_ending,
         )
 
     def get_load_options(

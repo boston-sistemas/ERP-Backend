@@ -27,7 +27,7 @@ class ServiceOrderDetailSchema(ServiceOrderDetailSimpleSchema):
 class ServiceOrderDetailCreateSchema(CustomBaseModel):
     fabric_id: str
     quantity_ordered: float = Field(gt=0)
-    rate_id: int
+    rate_id: int | None = None
 
 
 class ServiceOrderDetailUpdateSchema(ServiceOrderDetailCreateSchema):
