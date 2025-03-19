@@ -17,6 +17,7 @@ router = APIRouter()
 @router.get(
     "/", response_model=AuditActionLogListSchema, status_code=status.HTTP_200_OK
 )
+@AuditService.audit_action_log()
 async def get_audit_action_logs(
     filter_params: AuditActionLogFilterParams = Query(AuditActionLogFilterParams()),
     db: AsyncSession = Depends(get_db),
@@ -34,6 +35,7 @@ async def get_audit_action_logs(
     response_model=AuditActionLogSchema,
     status_code=status.HTTP_200_OK,
 )
+@AuditService.audit_action_log()
 async def get_audit_action_log(
     audit_action_log_id: str,
     db: AsyncSession = Depends(get_db),
