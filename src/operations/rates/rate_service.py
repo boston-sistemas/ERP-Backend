@@ -6,6 +6,7 @@ from src.core.constants import (
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
     ANNULLED_SERVICE_ORDER_ID,
     SCHEDULED_SERVICE_ORDER_ID,
@@ -208,3 +209,30 @@ class RateService:
             return validation_result
 
         return Success(None)
+
+    async def initialize_os_beg_by_fabric(
+        self, fabric_id: str, service_rates: ServiceRate, purchase_service_number: str
+    ) -> Result[RateSchema, CustomException]:
+        current_time = calculate_time(tz=PERU_TIMEZONE)
+        current_period = current_time.date().year
+        current_month_number = current_time.date().month
+        service_rates: list[ServiceRate] = await self.repository.find_rates(
+            fabric_id=fabric_id,
+            period=current_period,
+            month_number=current_month_number,
+            limit=2,
+        )
+        if service_rates:
+            return RateFailures.RATE_NOT_FOUND_FAILURE
+
+        if len(service_rates) == 1:
+            if not service_rates[0].os_beggining:
+                service_rates[0].os_beggining = purchase_service_number
+        else:
+            if not service_rates[0].os_beggining:
+                service_rates[0].os_beggining = purchase_service_number
+                service_rates[1].os_ending = purchase_service_number
+
+        await self.repository.save(service_rates)
+
+        return Success(service_rates[0].rate_id)

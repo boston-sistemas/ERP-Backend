@@ -585,7 +585,6 @@ class ServiceOrderDetail(PromecBase):
     )
     quantity_ordered: Mapped[float] = mapped_column("canord")
     quantity_supplied: Mapped[float] = mapped_column("canate")
-    price: Mapped[float] = mapped_column("precto")
     status_param_id: Mapped[int] = mapped_column("status_param_id", default=1)
     detail_note: Mapped[str] = mapped_column(
         "detalle", String(length=DOCUMENT_NOTE_MAX_LENGTH)

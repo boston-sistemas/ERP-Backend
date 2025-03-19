@@ -27,7 +27,9 @@ from src.operations.failures import (
 from src.operations.models import (
     ServiceOrder,
     ServiceOrderDetail,
+    ServiceRate,
 )
+from src.operations.rates import RateService
 from src.operations.repositories import ServiceOrderRepository
 from src.operations.schemas import (
     ServiceOrderCreateSchema,
@@ -59,6 +61,7 @@ class ServiceOrderService:
         self.service_order_supply_service = ServiceOrderSupplyDetailService(
             promec_db=promec_db
         )
+        self.rate_service = RateService(promec_db=promec_db)
 
     async def read_service_orders(
         self,
@@ -279,6 +282,14 @@ class ServiceOrderService:
         service_order_detail = []
 
         for detail in form.detail:
+            rate_id_result = await self.rate_service.initialize_os_beg_by_fabric(
+                fabric_id=detail.fabric_id,
+                purchase_service_number=purchase_service_number,
+            )
+            if rate_id_result.is_failure:
+                return rate_id_result
+            rate_id = rate_id_result.value
+
             service_order_detail_value = ServiceOrderDetail(
                 company_code=MECSA_COMPANY_CODE,
                 order_id=purchase_service_number,
@@ -286,7 +297,7 @@ class ServiceOrderService:
                 product_id=detail.fabric_id,
                 quantity_ordered=detail.quantity_ordered,
                 quantity_supplied=0,
-                price=detail.price,
+                rate_id=rate_id,
                 status_param_id=SCHEDULED_SERVICE_ORDER_ID,
             )
             service_order_detail.append(service_order_detail_value)
@@ -397,7 +408,6 @@ class ServiceOrderService:
 
             if service_order_detail_result is not None:
                 service_order_detail_result.quantity_ordered = detail.quantity_ordered
-                service_order_detail_result.price = detail.price
                 service_order_detail_result.status_param_id = detail.status_param_id
 
             else:
@@ -408,7 +418,6 @@ class ServiceOrderService:
                     product_id=detail.fabric_id,
                     quantity_ordered=detail.quantity_ordered,
                     quantity_supplied=0,
-                    price=detail.price,
                     status_param_id=detail.status_param_id,
                 )
                 service_order.detail.append(service_order_detail_value)

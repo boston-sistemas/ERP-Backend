@@ -84,7 +84,7 @@ async def is_updated_permission_service_rate(
 
     if result.is_success:
         return {
-            "updateable": True,
+            "updatable": True,
             "message": "La tarifa especificada puede ser actualizada.",
         }
-    return {"updateable": False, "message": result.error.detail}
+    return {"updatable": False, "message": result.error.detail}
