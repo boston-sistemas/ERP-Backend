@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
@@ -11,12 +11,16 @@ from .rate_schema import (
     RateUpdateSchema,
 )
 from .rate_service import RateService
+from .rates_router_doc import RateRouterDocumentation
 
 router = APIRouter()
 
 
-@router.get("/", response_model=RateListSchema)
+@router.get(
+    "/", **RateRouterDocumentation.read_service_rates(), status_code=status.HTTP_200_OK
+)
 async def read_service_rates(
+    request: Request,
     filter_params: RateFilterParams = Query(RateFilterParams()),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -31,8 +35,13 @@ async def read_service_rates(
     raise result.error
 
 
-@router.get("/{rate_id}", response_model=RateSchema)
+@router.get(
+    "/{rate_id}",
+    **RateRouterDocumentation.read_service_rate(),
+    status_code=status.HTTP_200_OK,
+)
 async def read_service_rate(
+    request: Request,
     rate_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -45,8 +54,13 @@ async def read_service_rate(
     raise result.error
 
 
-@router.post("/", response_model=RateSchema)
+@router.post(
+    "/",
+    **RateRouterDocumentation.create_service_rate(),
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_service_rate(
+    request: Request,
     form: RateCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -59,8 +73,13 @@ async def create_service_rate(
     raise result.error
 
 
-@router.patch("/{rate_id}", response_model=RateSchema)
+@router.patch(
+    "/{rate_id}",
+    **RateRouterDocumentation.update_service_rate(),
+    status_code=status.HTTP_200_OK,
+)
 async def update_service_rate(
+    request: Request,
     rate_id: str,
     form: RateUpdateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -74,8 +93,13 @@ async def update_service_rate(
     raise result.error
 
 
-@router.get("/{rate_id}/is-updatable")
+@router.get(
+    "/{rate_id}/is-updatable",
+    **RateRouterDocumentation.is_updated_permission_service_rate(),
+    status_code=status.HTTP_200_OK,
+)
 async def is_updated_permission_service_rate(
+    request: Request,
     rate_id: int,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
