@@ -62,6 +62,7 @@ class AuditActionLogBase(BaseModel):
     query_params: str | None = None
     request_data: str | None = None
     response_data: str | None = None
+    user_agent: str | None = None
     status_code: int
     at: datetime
 

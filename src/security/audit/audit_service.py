@@ -71,6 +71,15 @@ class AuditService:
     def extract_response_data(response, request):
         encoded = jsonable_encoder(response)
         route = request.scope.get("route")
+        endpoint_name = route.name if route else ""
+
+        if (
+            endpoint_name == "get_audit_action_logs"
+            and endpoint_name == "get_audit_action_log"
+        ):
+            return json.dumps(
+                {"message": "response omitido para evitar recursión"}
+            ), route.status_code
 
         if isinstance(response, BaseModel):
             return response.json(), route.status_code
@@ -124,6 +133,8 @@ class AuditService:
                         at=calculate_time(tz=PERU_TIMEZONE),
                         ip=ip,
                     )
+
+                    print()
 
                     try:
                         await BaseRepository(model=AuditActionLog, db=db).save(
