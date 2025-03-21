@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy import BinaryExpression
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, load_only
+from sqlalchemy.orm import contains_eager, load_only
 from sqlalchemy.orm.strategy_options import Load
 
 from src.operations.constants import (
@@ -49,8 +49,8 @@ class WeavingServiceEntryRepository(MovementRepository):
     @staticmethod
     def include_details(include_detail_card: bool = True) -> list[Load]:
         base_options = [
-            joinedload(Movement.detail)
-            .joinedload(MovementDetail.detail_fabric)
+            contains_eager(Movement.detail)
+            .contains_eager(MovementDetail.detail_fabric)
             .load_only(
                 FabricWarehouse.guide_net_weight,
                 FabricWarehouse.roll_count,
@@ -63,7 +63,9 @@ class WeavingServiceEntryRepository(MovementRepository):
 
         if include_detail_card:
             base_options.append(
-                joinedload(Movement.detail).joinedload(MovementDetail.detail_card)
+                contains_eager(Movement.detail).contains_eager(
+                    MovementDetail.detail_card
+                )
             )
 
         return base_options
@@ -86,9 +88,10 @@ class WeavingServiceEntryRepository(MovementRepository):
         entry_number: str,
         period: int,
         filter: BinaryExpression = None,
-        include_detail_card: bool = True,
+        include_detail_card: bool = False,
         include_detail: bool = False,
     ) -> Movement | None:
+        joins: list[tuple] = []
         base_filter = (
             (Movement.storage_code == WEAVING_STORAGE_CODE)
             & (Movement.movement_type == ENTRY_MOVEMENT_TYPE)
@@ -100,10 +103,18 @@ class WeavingServiceEntryRepository(MovementRepository):
         filter = base_filter & filter if filter is not None else base_filter
         options = self.get_load_options(include_detail=include_detail)
 
+        if include_detail:
+            joins.append(Movement.detail)
+            joins.append(MovementDetail.detail_fabric)
+
+            if include_detail_card:
+                joins.append(MovementDetail.detail_card)
+
         weaving_service_entry = await self.find_movement_by_document_number(
             document_number=entry_number,
             filter=filter,
             options=options,
+            joins=joins,
         )
 
         return weaving_service_entry if weaving_service_entry is not None else None
@@ -116,11 +127,13 @@ class WeavingServiceEntryRepository(MovementRepository):
         start_date: date = None,
         end_date: date = None,
         service_order_id: str = None,
+        include_detail: bool = False,
         include_annulled: bool = False,
         limit: int = None,
         offset: int = None,
         filter: BinaryExpression = None,
     ) -> list[Movement]:
+        joins: list[tuple] = []
         base_filter = (
             (Movement.storage_code == WEAVING_STORAGE_CODE)
             & (Movement.movement_type == ENTRY_MOVEMENT_TYPE)
@@ -147,13 +160,22 @@ class WeavingServiceEntryRepository(MovementRepository):
             base_filter = base_filter & (Movement.creation_date <= end_date)
 
         filter = base_filter & filter if filter is not None else base_filter
-        options = self.get_load_options()
+
+        if include_detail:
+            joins.append(Movement.detail)
+            joins.append(MovementDetail.detail_fabric)
+            joins.append(MovementDetail.detail_card)
+
+        options = self.get_load_options(include_detail=include_detail)
 
         weaving_service_entries = await self.find_movements(
             filter=filter,
             options=options,
+            joins=joins,
             limit=limit,
             offset=offset,
+            use_outer_joins=True,
+            apply_unique=True,
             order_by=Movement.creation_date.desc(),
         )
 

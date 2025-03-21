@@ -69,7 +69,9 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
     async def find_ordenes_yarn(
         self,
         period: int,
-        include_detalle: bool = False,
+        include_detail: bool = False,
+        limit: int = None,
+        offset: int = None,
     ) -> list[OrdenCompra]:
         options: list[Load] = []
         joins: list[tuple] = []
@@ -91,15 +93,31 @@ class OrdenCompraRepository(BaseRepository[OrdenCompra]):
             OrdenCompra.issue_date <= end_of_year,
         )
 
-        if include_detalle:
+        if include_detail:
             options.append(
-                contains_eager(OrdenCompra.detail).contains_eager(
-                    OrdenCompraDetalle.yarn
+                contains_eager(OrdenCompra.detail)
+                .contains_eager(OrdenCompraDetalle.yarn)
+                .load_only(
+                    InventoryItem.family_id,
+                    InventoryItem.subfamily_id,
+                    InventoryItem.id,
+                    InventoryItem.barcode,
+                    InventoryItem.is_active,
+                    InventoryItem.description,
+                    InventoryItem.purchase_description,
+                    InventoryItem.inventory_unit_code,
+                    InventoryItem.purchase_unit_code,
                 )
             )
 
         ordenes = await self.find_all(
-            filter=filter, joins=joins, options=options, apply_unique=True
+            filter=filter,
+            joins=joins,
+            options=options,
+            apply_unique=True,
+            use_outer_joins=True,
+            limit=limit,
+            offset=offset,
         )
 
         return ordenes

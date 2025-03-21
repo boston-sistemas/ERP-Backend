@@ -79,6 +79,7 @@ class YarnPurchaseEntryDetailHeavyService:
         entry_number: int,
         period: int,
     ) -> Result[None, CustomException]:
+        self.repository.expunge_all()
         yarn_purchase_entry_detail_heavy_result = (
             await self._read_yarn_purchase_entry_detail_heavy(
                 ingress_number=entry_number,

@@ -81,6 +81,6 @@ class ProductInventoryService:
         product_inventory: ProductInventory = result.value
         product_inventory.current_stock += new_stock
 
-        await self.repository.save(product_inventory, flush=True)
+        await self.repository.save(product_inventory)
 
         return Success(None)

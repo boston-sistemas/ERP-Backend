@@ -30,6 +30,7 @@ class UsuarioSchema(UsuarioBase):
     reset_password_at: datetime
     blocked_until: datetime | None
     roles: list["RolSimpleSchema"]
+    prueba: str = ""
 
     class Config:
         from_attributes = True

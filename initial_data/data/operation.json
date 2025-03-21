@@ -14,5 +14,9 @@
   {
     "id": 104,
     "name": "anular"
+  },
+  {
+    "id": 105,
+    "name": "desactivar"
   }
 ]

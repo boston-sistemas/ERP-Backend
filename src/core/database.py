@@ -6,6 +6,7 @@ from sqlalchemy import CLOB, TypeDecorator, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 from src.core.config import settings
 
@@ -19,7 +20,6 @@ engine_async = create_async_engine(
     settings.DATABASE_URL_ASYNC,
     echo=settings.DEBUG,
     pool_recycle=3600,
-    query_cache_size=0,
 )
 
 promec_engine = create_engine(
@@ -33,6 +33,8 @@ promec_async_engine = create_async_engine(
     settings.PROMEC_DATABASE_URL_ASYNC,
     echo=settings.DEBUG,
     pool_recycle=1800,
+    pool_size=10,
+    max_overflow=20,
     pool_pre_ping=True,
     query_cache_size=0,
 )
@@ -118,6 +120,8 @@ async def get_promec_db() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await db.rollback()
             raise
+        finally:
+            await db.close()
 
 
 def transactional(func):

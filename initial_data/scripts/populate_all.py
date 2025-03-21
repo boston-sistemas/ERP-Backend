@@ -7,6 +7,7 @@ from populate_mecsa_colors import populate_mecsa_colors
 from populate_operations import populate_operations
 from populate_parameter_categories import populate_parameter_categories
 from populate_parameters import populate_parameters
+from populate_system_modules import populate_system_modules
 from populate_yarns import populate_yarns
 
 from src.core.database import engine_async, promec_async_engine
@@ -21,6 +22,7 @@ async def main():
     await populate_yarns()
     await populate_fabrics()
     await populate_operations()
+    await populate_system_modules()
 
     await promec_async_engine.dispose()
     await engine_async.dispose()

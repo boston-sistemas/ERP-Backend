@@ -376,6 +376,7 @@ class MecsaColor(AbstractTableModel):
     slug: Mapped[str] = mapped_column("slug")
     sku: Mapped[str] = mapped_column("VarChar1")
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
+    alias: Mapped[str] = mapped_column("datoaux")
 
     __mapper_args__ = {"polymorphic_identity": "COL"}
 
@@ -953,6 +954,24 @@ class MovementDetail(PromecBase):
     product_code2: Mapped[str] = mapped_column(
         "codprod2", String(length=PRODUCT_CODE_MAX_LENGTH)
     )
+
+    supply_stock: Mapped["ServiceOrderSupplyDetail"] = relationship(
+        "ServiceOrderSupplyDetail",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            MovementDetail.company_code == ServiceOrderSupplyDetail.company_code,
+            MovementDetail.nroreq == ServiceOrderSupplyDetail.reference_number,
+            MovementDetail.item_number_supply == ServiceOrderSupplyDetail.item_number,
+        ),
+        uselist=False,
+        viewonly=True,
+        foreign_keys=lambda: [
+            ServiceOrderSupplyDetail.company_code,
+            ServiceOrderSupplyDetail.reference_number,
+            ServiceOrderSupplyDetail.item_number,
+        ],
+    )
+
     movement = relationship(
         "Movement",
         lazy="noload",
@@ -1040,13 +1059,15 @@ class MovementDetail(PromecBase):
         "CardOperation",
         lazy="noload",
         viewonly=True,
-        primaryjoin=lambda: (
+        primaryjoin=lambda: and_(
             func.concat(MovementDetail.document_code, MovementDetail.document_number)
-            == CardOperation.document_number
+            == CardOperation.document_number,
+            MovementDetail.product_code1 == CardOperation.product_id,
         ),
         single_parent=True,
         foreign_keys=lambda: [
             CardOperation.document_number,
+            CardOperation.product_id,
         ],
     )
 

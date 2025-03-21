@@ -36,9 +36,55 @@ class YarnPurchaseEntryDetailHeavySchema(YarnPurchaseEntryDetailHeavySimpleSchem
     supplier_yarn_id: str | None = Field(default=None)
     yarn_id: str | None = Field(default=None)
 
+    unit_net_weight_for_cone: float | None = Field(default=None)
+    unit_net_weight_for_package: float | None = Field(default=None)
+
+    unit_gross_weight_for_cone: float | None = Field(default=None)
+    unit_gross_weight_for_package: float | None = Field(default=None)
+
+    gross_weight_left: float | None = Field(default=None)
+    net_weight_left: float | None = Field(default=None)
+
+    @model_validator(mode="after")
+    def set_units_weights(self):
+        if self.net_weight is not None:
+            self.unit_net_weight_for_cone = self.net_weight / self.cone_count
+            self.unit_net_weight_for_package = self.net_weight / self.package_count
+
+        if self.gross_weight is not None:
+            self.unit_gross_weight_for_cone = self.gross_weight / self.cone_count
+            self.unit_gross_weight_for_package = self.gross_weight / self.package_count
+
+        return self
+
+    @model_validator(mode="after")
+    def set_weights_left(self):
+        if self.net_weight and self.packages_left and self.package_count:
+            if self.packages_left == self.package_count:
+                self.net_weight_left = self.net_weight
+            else:
+                self.net_weight_left = self.unit_net_weight_for_package * (
+                    self.package_count - self.packages_left
+                )
+        else:
+            self.net_weight_left = self.net_weight
+
+        if self.gross_weight and self.package_count and self.packages_left:
+            if self.packages_left == self.package_count:
+                self.gross_weight_left = self.gross_weight
+            else:
+                self.gross_weight_left = self.unit_gross_weight_for_package * (
+                    self.package_count - self.packages_left
+                )
+        else:
+            self.gross_weight_left = self.gross_weight
+
+        return self
+
 
 class YarnPurchaseEntryAvailabilitySchema(CustomBaseModel):
     entry_number: str | None = Field(default=None)
+    yarn_id: str | None = Field(default=None)
     detail_heavy: list[YarnPurchaseEntryDetailHeavySchema] = []
 
     @field_serializer("detail_heavy")
@@ -75,7 +121,9 @@ class YarnPurchaseEntryDetailHeavyListSchema(CustomBaseModel):
             ]:
                 self.yarn_purchase_entries.append(
                     YarnPurchaseEntryAvailabilitySchema(
-                        entry_number=heavy.ingress_number, detail_heavy=[heavy]
+                        entry_number=heavy.ingress_number,
+                        detail_heavy=[heavy],
+                        yarn_id=heavy.yarn_id,
                     )
                 )
             else:

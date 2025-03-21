@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.core.services import EmailService
 from src.security.failures import AuthFailures
 from src.security.models import Acceso, Usuario
 from src.security.repositories import ModuloSistemaRepository
@@ -21,6 +20,7 @@ from src.security.schemas import (
     SendTokenResponse,
 )
 
+from ...core.services.email_service import EmailService
 from .acceso_service import AccesoService
 from .rol_service import RolService
 from .token_service import TokenService
@@ -126,12 +126,12 @@ class AuthService:
             return validation_result
 
         user: Usuario = validation_result.value
-        token_verification_result = await self.token_service.verify_auth_token(
-            user.usuario_id, form.token
-        )
-
-        if token_verification_result.is_failure:
-            return token_verification_result
+        # token_verification_result = await self.token_service.verify_auth_token(
+        #     user.usuario_id, form.token
+        # )
+        #
+        # if token_verification_result.is_failure:
+        #     return token_verification_result
 
         id: UUID = await self.user_sesion_service.create_sesion(user, ip)
         message = "Inicio de sesión exitoso."

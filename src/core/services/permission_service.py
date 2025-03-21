@@ -3,10 +3,10 @@ from functools import wraps
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import src.security.services.auth_service
 from src.core.database import get_db
 from src.security.failures import AuthFailures
 
+from ...security.services.auth_service import AuthService
 from ...security.services.token_service import TokenService
 
 
@@ -23,6 +23,7 @@ class PermissionService:
             ):
                 access_token = request.cookies.get("access_token")
                 token_service = TokenService(db=db)
+                auth_service = AuthService(db=db)
 
                 verification_result = token_service.verify_access_token(
                     token=access_token
@@ -31,8 +32,6 @@ class PermissionService:
                     raise verification_result.error
 
                 token_data = token_service.decode_token(token=access_token)
-
-                auth_service = src.security.services.auth_service.AuthService(db=db)
 
                 auth_result = await auth_service.is_valid_access_operation_to_user(
                     user_id=token_data["sub"],

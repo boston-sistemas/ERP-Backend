@@ -1,8 +1,14 @@
 from datetime import date
 
-from pydantic import Field
+from pydantic import (
+    AliasChoices,
+    Field,
+    computed_field,
+)
 
+from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel
+from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.constants import (
     DOCUMENT_NOTE_MAX_LENGTH,
     NRODIR_MAX_LENGTH,
@@ -46,6 +52,22 @@ class DyeingServiceDispatchSchema(DyeingServiceDispatchBase):
 
 class DyeingServiceDispatchesListSchema(CustomBaseModel):
     dyeing_service_dispatches: list[DyeingServiceDispatchSchema] = []
+
+
+class DyeingServiceDispatchFilterParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    page: int | None = Field(default=1, ge=1)
+    include_annulled: bool | None = Field(default=False)
+
+    @computed_field
+    def limit(self) -> int:
+        return PAGE_SIZE
+
+    @computed_field
+    def offset(self) -> int:
+        return (self.page - 1) * PAGE_SIZE
 
 
 class DyeingServiceDispatchCreateSchema(CustomBaseModel):

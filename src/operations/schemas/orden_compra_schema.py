@@ -1,8 +1,10 @@
 from datetime import date
 
-from pydantic import Field, model_validator
+from pydantic import Field, computed_field, model_validator
 
+from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel
+from src.core.utils import PERU_TIMEZONE, calculate_time
 
 from .orden_compra_detalle_schema import (
     OrdenCompraDetalleBase,
@@ -69,3 +71,19 @@ class OrdenCompraWithDetallesListSchema(CustomBaseModel):
 
 class YarnPurchaseOrderListSchema(CustomBaseModel):
     yarn_orders: list[YarnPurchaseOrderSchema] | None = []
+
+
+class PurchaseOrderFilterParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    include_detail: bool = Field(default=False)
+    page: int | None = Field(default=1, ge=1)
+
+    @computed_field
+    def limit(self) -> int:
+        return PAGE_SIZE
+
+    @computed_field
+    def offset(self) -> int:
+        return (self.page - 1) * PAGE_SIZE

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.services import PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnWeavingDispatchCreateSchema,
@@ -13,12 +14,17 @@ from src.operations.schemas import (
     YarnWeavingDispatchUpdateSchema,
 )
 from src.operations.services import YarnWeavingDispatchService
+from src.security.audit import AuditService
 
 router = APIRouter()
 
 
-@router.get("/", response_model=YarnWeavingDispatchListSchema)
+@router.get(
+    "/", response_model=YarnWeavingDispatchListSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def read_yarn_weaving_dispatches(
+    request: Request,
     filter_params: YarnWeavingDispatchFilterParams = Query(
         YarnWeavingDispatchFilterParams()
     ),
@@ -36,8 +42,14 @@ async def read_yarn_weaving_dispatches(
     raise result.error
 
 
-@router.get("/{yarn_weaving_dispatch_number}", response_model=YarnWeavingDispatchSchema)
+@router.get(
+    "/{yarn_weaving_dispatch_number}",
+    response_model=YarnWeavingDispatchSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_yarn_weaving_dispatch(
+    request: Request,
     yarn_weaving_dispatch_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -59,8 +71,12 @@ async def read_yarn_weaving_dispatch(
     raise result.error
 
 
-@router.post("/", response_model=YarnWeavingDispatchSchema)
+@router.post(
+    "/", response_model=YarnWeavingDispatchSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def create_yarn_weaving_dispatch(
+    request: Request,
     form: YarnWeavingDispatchCreateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
     db: AsyncSession = Depends(get_db),
@@ -74,8 +90,10 @@ async def create_yarn_weaving_dispatch(
     raise result.error
 
 
-@router.patch("/{yarn_weaving_dispatch_number}")
+@router.patch("/{yarn_weaving_dispatch_number}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_yarn_weaving_dispatch(
+    request: Request,
     yarn_weaving_dispatch_number: str,
     form: YarnWeavingDispatchUpdateSchema,
     period: int | None = Query(
@@ -97,8 +115,10 @@ async def update_yarn_weaving_dispatch(
     raise result.error
 
 
-@router.put("/{yarn_weaving_dispatch_number}/anulate")
+@router.put("/{yarn_weaving_dispatch_number}/anulate", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_yarn_weaving_dispatch_status(
+    request: Request,
     yarn_weaving_dispatch_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -120,8 +140,12 @@ async def update_yarn_weaving_dispatch_status(
     raise result.error
 
 
-@router.get("/{yarn_weaving_dispatch_number}/is-updatable")
+@router.get(
+    "/{yarn_weaving_dispatch_number}/is-updatable", status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def is_updated_permission(
+    request: Request,
     yarn_weaving_dispatch_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -143,8 +167,10 @@ async def is_updated_permission(
     return {"updatable": False, "message": result.error.detail}
 
 
-@router.post("/print/movement")
+@router.post("/print/movement", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def print_yarn_weaving_dispatch(
+    request: Request,
     form: YarnWeavingDispatchPrintListSchema,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000

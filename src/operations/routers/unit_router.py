@@ -1,15 +1,20 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
+from src.core.services import PermissionService
 from src.operations.schemas import DerivedUnitListSchema, UnitListSchema, UnitSchema
 from src.operations.services import UnitService
+from src.security.audit import AuditService
 
 router = APIRouter()
 
 
-@router.get("/{code}", response_model=UnitSchema)
-async def read_base_unit(code: str, promec_db: AsyncSession = Depends(get_promec_db)):
+@router.get("/{code}", response_model=UnitSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
+async def read_base_unit(
+    request: Request, code: str, promec_db: AsyncSession = Depends(get_promec_db)
+):
     service = UnitService(promec_db=promec_db)
 
     result = await service.read_base_unit(code=code, include_derived_units=True)
@@ -19,8 +24,11 @@ async def read_base_unit(code: str, promec_db: AsyncSession = Depends(get_promec
     raise result.error
 
 
-@router.get("/", response_model=UnitListSchema)
-async def read_base_units(promec_db: AsyncSession = Depends(get_promec_db)):
+@router.get("/", response_model=UnitListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
+async def read_base_units(
+    request: Request, promec_db: AsyncSession = Depends(get_promec_db)
+):
     service = UnitService(promec_db=promec_db)
 
     result = await service.read_base_units(include_derived_units=True)
@@ -30,9 +38,14 @@ async def read_base_units(promec_db: AsyncSession = Depends(get_promec_db)):
     raise result.error
 
 
-@router.get("/{base_code}/derived-units", response_model=DerivedUnitListSchema)
+@router.get(
+    "/{base_code}/derived-units",
+    response_model=DerivedUnitListSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_derived_units_by_base_code(
-    base_code: str, promec_db: AsyncSession = Depends(get_promec_db)
+    request: Request, base_code: str, promec_db: AsyncSession = Depends(get_promec_db)
 ):
     service = UnitService(promec_db=promec_db)
     result = await service.read_derived_units_by_base_code(base_code=base_code)

@@ -1,6 +1,29 @@
 [
   {
     "acceso_id": 101,
-    "nombre": "Seguridad",
+    "nombre": "Auditoria"
+    "modulo_id": 101,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la auditoria del sistema"
+    "is_active": true
+  },
+  {
+    "acceso_id": 102,
+    "nombre": "Usuarios"
+    "modulo_id": 101,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la administración de usuarios"
+    "is_active": true
+  },
+  {
+    "acceso_id": 103,
+    "nombre": "Roles"
+    "modulo_id": 101,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la administración de roles"
+    "is_active": true
   }
 ]

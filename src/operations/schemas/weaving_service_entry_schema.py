@@ -34,6 +34,10 @@ class WeavingServiceEntryBase(CustomBaseModel):
             return None
         return value.strftime("%d-%m-%Y")
 
+    @field_serializer("supplier_code")
+    def serialize_supplier_batch(value: str | None) -> str | None:
+        return value.upper() if value is not None else None
+
     class Config:
         from_attributes = True
 
@@ -82,6 +86,7 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
     start_date: date | None = Field(default=None)
     end_date: date | None = Field(default=None)
     include_annulled: bool | None = Field(default=False)
+    # include_detail: bool | None = Field(default=False)
     page: int | None = Field(default=1, ge=1)
 
     @computed_field
@@ -141,8 +146,6 @@ class WeavingServiceEntryUpdateSchema(CustomBaseModel):
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
-    supplier_id: str = Field(max_length=SUPPLIER_CODE_MAX_LENGTH)
     fecgf: date
 
-    generate_cards: bool | None = Field(default=False)
     detail: list[WeavingServiceEntryDetailUpdateSchema] = Field(default=[])

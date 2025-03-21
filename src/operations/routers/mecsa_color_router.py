@@ -1,22 +1,28 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
 from src.core.schemas import ItemStatusUpdateSchema
+from src.core.services import PermissionService
 from src.operations.schemas import (
     MecsaColorCreateSchema,
+    MecsaColorFilterParams,
     MecsaColorListSchema,
     MecsaColorSchema,
     MecsaColorUpdateSchema,
 )
 from src.operations.services import MecsaColorService
+from src.security.audit import AuditService
 
 router = APIRouter()
 
 
-@router.get("/{color_id}", response_model=MecsaColorSchema)
+@router.get(
+    "/{color_id}", response_model=MecsaColorSchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def read_mecsa_color(
-    color_id: str, promec_db: AsyncSession = Depends(get_promec_db)
+    request: Request, color_id: str, promec_db: AsyncSession = Depends(get_promec_db)
 ):
     service = MecsaColorService(promec_db)
 
@@ -27,15 +33,17 @@ async def read_mecsa_color(
     raise result.error
 
 
-@router.get("/", response_model=MecsaColorListSchema)
+@router.get("/", response_model=MecsaColorListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_mecsa_colors(
-    include_inactives: bool = Query(default=False, alias="includeInactives"),
+    request: Request,
+    filter_params: MecsaColorFilterParams = Query(MecsaColorFilterParams()),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = MecsaColorService(promec_db=promec_db)
 
     result = await service.read_mecsa_colors(
-        include_inactives=include_inactives, exclude_legacy=True
+        filter_params=filter_params, exclude_legacy=True
     )
     if result.is_success:
         return MecsaColorListSchema(mecsa_colors=result.value)
@@ -44,8 +52,11 @@ async def read_mecsa_colors(
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
+@AuditService.audit_action_log()
 async def create_mecsa_color(
-    form: MecsaColorCreateSchema, promec_db: AsyncSession = Depends(get_promec_db)
+    request: Request,
+    form: MecsaColorCreateSchema,
+    promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = MecsaColorService(promec_db=promec_db)
 
@@ -56,8 +67,10 @@ async def create_mecsa_color(
     raise creation_result.error
 
 
-@router.patch("/{color_id}")
+@router.patch("/{color_id}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_mecsa_color(
+    request: Request,
     color_id: str,
     form: MecsaColorUpdateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -71,8 +84,10 @@ async def update_mecsa_color(
     raise result.error
 
 
-@router.put("/{color_id}/status")
+@router.put("/{color_id}/status", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_mecsa_color_status(
+    request: Request,
     color_id: str,
     form: ItemStatusUpdateSchema,
     promec_db: AsyncSession = Depends(get_promec_db),

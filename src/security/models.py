@@ -16,6 +16,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
 from src.security.constants import (
+    ACTION_MAX_LENGTH,
+    ENDPOINT_NAME_MAX_LENGTH,
+    ENTITY_TYPE_MAX_LENGTH,
     MAX_LENGTH_ACCESO_DESCRIPTION,
     MAX_LENGTH_ACCESO_IMAGE_PATH,
     MAX_LENGTH_ACCESO_NOMBRE,
@@ -317,16 +320,28 @@ class Parameter(Base):
 
 
 class AuditActionLog(Base):
-    __tablename__ = "audit_action_lo"
+    __tablename__ = "audit_action_log"
 
-    id: Mapped[int] = mapped_column(Identity(start=1))
-    user_id: Mapped[int] = mapped_column()
-    endpoint_name: Mapped[str] = mapped_column(String(50))
-    action: Mapped[str] = mapped_column(String(50))
-    request_data: Mapped[str] = mapped_column(CLOB)
-    response_data: Mapped[str] = mapped_column(CLOB)
+    id: Mapped[UUID] = mapped_column()
+    user_id: Mapped[int] = mapped_column(nullable=True)
+    endpoint_name: Mapped[str] = mapped_column(String(ENDPOINT_NAME_MAX_LENGTH))
+    action: Mapped[str] = mapped_column(String(ACTION_MAX_LENGTH))
+    path_params: Mapped[str] = mapped_column(CLOB, nullable=True)
+    query_params: Mapped[str] = mapped_column(CLOB, nullable=True)
+    request_data: Mapped[str] = mapped_column(CLOB, nullable=True)
+    response_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     status_code: Mapped[int] = mapped_column()
+    ip: Mapped[str] = mapped_column(String(MAX_LENGTH_SESION_IP))
     at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
+
+    audit_data_logs: Mapped[list["AuditDataLog"]] = relationship(
+        "AuditDataLog",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            AuditActionLog.id == AuditDataLog.action_id,
+        ),
+        foreign_keys=lambda: [AuditDataLog.action_id],
+    )
 
     __table_args__ = (PrimaryKeyConstraint("id"),)
 
@@ -335,12 +350,11 @@ class AuditDataLog(Base):
     __tablename__ = "audit_data_log"
 
     id: Mapped[int] = mapped_column(Identity(start=1))
-    entity_type: Mapped[str] = mapped_column()
-    action: Mapped[str] = mapped_column()
-    old_data: Mapped[str] = mapped_column(CLOB)
-    new_data: Mapped[str] = mapped_column(CLOB)
+    entity_type: Mapped[str] = mapped_column(String(ENTITY_TYPE_MAX_LENGTH))
+    action: Mapped[str] = mapped_column(String(ACTION_MAX_LENGTH))
+    old_data: Mapped[str] = mapped_column(CLOB, nullable=True)
+    new_data: Mapped[str] = mapped_column(CLOB, nullable=True)
     at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
-    action_id: Mapped[int] = mapped_column()
-    user_id: Mapped[int] = mapped_column()
+    action_id: Mapped[UUID] = mapped_column()
 
     __table_args__ = (PrimaryKeyConstraint("id"),)
