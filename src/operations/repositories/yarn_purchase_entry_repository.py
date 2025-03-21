@@ -28,7 +28,9 @@ class YarnPurchaseEntryRepository(MovementRepository):
 
     @staticmethod
     def get_yarn_purchase_entry_fields() -> tuple:
-        return (
+        fields = MovementRepository.get_movement_fields()
+
+        return fields + (
             Movement.storage_code,
             Movement.movement_type,
             Movement.movement_code,
@@ -40,7 +42,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             Movement.currency_code,
             Movement.exchange_rate,
             Movement.document_note,
-            Movement.auxiliary_code,
+            # Movement.auxiliary_code,
             Movement.status_flag,
             Movement.user_id,
             Movement.reference_number2,
@@ -157,7 +159,7 @@ class YarnPurchaseEntryRepository(MovementRepository):
             & (Movement.period == period)
         )
         if not include_annulled:
-            base_filter = base_filter & (Movement.status_flag == "P")
+            base_filter = base_filter & (Movement.status_flag != "A")
 
         if entry_number:
             base_filter = base_filter & (

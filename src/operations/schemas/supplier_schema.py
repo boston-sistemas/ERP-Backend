@@ -1,7 +1,8 @@
 from typing import Any
 
-from pydantic import Field, model_validator
+from pydantic import Field, computed_field, model_validator
 
+from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel
 
 from .supplier_color_schema import SupplierColorSchema
@@ -62,3 +63,17 @@ class SupplierSchema(SupplierSimpleSchema):
 
 class SupplierListSchema(CustomBaseModel):
     suppliers: list[SupplierSchema] = []
+
+
+class SupplierFilterParams(CustomBaseModel):
+    include_inactives: bool | None = Field(default=False)
+    page: int | None = Field(default=1, ge=1)
+    include_other_addresses: bool | None = Field(default=False)
+
+    @computed_field
+    def limit(self) -> int:
+        return PAGE_SIZE
+
+    @computed_field
+    def offset(self) -> int:
+        return (self.page - 1) * PAGE_SIZE

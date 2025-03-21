@@ -145,7 +145,7 @@ class AccesoService:
         accessess_operations = []
 
         for operation_id in form.operations:
-            print(operation_id)
+            # print(operation_id)
             validation_result: Success = await self.operation_service._read_operation(
                 operation_id=operation_id
             )

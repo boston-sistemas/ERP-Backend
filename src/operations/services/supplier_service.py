@@ -11,6 +11,7 @@ from src.operations.models import Supplier
 from src.operations.models import SupplierService as SupplierServiceModel
 from src.operations.repositories import SupplierRepository
 from src.operations.schemas import (
+    SupplierFilterParams,
     SupplierListSchema,
     SupplierSchema,
     SupplierSimpleListSchema,
@@ -89,17 +90,10 @@ class SupplierService:
     async def read_suppliers_by_service(
         self,
         service_code: str,
-        limit: int,
-        offset: int,
-        include_inactives: bool = False,
-        include_other_addresses: bool = False,
+        filter_params: SupplierFilterParams = SupplierFilterParams(),
     ) -> Result[list[SupplierSchema], CustomException]:
         suppliers = await self.repository.find_suppliers_by_service(
-            service_code=service_code,
-            limit=limit,
-            offset=offset,
-            include_inactives=include_inactives,
-            include_other_addresses=include_other_addresses,
+            service_code=service_code, **filter_params.model_dump(exclude={"page"})
         )
 
         return Success(SupplierSimpleListSchema(suppliers=suppliers))

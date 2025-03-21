@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db, get_promec_db
+from src.core.services import PermissionService
 from src.core.utils import PERU_TIMEZONE, calculate_time
 from src.operations.schemas import (
     YarnPurchaseEntriesSimpleListSchema,
@@ -15,12 +16,19 @@ from src.operations.schemas import (
 from src.operations.services import (
     YarnPurchaseEntryService,
 )
+from src.security.audit import AuditService
 
 router = APIRouter()
 
 
-@router.get("/", response_model=YarnPurchaseEntriesSimpleListSchema)
+@router.get(
+    "/",
+    response_model=YarnPurchaseEntriesSimpleListSchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_yarn_purchase_entries(
+    request: Request,
     filter_params: YarnPurchaseEntryFilterParams = Query(
         YarnPurchaseEntryFilterParams()
     ),
@@ -37,8 +45,10 @@ async def read_yarn_purchase_entries(
     raise result.error
 
 
-@router.get("/search/items-groups-availability")
+@router.get("/search/items-groups-availability", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_yarn_purchase_entries_items_groups_availability(
+    request: Request,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
     ),
@@ -58,8 +68,14 @@ async def read_yarn_purchase_entries_items_groups_availability(
     raise result.error
 
 
-@router.get("/{yarn_purchase_entry_number}", response_model=YarnPurchaseEntrySchema)
+@router.get(
+    "/{yarn_purchase_entry_number}",
+    response_model=YarnPurchaseEntrySchema,
+    status_code=status.HTTP_200_OK,
+)
+@AuditService.audit_action_log()
 async def read_yarn_purchase_entry(
+    request: Request,
     yarn_purchase_entry_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -79,8 +95,12 @@ async def read_yarn_purchase_entry(
     raise result.error
 
 
-@router.post("/", response_model=YarnPurchaseEntrySchema)
+@router.post(
+    "/", response_model=YarnPurchaseEntrySchema, status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def create_yarn_purchase_entry(
+    request: Request,
     form: YarnPurchaseEntryCreateSchema,
     db: AsyncSession = Depends(get_db),
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -94,8 +114,10 @@ async def create_yarn_purchase_entry(
     raise result.error
 
 
-@router.patch("/{yarn_purchase_entry_number}")
+@router.patch("/{yarn_purchase_entry_number}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_yarn_purchase_entry(
+    request: Request,
     yarn_purchase_entry_number: str,
     form: YarnPurchaseEntryUpdateSchema,
     period: int | None = Query(
@@ -117,8 +139,10 @@ async def update_yarn_purchase_entry(
     raise result.error
 
 
-@router.put("/{yarn_purchase_entry_number}/anulate")
+@router.put("/{yarn_purchase_entry_number}/anulate", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_yarn_purchase_entry_status(
+    request: Request,
     yarn_purchase_entry_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -138,8 +162,12 @@ async def update_yarn_purchase_entry_status(
     raise result.error
 
 
-@router.get("/{yarn_purchase_entry_number}/is-updatable")
+@router.get(
+    "/{yarn_purchase_entry_number}/is-updatable", status_code=status.HTTP_200_OK
+)
+@AuditService.audit_action_log()
 async def is_updated_permission(
+    request: Request,
     yarn_purchase_entry_number: str,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
@@ -162,8 +190,10 @@ async def is_updated_permission(
     return {"updatable": False, "message": result.error.detail}
 
 
-@router.post("/print/movement")
+@router.post("/print/movement", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def print_yarn_purchase_entry(
+    request: Request,
     form: YarnPurchaseEntryPrintListSchema,
     period: int | None = Query(
         default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000

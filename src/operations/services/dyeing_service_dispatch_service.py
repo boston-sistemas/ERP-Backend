@@ -41,6 +41,7 @@ from src.operations.schemas import (
     DyeingServiceDispatchCreateSchema,
     DyeingServiceDispatchDetailCreateSchema,
     DyeingServiceDispatchesListSchema,
+    DyeingServiceDispatchFilterParams,
     DyeingServiceDispatchSchema,
     DyeingServiceDispatchUpdateSchema,
     SupplierSchema,
@@ -84,17 +85,11 @@ class DyeingServiceDispatchService(MovementService):
 
     async def read_dyeing_service_dispatches(
         self,
-        period: int,
-        limit: int = None,
-        offset: int = None,
-        include_annulled: bool = False,
+        filter_params: DyeingServiceDispatchFilterParams = DyeingServiceDispatchFilterParams(),
     ) -> Result[DyeingServiceDispatchesListSchema, CustomException]:
         dyeing_service_dispatches = (
             await self.repository.find_dyeing_service_dispatches(
-                period=period,
-                limit=limit,
-                offset=offset,
-                include_annulled=include_annulled,
+                **filter_params.model_dump(exclude={"page"})
             )
         )
 

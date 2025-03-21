@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from src.security.audit import AuditRouter
 from src.security.routers import (
     acceso_router,
     auth_router,
@@ -42,3 +43,4 @@ router.include_router(
     prefix="/operations",
     tags=["[SISTEMA] OPERACIONES"],
 )
+router.include_router(AuditRouter, prefix="/audit", tags=["[SISTEMA] AUDITORÍA"])

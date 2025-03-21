@@ -9,15 +9,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import transactional
 from src.core.exceptions import CustomException
 from src.core.result import Result, Success
-from src.core.services import EmailService
 from src.security.failures import UserFailures
 from src.security.models import Usuario, UsuarioRol
 from src.security.repositories import UserRepository, UserRolRepository
 from src.security.schemas import (
     UsuarioCreateWithRolesSchema,
+    UsuarioSchema,
     UsuarioUpdateSchema,
 )
 
+from ...core.services.email_service import EmailService
 from .rol_service import RolService
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -94,7 +95,7 @@ class UserService:
             Usuario.usuario_id == user_id, include_roles=include_roles
         )
         if user is not None:
-            return Success(user)
+            return Success(UsuarioSchema.model_validate(user))
 
         return UserFailures.USER_NOT_FOUND_FAILURE
 

@@ -10,6 +10,7 @@ from .dyeing_service_dispatch_detail_schema import (
 from .dyeing_service_dispatch_schema import (
     DyeingServiceDispatchCreateSchema,
     DyeingServiceDispatchesListSchema,
+    DyeingServiceDispatchFilterParams,
     DyeingServiceDispatchSchema,
     DyeingServiceDispatchUpdateSchema,
 )
@@ -25,6 +26,7 @@ from .fiber_schema import (
     FiberCreateSchema,
     FiberExtendedListSchema,
     FiberExtendedSchema,
+    FiberFilterParams,
     FiberListSchema,
     FiberOptions,
     FiberSchema,
@@ -33,6 +35,7 @@ from .fiber_schema import (
 )
 from .mecsa_color_schema import (
     MecsaColorCreateSchema,
+    MecsaColorFilterParams,
     MecsaColorListSchema,
     MecsaColorSchema,
     MecsaColorUpdateSchema,
@@ -41,6 +44,7 @@ from .orden_compra_schema import (
     OrdenCompraSimpleSchema,
     OrdenCompraWithDetailSchema,
     OrdenCompraWithDetallesListSchema,
+    PurchaseOrderFilterParams,
     YarnPurchaseOrderListSchema,
     YarnPurchaseOrderSchema,
 )
@@ -101,6 +105,7 @@ from .service_order_schema import (
     ServiceOrderUpdateSchema,
 )
 from .supplier_schema import (
+    SupplierFilterParams,
     SupplierListSchema,
     SupplierSchema,
     SupplierSimpleListSchema,
@@ -282,4 +287,9 @@ __all__ = [
     "WeavingServiceEntryFilterParams",
     "ServiceOrderProgressReviewListSchema",
     "ServiceOrderSupplyDetailSchema",
+    "DyeingServiceDispatchFilterParams",
+    "MecsaColorFilterParams",
+    "PurchaseOrderFilterParams",
+    "SupplierFilterParams",
+    "FiberFilterParams",
 ]

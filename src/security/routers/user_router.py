@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_db
+from src.core.database import get_db, get_promec_db
 from src.core.dependencies import get_current_user_id
+from src.core.services import PermissionService
+from src.security.audit import AuditService
 from src.security.schemas import (
     UsuarioCreateWithRolesSchema,
     UsuarioListSchema,
@@ -19,8 +21,16 @@ router = APIRouter(tags=["Seguridad - Usuarios"], prefix="/usuarios")
 """
 
 
-@router.get("/{usuario_id}", response_model=UsuarioSchema)
-async def read_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
+@router.get(
+    "/{usuario_id}", response_model=UsuarioSchema, status_code=status.HTTP_200_OK
+)
+# @PermissionService.check_permission(1, 101)
+@AuditService.audit_action_log()
+async def read_user(
+    request: Request,
+    usuario_id: int,
+    db: AsyncSession = Depends(get_db),
+):
     user_service = UserService(db)
 
     result = await user_service.read_user(usuario_id, include_roles=True)
@@ -30,11 +40,10 @@ async def read_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
     raise result.error
 
 
-@router.get("/", response_model=UsuarioListSchema)
+@router.get("/", response_model=UsuarioListSchema, status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def read_users(request: Request, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
-
-    access_token = request.cookies.get("refresh_token")
 
     usuarios = await user_service.read_users()
 
@@ -42,8 +51,11 @@ async def read_users(request: Request, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
+@AuditService.audit_action_log()
 async def create_user_with_roles(
-    user_data: UsuarioCreateWithRolesSchema, db: AsyncSession = Depends(get_db)
+    request: Request,
+    user_data: UsuarioCreateWithRolesSchema,
+    db: AsyncSession = Depends(get_db),
 ):
     user_service = UserService(db)
 
@@ -57,8 +69,10 @@ async def create_user_with_roles(
     raise creation_result.error
 
 
-@router.patch("/{usuario_id}")
+@router.patch("/{usuario_id}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_usuario(
+    request: Request,
     usuario_id: int,
     update_data: UsuarioUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -72,8 +86,11 @@ async def update_usuario(
     raise result.error
 
 
-@router.delete("/{usuario_id}")
-async def delete_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
+@router.delete("/{usuario_id}", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
+async def delete_user(
+    request: Request, usuario_id: int, db: AsyncSession = Depends(get_db)
+):
     user_service = UserService(db)
 
     result = await user_service.delete_user(usuario_id)
@@ -86,8 +103,10 @@ async def delete_user(usuario_id: int, db: AsyncSession = Depends(get_db)):
 #######################################################
 
 
-@router.post("/{usuario_id}/roles/")
+@router.post("/{usuario_id}/roles/", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def add_roles_to_user(
+    request: Request,
     usuario_id: int,
     rol_ids: list[int] = Body(embed=True),
     db: AsyncSession = Depends(get_db),
@@ -101,8 +120,10 @@ async def add_roles_to_user(
     raise result.error
 
 
-@router.delete("/{usuario_id}/roles/")
+@router.delete("/{usuario_id}/roles/", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def delete_roles_from_user(
+    request: Request,
     usuario_id: int,
     rol_ids: list[int] = Body(embed=True),
     db: AsyncSession = Depends(get_db),
@@ -116,8 +137,10 @@ async def delete_roles_from_user(
     raise result.error
 
 
-@router.put("/me/password")
+@router.put("/me/password", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def update_password(
+    request: Request,
     update_password: UsuarioUpdatePasswordSchema,
     current_user_id: int = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
@@ -134,8 +157,10 @@ async def update_password(
     raise result.error
 
 
-@router.put("/{usuario_id}/reset-password")
+@router.put("/{usuario_id}/reset-password", status_code=status.HTTP_200_OK)
+@AuditService.audit_action_log()
 async def reset_password(
+    request: Request,
     usuario_id: int,
     db: AsyncSession = Depends(get_db),
 ):

@@ -27,3 +27,11 @@ SERVICE_ORDER_ALREADY_SUPPLIED_FAILURE = Failure(
 SERVICE_ORDER_STATUS_NOT_VALID_FAILURE = Failure(
     ForbiddenException(detail="El estado de la O/S indicado no es válido.")
 )
+
+
+class ServiceOrderFailures:
+    SERVICE_ORDER_ALREADY_CANCELLED_FAILURE = Failure(
+        ForbiddenException(
+            detail="La orden de servicio especificada ha sido cancelada."
+        )
+    )

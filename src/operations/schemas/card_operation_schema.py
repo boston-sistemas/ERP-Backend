@@ -2,6 +2,7 @@ from pydantic import Field, model_validator
 
 from src.core.schemas import CustomBaseModel
 from src.operations.constants import (
+    CARD_ID_MAX_LENGTH,
     CARD_TYPE_MAX_LENGTH,
     COLOR_ID_MAX_LENGTH,
     FABRIC_ID_MAX_LENGTH,
@@ -29,7 +30,7 @@ class CardOperationSimpleSchema(CardOperationBase):
 
 
 class CardOperationSchema(CardOperationSimpleSchema):
-    document_number: str | None = None
+    id: str | None = None
     exit_number: str | None = None
     service_order_id: str | None = None
     supplier_weaving_tej: str | None = None
@@ -65,5 +66,7 @@ class CardOperationCreateSchema(CustomBaseModel):
     card_type: str = Field(max_length=CARD_TYPE_MAX_LENGTH)
 
 
-class CardOperationUpdateSchema(CardOperationCreateSchema):
-    pass
+class CardOperationUpdateSchema(CustomBaseModel):
+    id: str = Field(max_length=CARD_ID_MAX_LENGTH)
+    fabric_id: str = Field(max_length=FABRIC_ID_MAX_LENGTH)
+    net_weight: float

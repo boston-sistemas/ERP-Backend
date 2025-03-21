@@ -20,6 +20,7 @@ from src.operations.constants import (
     ENTRY_MOVEMENT_TYPE,
     IN_PROCESS_SERVICE_ORDER_ID,
     LIQUIDATED_SERVICE_ORDER_ID,
+    PENDING_BALANCES_FOR_CANCELLED_SERVICE_ORDER_ID,
     PENDING_BALANCES_SERVICE_ORDER_ID,
     SCHEDULED_SERVICE_ORDER_ID,
     SERVICE_CODE_SUPPLIER_DYEING,
@@ -44,6 +45,7 @@ from src.operations.failures import (
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE,
     WEAVING_SERVICE_ENTRY_SUPPLIER_WITHOUT_STORAGE_FAILURE,
+    WeavingServiceEntryFailures,
 )
 from src.operations.models import (
     CardOperation,
@@ -198,9 +200,6 @@ class WeavingServiceEntryService(MovementService):
         self,
         current_date: datetime,
         supplier_id: str,
-        tint_supplier_id: str,
-        tint_color_id: str,
-        tint_supplier_color_id: str,
         fabric: FabricSchema,
     ) -> Result[None, CustomException]:
         codcol = "CRUD"
@@ -229,26 +228,6 @@ class WeavingServiceEntryService(MovementService):
             print("Fabric rate missing")
             # return WEAVING_SERVICE_ENTRY_FABRIC_RATE_MISSING_FAILURE
 
-        if tint_supplier_id and tint_color_id and tint_supplier_color_id:
-            filter = (
-                (ServiceRate.company_code == MECSA_COMPANY_CODE)
-                & (ServiceRate.period == current_date.date().year)
-                & (ServiceRate.month_number == current_date.date().month)
-                & (ServiceRate.serial_code == "004")
-                & (ServiceRate.supplier_id == tint_supplier_id)
-                & (ServiceRate.fabric_id == fabric_id)
-                & (ServiceRate.width == fabric.width)
-                & (ServiceRate.codcol == tint_color_id)
-            )
-
-            rate = await self.service_card_operation_service.find(
-                filter=filter,
-            )
-
-            if rate is None:
-                print("Tintoreria rate missing")
-                # return WEAVING_SERVICE_ENTRY_FABRIC_TINTORERIA_RATE_MISSING_FAILURE
-
         return Success(None)
 
     async def _validate_weaving_service_entry_detail_data(
@@ -272,20 +251,6 @@ class WeavingServiceEntryService(MovementService):
 
             service_orders.append(service_order_result.value)
             # En caso sean multiples ordenes de servicio
-            if detail.service_order_ids:
-                for service_order_id in detail.service_order_ids:
-                    service_order_result = (
-                        await self.service_order_service.read_service_order(
-                            order_id=service_order_id,
-                            order_type="TJ",
-                            include_detail=True,
-                        )
-                    )
-
-                    if service_order_result.is_failure:
-                        return service_order_result
-
-                    service_orders.append(service_order_result.value)
 
             fabric_ids = {
                 fabric.fabric_id
@@ -326,22 +291,30 @@ class WeavingServiceEntryService(MovementService):
                     )
 
                 yarns_ids = {
-                    supply_stock.supply_id
+                    supply_stock.product_code1
                     for supply_stock in service_orders_supply_stock
                 }
 
-                if service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID:
-                    return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_ANULLED_FAILURE
+                if (service_order.status_param_id == CANCELLED_SERVICE_ORDER_ID) or (
+                    service_order.status_param_id
+                    == PENDING_BALANCES_FOR_CANCELLED_SERVICE_ORDER_ID
+                ):
+                    return WeavingServiceEntryFailures.WEAVING_SERVICE_ENTRY_SERVICE_ORDER_CANCELLED_FAILURE
 
-                if service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID:
+                if (service_order.status_param_id == LIQUIDATED_SERVICE_ORDER_ID) or (
+                    service_order.status_param_id == PENDING_BALANCES_SERVICE_ORDER_ID
+                ):
                     return WEAVING_SERVICE_ENTRY_ALREADY_QUANTITY_RECEIVED_FAILURE
+
+                if service_order.status_param_id == ANNULLED_SERVICE_ORDER_ID:
+                    return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_ANULLED_FAILURE
 
                 # Se recolecta los proveedores que componen el hilado del stock del insumo de O/S
                 # //!Consultar para facilicitar
                 fabric_recipe_yarns_ids = {}
                 for service_order_supply_stock in service_orders_supply_stock:
                     fabric_recipe_yarns_ids.setdefault(
-                        service_order_supply_stock.supply_id, set()
+                        service_order_supply_stock.product_code1, set()
                     ).add(service_order_supply_stock.supplier_yarn_id)
 
                 # print(fabric_recipe_yarns_ids)
@@ -382,47 +355,11 @@ class WeavingServiceEntryService(MovementService):
                     )
 
                 if fabric_ids[detail.fabric_id] == CANCELLED_SERVICE_ORDER_ID:
-                    return WEAVING_SERVICE_ENTRY_FABRIC_ALREADY_ANULLED_FAILURE
-
-                # if fabric_ids[detail.fabric_id] == UNSTARTED_SERVICE_ORDER_ID:
-                #     return WEAVING_SERVICE_ENTRY_SERVICE_ORDER_NOT_STARTED_FAILURE
-
-                if detail.tint_color_id:
-                    validation_result = await self.mecsa_color_service.read_mecsa_color(
-                        color_id=detail.tint_color_id,
-                    )
-                    if validation_result.is_failure:
-                        return validation_result
-
-                if detail.tint_supplier_id:
-                    validation_result = await self.supplier_service.read_supplier(
-                        supplier_code=detail.tint_supplier_id,
-                        include_colors=True,
-                        include_service=True,
-                    )
-                    if validation_result.is_failure:
-                        return validation_result
-
-                    services_tint = [
-                        service.service_code
-                        for service in validation_result.value.services
-                    ]
-
-                    if SERVICE_CODE_SUPPLIER_DYEING not in services_tint:
-                        return WEAVING_SERVICE_ENTRY_SUPPLIER_NOT_ASSOCIATED_TO_DYEING_FAILURE
-                    supplier_colors_ids = [
-                        color.id for color in validation_result.value.colors
-                    ]
-
-                    if detail.tint_supplier_color_id not in supplier_colors_ids:
-                        return WEAVING_SERVICE_ENTRY_SUPPLIER_COLOR_NOT_FOUND_FAILURE
+                    return WeavingServiceEntryFailures.WEAVING_SERVICE_ENTRY_SERVICE_ORDER_CANCELLED_FAILURE
 
                 validation_result = await self._validate_rate_fabric(
                     current_date=current_date,
                     supplier_id=service_order.supplier_id,
-                    tint_supplier_id=detail.tint_supplier_id,
-                    tint_color_id=detail.tint_color_id,
-                    tint_supplier_color_id=detail.tint_supplier_color_id,
                     fabric=fabric,
                 )
 
@@ -480,15 +417,15 @@ class WeavingServiceEntryService(MovementService):
                 storage_code=WEAVING_STORAGE_CODE,
                 entry_user_id="DESA01",
                 product_id=detail.fabric_id,
-                tint_supplier_id=detail.tint_supplier_id,
+                tint_supplier_id="",
                 fabric_type="C",
-                tint_color_id=detail.tint_color_id,
+                tint_color_id="",
                 desttej="T",
                 flgsit="P",
                 sdoneto=sdoneto,
                 yarn_supplier_id=yarn_supplier_ids,
                 service_order_id=service_order.id,
-                card_type="A",
+                card_type="C",
                 company_code=MECSA_COMPANY_CODE,
                 period=period,
             )
@@ -760,13 +697,13 @@ class WeavingServiceEntryService(MovementService):
                 meters_count=meters_count,
                 density=detail._fabric.density,
                 real_width=detail._fabric.width,
-                yarn_supplier_id=service_order.supplier_id,
+                yarn_supplier_id=",".join(detail._fabric.supplier_yarn_ids),
                 service_order_id=service_order.id,
-                tint_supplier_id=detail.tint_supplier_id,
-                fabric_type=detail.fabric_type,
-                tint_color_id=detail.tint_color_id,
-                _tint_supplier_color_id=detail.tint_supplier_color_id[0:8],
-                tint_supplier_color_id=detail.tint_supplier_color_id,
+                tint_supplier_id="",
+                fabric_type="C",
+                tint_color_id="",
+                _tint_supplier_color_id="",
+                tint_supplier_color_id="",
             )
 
             update_result = await self.product_inventory_service.update_current_stock(
@@ -885,7 +822,6 @@ class WeavingServiceEntryService(MovementService):
             return supplier_result
 
         supplier: SupplierSchema = supplier_result.value
-        self.repository.expunge(supplier)
 
         for detail in weaving_service_entry.detail:
             rollback_result = (
@@ -983,11 +919,9 @@ class WeavingServiceEntryService(MovementService):
             weaving_service_entry_detail.detail_card
         )
         await self.fabric_warehouse_repository.delete(
-            weaving_service_entry_detail.detail_fabric, flush=True
+            weaving_service_entry_detail.detail_fabric
         )
-        await self.movement_detail_repository.delete(
-            weaving_service_entry_detail, flush=True
-        )
+        await self.movement_detail_repository.delete(weaving_service_entry_detail)
 
     async def _delete_weaving_service_entry_detail(
         self,
@@ -995,8 +929,9 @@ class WeavingServiceEntryService(MovementService):
         dispatch_number: str,
         supplier: SupplierSchema,
         form: WeavingServiceEntryUpdateSchema,
-    ) -> list[MovementDetail]:
-        item_numbers = [detail.item_number for detail in form.detail]
+    ) -> Result[list[MovementDetail], CustomException]:
+        item_numbers = {detail.item_number for detail in form.detail}
+        details_to_keep = []
 
         for detail in weaving_service_entry_detail:
             if detail.item_number not in item_numbers:
@@ -1005,9 +940,38 @@ class WeavingServiceEntryService(MovementService):
                     supplier=supplier,
                     dispatch_number=dispatch_number,
                 )
-                weaving_service_entry_detail.remove(detail)
+            else:
+                details_to_keep.append(detail)
 
-        return weaving_service_entry_detail
+        return Success(details_to_keep)
+
+    async def _delete_card(
+        self,
+        weaving_service_entry_detail_card: CardOperation,
+    ) -> Result[None, CustomException]:
+        await self.card_operation_repository.delete(weaving_service_entry_detail_card)
+        return Success(None)
+
+    async def _delete_weaving_service_entry_detail_card(
+        self,
+        weaving_service_entry_detail_card: list[CardOperation],
+        form: WeavingServiceEntryUpdateSchema,
+    ) -> Result[list[CardOperation], CustomException]:
+        card_ids = {card.id for detail in form.detail for card in detail.detail_card}
+        print(card_ids)
+        cards_to_keep = []
+
+        for card in weaving_service_entry_detail_card:
+            if card.id not in card_ids:
+                delete_result = await self._delete_card(
+                    weaving_service_entry_detail_card=card
+                )
+                if delete_result.is_failure:
+                    return delete_result
+            else:
+                cards_to_keep.append(card)
+
+        return Success(cards_to_keep)
 
     async def _find_weaving_service_entry_detail(
         self,
@@ -1019,6 +983,18 @@ class WeavingServiceEntryService(MovementService):
                 return Success(detail)
 
         return Success(None)
+
+    async def _find_weaving_service_entry_detail_card(
+        self,
+        weaving_service_entry_detail_card: list[CardOperation],
+        card_id: str,
+        fabric_id: str,
+    ) -> Result[CardOperation, CustomException]:
+        for card in weaving_service_entry_detail_card:
+            if card.id == card_id and card.fabric_id == fabric_id:
+                return Success(card)
+
+        return WeavingServiceEntryFailures.WEAVING_SERVICE_ENTRY_CARD_NOT_FOUND_FAILURE
 
     async def update_weaving_service_entry(
         self,
@@ -1039,7 +1015,6 @@ class WeavingServiceEntryService(MovementService):
         creation_date = current_time.date()
 
         weaving_service_entry: Movement = weaving_service_entry_result.value
-        # //! SEGUIR REVISANDO DESPUES DE REUNION
         rolling_back_result = await self.rollback_weaving_service_entry(
             period=period,
             weaving_service_entry=weaving_service_entry,
@@ -1053,11 +1028,19 @@ class WeavingServiceEntryService(MovementService):
         if validation_result.is_failure:
             return validation_result
 
-        validation_result = await self._validate_weaving_service_entry_data(data=form)
-        if validation_result.is_failure:
-            return validation_result
+        # validation_result = await self._validate_weaving_service_entry_data(data=form)
+        # if validation_result.is_failure:
+        #     return validation_result
+        #
+        # supplier = validation_result.value
 
-        supplier = validation_result.value
+        search_result = await self.supplier_service.read_supplier(
+            supplier_code=weaving_service_entry.auxiliary_code,
+        )
+        if search_result.is_failure:
+            return search_result
+
+        supplier: SupplierSchema = search_result.value
 
         validation_result = await self._validate_weaving_service_entry_detail_data(
             data=form.detail,
@@ -1071,12 +1054,27 @@ class WeavingServiceEntryService(MovementService):
         form.detail = validation_result.value[0]
         service_order = validation_result.value[1]
 
-        weaving_service_entry.detail = await self._delete_weaving_service_entry_detail(
+        delete_result = await self._delete_weaving_service_entry_detail(
             weaving_service_entry_detail=weaving_service_entry.detail,
             dispatch_number=weaving_service_entry.reference_number1,
             supplier=supplier,
             form=form,
         )
+        if delete_result.is_failure:
+            return delete_result
+
+        weaving_service_entry.detail = delete_result.value
+
+        for detail in weaving_service_entry.detail:
+            delete_result = await self._delete_weaving_service_entry_detail_card(
+                weaving_service_entry_detail_card=detail.detail_card,
+                form=form,
+            )
+
+            if delete_result.is_failure:
+                return delete_result
+
+            detail.detail_card = delete_result.value
 
         for detail in form.detail:
             weaving_service_entry_detail_result = (
@@ -1093,6 +1091,46 @@ class WeavingServiceEntryService(MovementService):
             guide_net_weight = detail.guide_net_weight
 
             if weaving_service_entry_detail:
+                card_operations_value = []
+
+                if (detail.detail_card and detail.generate_cards) or (
+                    weaving_service_entry_detail.detail_card and detail.generate_cards
+                ):
+                    return WeavingServiceEntryFailures.WEAVING_SERVICE_ENTRY_REGENERATE_CARDS_FAILURE
+
+                if detail.detail_card:
+                    for card in detail.detail_card:
+                        card_result = await self._find_weaving_service_entry_detail_card(
+                            weaving_service_entry_detail_card=weaving_service_entry_detail.detail_card,
+                            card_id=card.id,
+                            fabric_id=detail.fabric_id,
+                        )
+                        if card_result.is_failure:
+                            return card_result
+
+                        card_value = card_result.value
+                        card_value.net_weight = card.net_weight
+
+                        card_operations_value.append(card_value)
+
+                    weaving_service_entry_detail.detail_card = card_operations_value
+
+                elif detail.generate_cards:
+                    card_operations_value = await self._generate_cards_operations(
+                        supplier_weaving_tej=supplier.code,
+                        service_order=service_order,
+                        detail=detail,
+                        entry_number=weaving_service_entry_number,
+                        current_time=current_time,
+                        period=period,
+                    )
+
+                    if card_operations_value.is_failure:
+                        return card_operations_value
+
+                    card_operations_value = card_operations_value.value
+                    weaving_service_entry_detail.detail_card = card_operations_value
+
                 mecsa_weight = sum(
                     [
                         card.net_weight
@@ -1133,27 +1171,11 @@ class WeavingServiceEntryService(MovementService):
                 weaving_service_entry_detail.detail_fabric.real_width = (
                     detail._fabric.width
                 )
-                # //! TODO: Revisar las O/S
-                weaving_service_entry_detail.detail_fabric.yarn_supplier_id = (
-                    service_order.supplier_id
+                weaving_service_entry_detail.detail_fabric.yarn_supplier_id = ",".join(
+                    detail._fabric.supplier_yarn_ids
                 )
                 weaving_service_entry_detail.detail_fabric.service_order_id = (
                     service_order.id
-                )
-                weaving_service_entry_detail.detail_fabric.tint_supplier_id = (
-                    detail.tint_supplier_id
-                )
-                weaving_service_entry_detail.detail_fabric.fabric_type = (
-                    detail.fabric_type
-                )
-                weaving_service_entry_detail.detail_fabric.tint_color_id = (
-                    detail.tint_color_id
-                )
-                weaving_service_entry_detail.detail_fabric._tint_supplier_color_id = (
-                    detail.tint_supplier_color_id[0:8]
-                )
-                weaving_service_entry_detail.detail_fabric.tint_supplier_color_id = (
-                    detail.tint_supplier_color_id
                 )
 
                 await self.product_inventory_service.update_current_stock(
@@ -1172,45 +1194,11 @@ class WeavingServiceEntryService(MovementService):
                 await self.service_order_supply_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
-                    service_orders_stock=detail._service_orders_stock,
+                    service_orders_stock=detail._service_orders_supply_stock,
                 )
-
-                if form.generate_cards:
-                    if weaving_service_entry_detail.detail_card:
-                        net_weight = round(guide_net_weight / detail.roll_count, 2)
-                        for card in weaving_service_entry_detail.detail_card:
-                            card.fabric_id = detail.fabric_id
-                            card.width = detail._fabric.width
-                            card.codcol = color
-                            card.net_weight = net_weight
-                            card.gross_weight = net_weight
-                            card.supplier_weaving_tej = supplier.code
-                            card.product_id = detail.fabric_id
-                            card.tint_supplier_id = detail.tint_supplier_id
-                            card.sdoneto = net_weight
-                            card.service_order_id = service_order.id
-                    else:
-                        card_operations_value = await self._generate_cards_operations(
-                            supplier_weaving_tej=supplier.code,
-                            service_order=service_order,
-                            detail=detail,
-                            entry_number=weaving_service_entry_number,
-                            current_time=current_time,
-                            period=period,
-                        )
-
-                        if card_operations_value.is_failure:
-                            return card_operations_value
-
-                        card_operations_value = card_operations_value.value
-                        weaving_service_entry_detail.detail_card = card_operations_value
-                else:
-                    await self.card_operation_repository.delete_all(
-                        weaving_service_entry_detail.detail_card
-                    )
             else:
                 card_operations_value = []
-                if form.generate_cards:
+                if detail.generate_cards:
                     card_operations_value = await self._generate_cards_operations(
                         supplier_weaving_tej=supplier.code,
                         service_order=service_order,
@@ -1287,13 +1275,13 @@ class WeavingServiceEntryService(MovementService):
                     meters_count=meters_count,
                     density=detail._fabric.density,
                     real_width=detail._fabric.width,
-                    yarn_supplier_id=service_order.supplier_id,
+                    yarn_supplier_id=",".join(detail._fabric.supplier_yarn_ids),
                     service_order_id=service_order.id,
-                    tint_supplier_id=detail.tint_supplier_id,
-                    fabric_type=detail.fabric_type,
-                    tint_color_id=detail.tint_color_id,
-                    _tint_supplier_color_id=detail.tint_supplier_color_id[0:8],
-                    tint_supplier_color_id=detail.tint_supplier_color_id,
+                    tint_supplier_id="",
+                    fabric_type="C",
+                    tint_color_id="",
+                    _tint_supplier_color_id="",
+                    tint_supplier_color_id="",
                 )
 
                 await self.product_inventory_service.update_current_stock(
@@ -1312,17 +1300,13 @@ class WeavingServiceEntryService(MovementService):
                 await self.service_order_supply_service.update_current_stock_by_fabric_recipe(
                     fabric=detail._fabric,
                     quantity=mecsa_weight,
-                    service_orders_stock=detail._service_orders_stock,
+                    service_orders_stock=detail._service_orders_supply_stock,
                 )
 
                 weaving_service_entry_detail_value.detail_fabric = (
                     weaving_service_entry_detail_fabric_value
                 )
-
-                if form.generate_cards:
-                    weaving_service_entry_detail_value.detail_card = (
-                        card_operations_value
-                    )
+                weaving_service_entry_detail_value.detail_card = card_operations_value
                 weaving_service_entry.detail.append(weaving_service_entry_detail_value)
 
         creation_result = await self.save_movement(
@@ -1341,7 +1325,6 @@ class WeavingServiceEntryService(MovementService):
         if creation_result.is_failure:
             return creation_result
 
-        return WEAVING_SERVICE_ENTRY_ALREADY_ACCOUNTED_FAILURE
         return Success(WeavingServiceEntrySchema.model_validate(weaving_service_entry))
 
     async def anulate_weaving_service_entry(
@@ -1375,7 +1358,6 @@ class WeavingServiceEntryService(MovementService):
 
         rolling_back_result = await self.rollback_weaving_service_entry(
             period=period,
-            supplier=supplier.value,
             weaving_service_entry=weaving_service_entry,
         )
         if rolling_back_result.is_failure:

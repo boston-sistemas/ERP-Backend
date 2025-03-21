@@ -4,15 +4,35 @@
     "operation_id": 101,
   },
   {
-    "acceso_id": 101,
+    "acceso_id": 102,
     "operation_id": 101,
   },
   {
-    "acceso_id": 101,
+    "acceso_id": 102,
+    "operation_id": 102,
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 103,
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 104,
+  },
+  {
+    "acceso_id": 103,
     "operation_id": 101,
   },
   {
-    "acceso_id": 101,
-    "operation_id": 101,
-  }
+    "acceso_id": 103,
+    "operation_id": 102,
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 103,
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 104,
+  },
 ]

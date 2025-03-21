@@ -44,12 +44,17 @@ class YarnWeavingDispatchRepository(MovementRepository):
     @staticmethod
     def include_detail(
         use_contains_eager: bool = False,
+        include_supply_stock: bool = False,
     ) -> list[Load]:
         base_options = []
         if not use_contains_eager:
             base_options = [
                 joinedload(Movement.detail).joinedload(MovementDetail.detail_aux),
             ]
+            if include_supply_stock:
+                base_options.append(
+                    joinedload(Movement.detail).joinedload(MovementDetail.supply_stock)
+                )
         else:
             base_options = [
                 contains_eager(Movement.detail).contains_eager(
@@ -57,12 +62,20 @@ class YarnWeavingDispatchRepository(MovementRepository):
                 )
             ]
 
+            if include_supply_stock:
+                base_options.append(
+                    contains_eager(Movement.detail).contains_eager(
+                        MovementDetail.supply_stock
+                    )
+                )
+
         return base_options
 
     def get_load_options(
         self,
         include_detail: bool = False,
         include_detail_entry: bool = False,
+        include_supply_stock: bool = False,
         use_contains_eager: bool = False,
     ) -> list[Load]:
         options: list[Load] = []
@@ -70,7 +83,12 @@ class YarnWeavingDispatchRepository(MovementRepository):
         options.append(load_only(*self.get_yarn_weaving_dispatch_fields()))
 
         if include_detail:
-            options.extend(self.include_detail(use_contains_eager=use_contains_eager))
+            options.extend(
+                self.include_detail(
+                    use_contains_eager=use_contains_eager,
+                    include_supply_stock=include_supply_stock,
+                )
+            )
 
         if include_detail_entry:
             if use_contains_eager:
@@ -91,6 +109,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
     def get_load_joins(
         self,
         include_detail: bool = False,
+        include_supply_stock: bool = False,
         include_detail_entry: bool = False,
     ) -> list[tuple]:
         joins: list[tuple] = []
@@ -98,6 +117,9 @@ class YarnWeavingDispatchRepository(MovementRepository):
         if include_detail:
             joins.append(Movement.detail)
             joins.append(MovementDetail.detail_aux)
+
+            if include_supply_stock:
+                joins.append(MovementDetail.supply_stock)
 
         if include_detail_entry:
             joins.append(MovementDetail.movement_ingress)
@@ -111,6 +133,7 @@ class YarnWeavingDispatchRepository(MovementRepository):
         filter: BinaryExpression = None,
         use_outer_joins: bool = False,
         include_detail: bool = False,
+        include_supply_stock: bool = False,
         include_detail_entry: bool = False,
     ) -> Movement | None:
         base_filter = (
@@ -126,11 +149,14 @@ class YarnWeavingDispatchRepository(MovementRepository):
         options = self.get_load_options(
             include_detail=include_detail,
             include_detail_entry=include_detail_entry,
+            include_supply_stock=include_supply_stock,
             use_contains_eager=True,
         )
 
         joins = self.get_load_joins(
-            include_detail=include_detail, include_detail_entry=include_detail_entry
+            include_detail=include_detail,
+            include_detail_entry=include_detail_entry,
+            include_supply_stock=include_supply_stock,
         )
 
         yarn_weaving_dispatch = await self.find_movement_by_document_number(

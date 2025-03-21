@@ -17,6 +17,10 @@ class MovementRepository(BaseRepository[Movement]):
             model=MovementDetail, db=promec_db
         )
 
+    @staticmethod
+    def get_movement_fields() -> tuple:
+        return (Movement.auxiliary_code,)
+
     async def find_movement_by_document_number(
         self,
         document_number: str,
@@ -49,6 +53,8 @@ class MovementRepository(BaseRepository[Movement]):
         filter: BinaryExpression = None,
         options: Sequence[Load] = None,
         apply_unique: bool = False,
+        joins: list[tuple] = None,
+        use_outer_joins: bool = False,
         limit: int = None,
         offset: int = None,
         order_by: Union[
@@ -61,8 +67,10 @@ class MovementRepository(BaseRepository[Movement]):
         return await self.find_all(
             filter=filter,
             options=options,
+            joins=joins,
             apply_unique=apply_unique,
             limit=limit,
+            use_outer_joins=use_outer_joins,
             offset=offset,
             order_by=order_by,
         )
