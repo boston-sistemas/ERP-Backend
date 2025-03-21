@@ -98,6 +98,13 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
         return (self.page - 1) * PAGE_SIZE
 
 
+class WeavingServiceEntryOptionsParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    include_fabric_description: bool | None = Field(default=False)
+
+
 class WeavingServiceEntryCreateSchema(CustomBaseModel):
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)

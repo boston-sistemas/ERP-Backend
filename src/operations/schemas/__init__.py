@@ -130,6 +130,7 @@ from .weaving_service_entry_schema import (
     WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
     WeavingServiceEntryFilterParams,
+    WeavingServiceEntryOptionsParams,
     WeavingServiceEntryPrintListSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntrySimpleSchema,
@@ -293,4 +294,5 @@ __all__ = [
     "PurchaseOrderFilterParams",
     "SupplierFilterParams",
     "FiberFilterParams",
+    "WeavingServiceEntryOptionsParams",
 ]

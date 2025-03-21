@@ -11,7 +11,7 @@ from src.operations.constants import (
     SUPPLIER_CODE_MAX_LENGTH,
     SUPPLIER_COLOR_ID_MAX_LENGTH,
 )
-from src.operations.models import ServiceOrderSupplyDetail
+from src.operations.models import InventoryItem, ServiceOrderSupplyDetail
 
 from .card_operation_schema import (
     CardOperationSchema,
@@ -33,8 +33,7 @@ class WeavingServiceEntryDetailBase(CustomBaseModel):
         validation_alias="reference_number",
     )
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True, "arbitrary_types_allowed": True}
 
 
 class WeavingServiceEntrySimpleSchema(WeavingServiceEntryDetailBase):
@@ -42,9 +41,17 @@ class WeavingServiceEntrySimpleSchema(WeavingServiceEntryDetailBase):
 
 
 class WeavingServiceEntryDetailSchema(WeavingServiceEntrySimpleSchema):
+    fabric: InventoryItem | None = Field(default=None, exclude=True)
+
     detail_fabric: Any = Field(default=None, exclude=True)
 
     detail_card: list[CardOperationSchema] | None = []
+
+    @computed_field
+    def fabric_description(self) -> str | None:
+        if self.fabric and hasattr(self.fabric, "description"):
+            return self.fabric.description
+        return None
 
     @computed_field
     @property

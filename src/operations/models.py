@@ -1114,6 +1114,20 @@ class MovementDetail(PromecBase):
         viewonly=True,
     )
 
+    fabric: Mapped["InventoryItem"] = relationship(
+        "InventoryItem",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            MovementDetail.company_code == InventoryItem.company_code,
+            MovementDetail.product_code1 == InventoryItem.id,
+        ),
+        foreign_keys=lambda: [
+            MovementDetail.company_code,
+            MovementDetail.product_code1,
+        ],
+        viewonly=True,
+    )
+
     __table_args__ = (
         PrimaryKeyConstraint(
             "codcia",
