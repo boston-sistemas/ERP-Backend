@@ -99,7 +99,6 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
 
 
 class WeavingServiceEntryCreateSchema(CustomBaseModel):
-    period: int
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)
