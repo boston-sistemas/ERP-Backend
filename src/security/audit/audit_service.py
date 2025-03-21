@@ -75,7 +75,7 @@ class AuditService:
 
         if (
             endpoint_name == "get_audit_action_logs"
-            and endpoint_name == "get_audit_action_log"
+            or endpoint_name == "get_audit_action_log"
         ):
             return json.dumps(
                 {"message": "response omitido para evitar recursión"}
