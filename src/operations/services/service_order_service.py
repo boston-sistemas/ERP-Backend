@@ -412,6 +412,16 @@ class ServiceOrderService:
                 service_order_detail_result.status_param_id = detail.status_param_id
 
             else:
+                rate_id_result = await self.rate_service.initialize_os_beg_by_fabric(
+                    fabric_id=detail.fabric_id,
+                    service_rates=self.rate_service,
+                    purchase_service_number=order_id,
+                )
+
+                if rate_id_result.is_failure:
+                    return rate_id_result
+                rate_id = rate_id_result.value
+
                 service_order_detail_value = ServiceOrderDetail(
                     company_code=MECSA_COMPANY_CODE,
                     order_id=order_id,
@@ -419,6 +429,7 @@ class ServiceOrderService:
                     product_id=detail.fabric_id,
                     quantity_ordered=detail.quantity_ordered,
                     quantity_supplied=0,
+                    rate_id=rate_id,
                     status_param_id=detail.status_param_id,
                 )
                 service_order.detail.append(service_order_detail_value)
