@@ -97,6 +97,7 @@ from .service_order_schema import (
     ServiceOrderCreateSchema,
     ServiceOrderFilterParams,
     ServiceOrderListSchema,
+    ServiceOrderOptionsParams,
     ServiceOrderProgressReviewListSchema,
     ServiceOrderSchema,
     ServiceOrderSimpleListSchema,

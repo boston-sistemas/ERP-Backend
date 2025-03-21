@@ -590,6 +590,20 @@ class ServiceOrderDetail(PromecBase):
         "detalle", String(length=DOCUMENT_NOTE_MAX_LENGTH)
     )
 
+    fabric: Mapped["InventoryItem"] = relationship(
+        "InventoryItem",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            ServiceOrderDetail.company_code == InventoryItem.company_code,
+            ServiceOrderDetail.product_id == InventoryItem.id,
+        ),
+        viewonly=True,
+        foreign_keys=lambda: [
+            InventoryItem.company_code,
+            InventoryItem.id,
+        ],
+    )
+
     supply_stock: Mapped[list["ServiceOrderSupplyDetail"]] = relationship(
         "ServiceOrderSupplyDetail",
         lazy="noload",
