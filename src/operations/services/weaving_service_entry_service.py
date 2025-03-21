@@ -542,11 +542,12 @@ class WeavingServiceEntryService(MovementService):
         supplier: SupplierSchema = validation_result.value
 
         current_time = calculate_time(tz=PERU_TIMEZONE)
+        period = current_time.date().year
 
         validation_result = await self._validate_weaving_service_entry_detail_data(
             data=form.detail,
             supplier=supplier,
-            period=form.period,
+            period=period,
             current_date=current_time,
         )
         if validation_result.is_failure:
@@ -578,7 +579,7 @@ class WeavingServiceEntryService(MovementService):
             movement_code=WEAVING_SERVICE_ENTRY_MOVEMENT_CODE,
             document_code=ENTRY_DOCUMENT_CODE,
             document_number=entry_number,
-            period=form.period,
+            period=period,
             creation_date=creation_date,
             creation_time=creation_time,
             # currency_code=currency_code_value,
@@ -626,7 +627,7 @@ class WeavingServiceEntryService(MovementService):
                     detail=detail,
                     entry_number=entry_number,
                     current_time=current_time,
-                    period=form.period,
+                    period=period,
                 )
 
                 if card_operations_value.is_failure:
@@ -639,7 +640,7 @@ class WeavingServiceEntryService(MovementService):
 
             product_inventory = await self._read_or_create_product_inventory(
                 product_code1=detail.fabric_id,
-                period=form.period,
+                period=period,
                 storage_code=WEAVING_STORAGE_CODE,
                 enable_create=True,
             )
@@ -654,7 +655,7 @@ class WeavingServiceEntryService(MovementService):
                 movement_code=WEAVING_SERVICE_ENTRY_MOVEMENT_CODE,
                 document_code=ENTRY_DOCUMENT_CODE,
                 document_number=entry_number,
-                period=form.period,
+                period=period,
                 creation_date=creation_date,
                 creation_time=creation_time,
                 item_number=detail.item_number,
@@ -708,7 +709,7 @@ class WeavingServiceEntryService(MovementService):
 
             update_result = await self.product_inventory_service.update_current_stock(
                 product_code1=detail.fabric_id,
-                period=form.period,
+                period=period,
                 storage_code=WEAVING_STORAGE_CODE,
                 new_stock=mecsa_weight,
             )
@@ -759,7 +760,7 @@ class WeavingServiceEntryService(MovementService):
         creation_result = await self._create_yarn_weaving_dispatch(
             dispatch_number=dispatch_number,
             supplier=supplier,
-            period=form.period,
+            period=period,
             current_time=current_time,
             weaving_service_entry_number=entry_number,
             weaving_service_entry_detail=form.detail,
