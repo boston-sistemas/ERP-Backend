@@ -6,7 +6,7 @@ from src.operations.models import SupplierColor
 
 from .supplier_color_failures import SupplierColorFailures
 from .supplier_color_repository import SupplierColorRepository
-from .supplier_color_schema import SupplierColorSchema
+from .supplier_color_schema import SupplierColorListSchema, SupplierColorSchema
 
 
 class SupplierColorService:
@@ -14,31 +14,21 @@ class SupplierColorService:
         self.promec_db = promec_db
         self.repository = SupplierColorRepository(promec_db=promec_db)
 
-    # async def read_supplier_color(
-    #     self,
-    #     supplier_id: str,
-    # ) -> Result[SupplierColor, CustomException]:
-    #     supplier_color = await self.repository.find_supplier_color_by_id(
-    #         supplier_id=supplier_id
-    #     )
-    #     if supplier_color:
-    #         return Success(supplier_color)
-    #     return SUPPLIER_COLOR_NOT_FOUND_FAILURE
-
-    async def read_supplier_colors(
+    async def read_supplier_colors_by_suppliers(
         self,
-    ) -> Result[list[SupplierColorSchema], CustomException]:
-        supplier_colors = await self.repository.find_all()
+        supplier_id: str,
+    ) -> Result[SupplierColorListSchema, CustomException]:
+        supplier_colors = await self.repository.find_supplier_colors_by_suppliers(
+            supplier_id=supplier_id
+        )
         return Success(supplier_colors)
 
     async def _read_supplier_color(
         self,
-        supplier_id: str,
         id: str,
         include_color: bool = False,
     ) -> Result[SupplierColor, CustomException]:
         supplier_color = await self.repository.find_supplier_color_by_id(
-            supplier_id=supplier_id,
             id=id,
         )
         if supplier_color is None:
@@ -47,10 +37,9 @@ class SupplierColorService:
         return Success(supplier_color)
 
     async def read_supplier_color(
-        self, supplier_id: str, id: str
+        self, id: str
     ) -> Result[SupplierColorSchema, CustomException]:
         supplier_color = await self._read_supplier_color(
-            supplier_id=supplier_id,
             id=id,
         )
 

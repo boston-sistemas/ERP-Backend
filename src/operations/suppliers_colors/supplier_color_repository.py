@@ -21,7 +21,7 @@ class SupplierColorRepository(BaseRepository[SupplierColor]):
 
         return options
 
-    async def find_supplier_colors(
+    async def find_supplier_colors_by_suppliers(
         self,
         supplier_id: str,
         include_color: bool = False,
