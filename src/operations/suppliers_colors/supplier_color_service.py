@@ -21,7 +21,7 @@ class SupplierColorService:
         supplier_colors = await self.repository.find_supplier_colors_by_suppliers(
             supplier_id=supplier_id
         )
-        return Success(supplier_colors)
+        return Success(SupplierColorListSchema(supplier_colors=supplier_colors))
 
     async def _read_supplier_color(
         self,

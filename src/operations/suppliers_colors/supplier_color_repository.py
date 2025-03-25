@@ -7,8 +7,8 @@ from src.operations.models import SupplierColor
 
 
 class SupplierColorRepository(BaseRepository[SupplierColor]):
-    def __init__(self, db: AsyncSession, flush: bool = False) -> None:
-        super().__init__(SupplierColor, db, flush)
+    def __init__(self, promec_db: AsyncSession, flush: bool = False) -> None:
+        super().__init__(SupplierColor, promec_db, flush)
 
     def get_load_options(
         self,

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.operations.rates import RateRouter
+from src.operations.suppliers_colors import SupplierColorRouter
 
 from .routers import (
     dyeing_service_dispatch_router,
@@ -84,4 +85,9 @@ router.include_router(
     router=RateRouter,
     prefix="/service-rates",
     tags=["[AREA OPERACIONES] GESTION DE TARIFAS DE SERVICIO"],
+)
+router.include_router(
+    router=SupplierColorRouter,
+    prefix="/supplier-colors",
+    tags=["[AREA OPERACIONES] GESTION DE COLORES DE PROVEEDORES"],
 )
