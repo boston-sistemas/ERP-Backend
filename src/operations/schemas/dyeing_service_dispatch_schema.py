@@ -1,3 +1,4 @@
+import math
 from datetime import date
 
 from pydantic import (
@@ -52,6 +53,12 @@ class DyeingServiceDispatchSchema(DyeingServiceDispatchBase):
 
 class DyeingServiceDispatchesListSchema(CustomBaseModel):
     dyeing_service_dispatches: list[DyeingServiceDispatchSchema] = []
+
+    amount: int = Field(default=0, exclude=True)
+
+    @computed_field
+    def total_pages(self) -> int:
+        return math.ceil(self.amount / PAGE_SIZE)
 
 
 class DyeingServiceDispatchFilterParams(CustomBaseModel):

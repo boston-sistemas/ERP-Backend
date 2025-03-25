@@ -1,3 +1,4 @@
+import math
 from datetime import date
 
 from pydantic import Field, computed_field, field_serializer, model_validator
@@ -74,6 +75,12 @@ class WeavingServiceEntrySchema(WeavingServiceEntrySimpleSchema):
 
 class WeavingServiceEntriesListSchema(CustomBaseModel):
     weaving_service_entries: list[WeavingServiceEntrySchema] = []
+
+    amount: int = Field(default=0, exclude=True)
+
+    @computed_field
+    def total_pages(self) -> int:
+        return math.ceil(self.amount / PAGE_SIZE)
 
 
 class WeavingServiceEntryFilterParams(CustomBaseModel):

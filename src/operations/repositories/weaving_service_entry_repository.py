@@ -207,3 +207,43 @@ class WeavingServiceEntryRepository(MovementRepository):
         )
 
         return weaving_service_entries
+
+    async def count_weaving_service_entries(
+        self,
+        period: int,
+        entry_number: str = None,
+        supplier_ids: list[str] = None,
+        start_date: date = None,
+        end_date: date = None,
+        service_order_id: str = None,
+        include_annulled: bool = False,
+        filter: BinaryExpression = None,
+    ) -> int:
+        base_filter = (
+            (Movement.storage_code == WEAVING_STORAGE_CODE)
+            & (Movement.movement_type == ENTRY_MOVEMENT_TYPE)
+            & (Movement.movement_code == WEAVING_SERVICE_ENTRY_MOVEMENT_CODE)
+            & (Movement.document_code == ENTRY_DOCUMENT_CODE)
+            & (Movement.period == period)
+        )
+
+        if not include_annulled:
+            base_filter = base_filter & (Movement.status_flag == "P")
+
+        if entry_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{entry_number}%")
+            )
+
+        if supplier_ids:
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
+
+        if start_date:
+            base_filter = base_filter & (Movement.creation_date >= start_date)
+
+        if end_date:
+            base_filter = base_filter & (Movement.creation_date <= end_date)
+
+        filter = base_filter & filter if filter is not None else base_filter
+
+        return await self.count_movements(filter=filter)

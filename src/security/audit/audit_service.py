@@ -282,4 +282,13 @@ class AuditService:
             )
         )
 
-        return Success(AuditActionLogListSchema(audit_action_logs=audit_action_logs))
+        amount = await self.audit_action_log_repository.count_audit_action_logs(
+            **filter_params.model_dump(exclude={"page", "limit", "offset"})
+        )
+
+        return Success(
+            AuditActionLogListSchema(
+                audit_action_logs=audit_action_logs,
+                amount=amount,
+            )
+        )

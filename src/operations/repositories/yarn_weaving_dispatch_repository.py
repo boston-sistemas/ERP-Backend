@@ -227,3 +227,45 @@ class YarnWeavingDispatchRepository(MovementRepository):
         )
 
         return yarn_weaving_dispatches
+
+    async def count_yarn_weaving_dispatches(
+        self,
+        period: int,
+        dispatch_number: str = None,
+        supplier_ids: list[str] = None,
+        start_date: date = None,
+        end_date: date = None,
+        limit: int = None,
+        offset: int = None,
+        include_annulled: bool = False,
+        apply_unique: bool = False,
+        filter: BinaryExpression = None,
+    ) -> int:
+        base_filter = (
+            (Movement.storage_code == YARN_WEAVING_DISPATCH_STORAGE_CODE)
+            & (Movement.movement_type == YARN_WEAVING_DISPATCH_MOVEMENT_TYPE)
+            & (Movement.movement_code == YARN_WEAVING_DISPATCH_MOVEMENT_CODE)
+            & (Movement.document_code == YARN_WEAVING_DISPATCH_DOCUMENT_CODE)
+            & (Movement.period == period)
+        )
+
+        if not include_annulled:
+            base_filter = base_filter & (Movement.status_flag == "P")
+
+        if dispatch_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{dispatch_number}%")
+            )
+
+        if supplier_ids:
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
+
+        if start_date:
+            base_filter = base_filter & (Movement.creation_date >= start_date)
+
+        if end_date:
+            base_filter = base_filter & (Movement.creation_date <= end_date)
+
+        filter = base_filter & filter if filter is not None else base_filter
+
+        return await self.count_movements(filter=filter)

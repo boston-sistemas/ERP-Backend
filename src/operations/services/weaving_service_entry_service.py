@@ -128,9 +128,14 @@ class WeavingServiceEntryService(MovementService):
             **filter_params.model_dump(exclude={"page"})
         )
 
+        amount = await self.repository.count_weaving_service_entries(
+            **filter_params.model_dump(exclude={"page", "limit", "offset"})
+        )
+
         return Success(
             WeavingServiceEntriesListSchema(
-                weaving_service_entries=weaving_service_entries
+                weaving_service_entries=weaving_service_entries,
+                amount=amount,
             )
         )
 

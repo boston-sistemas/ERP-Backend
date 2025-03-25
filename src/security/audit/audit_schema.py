@@ -1,4 +1,5 @@
 import json
+import math
 from datetime import datetime
 from uuid import UUID
 
@@ -118,6 +119,12 @@ class AuditActionLogSchema(AuditActionLogBase):
 
 class AuditActionLogListSchema(BaseModel):
     audit_action_logs: list[AuditActionLogSchema]
+
+    amount: int = Field(default=0, exclude=True)
+
+    @computed_field
+    def total_pages(self) -> int:
+        return math.ceil(self.amount / PAGE_SIZE)
 
 
 class AuditActionLogFilterParams(BaseModel):

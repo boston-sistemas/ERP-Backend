@@ -184,3 +184,24 @@ class DyeingServiceDispatchRepository(MovementRepository):
         )
 
         return dyeing_service_dispatch_details
+
+    async def count_dyeing_service_dispatches(
+        self,
+        period: int,
+        include_annulled: bool = False,
+        filter: BinaryExpression = None,
+    ) -> int:
+        base_filter = (
+            (Movement.storage_code == WEAVING_STORAGE_CODE)
+            & (Movement.movement_type == DISPATCH_MOVEMENT_TYPE)
+            & (Movement.movement_code == DYEING_SERVICE_DISPATCH_MOVEMENT_CODE)
+            & (Movement.document_code == DYEING_SERVICE_DISPATCH_DOCUMENT_CODE)
+            & (Movement.period == period)
+        )
+
+        if not include_annulled:
+            base_filter = base_filter & (Movement.status_flag == "P")
+
+        filter = base_filter & filter if filter is not None else base_filter
+
+        return await self.count_movements(filter=filter)

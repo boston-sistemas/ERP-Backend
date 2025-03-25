@@ -128,9 +128,14 @@ class YarnPurchaseEntryService(MovementService):
             **filter_params.model_dump(exclude={"page"})
         )
 
+        amount = await self.repository.count_yarn_purchase_entries(
+            **filter_params.model_dump(exclude={"page", "limit", "offset"})
+        )
+
         return Success(
             YarnPurchaseEntriesSimpleListSchema(
-                yarn_purchase_entries=yarn_purchase_entries
+                yarn_purchase_entries=yarn_purchase_entries,
+                amount=amount,
             )
         )
 

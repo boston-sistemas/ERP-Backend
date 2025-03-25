@@ -107,9 +107,14 @@ class YarnWeavingDispatchService(MovementService):
             apply_unique=True,
         )
 
+        amount = await self.repository.count_yarn_weaving_dispatches(
+            **filter_params.model_dump(exclude={"page", "limit", "offset"})
+        )
+
         return Success(
             YarnWeavingDispatchListSchema(
-                yarn_weaving_dispatches=yarn_weaving_dispatches
+                yarn_weaving_dispatches=yarn_weaving_dispatches,
+                amount=amount,
             )
         )
 
