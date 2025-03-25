@@ -175,7 +175,7 @@ class AuditService:
         elif values_before and not values_after:
             action = "DELETE"
 
-        if AuditService._context["id"]:
+        if "id" not in AuditService._context:
             return
 
         audit_data_log_repository = BaseRepository(model=AuditDataLog, db=db)
