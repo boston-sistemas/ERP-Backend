@@ -7,6 +7,11 @@ from src.security.audit import AuditService
 
 from .supplier_schema import SupplierFilterParams, SupplierSimpleListSchema
 from .supplier_service import SupplierService
+from .suppliers_colors.supplier_color_schema import (
+    SupplierColorListSchema,
+    SupplierColorSchema,
+)
+from .suppliers_colors.supplier_color_service import SupplierColorService
 
 router = APIRouter()
 
@@ -29,6 +34,36 @@ async def read_suppliers_by_service(
         service_code=service_code,
         filter_params=filter_params,
     )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@router.get("/colors/{supplier_id}", response_model=SupplierColorListSchema)
+async def read_supplier_colors_by_suppliers(
+    supplier_id: str,
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = SupplierColorService(promec_db=promec_db)
+    result = await service.read_supplier_colors_by_suppliers(
+        supplier_id=supplier_id,
+    )
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@router.get("/colors-id/{id}", response_model=SupplierColorSchema)
+async def read_supplier_color(
+    id: str,
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = SupplierColorService(promec_db=promec_db)
+    result = await service.read_supplier_color(id=id)
 
     if result.is_success:
         return result.value

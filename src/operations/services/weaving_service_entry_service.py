@@ -58,7 +58,6 @@ from src.operations.repositories import WeavingServiceEntryRepository
 from src.operations.schemas import (
     FabricSchema,
     ServiceOrderSchema,
-    SupplierSchema,
     WeavingServiceEntriesListSchema,
     WeavingServiceEntriesSimpleListSchema,
     WeavingServiceEntryCreateSchema,
@@ -71,6 +70,7 @@ from src.operations.schemas import (
 from src.operations.sequences import card_id_seq
 from src.operations.utils.card_operation.pdf import generate_pdf_cards
 
+from ..suppliers.supplier_schema import SupplierSchema
 from ..suppliers.supplier_service import SupplierService
 from .card_operation_service import CardOperationService
 from .fabric_service import FabricService

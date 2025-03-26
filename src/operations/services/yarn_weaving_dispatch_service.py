@@ -49,7 +49,6 @@ from src.operations.repositories import (
 )
 from src.operations.schemas import (
     ServiceOrderSchema,
-    SupplierSchema,
     YarnWeavingDispatchCreateSchema,
     YarnWeavingDispatchDetailCreateSchema,
     YarnWeavingDispatchFilterParams,
@@ -59,6 +58,7 @@ from src.operations.schemas import (
 )
 from src.operations.utils.movements.yarn_weaving_dispatch.pdf import generate_pdf
 
+from ..suppliers.supplier_schema import SupplierSchema
 from ..suppliers.supplier_service import SupplierService
 from .fabric_service import FabricService
 from .movement_service import MovementService
