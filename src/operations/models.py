@@ -378,6 +378,20 @@ class MecsaColor(AbstractTableModel):
     hexadecimal: Mapped[str] = mapped_column("VarChar3")
     alias: Mapped[str] = mapped_column("datoaux")
 
+    supplier_mecsa_color = relationship(
+        "SupplierColor",
+        lazy="noload",
+        primaryjoin=lambda: and_(
+            MecsaColor.id == SupplierColor.mecsa_color_id,
+        ),
+        single_parent=True,
+        viewonly=True,
+        foreign_keys=lambda: [
+            SupplierColor.mecsa_color_id,
+            SupplierColor.is_active,
+        ],
+    )
+
     __mapper_args__ = {"polymorphic_identity": "COL"}
 
 
@@ -393,6 +407,8 @@ class SupplierColor(PromecBase):
     id: Mapped[str] = mapped_column(
         "codigo", String(length=SUPPLIER_COLOR_ID_MAX_LENGTH)
     )
+    mecsa_color_id: Mapped[str] = mapped_column("mecsa_color_id")
+    is_active: Mapped[bool] = mapped_column("condicion", default=ACTIVE_STATUS_PROMEC)
 
     __table_args__ = (
         PrimaryKeyConstraint("codpro", "codigo"),

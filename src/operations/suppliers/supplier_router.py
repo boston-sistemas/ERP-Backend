@@ -5,7 +5,11 @@ from src.core.database import get_promec_db
 from src.core.services import PermissionService
 from src.security.audit import AuditService
 
-from .supplier_schema import SupplierFilterParams, SupplierSimpleListSchema
+from .supplier_schema import (
+    SupplierCreateSupplierColorSchema,
+    SupplierFilterParams,
+    SupplierSimpleListSchema,
+)
 from .supplier_service import SupplierService
 from .suppliers_colors.supplier_color_schema import (
     SupplierColorListSchema,
@@ -64,6 +68,20 @@ async def read_supplier_color(
 ):
     service = SupplierColorService(promec_db=promec_db)
     result = await service.read_supplier_color(id=id)
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@router.post("/colors/", response_model=SupplierColorSchema)
+async def create_supplier_color(
+    form: SupplierCreateSupplierColorSchema,
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = SupplierService(promec_db=promec_db)
+    result = await service.create_supplier_color(form=form)
 
     if result.is_success:
         return result.value

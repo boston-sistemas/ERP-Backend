@@ -5,6 +5,8 @@ class SupplierColorBase(CustomBaseModel):
     id: str | None = None
     supplier_id: str | None = None
     description: str | None = None
+    mecsa_color_id: str | None
+    is_active: bool | None
 
     class Config:
         from_attributes = True

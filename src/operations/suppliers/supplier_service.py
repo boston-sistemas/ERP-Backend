@@ -3,17 +3,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repository import BaseRepository
 from src.core.result import Result, Success
-from src.operations.models import Supplier
+from src.operations.models import Supplier, SupplierColor
 from src.operations.models import SupplierService as SupplierServiceModel
 
 from .supplier_failure import SupplierFailures
 from .supplier_repository import SupplierRepository
+
+# from .suppliers_colors.supplier_color_repository import SupplierColorRepository
 from .supplier_schema import (
+    SupplierCreateSupplierColorSchema,
     SupplierFilterParams,
     SupplierListSchema,
     SupplierSchema,
     SupplierSimpleListSchema,
 )
+from .suppliers_colors.supplier_color_failures import SupplierColorFailures
+from .suppliers_colors.supplier_color_schema import (
+    SupplierColorSchema,
+)
+from .suppliers_colors.supplier_color_service import SupplierColorService
 
 
 class SupplierService:
@@ -23,6 +31,8 @@ class SupplierService:
         self.supplier_service_repository = BaseRepository[SupplierServiceModel](
             model=SupplierServiceModel, db=promec_db
         )
+        # self.supplier_color_repository = SupplierColorRepository(promec_db)
+        self.supplier_color_service = SupplierColorService(promec_db=promec_db)
 
     async def _read_supplier(
         self,
@@ -108,3 +118,43 @@ class SupplierService:
             ids[supplier_code] = supplier.value.initials
 
         return Success(ids)
+
+    async def _validate_supplier_color_data(
+        self, data: SupplierCreateSupplierColorSchema
+    ) -> Result[None, CustomException]:
+        # validar que existe supplier
+        validation_result = await self._read_supplier(
+            supplier_code=data.supplier_id,
+        )
+        if validation_result.is_failure:
+            return validation_result
+
+        # validar si ya existe el color del proveedor
+        validation_result = await self.supplier_color_service.read_supplier_color(
+            id=data.id,
+        )
+        if validation_result is not None:
+            return SupplierColorFailures.SUPPLIER_COLOR_ALREADY_EXISTS_FAILURE
+
+        # activo
+        # validation_result = await
+
+        return Success(None)
+
+    async def create_supplier_color(
+        self,
+        form: SupplierCreateSupplierColorSchema,
+    ) -> Result[SupplierCreateSupplierColorSchema, CustomException]:
+        validation_result = await self._validate_supplier_color_data(form)
+
+        if validation_result.is_failure:
+            return validation_result
+
+        supplier_color = SupplierColor(
+            id=form.id,
+            supplier_id=form.supplier_id,
+            description=form.description,
+        )
+        await self.repository.save(supplier_color)
+
+        return Success(SupplierColorSchema.model_validate(supplier_color))

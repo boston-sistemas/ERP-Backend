@@ -4,6 +4,11 @@ from pydantic import Field, computed_field, model_validator
 
 from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel
+from src.operations.constants import (
+    MAX_LENGTH_COLOR_DESCRIPCION,
+    SUPPLIER_CODE_MAX_LENGTH,
+    SUPPLIER_COLOR_ID_MAX_LENGTH,
+)
 
 from .supplier_service_schema import SupplierServiceSchema
 from .suppliers_colors.supplier_color_schema import SupplierColorSchema
@@ -77,3 +82,9 @@ class SupplierFilterParams(CustomBaseModel):
     @computed_field
     def offset(self) -> int:
         return (self.page - 1) * PAGE_SIZE
+
+
+class SupplierCreateSupplierColorSchema(CustomBaseModel):
+    id: str = Field(min_length=1, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH)
+    supplier_id: str = Field(min_length=1, max_length=SUPPLIER_CODE_MAX_LENGTH)
+    description: str = Field(min_length=1, max_length=MAX_LENGTH_COLOR_DESCRIPCION)
