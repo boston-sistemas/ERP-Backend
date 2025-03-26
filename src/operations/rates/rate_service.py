@@ -16,7 +16,7 @@ from src.operations.models import ServiceRate
 from src.operations.sequences import rate_id_seq
 
 from ..services.fabric_service import FabricService
-from ..services.supplier_service import SupplierService
+from ..suppliers.supplier_service import SupplierService
 from .rate_failures import RateFailures
 from .rate_repository import RateRepository
 from .rate_schema import (

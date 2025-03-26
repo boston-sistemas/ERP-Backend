@@ -71,6 +71,7 @@ from src.operations.schemas import (
 from src.operations.sequences import card_id_seq
 from src.operations.utils.card_operation.pdf import generate_pdf_cards
 
+from ..suppliers.supplier_service import SupplierService
 from .card_operation_service import CardOperationService
 from .fabric_service import FabricService
 from .mecsa_color_service import MecsaColorService
@@ -81,7 +82,6 @@ from .series_service import (
 )
 from .service_order_service import ServiceOrderService
 from .service_order_supply_service import ServiceOrderSupplyDetailService
-from .supplier_service import SupplierService
 
 
 class WeavingServiceEntryService(MovementService):

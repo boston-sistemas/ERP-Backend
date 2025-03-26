@@ -5,8 +5,8 @@ from pydantic import Field, computed_field, model_validator
 from src.core.constants import PAGE_SIZE
 from src.core.schemas import CustomBaseModel
 
-from ..suppliers_colors.supplier_color_schema import SupplierColorSchema
 from .supplier_service_schema import SupplierServiceSchema
+from .suppliers_colors.supplier_color_schema import SupplierColorSchema
 
 
 class SupplierBase(CustomBaseModel):

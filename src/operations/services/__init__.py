@@ -19,7 +19,6 @@ from .proveedor_service import ProveedorService
 from .reporte_stock_tejeduria_service import ReporteStockTejeduriaService
 from .revision_stock_tejeduria_service import RevisionStockTejeduriaService
 from .series_service import BarcodeSeries, SeriesService, YarnPurchaseEntrySeries
-from .supplier_service import SupplierService
 from .unit_service import UnitService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
@@ -49,7 +48,6 @@ __all__ = [
     "YarnPurchaseEntrySeries",
     "YarnWeavingDispatchService",
     "YarnPurchaseEntryDetailHeavyService",
-    "SupplierService",
     "ServiceOrderService",
     "WeavingServiceEntryService",
     "DyeingServiceDispatchService",

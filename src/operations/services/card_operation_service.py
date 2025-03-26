@@ -14,7 +14,7 @@ from src.operations.schemas import (
     CardOperationSchema,
 )
 
-from .supplier_service import SupplierService
+from ..suppliers.supplier_service import SupplierService
 
 
 class CardOperationService:

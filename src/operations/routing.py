@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from src.operations.rates import RateRouter
-from src.operations.suppliers_colors import SupplierColorRouter
+from src.operations.suppliers.suppliers_colors import SupplierColorRouter
 
 from .routers import (
     dyeing_service_dispatch_router,
@@ -13,13 +13,13 @@ from .routers import (
     reporte_stock_tejeduria_router,
     revision_stock_tejeduria_router,
     service_order_router,
-    supplier_router,
     unit_router,
     weaving_service_entry_router,
     yarn_purchase_entry_router,
     yarn_router,
     yarn_weaving_dispatch_router,
 )
+from .suppliers import supplier_router
 
 router = APIRouter(prefix="/operations/v1")  # tags=["Area Operaciones"]
 router.include_router(reporte_stock_tejeduria_router.router)

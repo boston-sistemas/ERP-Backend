@@ -59,6 +59,7 @@ from src.operations.schemas import (
 )
 from src.operations.utils.movements.yarn_weaving_dispatch.pdf import generate_pdf
 
+from ..suppliers.supplier_service import SupplierService
 from .fabric_service import FabricService
 from .movement_service import MovementService
 from .series_service import (
@@ -67,7 +68,6 @@ from .series_service import (
 )
 from .service_order_service import ServiceOrderService
 from .service_order_supply_service import ServiceOrderSupplyDetailService
-from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )

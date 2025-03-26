@@ -45,9 +45,9 @@ from src.operations.schemas import (
 )
 from src.security.services import ParameterService
 
+from ..suppliers.supplier_service import SupplierService
 from .fabric_service import FabricService
 from .service_order_supply_service import ServiceOrderSupplyDetailService
-from .supplier_service import SupplierService
 
 
 # TODO: Refactor this service

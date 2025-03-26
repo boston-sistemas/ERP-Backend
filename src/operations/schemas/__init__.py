@@ -104,16 +104,6 @@ from .service_order_schema import (
     ServiceOrderSupplyDetailSchema,
     ServiceOrderUpdateSchema,
 )
-from .supplier_schema import (
-    SupplierFilterParams,
-    SupplierListSchema,
-    SupplierSchema,
-    SupplierSimpleListSchema,
-    SupplierSimpleSchema,
-)
-from .supplier_service_schema import (
-    SupplierServiceSchema,
-)
 from .unit_schema import (
     DerivedUnitListSchema,
     DerivedUnitSchema,
@@ -238,9 +228,6 @@ __all__ = [
     "YarnPurchaseEntrySearchSchema",
     "YarnPurchaseEntryCreateSchema",
     "YarnPurchaseEntryDetailCreateSchema",
-    "SupplierServiceSchema",
-    "SupplierSimpleSchema",
-    "SupplierSchema",
     "YarnPurchaseEntryUpdateSchema",
     "YarnPurchaseEntryDetailUpdateSchema",
     "YarnWeavingDispatchSimpleListSchema",
@@ -250,7 +237,6 @@ __all__ = [
     "YarnWeavingDispatchDetailCreateSchema",
     "YarnPurchaseEntryDetailHeavySchema",
     "YarnWeavingDispatchUpdateSchema",
-    "SupplierSimpleListSchema",
     "ServiceOrderSimpleSchema",
     "ServiceOrderSchema",
     "ServiceOrderSimpleListSchema",
@@ -276,7 +262,6 @@ __all__ = [
     "DyeingServiceDispatchUpdateSchema",
     "DyeingServiceDispatchDetailCreateSchema",
     "CardOperationSchema",
-    "SupplierListSchema",
     "YarnPurchaseEntryPrintListSchema",
     "YarnPurchaseOrderSchema",
     "YarnWeavingDispatchListSchema",

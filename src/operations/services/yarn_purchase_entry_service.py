@@ -47,12 +47,12 @@ from src.operations.schemas import (
 from src.operations.sequences import mecsa_batch_sq
 from src.operations.utils.movements.yarn_purchase_entry.pdf import generate_pdf
 
+from ..suppliers.supplier_service import SupplierService
 from .fabric_service import FabricService
 from .movement_service import MovementService
 from .orden_compra_service import OrdenCompraService
 from .series_service import YarnPurchaseEntrySeries
 from .service_order_service import ServiceOrderService
-from .supplier_service import SupplierService
 from .yarn_purchase_entry_detail_heavy_service import (
     YarnPurchaseEntryDetailHeavyService,
 )
