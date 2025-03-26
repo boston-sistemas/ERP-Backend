@@ -3,9 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_promec_db
 from src.core.services import PermissionService
-from src.operations.schemas import SupplierFilterParams, SupplierSimpleListSchema
-from src.operations.services import SupplierService
 from src.security.audit import AuditService
+
+from .supplier_schema import SupplierFilterParams, SupplierSimpleListSchema
+from .supplier_service import SupplierService
 
 router = APIRouter()
 

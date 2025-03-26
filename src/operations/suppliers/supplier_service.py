@@ -3,14 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repository import BaseRepository
 from src.core.result import Result, Success
-from src.operations.failures import (
-    SUPPLIER_NOT_FOUND_FAILURE,
-    SUPPLIER_SERVICE_NOT_FOUND_FAILURE,
-)
 from src.operations.models import Supplier
 from src.operations.models import SupplierService as SupplierServiceModel
-from src.operations.repositories import SupplierRepository
-from src.operations.schemas import (
+
+from .supplier_failure import SupplierFailures
+from .supplier_repository import SupplierRepository
+from .supplier_schema import (
     SupplierFilterParams,
     SupplierListSchema,
     SupplierSchema,
@@ -42,7 +40,7 @@ class SupplierService:
         )
 
         if supplier is None:
-            return SUPPLIER_NOT_FOUND_FAILURE
+            return SupplierFailures.SUPPLIER_NOT_FOUND_FAILURE
 
         return Success(supplier)
 
@@ -78,7 +76,7 @@ class SupplierService:
         )
 
         if supplier_service is None:
-            return SUPPLIER_SERVICE_NOT_FOUND_FAILURE
+            return SupplierFailures.SUPPLIER_SERVICE_NOT_FOUND_FAILURE
 
         value = supplier_service.sequence_number
 

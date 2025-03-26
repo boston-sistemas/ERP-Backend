@@ -44,10 +44,10 @@ from src.operations.schemas import (
     DyeingServiceDispatchFilterParams,
     DyeingServiceDispatchSchema,
     DyeingServiceDispatchUpdateSchema,
-    SupplierSchema,
 )
 from src.operations.utils.movements.dyeing_service_dispatch.pdf import generate_pdf
 
+from ..suppliers.supplier_schema import SupplierSchema
 from ..suppliers.supplier_service import SupplierService
 from .card_operation_service import CardOperationService
 from .fabric_service import FabricService
