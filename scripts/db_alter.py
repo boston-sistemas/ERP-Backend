@@ -155,7 +155,7 @@ def alter_tables(engine: Engine) -> list[Table]:
             name="opecoltinto",
             columns=[
                 Column(name="condicion", type_column=TypeBit()),
-                Column(name="mecsa_color_id", type_column=TypeVarchar(length=16)),
+                Column(name="color_mecsa", type_column=TypeVarchar(length=16)),
             ],
         ),
     ]
