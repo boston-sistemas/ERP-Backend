@@ -388,7 +388,7 @@ class MecsaColor(AbstractTableModel):
         viewonly=True,
         foreign_keys=lambda: [
             SupplierColor.mecsa_color_id,
-            SupplierColor.is_active,
+            # SupplierColor.is_active,
         ],
     )
 
@@ -408,7 +408,7 @@ class SupplierColor(PromecBase):
         "codigo", String(length=SUPPLIER_COLOR_ID_MAX_LENGTH)
     )
     mecsa_color_id: Mapped[str] = mapped_column("color_mecsa")
-    is_active: Mapped[bool] = mapped_column("condicion", default=ACTIVE_STATUS_PROMEC)
+    is_active: Mapped[bool] = mapped_column("condicion", default=1)
 
     __table_args__ = (
         PrimaryKeyConstraint("codpro", "codigo"),

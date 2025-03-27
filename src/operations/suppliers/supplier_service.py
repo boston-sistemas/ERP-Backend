@@ -162,6 +162,8 @@ class SupplierService:
             id=form.id,
             supplier_id=form.supplier_id,
             description=form.description,
+            mecsa_color_id=form.id,
+            is_active=True,
         )
         await self.repository.save(supplier_color)
 

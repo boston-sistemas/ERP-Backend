@@ -36,24 +36,10 @@ class MecsaColorListSchema(CustomBaseModel):
 
 
 class MecsaColorCreateSchema(CustomBaseModel):
-    # name: str = Field(min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_NAME)
-    # sku: str | None = Field(
-    #     default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_SKU
-    # )
     hexadecimal: str | None = Field(
         default=None, min_length=1, max_length=MAX_LENGTH_MECSA_COLOR_HEXADECIMAL
     )
     alias: str | None = Field(default=None, min_length=1, max_length=DATOAUX_MAX_LENGTH)
-
-    # @computed_field
-    # @property
-    # def slug(self) -> str | None:
-    #     return slugify(self.name) if self.name else None
-
-    # @field_validator("name", "sku", "hexadecimal", mode="after")
-    # @classmethod
-    # def clean(cls, value: str | None) -> str | None:
-    #     return value.strip() if value else value
 
 
 class MecsaColorUpdateSchema(MecsaColorCreateSchema):
