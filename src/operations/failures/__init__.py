@@ -40,7 +40,6 @@ from .fiber_failure import (
 )
 from .mecsa_color_failure import (
     MECSA_COLOR_DISABLED_FAILURE,
-    MECSA_COLOR_INVALID_ALIAS_FAILURE,
     MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE,
     MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE,
     MECSA_COLOR_NOT_FOUND_FAILURE,
@@ -272,5 +271,4 @@ __all__ = [
     "ServiceOrderFailures",
     "WeavingServiceEntryFailures",
     "MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE",
-    "MECSA_COLOR_INVALID_ALIAS_FAILURE",
 ]

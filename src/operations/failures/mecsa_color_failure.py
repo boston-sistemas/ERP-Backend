@@ -36,7 +36,3 @@ MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE = Failure(
         detail="El color hexadecimal especificado es inválido."
     )
 )
-
-MECSA_COLOR_INVALID_ALIAS_FAILURE = Failure(
-    UnprocessableEntityException(detail="El alias especificado es inválido.")
-)

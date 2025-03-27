@@ -11,7 +11,6 @@ from src.core.utils import (
     map_active_status,
 )
 from src.operations.failures import (
-    MECSA_COLOR_INVALID_ALIAS_FAILURE,
     MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE,
     MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE,
     MECSA_COLOR_NOT_FOUND_FAILURE,
@@ -63,7 +62,7 @@ class MecsaColorService:
         self, form: MecsaColorCreateSchema
     ) -> Result[MecsaColor, CustomException]:
         color_data = form.model_dump()
-        # validation_result = await self._validate_mecsa_color_data(**color_data)
+
         validation_result = await self._validate_mecsa_color_data(
             alias=color_data.get("alias"),
             hexadecimal=color_data.get("hexadecimal"),
@@ -80,7 +79,7 @@ class MecsaColorService:
             return name_check
 
         mecsa_color_id = await self.color_sequence.next_value()
-        # mecsa_color = MecsaColor(id=mecsa_color_id, **color_data)
+
         mecsa_color = MecsaColor(
             id=mecsa_color_id,
             name=name,
