@@ -35,7 +35,7 @@ class SupplierColorRepository(BaseRepository[SupplierColor]):
         filter = (
             and_(*base_filter, filter) if filter is not None else and_(*base_filter)
         )
-
+        filter = and_(filter, SupplierColor.mecsa_color_id.isnot(None))
         options = self.get_load_options(include_color=include_color)
 
         return await self.find_all(
@@ -57,6 +57,7 @@ class SupplierColorRepository(BaseRepository[SupplierColor]):
         filter = (
             and_(*base_filter, filter) if filter is not None else and_(*base_filter)
         )
+        filter = and_(filter, SupplierColor.mecsa_color_id.isnot(None))
         options = self.get_load_options(include_color=include_color)
 
         return await self.find(

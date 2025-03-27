@@ -407,7 +407,7 @@ class SupplierColor(PromecBase):
     id: Mapped[str] = mapped_column(
         "codigo", String(length=SUPPLIER_COLOR_ID_MAX_LENGTH)
     )
-    mecsa_color_id: Mapped[str] = mapped_column("mecsa_color_id")
+    mecsa_color_id: Mapped[str] = mapped_column("color_mecsa")
     is_active: Mapped[bool] = mapped_column("condicion", default=ACTIVE_STATUS_PROMEC)
 
     __table_args__ = (

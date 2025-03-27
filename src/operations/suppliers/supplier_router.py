@@ -45,8 +45,10 @@ async def read_suppliers_by_service(
     raise result.error
 
 
+@AuditService.audit_action_log()
 @router.get("/colors/{supplier_id}", response_model=SupplierColorListSchema)
 async def read_supplier_colors_by_suppliers(
+    request: Request,
     supplier_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -61,8 +63,10 @@ async def read_supplier_colors_by_suppliers(
     raise result.error
 
 
+@AuditService.audit_action_log()
 @router.get("/colors-id/{id}", response_model=SupplierColorSchema)
 async def read_supplier_color(
+    request: Request,
     id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
@@ -75,8 +79,10 @@ async def read_supplier_color(
     raise result.error
 
 
+@AuditService.audit_action_log()
 @router.post("/colors/", response_model=SupplierColorSchema)
 async def create_supplier_color(
+    request: Request,
     form: SupplierCreateSupplierColorSchema,
     promec_db: AsyncSession = Depends(get_promec_db),
 ):

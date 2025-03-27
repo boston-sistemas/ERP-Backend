@@ -1,10 +1,18 @@
+from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import CustomException
 from src.core.repositories import SequenceRepository
 from src.core.result import Result, Success
-from src.core.utils import map_active_status
+from src.core.utils import (
+    generate_color_name,
+    generate_sku,
+    is_valid_hexadecimal,
+    map_active_status,
+)
 from src.operations.failures import (
+    MECSA_COLOR_INVALID_ALIAS_FAILURE,
+    MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE,
     MECSA_COLOR_NAME_ALREADY_EXISTS_FAILURE,
     MECSA_COLOR_NOT_FOUND_FAILURE,
     MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE,
@@ -30,6 +38,7 @@ class MecsaColorService:
         slug: str = None,
         sku: str = None,
         hexadecimal: str | None = None,
+        alias: str = None,
     ) -> Result[None, CustomException]:
         if slug is not None:
             colors = await self.repository.find_mecsa_colors(
@@ -45,7 +54,8 @@ class MecsaColorService:
             if colors:
                 return MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE(sku)
 
-        # TODO: Validate the hexadecimal format
+        if hexadecimal is not None and not is_valid_hexadecimal(hexadecimal):
+            return MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE
 
         return Success(None)
 
@@ -53,12 +63,32 @@ class MecsaColorService:
         self, form: MecsaColorCreateSchema
     ) -> Result[MecsaColor, CustomException]:
         color_data = form.model_dump()
-        validation_result = await self._validate_mecsa_color_data(**color_data)
+        # validation_result = await self._validate_mecsa_color_data(**color_data)
+        validation_result = await self._validate_mecsa_color_data(
+            alias=color_data.get("alias"),
+            hexadecimal=color_data.get("hexadecimal"),
+        )
         if validation_result.is_failure:
             return validation_result
 
+        name = generate_color_name(color_data["hexadecimal"])
+        slug = slugify(name)
+        sku = generate_sku(name)
+
+        name_check = await self._validate_mecsa_color_data(name=name, slug=slug)
+        if name_check.is_failure:
+            return name_check
+
         mecsa_color_id = await self.color_sequence.next_value()
-        mecsa_color = MecsaColor(id=mecsa_color_id, **color_data)
+        # mecsa_color = MecsaColor(id=mecsa_color_id, **color_data)
+        mecsa_color = MecsaColor(
+            id=mecsa_color_id,
+            name=name,
+            slug=slug,
+            sku=sku,
+            alias=color_data["alias"],
+            hexadecimal=color_data["hexadecimal"],
+        )
 
         await self.repository.save(mecsa_color)
 

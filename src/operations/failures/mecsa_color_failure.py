@@ -30,3 +30,13 @@ def MECSA_COLOR_SKU_ALREADY_EXISTS_FAILURE(sku: str):
 MECSA_COLOR_DISABLED_FAILURE = Failure(
     UnprocessableEntityException(detail="El color especificado está inactivo.")
 )
+
+MECSA_COLOR_INVALID_HEXADECIMAL_FAILURE = Failure(
+    UnprocessableEntityException(
+        detail="El color hexadecimal especificado es inválido."
+    )
+)
+
+MECSA_COLOR_INVALID_ALIAS_FAILURE = Failure(
+    UnprocessableEntityException(detail="El alias especificado es inválido.")
+)

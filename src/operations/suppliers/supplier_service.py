@@ -3,13 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.exceptions import CustomException
 from src.core.repository import BaseRepository
 from src.core.result import Result, Success
+from src.core.utils import map_active_status
 from src.operations.models import Supplier, SupplierColor
 from src.operations.models import SupplierService as SupplierServiceModel
+from src.operations.schemas import MecsaColorSchema
+from src.operations.services.mecsa_color_service import MecsaColorService
 
 from .supplier_failure import SupplierFailures
 from .supplier_repository import SupplierRepository
-
-# from .suppliers_colors.supplier_color_repository import SupplierColorRepository
 from .supplier_schema import (
     SupplierCreateSupplierColorSchema,
     SupplierFilterParams,
@@ -33,6 +34,7 @@ class SupplierService:
         )
         # self.supplier_color_repository = SupplierColorRepository(promec_db)
         self.supplier_color_service = SupplierColorService(promec_db=promec_db)
+        self.mecsa_color_service = MecsaColorService(promec_db=promec_db)
 
     async def _read_supplier(
         self,
@@ -120,24 +122,30 @@ class SupplierService:
         return Success(ids)
 
     async def _validate_supplier_color_data(
-        self, data: SupplierCreateSupplierColorSchema
+        self,
+        data: SupplierCreateSupplierColorSchema,
     ) -> Result[None, CustomException]:
-        # validar que existe supplier
         validation_result = await self._read_supplier(
             supplier_code=data.supplier_id,
         )
         if validation_result.is_failure:
             return validation_result
 
-        # validar si ya existe el color del proveedor
         validation_result = await self.supplier_color_service.read_supplier_color(
             id=data.id,
         )
-        if validation_result is not None:
+        if validation_result.is_success:
             return SupplierColorFailures.SUPPLIER_COLOR_ALREADY_EXISTS_FAILURE
 
-        # activo
-        # validation_result = await
+        validation_result = await self.mecsa_color_service.read_mecsa_color(
+            color_id=data.id
+        )
+        if validation_result.is_failure:
+            return validation_result
+
+        color = validation_result.value
+        if not color.is_active:
+            return SupplierColorFailures.SUPPLIER_COLOR_NOT_ACTIVE_FAILURE
 
         return Success(None)
 

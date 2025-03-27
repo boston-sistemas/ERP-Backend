@@ -8,6 +8,12 @@ from src.core.constants import ACTIVE_STATUS_PROMEC, INACTIVE_STATUS_PROMEC
 
 PERU_TIMEZONE = pytz.timezone("America/Lima")
 
+import re
+
+import unidecode
+import webcolors
+from deep_translator import GoogleTranslator
+
 
 def calculate_time(
     minutes: float = 0, hours: float = 0, days: float = 0, tz=UTC
@@ -95,3 +101,54 @@ def generate_response_content(type: str = "application/json", examples: dict = {
     n = len(examples)
     field = "examples" if n > 1 else "example"
     return {type: {field: examples}}
+
+
+HEX_COLOR_REGEX = re.compile(r"^#(?:[0-9a-fA-F]{3}){1,2}$")
+
+
+def is_valid_hexadecimal(hexadecimal: str) -> bool:
+    """
+    Checks if the hexadecimal color is valid.
+
+    Args:
+        hexadecimal (str): The hexadecimal color code.
+
+    Returns:
+        bool: True if the hexadecimal color is valid, False otherwise.
+    """
+    return bool(HEX_COLOR_REGEX.fullmatch(hexadecimal))
+
+
+def generate_color_name(hex_color: str) -> str:
+    """
+    Generates a color name from the hexadecimal color code.
+
+    Args:
+        hex_color (str): The hexadecimal color code.
+
+    Returns:
+        str: The name of the color.
+    """
+    color_name = webcolors.hex_to_name(hex_color)
+
+    color_name = GoogleTranslator(source="en", target="es").translate(color_name)
+    return color_name
+
+
+def generate_sku(color_name: str) -> str:
+    """
+    Generates a SKU from the color name.
+
+    Args:
+        color_name (str): The name of the color.
+
+    Returns:
+        str: The SKU.
+    """
+    name = unidecode.unidecode(color_name.strip().upper())
+    words = name.split()
+
+    if len(words) == 1:
+        return words[0][:4]
+
+    return "".join(word[0] for word in words)[:4]
