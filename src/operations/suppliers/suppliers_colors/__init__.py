@@ -8,5 +8,6 @@ __all__ = [
     "SupplierColorService",
     "SupplierColorSchema",
     "SupplierColorListSchema",
+    "SupplierColorUpdateSchema",
     "SupplierColorFailures",
 ]

@@ -18,3 +18,9 @@ class SupplierColorSchema(SupplierColorBase):
 
 class SupplierColorListSchema(CustomBaseModel):
     supplier_colors: list[SupplierColorSchema]
+
+
+class SupplierColorUpdateSchema(CustomBaseModel):
+    mecsa_color_id: str | None = None
+    description: str | None = None
+    is_active: bool | None = None

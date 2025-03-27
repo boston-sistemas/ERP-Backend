@@ -21,6 +21,7 @@ from .supplier_schema import (
 from .suppliers_colors.supplier_color_failures import SupplierColorFailures
 from .suppliers_colors.supplier_color_schema import (
     SupplierColorSchema,
+    SupplierColorUpdateSchema,
 )
 from .suppliers_colors.supplier_color_service import SupplierColorService
 
@@ -168,3 +169,15 @@ class SupplierService:
         await self.repository.save(supplier_color)
 
         return Success(SupplierColorSchema.model_validate(supplier_color))
+
+    async def update_supplier_color(
+        self,
+        mecsa_color_id: str,
+        form: SupplierColorUpdateSchema,
+    ) -> Result[SupplierColor, CustomException]:
+        supplier_color_result = await self.supplier_color_service.read_supplier_color(
+            id=mecsa_color_id,
+        )
+        if supplier_color_result.is_failure:
+            return supplier_color_result
+        supplier_color: SupplierColor = supplier_color_result.value
