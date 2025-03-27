@@ -1,3 +1,4 @@
+import math
 from datetime import date
 
 from pydantic import Field, computed_field, field_serializer, model_validator
@@ -75,6 +76,12 @@ class WeavingServiceEntrySchema(WeavingServiceEntrySimpleSchema):
 class WeavingServiceEntriesListSchema(CustomBaseModel):
     weaving_service_entries: list[WeavingServiceEntrySchema] = []
 
+    amount: int = Field(default=0, exclude=True)
+
+    @computed_field
+    def total_pages(self) -> int:
+        return math.ceil(self.amount / PAGE_SIZE)
+
 
 class WeavingServiceEntryFilterParams(CustomBaseModel):
     period: int | None = Field(
@@ -98,8 +105,14 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
         return (self.page - 1) * PAGE_SIZE
 
 
+class WeavingServiceEntryOptionsParams(CustomBaseModel):
+    period: int | None = Field(
+        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    )
+    include_fabric_description: bool | None = Field(default=False)
+
+
 class WeavingServiceEntryCreateSchema(CustomBaseModel):
-    period: int
     supplier_po_correlative: str = Field(max_length=NROGF_MAX_LENGTH)
     supplier_po_series: str = Field(max_length=SERGF_MAX_LENGTH)
     document_note: str | None = Field(None, max_length=DOCUMENT_NOTE_MAX_LENGTH)

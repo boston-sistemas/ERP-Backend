@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
@@ -19,6 +19,7 @@ router = APIRouter()
 )
 @AuditService.audit_action_log()
 async def get_audit_action_logs(
+    request: Request,
     filter_params: AuditActionLogFilterParams = Query(AuditActionLogFilterParams()),
     db: AsyncSession = Depends(get_db),
 ):
@@ -37,6 +38,7 @@ async def get_audit_action_logs(
 )
 @AuditService.audit_action_log()
 async def get_audit_action_log(
+    request: Request,
     audit_action_log_id: str,
     db: AsyncSession = Depends(get_db),
 ):

@@ -134,6 +134,61 @@ class YarnPurchaseEntryRepository(MovementRepository):
 
         return yarn_purchase_entry if yarn_purchase_entry is not None else None
 
+    async def count_yarn_purchase_entries(
+        self,
+        period: int,
+        entry_number: str = None,
+        apply_unique: bool = False,
+        include_annulled: bool = False,
+        supplier_ids: list[str] = None,
+        purchase_order_number: str = None,
+        supplier_batch: str = None,
+        mecsa_batch: str = None,
+        start_date: date = None,
+        end_date: date = None,
+        filter: BinaryExpression = None,
+    ) -> int:
+        base_filter = (
+            (Movement.storage_code == YARN_PURCHASE_ENTRY_STORAGE_CODE)
+            & (Movement.movement_type == YARN_PURCHASE_ENTRY_MOVEMENT_TYPE)
+            & (Movement.movement_code == YARN_PURCHASE_ENTRY_MOVEMENT_CODE)
+            & (Movement.document_code == YARN_PURCHASE_ENTRY_DOCUMENT_CODE)
+            & (Movement.period == period)
+        )
+        if not include_annulled:
+            base_filter = base_filter & (Movement.status_flag != "A")
+
+        if entry_number:
+            base_filter = base_filter & (
+                Movement.document_number.like(f"%{entry_number}%")
+            )
+
+        if supplier_ids:
+            base_filter = base_filter & Movement.auxiliary_code.in_(supplier_ids)
+
+        if purchase_order_number:
+            base_filter = base_filter & (
+                Movement.reference_number2.like(f"%{purchase_order_number}%")
+            )
+
+        if supplier_batch:
+            base_filter = base_filter & (
+                Movement.supplier_batch.like(f"%{supplier_batch}%")
+            )
+
+        if mecsa_batch:
+            base_filter = base_filter & (Movement.mecsa_batch.like(f"%{mecsa_batch}%"))
+
+        if start_date:
+            base_filter = base_filter & (Movement.creation_date >= start_date)
+
+        if end_date:
+            base_filter = base_filter & (Movement.creation_date <= end_date)
+
+        filter = base_filter & filter if filter is not None else base_filter
+
+        return await self.count_movements(filter=filter)
+
     async def find_yarn_purchase_entries(
         self,
         period: int,

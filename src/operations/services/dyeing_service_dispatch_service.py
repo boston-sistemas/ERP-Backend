@@ -93,9 +93,14 @@ class DyeingServiceDispatchService(MovementService):
             )
         )
 
+        amount = await self.repository.count_dyeing_service_dispatches(
+            **filter_params.model_dump(exclude={"page", "limit", "offset"})
+        )
+
         return Success(
             DyeingServiceDispatchesListSchema(
-                dyeing_service_dispatches=dyeing_service_dispatches
+                dyeing_service_dispatches=dyeing_service_dispatches,
+                amount=amount,
             )
         )
 

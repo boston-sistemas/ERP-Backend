@@ -1,3 +1,4 @@
+import math
 from datetime import date, datetime
 
 from pydantic import (
@@ -103,6 +104,11 @@ class YarnPurchaseEntryFilterParams(CustomBaseModel):
 
 class YarnPurchaseEntriesSimpleListSchema(CustomBaseModel):
     yarn_purchase_entries: list[YarnPurchaseEntrySimpleSchema] = []
+    amount: int = Field(default=0, exclude=True)
+
+    @computed_field
+    def total_pages(self) -> int:
+        return math.ceil(self.amount / PAGE_SIZE)
 
 
 class YarnPurchaseEntrySearchSchema(CustomBaseModel):

@@ -49,6 +49,10 @@ class ServiceOrderListSchema(CustomBaseModel):
     service_orders: list[ServiceOrderSchema] | None = []
 
 
+class ServiceOrderOptionsParams(CustomBaseModel):
+    include_fabric_description: bool | None = Field(default=False)
+
+
 class ServiceOrderFilterParams(CustomBaseModel):
     supplier_ids: list[str] | None = Field(default=None)
     period: int | None = Field(

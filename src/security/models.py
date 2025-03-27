@@ -38,6 +38,7 @@ from src.security.constants import (
     PARAMETER_DATATYPE_MAX_LENGTH,
     PARAMETER_DESCRIPTION_MAX_LENGTH,
     PARAMETER_VALUE_MAX_LENGTH,
+    USER_AGENT_MAX_LENGTH,
 )
 
 
@@ -326,6 +327,7 @@ class AuditActionLog(Base):
     user_id: Mapped[int] = mapped_column(nullable=True)
     endpoint_name: Mapped[str] = mapped_column(String(ENDPOINT_NAME_MAX_LENGTH))
     action: Mapped[str] = mapped_column(String(ACTION_MAX_LENGTH))
+    user_agent: Mapped[str] = mapped_column(String(USER_AGENT_MAX_LENGTH))
     path_params: Mapped[str] = mapped_column(CLOB, nullable=True)
     query_params: Mapped[str] = mapped_column(CLOB, nullable=True)
     request_data: Mapped[str] = mapped_column(CLOB, nullable=True)

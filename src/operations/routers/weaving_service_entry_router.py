@@ -9,6 +9,7 @@ from src.operations.schemas import (
     WeavingServiceEntriesListSchema,
     WeavingServiceEntryCreateSchema,
     WeavingServiceEntryFilterParams,
+    WeavingServiceEntryOptionsParams,
     WeavingServiceEntryPrintListSchema,
     WeavingServiceEntrySchema,
     WeavingServiceEntryUpdateSchema,
@@ -52,15 +53,15 @@ async def read_weaving_service_entries(
 async def read_weaving_service_entry(
     request: Request,
     weaving_service_entry_number: str,
-    period: int | None = Query(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
+    options_params: WeavingServiceEntryOptionsParams = Query(
+        WeavingServiceEntryOptionsParams()
     ),
     promec_db: AsyncSession = Depends(get_promec_db),
 ):
     service = WeavingServiceEntryService(promec_db=promec_db)
     result = await service.read_weaving_service_entry(
         weaving_service_entry_number=weaving_service_entry_number,
-        period=period,
+        options_params=options_params,
         include_detail=True,
         include_detail_card=True,
     )

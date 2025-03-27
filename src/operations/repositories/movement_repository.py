@@ -75,6 +75,15 @@ class MovementRepository(BaseRepository[Movement]):
             order_by=order_by,
         )
 
+    async def count_movements(
+        self,
+        filter: BinaryExpression = None,
+    ) -> int:
+        base_filter = Movement.company_code == MECSA_COMPANY_CODE
+        filter = base_filter & filter if filter is not None else base_filter
+
+        return await self.count(filter=filter)
+
     async def find_movements_detail(
         self,
         filter: BinaryExpression = None,

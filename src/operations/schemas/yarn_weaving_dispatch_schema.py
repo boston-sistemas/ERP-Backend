@@ -1,3 +1,4 @@
+import math
 from datetime import date
 
 from pydantic import (
@@ -101,6 +102,12 @@ class YarnWeavingDispatchSchema(YarnWeavingDispatchSimpleSchema):
 
 class YarnWeavingDispatchListSchema(CustomBaseModel):
     yarn_weaving_dispatches: list[YarnWeavingDispatchSchema] | None = []
+
+    amount: int = Field(default=0, exclude=True)
+
+    @computed_field
+    def total_pages(self) -> int:
+        return math.ceil(self.amount / PAGE_SIZE)
 
 
 class YarnWeavingDispatchPrintSchema(CustomBaseModel):
