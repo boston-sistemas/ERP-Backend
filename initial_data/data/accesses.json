@@ -1,29 +1,155 @@
 [
   {
     "acceso_id": 101,
-    "nombre": "Auditoria"
+    "nombre": "Auditoria",
     "modulo_id": 101,
-    "view_path": "",
+    "view_path": "seguridad/auditoria",
     "image_path": "",
-    "description": "Acceso a la auditoria del sistema"
+    "description": "Acceso a la auditoria del sistema",
     "is_active": true
   },
   {
     "acceso_id": 102,
-    "nombre": "Usuarios"
+    "nombre": "Usuarios",
     "modulo_id": 101,
-    "view_path": "",
+    "view_path": "seguridad/usuarios",
     "image_path": "",
-    "description": "Acceso a la administración de usuarios"
+    "description": "Acceso a la vista de usuarios",
     "is_active": true
   },
   {
     "acceso_id": 103,
-    "nombre": "Roles"
+    "nombre": "Roles",
+    "modulo_id": 101,
+    "view_path": "seguridad/roles",
+    "image_path": "",
+    "description": "Acceso a la vista de roles",
+    "is_active": true
+  },
+  {
+    "acceso_id": 104,
+    "nombre": "Fibras",
+    "modulo_id": 102,
+    "view_path": "operaciones/fibras",
+    "image_path": "",
+    "description": "Acceso a la vista de fibras",
+    "is_active": true
+  },
+  {
+    "acceso_id": 105,
+    "nombre": "Hilados",
+    "modulo_id": 102,
+    "view_path": "operaciones/hilados",
+    "image_path": "",
+    "description": "Acceso a la vista de hilados",
+    "is_active": true
+  },
+  {
+    "acceso_id": 106,
+    "nombre": "Tejidos",
+    "modulo_id": 102,
+    "view_path": "operaciones/tejidos",
+    "image_path": "",
+    "description": "Acceso a la vista de tejidos",
+    "is_active": true
+  },
+  {
+    "acceso_id": 107,
+    "nombre": "Movimiento Ingreso Tejido",
+    "modulo_id": 102,
+    "view_path": "operaciones/movimiento-ingreso-tejido",
+    "image_path": "",
+    "description": "Acceso a la vista de movimiento de ingreso de tejido",
+    "is_active": true
+  },
+  {
+    "acceso_id": 108,
+    "nombre": "Movimiento Salida Tejido",
+    "modulo_id": 102,
+    "view_path": "operaciones/movimiento-salida-tejido",
+    "image_path": "",
+    "description": "Acceso a la vista de movimiento de salida de tejido",
+    "is_active": true
+  },
+  {
+    "acceso_id": 109,
+    "nombre": "Liquidación",
+    "modulo_id": 102,
+    "view_path": "operaciones/liquidación",
+    "image_path": "",
+    "description": "Acceso a la vista de liquidación",
+    "is_active": true
+  },
+  {
+    "acceso_id": 110,
+    "nombre": "Movimiento Ingreso Hilado",
+    "modulo_id": 102,
+    "view_path": "operaciones/movimiento-ingreso-hilado",
+    "image_path": "",
+    "description": "Acceso a la vista de movimiento de ingreso de hilado",
+    "is_active": true
+  },
+  {
+    "acceso_id": 111,
+    "nombre": "Movimiento Salida Hilado",
+    "modulo_id": 102,
+    "view_path": "operaciones/movimiento-salida-hilado",
+    "image_path": "",
+    "description": "Acceso a la vista de movimiento de salida de hilado",
+    "is_active": true
+  },
+  {
+    "acceso_id": 112,
+    "nombre": "Ordenes de Servicio",
+    "modulo_id": 102,
+    "view_path": "operaciones/ordenes-servicio",
+    "image_path": "",
+    "description": "Acceso a la vista de ordenes de servicio",
+    "is_active": true
+  },
+  {
+    "acceso_id": 113,
+    "nombre": "Ordenes de Compra",
+    "modulo_id": 102,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la vista de ordenes de compra",
+    "is_active": true
+  },
+  {
+    "acceso_id": 114,
+    "nombre": "Proveedores",
+    "modulo_id": 102,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la vista de proveedores",
+    "is_active": true
+  },
+  {
+    "acceso_id": 115,
+    "nombre": "Accesos",
     "modulo_id": 101,
     "view_path": "",
     "image_path": "",
-    "description": "Acceso a la administración de roles"
+    "description": "Acceso a la vista de accesos",
+    "is_active": true
+  },
+  {
+    "acceso_id": 116,
+    "nombre": "Modulos",
+    "modulo_id": 101,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la vista de modulos",
+    "is_active": true
+  },
+  {
+    "acceso_id": 117,
+    "nombre": "Operaciones",
+    "modulo_id": 101,
+    "view_path": "",
+    "image_path": "",
+    "description": "Acceso a la vista de operaciones",
     "is_active": true
   }
 ]

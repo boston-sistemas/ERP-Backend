@@ -196,7 +196,7 @@ class AccesoBase(BaseModel):
     nombre: str
     is_active: bool | None = None
     system_module_id: int = Field(validation_alias="modulo_id")
-    view_path: str
+    view_path: str | None = ""
 
     class Config:
         from_attributes = True

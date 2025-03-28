@@ -13,10 +13,30 @@
   },
   {
     "id": 104,
-    "name": "anular"
+    "name": "cambiar estado"
   },
   {
     "id": 105,
-    "name": "desactivar"
+    "name": "anular"
+  },
+  {
+    "id": 106,
+    "name": "imprimir"
+  },
+  {
+    "id": 107,
+    "name": "actualizar estado"
+  },
+  {
+    "id": 108,
+    "name": "actualizar roles"
+  },
+  {
+    "id": 109,
+    "name": "restablecer contraseña"
+  },
+  {
+    "id": 110,
+    "name": "actualizar accesos y operaciones"
   }
 ]

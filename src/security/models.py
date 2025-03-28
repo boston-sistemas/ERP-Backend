@@ -213,7 +213,9 @@ class Acceso(Base):
         String(length=MAX_LENGTH_ACCESO_NOMBRE), unique=True
     )
     modulo_id: Mapped[int] = mapped_column()
-    view_path: Mapped[str] = mapped_column(String(length=MAX_LENGTH_ACCESO_VIEW_PATH))
+    view_path: Mapped[str] = mapped_column(
+        String(length=MAX_LENGTH_ACCESO_VIEW_PATH), nullable=True
+    )
     image_path: Mapped[str | None] = mapped_column(
         String(length=MAX_LENGTH_ACCESO_IMAGE_PATH)
     )

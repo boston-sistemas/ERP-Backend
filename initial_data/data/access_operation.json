@@ -1,0 +1,226 @@
+[
+  {
+    "acceso_id": 113,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 114,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 104,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 104,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 104,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 104,
+    "operation_id": 104
+  },
+  {
+    "acceso_id": 105,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 105,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 105,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 105,
+    "operation_id": 104
+  },
+  {
+    "acceso_id": 106,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 106,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 106,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 106,
+    "operation_id": 104
+  },
+  {
+    "acceso_id": 110,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 110,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 110,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 110,
+    "operation_id": 105
+  },
+  {
+    "acceso_id": 110,
+    "operation_id": 106
+  },
+  {
+    "acceso_id": 111,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 111,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 111,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 111,
+    "operation_id": 105
+  },
+  {
+    "acceso_id": 111,
+    "operation_id": 106
+  },
+  {
+    "acceso_id": 107,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 107,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 107,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 107,
+    "operation_id": 105
+  },
+  {
+    "acceso_id": 107,
+    "operation_id": 106
+  },
+  {
+    "acceso_id": 108,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 108,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 108,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 108,
+    "operation_id": 105
+  },
+  {
+    "acceso_id": 108,
+    "operation_id": 106
+  },
+  {
+    "acceso_id": 112,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 112,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 112,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 112,
+    "operation_id": 107
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 104
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 108
+  },
+  {
+    "acceso_id": 102,
+    "operation_id": 109
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 104
+  },
+  {
+    "acceso_id": 103,
+    "operation_id": 110
+  },
+  {
+    "acceso_id": 115,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 115,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 115,
+    "operation_id": 103
+  },
+  {
+    "acceso_id": 116,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 116,
+    "operation_id": 102
+  },
+  {
+    "acceso_id": 117,
+    "operation_id": 101
+  },
+  {
+    "acceso_id": 101,
+    "operation_id": 101
+  }
+]
