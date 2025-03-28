@@ -21,16 +21,16 @@ class SupplierColorRepository(BaseRepository[SupplierColor]):
 
         return options
 
-    async def find_supplier_colors_by_suppliers(
+    async def find_supplier_colors(
         self,
-        supplier_id: str,
+        supplier_ids: list[str] = None,
         include_color: bool = False,
         filter: BinaryExpression = None,
         limit: int = None,
         offset: int = None,
     ) -> list[SupplierColor]:
         base_filter: list[BinaryExpression] = []
-        base_filter.append(SupplierColor.supplier_id == supplier_id)
+        base_filter.append(SupplierColor.supplier_id.in_(supplier_ids))
 
         filter = (
             and_(*base_filter, filter) if filter is not None else and_(*base_filter)

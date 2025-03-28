@@ -20,6 +20,7 @@ from .supplier_schema import (
 )
 from .suppliers_colors.supplier_color_failures import SupplierColorFailures
 from .suppliers_colors.supplier_color_schema import (
+    SupplierColorFilterParams,
     SupplierColorSchema,
     SupplierColorUpdateSchema,
 )
@@ -138,8 +139,17 @@ class SupplierService:
         if validation_result.is_success:
             return SupplierColorFailures.SUPPLIER_COLOR_ALREADY_EXISTS_FAILURE
 
+        validation_result = await self.supplier_color_service.read_supplier_colors(
+            filter_params=SupplierColorFilterParams(
+                supplier_ids=[data.supplier_id],
+                mecsa_color_id=data.mecsa_color_id,
+            )
+        )
+        if validation_result.is_success:
+            return SupplierFailures.SUPPLIER_WITH_MECSA_COLOR_ALREADY_EXISTS_FAILURE
+
         validation_result = await self.mecsa_color_service.read_mecsa_color(
-            color_id=data.id
+            color_id=data.mecsa_color_id,
         )
         if validation_result.is_failure:
             return validation_result
@@ -163,21 +173,51 @@ class SupplierService:
             id=form.id,
             supplier_id=form.supplier_id,
             description=form.description,
-            mecsa_color_id=form.id,
+            mecsa_color_id=form.mecsa_color_id,
             is_active=True,
         )
         await self.repository.save(supplier_color)
 
         return Success(SupplierColorSchema.model_validate(supplier_color))
 
+    async def _validate_supplier_color_data_update(
+        self,
+        data: SupplierColorUpdateSchema,
+    ) -> Result[None, CustomException]:
+        return Success(None)
+
+    async def _validate_update_supplier_color(
+        self,
+        supplier_color_service: SupplierColor,
+    ) -> Result[None, CustomException]:
+        return Success(None)
+
     async def update_supplier_color(
         self,
-        mecsa_color_id: str,
+        id: str,
         form: SupplierColorUpdateSchema,
     ) -> Result[SupplierColor, CustomException]:
-        supplier_color_result = await self.supplier_color_service.read_supplier_color(
-            id=mecsa_color_id,
+        supplier_color_result: Success = (
+            await self.supplier_color_service.read_supplier_color(
+                id=id,
+            )
         )
         if supplier_color_result.is_failure:
             return supplier_color_result
         supplier_color: SupplierColor = supplier_color_result.value
+
+        validation_result = await self._validate_update_supplier_color(
+            supplier_color_service=supplier_color,
+        )
+        if validation_result.is_failure:
+            return validation_result
+
+        validation_result = await self._validate_supplier_color_data_update(data=form)
+        if validation_result.is_failure:
+            return validation_result
+
+        supplier_color.description = form.description
+
+        await self.repository.save(supplier_color)
+
+        return Success(SupplierColorSchema.model_validate(supplier_color))

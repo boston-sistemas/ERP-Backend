@@ -47,7 +47,7 @@ async def read_suppliers_by_service(
 
 @AuditService.audit_action_log()
 @router.get("/colors/{supplier_id}", response_model=SupplierColorListSchema)
-async def read_supplier_colors_by_suppliers(
+async def read_supplier_colors(
     request: Request,
     supplier_id: str,
     promec_db: AsyncSession = Depends(get_promec_db),
@@ -80,7 +80,7 @@ async def read_supplier_color(
 
 
 @AuditService.audit_action_log()
-@router.post("/colors/", response_model=SupplierColorSchema)
+@router.post("/colors-id/", response_model=SupplierColorSchema)
 async def create_supplier_color(
     request: Request,
     form: SupplierCreateSupplierColorSchema,
@@ -88,6 +88,23 @@ async def create_supplier_color(
 ):
     service = SupplierService(promec_db=promec_db)
     result = await service.create_supplier_color(form=form)
+
+    if result.is_success:
+        return result.value
+
+    raise result.error
+
+
+@AuditService.audit_action_log()
+@router.patch("/colors-id/{id}", response_model=SupplierColorSchema)
+async def update_supplier_color(
+    request: Request,
+    id: str,
+    form: SupplierCreateSupplierColorSchema,
+    promec_db: AsyncSession = Depends(get_promec_db),
+):
+    service = SupplierService(promec_db=promec_db)
+    result = await service.update_supplier_color(id=id, form=form)
 
     if result.is_success:
         return result.value

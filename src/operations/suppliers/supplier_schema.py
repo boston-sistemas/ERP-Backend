@@ -88,3 +88,4 @@ class SupplierCreateSupplierColorSchema(CustomBaseModel):
     id: str = Field(min_length=1, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH)
     supplier_id: str = Field(min_length=1, max_length=SUPPLIER_CODE_MAX_LENGTH)
     description: str = Field(min_length=1, max_length=MAX_LENGTH_COLOR_DESCRIPCION)
+    mecsa_color_id: str = Field(min_length=1, max_length=SUPPLIER_COLOR_ID_MAX_LENGTH)

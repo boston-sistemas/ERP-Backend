@@ -6,7 +6,11 @@ from src.operations.models import SupplierColor
 
 from .supplier_color_failures import SupplierColorFailures
 from .supplier_color_repository import SupplierColorRepository
-from .supplier_color_schema import SupplierColorListSchema, SupplierColorSchema
+from .supplier_color_schema import (
+    SupplierColorFilterParams,
+    SupplierColorListSchema,
+    SupplierColorSchema,
+)
 
 
 class SupplierColorService:
@@ -14,12 +18,21 @@ class SupplierColorService:
         self.promec_db = promec_db
         self.repository = SupplierColorRepository(promec_db=promec_db)
 
-    async def read_supplier_colors_by_suppliers(
+    # async def read_supplier_colors(
+    #     self,
+    #     supplier_id: str,
+    # ) -> Result[SupplierColorListSchema, CustomException]:
+    #     supplier_colors = await self.repository.find_supplier_colors(
+    #         supplier_id=supplier_id
+    #     )
+    #     return Success(SupplierColorListSchema(supplier_colors=supplier_colors))
+
+    async def read_supplier_colors(
         self,
-        supplier_id: str,
+        filter_params: SupplierColorFilterParams,
     ) -> Result[SupplierColorListSchema, CustomException]:
-        supplier_colors = await self.repository.find_supplier_colors_by_suppliers(
-            supplier_id=supplier_id
+        supplier_colors = await self.repository.find_supplier_colors(
+            **filter_params.model_dump(exclude={"page"}),
         )
         return Success(SupplierColorListSchema(supplier_colors=supplier_colors))
 

@@ -1,3 +1,5 @@
+from pydantic import Field
+
 from src.core.schemas import CustomBaseModel
 
 
@@ -5,7 +7,7 @@ class SupplierColorBase(CustomBaseModel):
     id: str | None = None
     supplier_id: str | None = None
     description: str | None = None
-    mecsa_color_id: str | None
+    mecsa_color_id: str | None = None
     is_active: bool | None
 
     class Config:
@@ -21,6 +23,9 @@ class SupplierColorListSchema(CustomBaseModel):
 
 
 class SupplierColorUpdateSchema(CustomBaseModel):
-    mecsa_color_id: str | None = None
     description: str | None = None
-    is_active: bool | None = None
+
+
+class SupplierColorFilterParams(CustomBaseModel):
+    supplier_ids: list[str] | None = Field(default=None)
+    mecsa_color_id: str | None = None
