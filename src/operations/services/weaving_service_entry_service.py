@@ -142,13 +142,15 @@ class WeavingServiceEntryService(MovementService):
     async def _read_weaving_service_entry(
         self,
         weaving_service_entry_number: str,
-        options_params: WeavingServiceEntryOptionsParams,
+        period: int,
+        options_params: WeavingServiceEntryOptionsParams = WeavingServiceEntryOptionsParams(),
         include_detail: bool = False,
         include_detail_card: bool = False,
     ) -> Result[Movement, CustomException]:
         weaving_service_entry = (
             await self.repository.find_weaving_service_entry_by_entry_number(
                 **options_params.model_dump(),
+                period=period,
                 entry_number=weaving_service_entry_number,
                 include_detail=include_detail,
                 include_detail_card=include_detail_card,
@@ -163,12 +165,14 @@ class WeavingServiceEntryService(MovementService):
     async def read_weaving_service_entry(
         self,
         weaving_service_entry_number: str,
+        period: int,
         options_params: WeavingServiceEntryOptionsParams,
         include_detail: bool = False,
         include_detail_card: bool = False,
     ) -> Result[WeavingServiceEntrySchema, CustomException]:
         weaving_service_entry_result = await self._read_weaving_service_entry(
             weaving_service_entry_number=weaving_service_entry_number,
+            period=period,
             options_params=options_params,
             include_detail=include_detail,
             include_detail_card=include_detail_card,
