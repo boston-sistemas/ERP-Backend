@@ -106,10 +106,7 @@ class WeavingServiceEntryFilterParams(CustomBaseModel):
 
 
 class WeavingServiceEntryOptionsParams(CustomBaseModel):
-    period: int | None = Field(
-        default=calculate_time(tz=PERU_TIMEZONE).date().year, ge=2000
-    )
-    include_fabric_description: bool | None = Field(default=False)
+    include_fabric_description: bool = Field(default=False)
 
 
 class WeavingServiceEntryCreateSchema(CustomBaseModel):
